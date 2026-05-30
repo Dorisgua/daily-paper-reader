@@ -1,0 +1,924 @@
+Title: CogAdapt: Transferring Clinical ECG Foundation Models to Wearable Cognitive Load Assessment via Lead Adaptation
+
+URL Source: https://arxiv.org/pdf/2605.22774v2
+
+Published Time: Wed, 27 May 2026 00:10:26 GMT
+
+Number of Pages: 21
+
+Markdown Content:
+# CogAdapt: Transferring Clinical ECG Foundation Models to Wearable Cognitive Load Assessment via Lead Adaptation 
+
+## Amir Mousavi 1 , Erfan Nourbakhsh 1 , Mohammad Sadegh Sirjani 1 , Mimi Xie 1 and Rocky Slavin 1 , Leslie Neely 3 , John Davis 2 , John Quarles 11Department of Computer Science, College of AI, Cyber and Computing, The University of Texas at San Antonio 
+
+> 2
+
+## Department of Educational Psychology, College of Education and Human Development, The University of Texas at San Antonio 
+
+> 3
+
+## Department of Neuroscience, Developmental and Regenerative Biology, College of Sciences, The University of Texas at San Antonio 
+
+## {seyedamir.mousavi, erfan.nourbakhsh, mohammadsadegh.sirjani, mimi.xie, rocky.slavin, john.quarles }@utsa.edu, {leslie.neely, john.davis2 }@utsa.edu 
+
+## Abstract 
+
+Real-time cognitive load assessment is essential for adaptive human-computer interaction but remains challenging due to limited labeled data and poor cross-subject generalization. Recent ECG foun-dation models pre-trained on millions of clinical recordings offer rich representations, but cannot be directly applied to wearable devices due to sensor configuration mismatch and task differences. In this paper, we propose CogAdapt, a framework that adapts clinical ECG foundation models to wearable cognitive load assessment. CogAdapt introduces LeadBridge, a learnable adapter that transforms 3-lead wearable signals into anatomically-consistent 12-lead representations, and ProFine, a progressive fine-tuning strategy that gradually unfreezes en-coder layers while preventing catastrophic forget-ting. Evaluations on two public datasets (CLARE and CL-Drive) under leave-one-subject-out cross-validation show that CogAdapt substantially out-performs baselines trained from scratch, achieving macro-F1 scores of 0.626 and 0.768. These re-sults demonstrate the promise of foundation model adaptation for subject-independent cognitive load assessment from wearable sensors. 
+
+## 1 Introduction 
+
+Real-time cognitive load assessment enables adaptive human-computer interaction systems in education, training, and driv-ing contexts [Kundu, 2022; Kosch et al. , 2023]. However, three fundamental challenges hinder adoption [Gkintoni et al. , 2025; Suryani et al. , 2024]. First, retrospective labeling introduces memory biases, as traditional approaches collect subjective ratings only after task completion [Naismith and Cavalcanti, 2015], producing labels reflecting aggregate im-pressions rather than momentary cognitive states. Second, sparse temporal annotations limit real-time model develop-
+
+> Figure 1: The core challenge: Pre-trained foundation models expect rich, clinical 12-lead data, but practical applications rely on sparse, noisy signals from wearable 3-lead devices
+
+ment, with most datasets providing only one label per multi-minute trial. Third, limited training data constrains general-ization, as datasets typically contain fewer than 25 partici-pants with only a few hours of data each. Recent datasets have begun addressing these limitations. CLARE [Bhatti et al. , 2024] captures multi-modal physiolog-ical signals from 24 participants with self-reported load lev-els every 10 seconds, while CL-Drive [Angkan et al. , 2024] records ECG and other sensors from 21 drivers in a simulator. Despite providing fine-grained labeling, the limited partici-pant counts and recording hours present challenges for train-ing deep neural networks without overfitting. Domain shift between controlled studies and real-world settings further ne-cessitates subject-independent modeling. We therefore focus on leave-one-subject-out cross-validation, which reveals sub-stantial performance degradation compared to within-subject testing—for instance, a CNN on CLARE achieves 78.4% accuracy under k-fold validation but drops to 63.3% under leave-one-subject-out evaluation [Bhatti et al. , 2024]. 
+
+> arXiv:2605.22774v2 [cs.LG] 25 May 2026
+
+Electrocardiography (ECG) provides a suitable biosignal for cognitive load assessment due to its non-invasive nature and sensitivity to autonomic nervous system changes during mental effort. Clinical ECG systems use 12 leads to cap-ture comprehensive cardiac activity, while wearable devices employ simplified 3-lead configurations, creating a gap when leveraging clinical ECG models for real-world applications. We address these challenges by adapting a pre-trained ECG foundation model to cognitive load classification. Foundation models trained via self-supervised learning on large datasets have transformed natural language processing, computer vi-sion, and biosignal analysis [Gu et al. , 2025; Han et al. ,2024]. ECG-FM is a transformer-based foundation model trained on clinical ECG recordings that achieves strong per-formance on cardiac diagnosis tasks [McKeen et al. , 2025]. We hypothesize that ECG signatures of cognitive load, such as heart rate variability changes from sympathetic nervous system activity [Bhatti et al. , 2024], can be detected more effectively by transferring knowledge from ECG-FM than by training task-specific models from scratch. This represents a non-trivial transfer: adapting models trained to detect cardiac pathologies in clinical settings to assess mental states from consumer-grade wearable sensors. Applying ECG-FM to wearable cognitive load assessment requires addressing two domain gaps (Figure 1): (i) Sensor configuration mismatch —ECG-FM expects 12-lead clinical ECGs while CLARE provides only 3-lead wearable data; and 
+
+(ii) Task mismatch —the pre-training objective of cardiac ab-normality detection differs from cognitive state estimation. Since cognitive load datasets lack 12-lead recordings for su-pervision, we leverage the PTB-XL dataset [Wagner et al. ,2020], containing 21,837 clinical 12-lead ECG recordings, to pre-train our adapter on normal sinus rhythm recordings be-fore freezing it during downstream training. We propose CogAdapt , a framework for transferring clin-ical ECG foundation models to wearable cognitive load clas-sification. Our main contributions are: • We propose LeadBridge , a lightweight learnable adapter that employs Wilson Central Terminal re-referencing to transform 3-lead wearable inputs into anatomically-consistent 12-lead representations com-patible with clinical foundation models. • We develop ProFine , a progressive fine-tuning strategy that gradually unfreezes encoder layers with tier-wise learning rate decay, balancing task adaptation against catastrophic forgetting. • Experiments on two cognitive load datasets under leave-one-subject-out evaluation demonstrate that CogAdapt outperforms baselines trained from scratch, establishing foundation model adaptation as a viable approach for wearable cognitive state assessment. 
+
+## 2 Related Work 
+
+Cognitive Load Datasets and Ground Truth Early cog-nitive load datasets [Gjoreski et al. , 2020; Markova and oth-ers, 2019] provided only retrospective NASA-TLX ratings or block-level labels, lacking the temporal granularity required for real-time monitoring. Recent datasets address these lim-itations through dense temporal supervision. CLARE cap-tures multimodal signals from 24 participants during MATB-II multitasking with in-situ ratings every 10 seconds, while CL-Drive records data from 21 drivers with 10-second work-load ratings during simulator scenarios. Despite fine-grained labeling, limited participant counts and substantial inter-subject variability degrade leave-one-subject-out (LOSO) performance. A comprehensive dataset comparison is pro-vided in Appendix B. 
+
+Self-Supervised ECG Foundation Models Self-supervised learning (SSL) enables the development of general-purpose ECG models [Gu et al. , 2025; Han et al. , 2024]. SSL approaches utilize contrastive frameworks [Chen et al. , 2020] or exploit inherent sig-nal structure through methods like CLOCS [Kiyasseh et al. , 2021] and SimPer [Yang et al. , 2022]. ECG-FM, a 91M-parameter transformer pre-trained on 1.5M clinical 12-lead ECGs, produces 768-dimensional embeddings with expert-level diagnostic accuracy. SSL-based models may transfer better to cognitive load tasks than supervised arrhythmia models, as they capture broader morphological patterns without task-specific bias [Yang et al. , 2023a; Abbaspourazad et al. , 2024], potentially preserving subtle physiological variations like sympathetic-driven heart rate variability [Solhjoo et al. , 2019]. However, adapting clinical foundation models to wearable devices requires addressing substantial domain gaps, including sensor configuration differences and signal quality variations. 
+
+Bridging Clinical and Wearable ECG Domains Clinical 12-lead systems use standardized electrode placements while wearables employ simplified 3-lead configurations with vari-able positioning across different devices. Traditional fixed transforms [Vozda and Cerny, 2015] fail with non-standard placements [Feild et al. , 2008], while learned neural map-pings outperform static approaches by adapting to placement variability [Hassannia and Sameni, 2025]. Wearable record-ings exhibit lower signal-to-noise ratios from motion arti-facts and environmental interference [Satija et al. , 2018], re-quiring noise augmentation [Rahman et al. , 2022], deep de-noising [Mvuh et al. , 2024], and domain alignment tech-niques [Shang et al. , 2021]. Window-wise normalization prevents data leakage during LOSO evaluation by comput-ing statistics independently for each segment [Yang et al. ,2023b]. CogAdapt addresses these challenges through Lead-Bridge, combining learnable lead transformation with Wilson Central Terminal re-referencing and window-wise normaliza-tion to bridge the clinical-wearable domain gap. 
+
+ECG-Based Cognitive Load Classification Cardiovascu-lar dynamics reliably indicate cognitive load through au-tonomic nervous system modulation [Hughes et al. , 2019; Ayres et al. , 2021]. Traditional approaches extract hand-crafted HRV features [Raza et al. , 2024], achieving 80% LOSO accuracy but requiring extensive feature engineering and domain expertise [Kalatzis and others, 2021]. Deep learning methods [Kim et al. , 2022] learn representations end-to-end without manual feature design, with ECG emerg-ing as the strongest single modality on CLARE and CL-Figure 2: CogAdapt architecture bridging wearable 3-lead ECG to clinical 12-lead foundation models. The framework consists of data processing (WCT re-referencing and normalization), LeadBridge adapter (learnable 3 → 12 lead transformation), pre-trained ECG-FM encoder, and classification head with focal loss for cognitive load assessment. 
+
+Drive datasets. However, limited data (fewer than 25 sub-jects) risks overfitting to dataset-specific artifacts rather than generalizable cognitive load patterns. Transfer learning ad-dresses data scarcity through pre-training on large-scale ECG datasets [Han et al. , 2025], with multitask learning demon-strating advantages over single-task training [Gjoreski et al. , 2020]. CogAdapt advances this approach by adapt-ing the ECG-FM foundation model via LeadBridge and ProFine, leveraging 1.5M pre-training samples to enable ro-bust subject-independent evaluation. 
+
+## 3 Methodology 
+
+3.1 Framework Overview 
+
+Figure 2 presents CogAdapt , a transfer learning framework that adapts a clinical ECG foundation model to wearable cog-nitive load assessment. CogAdapt addresses two key gaps between clinical and wearable settings: (i) the mismatch be-tween 3-lead wearable recordings and the 12-lead input ex-pected by clinical foundation encoders, and (ii) the task shift from cardiac diagnosis to cognitive state estimation. The framework consists of four sequential components: • Data Processing Pipeline (Section 3.3): preprocessing, Wilson Central Terminal (WCT) re-referencing, win-dowing, and normalization; • LeadBridge Adapter (Section 3.4): a learnable 3 →
+
+12 lead transformation that aligns wearable signals with clinical input format; • ProFine Fine-Tuning Strategy (Section 3.6): progres-sive adaptation via three training scenarios with different parameter-efficiency trade-offs; • Classification Head and Objective (Section 3.7): alightweight classifier trained with focal loss and auto-matic class rebalancing. Together, these modules enable CogAdapt to preserve the strengths of large-scale clinical pre-training while remaining compatible with wearable sensing constraints. 
+
+3.2 Problem Formulation 
+
+We formulate cognitive load assessment as supervised time-series classification under heterogeneous domain shift. Let 
+
+X ∈ RC×T denote an ECG segment with C channels and length T , and let Y = {0, 1} denote binary labels correspond-ing to low vs. high cognitive load. In the source domain DS , a foundation model encoder Eθ
+
+is pre-trained on clinical 12-lead ECGs ( CS = 12 ). In the 
+
+target domain DT = {(xi, y i)}Ni=1 , only wearable 3-lead ECGs are available ( CT = 3 ), i.e., xi ∈ R3×T .
+
+Transfer challenges. Direct transfer is hindered by two fundamental obstacles: 1. Architecture mismatch. The encoder expects 12 chan-nels, whereas wearable devices provide only three. Naive lead expansion (e.g., zero-padding) introduces missing-channel artifacts and fails to preserve inter-lead structure learned in clinical pre-training. 2. Representation drift. Clinical pre-training optimizes representations for pathology-related cues, while cog-nitive load manifests as subtler autonomic modulations. Effective transfer therefore requires task-aligned feature adaptation. Learning objective. Our goal is to learn a mapping Φ : 
+
+R3×T → Y with parameters Θ = {θ, ϕ, ψ }, where ϕ param-eterizes the LeadBridge adapter Aϕ and ψ parameterizes the classification head gψ . CogAdapt resolves the architecture mismatch via LeadBridge and mitigates representation drift via progressive fine-tuning (ProFine). 
+
+3.3 Wearable ECG Data Processing 
+
+As shown in the top panel of Figure 2, CogAdapt first con-verts raw wearable ECG streams into fixed-length windows suitable for downstream feature extraction. 
+
+Signal Preprocessing 
+
+We resample all raw ECG signals to a common sampling rate 
+
+fs, followed by bandpass filtering to suppress baseline wan-der and high-frequency noise. Samples missing all leads are discarded. For sporadic missing values, we apply zero-filling. If a lead becomes constant within a window (flat-line behav-ior), it is set to zero to prevent degenerate inputs. 
+
+WCT-Based Re-referencing 
+
+The wearable configuration provides Lead I ( LA −RA ), Lead II ( LL − RA ), and a chest lead V RL  
+
+> x
+
+referenced to the right leg. Following the CLARE convention [Bhatti et al. , 2024], we express the chest lead relative to Wilson’s Central Termi-nal (WCT), defined as the average of limb electrode poten-tials and assumed to remain approximately steady during the cardiac cycle [Moeinzadeh et al. , 2018]. In standard acquisition, the right leg electrode functions as a driven ground, and the cardiac component of the RL and RA potentials can be treated as approximately equivalent [Klig-field et al. , 2007]. Under RL ≈ RA , we apply WCT correc-tion and obtain the re-referenced 3-lead input: 
+
+xref = [ I, II, V WCT  
+
+> x
+
+]⊤
+
+Full derivations and the reconstruction procedure are pro-vided in Appendix C.1. 
+
+Temporal Segmentation and Label Assignment 
+
+We segment continuous recordings into fixed-length windows 
+
+xk ∈ R3×T of duration w seconds. Cognitive load labels are provided at ∆-second intervals (e.g., every 10s). For each window Wk = [ tk, t k +w), we assign the label corresponding to the interval that contains the window midpoint: 
+
+y(Wk) = yi⋆ , i⋆ =
+
+j tk + w/ 2∆
+
+k
+
+(1) This midpoint rule avoids ambiguous assignments at inter-val boundaries [Lawhern et al. , 2013; Potharaju et al. , 2025]. During training, we use overlapping windows (stride s < w )to reduce position-dependent overfitting. During evaluation, we use non-overlapping windows aligned with label intervals for consistent reporting. 
+
+Window-Level Normalization 
+
+Each window is normalized per lead using z-score normaliza-tion: 
+
+˜xk = xk − μk
+
+σk + ϵ (2) where μk, σk ∈ R3 are per-window per-lead statistics and ϵ
+
+is a small constant.   
+
+> Figure 3: Progressive fine-tuning scenarios. Scenario A (left) freezes the entire encoder; Scenario B (middle) unfreezes top lay-ers; Scenario C (right) unfreezes all parameters.
+
+3.4 LeadBridge: Learnable 3 → 12 Lead Adaptation 
+
+To align 3-lead wearable inputs with the 12-lead interface ex-pected by the clinical foundation encoder, we propose Lead-Bridge , a lightweight adapter mapping R3×T → R12 ×T
+
+(Figure 2). Because cognitive load datasets (CLARE, CL-Drive) pro-vide only wearable 3-lead recordings and do not include 12-lead ground truth, the adapter cannot be directly supervised during downstream cognitive load training. We therefore pre-train LeadBridge on PTB-XL, which contains 21,837 clinical 12-lead ECG recordings sampled at 500 Hz. 
+
+PTB-XL Pre-training Setup 
+
+We filter PTB-XL to retain normal sinus rhythm recordings (SCP code NORM ≥ 80% confidence), yielding approxi-mately 9,500 clean examples. Each 10-second recording is segmented into 5,000-sample windows (10s at 500 Hz) with 50% overlap. We randomly split the data into 80%/20% train/validation subsets. After pre-training, LeadBridge is integrated into CogAdapt and further fine-tuned end-to-end with classification loss dur-ing downstream training. This task-specific adaptation allows the adapter to learn 12-lead representations optimized for cognitive load states rather than reconstruction fidelity alone, while PTB-XL pre-training provides anatomically-informed initialization that accelerates convergence and improves gen-eralization. 
+
+Adapter Architecture 
+
+LeadBridge implements a multi-layer convolutional network that progressively transforms 3-lead inputs into 12-lead rep-resentations: 
+
+Aϕ(x) := W3 · σ(BN (W2 · σ(BN (W1x)))) (3) where W1 ∈ R64 ×3, W2 ∈ R64 ×64 , W3 ∈ R12 ×64 , σ(·) de-notes ReLU, and BN (·) denotes batch normalization. In prac-tice, each projection is implemented using a Conv1D layer (kernel size 1), followed by BatchNorm1D and ReLU for the first two layers, with the final layer producing the 12-lead out-put. While standard clinical leads satisfy deterministic rela-tionships (e.g., Einthoven’s law), wearable electrode place-ments can deviate from clinical standards. Instead of en-forcing fixed lead equations, LeadBridge learns a data-driven mapping from PTB-XL supervision, improving robustness to placement variability while aligning signal statistics to the en-coder’s pre-training distribution. 
+
+Initialization and normalization. We initialize W using Kaiming initialization [He et al. , 2015]. Batch normaliza-tion [Ioffe, 2015] further reduces covariate shift between adapted wearable signals and clinical pre-training inputs. 
+
+3.5 Forward Inference Through CogAdapt 
+
+Given a normalized window xk ∈ R3×T , CogAdapt com-putes predictions as: 
+
+x12 ,k = Aϕ(xk) (4) 
+
+Hk = Eθ (x12 ,k ) (5) 
+
+zk = Pool (Hk) ∈ Rd (6) 
+
+pk = softmax (gψ (zk)) ∈ R2 (7) Here, Eθ is the pre-trained ECG-FM transformer encoder, Pool (·) denotes temporal mean pooling, and gψ is the classi-fication head. Since all windows have fixed duration, padding masks are not required. 
+
+3.6 ProFine: Progressive Fine-Tuning Strategy 
+
+CogAdapt adapts the foundation encoder to cognitive load classification using ProFine , a progressive fine-tuning strat-egy designed to balance adaptation capacity against catas-trophic forgetting. ProFine defines three scenarios with in-creasing trainable parameters (Figure 3). Let θ denote encoder parameters decomposed into L layers 
+
+{ℓ1, . . . , ℓ L}, where ℓL is nearest to the output. 
+
+Scenario A: Frozen Encoder (Linear Probing) 
+
+Scenario A freezes the entire encoder and trains only the downstream modules: 
+
+ΘA 
+
+> train
+
+= {ϕ, ψ } (8) This setting evaluates whether fixed foundation representa-tions are sufficient for cognitive load assessment when only lightweight adaptation is permitted. Since the trainable mod-ules are randomly initialized, we apply data augmentation for regularization. 
+
+Scenario B: Partial Unfreeze (Top Encoder Layers) 
+
+Scenario B unfreezes only the top K layers: 
+
+ΘB 
+
+> train
+
+= {ϕ, ψ } ∪ { ℓj | j > L − K} (9) With K=2 , this allows joint adaptation of the LeadBridge mapping, upper encoder layers, and classification head are trained together, and allows task-specific adaptation while keeping low-level ECG morphology intact. 
+
+Scenario C: Full Fine-Tuning (All Encoder Layers) 
+
+Scenario C performs end-to-end optimization: 
+
+ΘC 
+
+> train
+
+= Θ = {ϕ, ψ, ℓ 1, . . . , ℓ L} (10) This offers maximal adaptation capacity but requires care-ful learning rate control to avoid overfitting and catastrophic forgetting. Augmentation remains disabled, and we rely on layer-wise learning rate decay. 
+
+Layer-Wise Learning Rate Decay 
+
+We apply differentiated learning rates across components to stabilize training across scenarios. 
+
+Scenario B (3-tier schedule). We use: 
+
+ηhead > η adapter > η enc (11) This accelerates learning for randomly initialized modules while constraining updates to pre-trained layers. 
+
+Scenario C (depth-based decay). We apply depth-dependent decay [Howard and Ruder, 2018]: 
+
+ηℓj = ηbase · ξL−j , ξ ∈ (0 , 1) (12) Earlier layers receive smaller updates than later layers, re-flecting their more general role in encoding ECG morphol-ogy. 
+
+Overall Training Procedure 
+
+Algorithm 1 summarizes the complete ProFine training loop shared across scenarios, including augmentation only in Sce-nario A, focal loss optimization, and early stopping based on validation macro-F1. 
+
+Algorithm 1 CogAdapt: ProFine Training Procedure 
+
+Require: Pre-trained encoder Eθ , adapter Aϕ, head gψ , tar-get dataset DT
+
+Require: Scenario s ∈ { A, B, C }, epochs Es, learning rates 
+
+{η} 
+
+> 1:
+
+Initialize ϕ with Kaiming initialization; initialize ψ ran-domly  
+
+> 2:
+
+Set Θs 
+
+> train
+
+according to chosen scenario (Eq. (8)–(10))  
+
+> 3:
+
+Compute class weights {αc} from training set (Eq. (14))  
+
+> 4:
+
+for epoch = 1 to Es do  
+
+> 5:
+
+for batch (X, y) ∼ D train do  
+
+> 6:
+
+if s = A then  
+
+> 7:
+
+X ← Augment (X) ▷ Augment only in Scenario A 
+
+> 8:
+
+end if  
+
+> 9:
+
+x12 ← Aϕ(X) ▷ Eq. (3)  
+
+> 10:
+
+z ← Pool (Eθ (x12 )) ▷ Eq. (5) –(6)  
+
+> 11:
+
+p ← softmax (gψ (z)) ▷ Eq. (7)  
+
+> 12:
+
+L ← L focal (p, y; α, γ ) ▷ Eq. (13)  
+
+> 13:
+
+Update Θs 
+
+> train
+
+via AdamW with layer-wise LR decay (Eq. (11)–(12))  
+
+> 14:
+
+end for  
+
+> 15:
+
+Evaluate on Dval ; early stop if no improvement in macro-F1  
+
+> 16:
+
+end for  
+
+> 17:
+
+return Best model checkpoint by validation macro-F1 
+
+3.7 Classification Head and Training Objective 
+
+Classification Head Architecture 
+
+The classification head gψ is a lightweight convolutional net-work operating on pooled encoder features. It applies three sequential 1D convolutional blocks: first projecting R3 →
+
+R64 with kernel size 1, followed by BatchNorm1d and ReLU; then R64 → R64 with the same normalization and activation; and finally R64 → R5 with kernel size 1 and bias to produce logits. Focal Loss with Automatic Rebalancing 
+
+To handle class imbalance, we minimize a weighted focal loss. Let yk ∈ { 0, 1} and pk = [ pk, 0, p k, 1]⊤ denote the true label and predicted probabilities. The per-window loss is: 
+
+Lk := −αyk (1 − pt)γ log( pt), pt = pk,y k (13) where γ down-weights easy examples. 
+
+Automatic class weighting. Weights are computed per fold from training label counts (n0, n 1):
+
+αc = n0 + n1
+
+2nc
+
+, c ∈ { 0, 1} (14) We monitor validation macro-F1 for early stopping and checkpoint selection to reduce majority-class collapse un-der imbalance. We note that Scenario A employs focal loss (γ=2 ) to regularize the randomly initialized adapter and head, whereas Scenarios B and C use standard cross-entropy, as en-coder fine-tuning provides sufficient model capacity without additional focal weighting. 
+
+## 4 Experiments 
+
+4.1 Experimental Setup 
+
+Datasets. We evaluate on two public cognitive load datasets: CLARE (20 subjects performing cognitive tasks) and CL-Drive (21 subjects in simulated driving). Both provide 3-lead wearable ECG with self-reported cognitive load labels at 10-second intervals (1-9 scale), binarized into low (1-4) versus high (5-9) classes. 
+
+Preprocessing. Signals are resampled to 500 Hz and band-pass filtered (0.5-40 Hz). We extract 5-second windows with 50% overlap for training and non-overlapping windows for testing. Details are in Appendix C. 
+
+Evaluation Protocol. We use two cross-validation strate-gies: (i) 10-fold stratified (K-Fold) and (ii) leave-one-subject-out (LOSO). Early stopping with 10-epoch patience monitors macro-F1 for LOSO and AUROC for K-Fold. 
+
+Baseline Methods. We compare against ECG-LightCNN and a Transformer encoder trained from scratch, both using identical preprocessing and evaluation protocols. We com-pare against training-from-scratch baselines using identical 3-lead inputs to isolate transfer learning efficacy. Other base-lines either process different inputs, lack published 3-lead protocols, or would necessitate designing custom adapters for each method—conflating adapter architecture effects with pre-training benefits. 
+
+4.2 Experiment Analysis 
+
+Table 1 reports performance under both K-Fold and LOSO evaluation. Across both datasets and protocols, CogAdapt achieves the strongest results, with Scenario C consis-tently outperforming training-from-scratch baselines. Under LOSO, which reflects the realistic subject-independent set-ting, CogAdapt (C) improves macro-F1 from 0.514 to 0.626 on CLARE and from 0.607 to 0.768 on CL-Drive, demon-strating substantially better generalization. Notably, AUROC gains are also pronounced under LOSO (e.g., 0.539 → 0.799 on CLARE), indicating more reliable ranking of cognitive-load states beyond threshold-dependent accuracy. Under K-Fold validation, which provides a less stringent setting with partial within-subject overlap, CogAdapt (C) still delivers consistent improvements, achieving the best macro-F1 on both CLARE (0.785) and CL-Drive (0.860). These results confirm that adapting a clinical-scale ECG foundation encoder is beneficial not only for within-dataset performance, but more importantly for robust cross-subject transfer—the primary bottleneck in wearable cognitive-load modeling. 
+
+4.3 Effect of Progressive Fine-Tuning (ProFine Scenarios) 
+
+Table 1 also highlights the role of progressive fine-tuning. Scenario A (frozen encoder) provides a strong baseline by leveraging fixed foundation features, but remains limited un-der LOSO due to insufficient task alignment. Allowing lim-ited encoder adaptation in Scenario B yields consistent gains, particularly in LOSO macro-F1 (e.g., CL-Drive: 0.578 →
+
+0.704), suggesting that unfreezing high-level layers helps re-solve representation drift between clinical pre-training and cognitive-load targets. Scenario C achieves the best perfor-mance across all settings, indicating that end-to-end adapta-tion offers the highest capacity to capture subtle autonomic modulations associated with cognitive load, while the pro-gressive design mitigates overfitting and catastrophic forget-ting. Beyond aggregate scores, the per-subject analyses (Ap-pendix, Figures 6–9) provide additional evidence that ProFine improves both central tendency and robustness: performance gains are observed for the majority of held-out subjects, and the distribution becomes more favorable compared with from-scratch baselines, supporting more reliable deployment in real-world settings. 
+
+4.4 Lead Reconstruction Quality 
+
+To evaluate LeadBridge’s effectiveness in transforming 3-lead wearable signals into clinically-consistent 12-lead rep-resentations, we conducted quantitative reconstruction exper-iments on the PTB-XL dataset. Figure 4 visualizes the recon-struction quality across all 12 leads, while Table 2 provides detailed metrics for the challenging precordial leads (V2– V6). 
+
+Perfect reconstruction of standard leads. As shown in Figure 4, LeadBridge achieves near-perfect reconstruction for the first seven leads (I, II, III, aVR, aVL, aVF, and V1), with the predicted waveforms (red dashed) exhibiting almost com-plete overlap with ground-truth signals (blue solid). This demonstrates that LeadBridge successfully learns the deter-ministic relationships governing limb and augmented limb leads, while maintaining anatomical consistency. 
+
+Superior performance on precordial leads. Table 2 compares LeadBridge against two established baselines: the Dower inverse transform [Dower et al. , 1980] and linear regression [Obianom et al. , 2025]. LeadBridge achieves the lowest RMSE for four out of five precordial leads (V2, V3, V4, V5), with particularly notable improvements on V2 (175.61 vs. 195.08) and V3 (189.77 vs. 194.52). More importantly, LeadBridge demonstrates substantially higher correlation coefficients across all leads except V6, with V2 Method                                                                              
+
+> CLARE CL-D RIVE
+> K-Fold LOSO K-Fold LOSO Acc F1 AUC Acc F1 AUC Acc F1 AUC Acc F1 AUC
+> ECG-LightCNN [Bhatti et al. , 2024] .774 .726 .832 .686 .514 .539 .813 .808 .887 .700 .607 .707 Transformer [Bhatti et al. , 2024] .705 .643 .718 .623 .496 .506 .688 .680 .731 .611 .541 .604 CogAdapt (Scenario A) .742 .717 .843 .681 .527 .598 .823 .821 .906 .665 .578 .705 CogAdapt (Scenario B) .762 .736 .857 .691 .557 .706 .833 .831 .919 .770 .704 .811 CogAdapt (Scenario C) .813 .785 .898 .736 .626 .799 .862 .860 .945 .831 .768 .889
+> Table 1: Performance on CLARE and CL-Drive under K-Fold and LOSO validation.
+
+Lead Dower Linear Regression LeadBridge 
+
+RMSE ↓
+
+V2 205.69 195.08 175.61 V3 290.39 194.52 189.77 V4 270.63 164.72 164.02 V5 215.06 143.45 140.76 V6 161.40 129.66 135.22 CORRELATION COEFFICIENT (CC) ↑
+
+V2 0.546 0.546 0.669 V3 0.569 0.570 0.613 V4 0.662 0.698 0.718 V5 0.679 0.694 0.717 V6 0.544 0.549 0.547  
+
+> Table 2: Performance comparison of ECG lead reconstruction meth-ods across precordial leads V2-V6. Green highlighting indicates best performance for each lead.
+
+showing the largest gain (CC=0.669 vs. 0.546)—a 22.5% rel-ative improvement over both baselines. 
+
+Challenging nature of precordial reconstruction. While limb leads can be derived through deterministic linear com-binations, precordial leads require learning complex spatial-temporal mappings from limited input channels. Figure 4 reveals larger reconstruction errors for V2–V6 (visible gaps between blue and red traces), particularly in peak amplitudes and subtle morphological details. This inherent difficulty ex-plains why even our learned approach achieves moderate cor-relation coefficients (0.61–0.72 range). Importantly, these re-construction metrics reflect PTB-XL pre-training alone. Dur-ing downstream training, LeadBridge is further optimized end-to-end for cognitive load classification to learn to empha-size task-relevant signal components rather than reconstruc-tion of signals only. The classification gains in Table 1 con-firm that this task-adapted transformation effectively bridges wearable inputs to foundation model representations. Never-theless, LeadBridge’s consistent superiority over fixed trans-forms validates the benefit of data-driven adaptation for han-dling non-standard electrode placements typical in wearable devices. The reconstruction quality directly impacts downstream cognitive load classification: by providing anatomically-consistent 12-lead inputs to ECG-FM, LeadBridge enables effective transfer of clinical pre-training to wearable sensing scenarios despite the fundamental sensor configuration mis-    
+
+> Figure 4: ECG lead reconstruction on PTB-XL. Reconstructions of all 12 leads from a 3-lead wearable input. The blue solid waveform denotes the ground-truth signal, while the red dashed waveform in-dicates the predicted (reconstructed) lead. The first seven leads (I, II, III, aVR, aVL, aVF, and V1) are recovered almost perfectly with near-complete overlap, whereas larger deviations are observed in the more challenging precordial leads (V2–V6).
+
+match. 
+
+## 5 Conclusion 
+
+We propose CogAdapt, a framework that adapts clinical ECG foundation models to wearable cognitive load assess-ment. CogAdapt addresses two key challenges through Lead-Bridge, a learnable adapter that transforms 3-lead wearable signals into anatomically-consistent 12-lead representations, and ProFine, a progressive fine-tuning strategy that prevents catastrophic forgetting while enabling task adaptation. Ex-periments on CLARE and CL-Drive datasets under leave-one-subject-out evaluation show that CogAdapt substan-tially outperforms training-from-scratch baselines, achieving macro-F1 scores of 0.626 and 0.768 respectively. Our results demonstrate that transfer learning from large-scale clinical ECG data can effectively address the limited labeled data and poor cross-subject generalization challenges in wearable cog-nitive load assessment. Future work will explore extending this approach to other physiological signals and investigating personalized adaptation with minimal calibration data. References 
+
+[Abbaspourazad et al. , 2024] Salar Abbaspourazad, Ous-sama Elachqar, Andrew C. Miller, Saba Emrani, Udhyaku-mar Nallasamy, and Ian Shapiro. Large-scale training of foundation models for wearable biosignals. In ICLR , 2024. [Angkan et al. , 2024] Prithila Angkan, Behnam Behinaein, Zunayed Mahmud, Anubhav Bhatti, Dirk Rodenburg, Paul Hungler, and Ali Etemad. Multimodal brain–computer in-terface for in-vehicle driver cognitive load measurement: Dataset and baselines. IEEE Transactions on Intelligent Transportation Systems , 25(6):5949–5964, 2024. [Ayres et al. , 2021] Paul Ayres, Joy Yeonjoo Lee, Fred Paas, and Jeroen J. G. Van Merrienboer. The validity of physio-logical measures to identify differences in intrinsic cogni-tive load. Frontiers in Psychology , 12:702538, 2021. [Bhatti et al. , 2024] Anubhav Bhatti, Prithila Angkan, Behnam Behinaein, Zunayed Mahmud, D. Rodenburg, Heather Braund, P. Mclellan, A. Ruberto, Geoffery Harri-son, Daryl Wilson, A. Szulewski, Dan Howes, A. Etemad, and Paul Hungler. Clare: Cognitive load assessment in realtime with multimodal data. IEEE Transactions on Cognitive and Developmental Systems , 2024. [Chen et al. , 2020] Ting Chen, Simon Kornblith, Moham-mad Norouzi, and Geoffrey Hinton. A simple frame-work for contrastive learning of visual representations. In Hal Daum´ e III and Aarti Singh, editors, Proceedings of the 37th International Conference on Machine Learning , vol-ume 119 of Proceedings of Machine Learning Research ,pages 1597–1607. PMLR, 13–18 Jul 2020. [Dower et al. , 1980] Gordon E Dower, H Bastos Machado, and John A Osborne. On deriving the electrocardio-gram from vectorcardiographic leads. Clinical cardiology ,3(2):87–95, 1980. [Feild et al. , 2008] Dirk Q. Feild, Sophia H. Zhou, Eric D. Helfenbein, Richard E. Gregg, and James M. Lindauer. Technical challenges and future directions in lead recon-struction for reduced-lead systems. Journal of Electrocar-diology , 41(6):466–473, 2008. [Gjoreski et al. , 2020] Martin Gjoreski, Tine Kolenik, Timo-tej Knez, Mitja Luˇ strek, Matjaˇ z Gams, Hristijan Gjoreski, and Veljko Pejovi´ c. Datasets for cognitive load inference using wearable sensors and psychological traits. Applied Sciences , 10(11):3843, 2020. [Gkintoni et al. , 2025] Evgenia Gkintoni, Hera Antonopoulou, Andrew Sortwell, and Constantinos Halkiopoulos. Challenging cognitive load theory: The role of educational neuroscience and artificial intelligence in redefining learning efficacy. Brain Sciences , 15:203, 02 2025. [Gu et al. , 2025] Xiao Gu, Yuxuan Shu, Jinpei Han, Yuxuan Liu, Zhangdaihong Liu, James Anibal, Veer Sangha, Ed-ward Phillips, Bradley Segal, Yuxuan Liu, Hang Yuan, Fenglin Liu, Kim Branson, Patrick Schwab, Danielle Bel-grave, Lei Clifton, Dimitris Spathis, Vasileios Lampos, A Aldo Faisal, and David A Clifton. Foundation models for biosignals: A survey, August 2025. TechRxiv Preprint. [Han et al. , 2024] Yu Han, Xiaofeng Liu, Xiang Zhang, and Cheng Ding. Foundation models in electrocardiogram: A review. arXiv preprint arXiv:2410.19877 , 2024. [Han et al. , 2025] Yu Han, Vittorio Murino, Xiaofeng Liu, Xiang Zhang, and Cheng Ding. A systematic review on foundation models for electrocardiogram analysis: Initial strides and expansive horizons, 2025. [Hassannia and Sameni, 2025] Mohammadsina Hassannia and Reza Sameni. A neural network architecture for ecg lead reconstruction: Separating shared and lead-specific ecg characteristics. Computing in Cardiology Conference (CinC) , 2025. [He et al. , 2015] Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. Delving deep into rectifiers: Surpass-ing human-level performance on imagenet classification. In Proceedings of the IEEE international conference on computer vision , pages 1026–1034, 2015. [Howard and Ruder, 2018] Jeremy Howard and Sebastian Ruder. Universal language model fine-tuning for text clas-sification. In Proceedings of the 56th Annual Meeting of the Association for Computational Linguistics , pages 328– 339, 2018. [Hughes et al. , 2019] Ashley M. Hughes, Gabriella M. Han-cock, Shannon L. Marlow, Kimberly Stowers, and Ed-uardo Salas. Cardiac measures of cognitive workload: a meta-analysis. Human factors , 61(3):393–414, 2019. [Ioffe, 2015] Sergey Ioffe. Batch normalization: Accelerat-ing deep network training by reducing internal covariate shift. arXiv preprint arXiv:1502.03167 , 2015. [Kalatzis and others, 2021] Ilias Kalatzis et al. A database for cognitive workload classification using electrocardio-gram and respiration signal, 2021. Dataset description; please fill in the correct journal/venue, volume, pages, and DOI from the official publication. [Kim et al. , 2022] S. Kim, S. Chon, J. K. Kim, J. Kim, Y. Gil, and S. Jung. Lightweight convolutional neural net-work for real-time arrhythmia classification on low-power wearable electrocardiograph. In Proceedings of the An-nual International Conference of the IEEE Engineering in Medicine and Biology Society (EMBS) , pages 1915–1918, July 2022. [Kiyasseh et al. , 2021] Dani Kiyasseh, Tingting Zhu, and David A Clifton. Clocs: Contrastive learning of car-diac signals across space, time, and patients. In Inter-national Conference on Machine Learning , pages 5606– 5615. PMLR, 2021. [Kligfield et al. , 2007] Paul Kligfield, Leonard S Gettes, James J Bailey, Rory Childers, Barbara J Deal, E William Hancock, Gerard Van Herpen, Jan A Kors, Peter Mac-farlane, David M Mirvis, et al. Recommendations for the standardization and interpretation of the electrocardio-gram: part i: the electrocardiogram and its technology a scientific statement from the american heart association electrocardiography and arrhythmias committee, council on clinical cardiology; the american college of cardiol-ogy foundation; and the heart rhythm society endorsed by the international society for computerized electrocar-diology. Journal of the American College of Cardiology ,49(10):1109–1127, 2007. [Kosch et al. , 2023] Thomas Kosch, Jakob Karolus, Jo-hannes Zagermann, Harald Reiterer, Albrecht Schmidt, and Paweł W. Wo´ zniak. A survey on measuring cognitive workload in human-computer interaction. ACM Comput. Surv. , 55(13s), July 2023. [Kundu, 2022] Subhasis Kundu. Hci-driven emotion-adaptive uis for cognitive efficiency: Real-time adaptation to fatigue, focus, and emotional expression. International Scientific Journal of Engineering and Management , 01:1– 7, 09 2022. [Lawhern et al. , 2013] Vernon Lawhern, W. David Hairston, and Kay Robbins. Detect: A matlab toolbox for event de-tection and identification in time series, with applications to artifact detection in eeg signals. PLOS ONE , 8(4):1–13, 04 2013. [Markova and others, 2019] Veselina Markova et al. CLAS: A database for cognitive load, affect, and stress, 2019. Dataset description; please insert the correct venue/journal information from the official publication. [McKeen et al. , 2025] Kaden McKeen, Sameer Masood, Augustin Toma, Barry Rubin, and Bo Wang. Ecg-fm: An open electrocardiogram foundation model. JAMIA open ,8(5):ooaf122, 2025. [Moeinzadeh et al. , 2018] Hossein Moeinzadeh, Gaetano Gargiulo, Paolo Bifulco, Mario Cesarelli, A O’Loughlin, MI Shugman, and Aravinda Thiagalingam. A modern wilson’s central terminal electrocardiography database. 
+
+Heart, Lung and Circulation , 27:S293–S294, 2018. [Mvuh et al. , 2024] Franck Lino Mvuh, Claude Odile Vanessa Ebode Ko’a, and Bertrand Bodo. Mul-tichannel high noise level ecg denoising based on adversarial deep learning. Scientific Reports , 14(1):801, 2024. [Naismith and Cavalcanti, 2015] Laura M. Naismith and Ro-drigo B. Cavalcanti. Validity of cognitive load measures in simulation-based training: a systematic review. Academic Medicine , 90(11):S24–S35, Nov 2015. [Obianom et al. , 2025] Ekenedirichukwu N Obianom, G Andr´ e Ng, and Xin Li. Reconstruction of 12-lead ecg: a review of algorithms. Frontiers in Physiology ,16:1532284, 2025. [Potharaju et al. , 2025] Saiprasad Potharaju, K. Veera Raghavulu, N. S. Pradeep Kumar, Suresh Salendra, Swapnali N. Tambe, and M. V. V. Prasad Kantipudi. Multi-resolution hybrid sliding window approach for ecg arrhythmia detection using deep learning models. 
+
+Discover Applied Sciences , 7(12):1412, 2025. [Rahman et al. , 2022] Saifur Rahman, Chandan Karmakar, Iynkaran Natgunanathan, John Yearwood, and Marimuthu Palaniswami. Robustness of electrocardiogram signal quality indices. Journal of The Royal Society Interface ,19(189):20220012, 04 2022. [Raza et al. , 2024] Muhammad Shahzad Raza, Muhammad Murtaza, C. T. Cheng, and Muhammad Asif Khan. Sys-tematic review of cognitive impairment in drivers through mental workload using physiological measures of heart rate variability. Frontiers in Computational Neuroscience ,18:1475530, 2024. [Satija et al. , 2018] U. Satija, B. Ramkumar, and M. S. Manikandan. A review of signal processing techniques for electrocardiogram signal quality assessment. IEEE Re-views in Biomedical Engineering , 11:176–191, 2018. [Shang et al. , 2021] Zuogang Shang, Zhibin Zhao, Hui Fang, Samuel Relton, Darcy Murphy, Zoe Hancox, Ruqiang Yan, and David Wong. Deep discriminative do-main generalization with adversarial feature learning for classifying ecg signals. In 2021 Computing in Cardiology (CinC) , volume 48, pages 1–4, Sep. 2021. [Solhjoo et al. , 2019] S. Solhjoo, M. C. Haigney, E. McBee, and S. J. Durning. Heart rate and heart rate variabil-ity correlate with clinical reasoning performance and self-reported measures of cognitive load. Scientific Reports ,9(1):1–9, 2019. [Suryani et al. , 2024] Mira Suryani, Harry Budi Santoso, Martin Schrepp, Rizal Fathoni Aji, Setiawan Hadi, Dana Indra Sensuse, Ryan Randy Suryono, et al. Role, methodology, and measurement of cognitive load in com-puter science and information systems research. IEEE Ac-cess , 2024. [Vozda and Cerny, 2015] M. Vozda and M. Cerny. Methods for derivation of orthogonal leads from 12-lead electrocar-diogram: A review. Biomedical Signal Processing and Control , 19:23–34, 2015. [Wagner et al. , 2020] Patrick Wagner, Nils Strodthoff, Ralf-Dieter Bousseljot, Dieter Kreiseler, Fatima I Lunze, Wo-jciech Samek, and Tobias Schaeffter. Ptb-xl, a large publicly available electrocardiography dataset. Scientific Data , 7(1):1–15, 2020. [Yang et al. , 2022] Yuzhe Yang, Xin Liu, Jiang Wu, Silviu Borac, Dina Katabi, Ming-Zher Poh, and Daniel McDuff. Simper: Simple self-supervised learning of periodic tar-gets. arXiv preprint arXiv:2210.03115 , 2022. [Yang et al. , 2023a] Chaoqi Yang, M Westover, and Jimeng Sun. Biot: Biosignal transformer for cross-data learning in the wild. In A. Oh, T. Naumann, A. Globerson, K. Saenko, M. Hardt, and S. Levine, editors, Advances in Neural In-formation Processing Systems , volume 36, pages 78240– 78260. Curran Associates, Inc., 2023. [Yang et al. , 2023b] Chia-Yen Yang, Pin-Chen Chen, and Wen-Chen Huang. Cross-domain transfer of eeg to eeg or ecg learning for cnn classification models. Sensors , 23(5), 2023. Appendix A Baselines 
+
+We compare our approach against two baseline methods for cognitive load classification from ECG signals: 
+
+ECG-LightCNN represents the family of lightweight con-volutional architectures for end-to-end ECG analysis [Bhatti 
+
+et al. , 2024]. This baseline uses a shallow CNN inspired by VGG networks with multiple convolutional and max-pooling layers, followed by fully connected layers for binary classi-fication. The model learns features directly from raw ECG waveforms without any pre-training, making it representative of task-specific supervised learning approaches. We follow the architecture specification from the CLARE dataset paper, which uses 3-4 convolutional blocks with ReLU activations and dropout for regularization. 
+
+Transformer follows the architecture proposed in the CLARE dataset paper [Bhatti et al. , 2024]. This baseline uses multi-head self-attention mechanisms to model temporal de-pendencies in ECG sequences. The model applies positional encoding to raw ECG windows and processes them through stacked transformer encoder blocks. Like the CNN baseline, this transformer is trained from scratch on the cognitive load task without leveraging large-scale pre-training. The archi-tecture uses temporal mean pooling over the sequence dimen-sion before passing features to a classification head for binary cognitive load prediction. All baselines are evaluated using the same LOSO cross-validation protocol as our main approach to ensure fair com-parison of subject-independent generalization performance. This appendix provides comprehensive technical details supporting the methodology and experiments presented in the main paper. 
+
+## B Dataset Characteristics and Limitations 
+
+This section provides comprehensive analysis of publicly available datasets for cognitive load assessment, examining their suitability for real-time, subject-independent modeling. 
+
+B.1 Datasets Used in This Work 
+
+We evaluate our approach on two publicly available cogni-tive load datasets that provide fine-grained, time-aligned la-bels suitable for real-time assessment. Both datasets include ECG among their multimodal physiological recordings and report subject-independent evaluation metrics. 
+
+CLARE (Cognitive Load Assessment in REaltime). 
+
+CLARE contains multimodal physiological signals (ECG, EDA, EEG, and eye gaze) from 24 participants performing MATB-II multitasking protocols with varying cognitive load across blocks [Bhatti et al. , 2024]. Participants provide in-situ verbal ratings of their perceived cognitive load every 10 seconds on a 9-point Likert scale (1-9), enabling dense time-aligned supervision. Each participant completed four 9-minute sessions, with each session comprising nine randomly selected 1-minute complexity levels. The public release con-tains 20 subjects with 3-lead wearable ECG recorded at 256 Hz. This dataset addresses key limitations of prior work by providing fine-grained labels that support real-time predictive modeling, though inter-subject variability remains substan-tial. The MATB-II (Multi-Attribute Task Battery II) protocol requires participants to simultaneously manage four subtasks: system monitoring (detecting indicator changes), tracking (controlling a cursor), communications (responding to radio calls), and resource management (maintaining fuel levels). Task difficulty is manipulated by varying subtask demands across blocks, inducing different cognitive load levels. The dataset’s strength lies in its ecological validity—MATB-II simulates realistic multitasking scenarios—and temporal la-bel density. However, the limited number of subjects (20 in public release) and strong individual differences in physio-logical responses create challenges for subject-independent generalization. 
+
+CL-Drive (Cognitive Load in Driving). CL-Drive cap-tures multimodal signals (EEG, ECG, EDA, and eye tracking) from 21 participants in a driving simulator under scenarios of varying complexity [Angkan et al. , 2024]. Drivers ver-balize their perceived workload at 10-second intervals using a 9-point PAAS scale, providing temporal alignment similar to CLARE. Each participant performed driving tasks across 9 complexity levels, with each level lasting 3 minutes. The dataset includes diverse driving conditions (e.g., highway, ur-ban, adverse weather) designed to elicit different levels of cognitive demand. ECG is recorded at 256 Hz using a chest-worn sensor. The dataset enables evaluation of cognitive load models in safety-critical contexts where real-time assessment could support adaptive driver assistance systems. Driving scenar-ios range from simple highway cruising (low load) to com-plex urban navigation with pedestrians, traffic lights, and lane changes (high load). Weather conditions (rain, fog) and traffic density are systematically varied to manipulate cog-nitive demand. The simulator-to-real domain gap remains a limitation—drivers’ physiological responses in simulated en-vironments may differ from real driving—but the dataset pro-vides valuable benchmarks for comparing cognitive load in-ference methods across different task domains. 
+
+B.2 Taxonomy of Cognitive Load Datasets 
+
+Table 3 presents a systematic comparison of cognitive load datasets across five dimensions: physiological modalities, la-beling granularity, participant scale, task paradigms, and key limitations for real-time inference. 
+
+B.3 Labeling Paradigms and Their Impact on Modeling 
+
+Retrospective vs. In-Situ Labeling. Early datasets (CogLoad, Snake) rely on retrospective labels collected af-ter task completion, introducing memory biases and temporal misalignment. Participants must recall mental effort experi-enced minutes earlier, producing labels that reflect aggregate impressions rather than momentary states. This limits model training to coarse block-level predictions unsuitable for real-time monitoring. In contrast, CLARE and CL-Drive employ in-situ labeling where participants report load every 10 seconds during task Dataset Modalities Label cadence /scale #Subj. Stimuli / tasks Key limitations                                            
+
+> CogLoad [Gjoreski et al., 2020] EDA, ACC, ST, RR (IBI) Post-task NASA-TLX (per task trial) 23 6PC-based cogni-tive tasks (e.g., n-back) Retrospective, coarse (one label per multi-minute trial); no raw ECG (only RR/IBI); limited within-trial dynamics. Snake [Gjoreski et al., 2020] EDA, ACC, ST, RR (IBI) Post-task self-rating (per game level) 23 Smartphone Snake game (easy, medium, hard;
+> ≥2 min each) Retrospective labels; level-based super-vision; no raw ECG. CLAS [Markova et al., 2019] ECG, PPG, EDA, ACC Task-block labels +post-task ratings (often categorical high/low) 62 Math/Logic/Stroop (3 interactive); Image/Video (2 perceptive) Labels are block-level (not dense time series); mixed conditions (load + af-fect/stress) can confound ”pure” load; not designed for fine-grained sequence learn-ing. CL-Drive [Angkan et al., 2024] EEG, ECG, EDA, eye tracking In-situ ratings every 10 s / 9-point PAAS 21 Driving simulator (9 complexity levels, 3 min each) Dense, time-aligned self-report; simulator-to-real domain gap; subject-independent evaluation (e.g., LOSO) reported in benchmarks. CLARE [Bhatti et al., 2024] ECG, EDA, EEG, eye gaze In-situ verbal ratings every 10 s / Likert 1– 924 †MATB-II multitask (four 9 min sessions; nine 1 min complex-ity levels) Dense labels enable real-time learning; but limited hours/participants; strong inter-subject variability and lower LOSO performance vs random splits. Table 3: Systematic comparison of public cognitive load datasets. †The CLARE paper reports 24 participants, while the public release contains 20 subjects.
+
+performance. This temporal alignment enables window-wise supervision: each 5-10 second ECG segment can be paired with a contemporaneous load label. However, self-reporting introduces task interruption and potential reactivity effects— the act of reporting may itself alter cognitive state. 
+
+Label Granularity and Frequency. Label frequency di-rectly impacts model temporal resolution. Block-level labels (CLAS: one label per task block) support only coarse-grained classification, missing within-trial dynamics critical for adap-tive systems. The 10-second cadence in CLARE/CL-Drive enables real-time inference but still averages over brief cogni-tive fluctuations. Finer granularity remains an open challenge given the intrusiveness of frequent self-reports. 
+
+B.4 Scale and Generalization Challenges 
+
+Participant Counts and Data Volume. Even ”dense-label” datasets provide limited training data: CLARE’s 20 subjects × 36 minutes/subject ≈ 12 hours total; CL-Drive’s 21 subjects × 27 minutes/subject ≈ 9.5 hours total. Com-pare this to ECG-FM’s pre-training corpus: 1.5 million ECGs from large-scale public datasets (MIMIC-IV-ECG, Phys-ioNet 2021). This orders of magnitude gap motivates trans-fer learning—supervised training from scratch cannot match foundation models’ generalization capacity built on extensive pre-training. 
+
+Inter-Subject Variability. Subject-independent evaluation reveals substantial performance drops. Bhatti et al. report CLARE CNN accuracy: 78.4% (k-fold) → 63.3% (LOSO), a 15.1pp degradation [Bhatti et al. , 2024]. This gap quanti-fies individual differences in baseline physiology, sensor cou-pling, and cognitive strategy. Foundation models pre-trained on diverse populations may learn more invariant features than task-specific models trained on less than 25 subjects. 
+
+B.5 Dataset Access and Availability 
+
+Both datasets are publicly available for research purposes: • CLARE : https://borealisdata.ca/dataset.xhtml? persistentId=doi:10.5683/SP3/H0AELT • CL-Drive : https://borealisdata.ca/dataset.xhtml? persistentId=doi:10.5683/SP3/JJ2YZZ These datasets have become standard benchmarks for evalu-ating cognitive load inference methods, enabling direct com-parison with prior work while promoting reproducibility in the field. 
+
+## C Signal Processing and Preprocessing Strategies 
+
+C.1 Lead Reconstruction: Theoretical Foundation and Implementation Details 
+
+This part provides theoretical background and implementa-tion details for the LeadBridge adapter and Wilson Central Terminal (WCT) re-referencing described in the main paper. The standard clinical 12-lead ECG comprises three limb leads (I, II, III), three augmented limb leads (aVR, aVL, aVF) derived via Goldberger’s equations, and six precordial leads (V 1–V 6). This requires 10 electrodes for comprehensive car-diac activity assessment. The wearable device provides three leads: Lead I = VLA − VRA , (15) Lead II = VLL − VRA , (16) Lead Vx = V chest  
+
+> x
+
+− VRL , (17) where LA, RA, LL, and RL denote left arm, right arm, left leg, and right leg electrodes, respectively. This configuration differs from clinical standards in chest lead positioning and referencing (RL instead of WCT). The WCT is defined as: WCT = VRA + VLA + VLL 
+
+3 . (18) A clinical chest lead is: 
+
+V WCT  
+
+> x
+
+= Vx − WCT . (19) Given the wearable’s V RL  
+
+> x
+
+= Vx − VRL and assuming RL ≈
+
+RA, the conversion is: 
+
+V WCT  
+
+> x
+
+= V RL  
+
+> x
+
++ I + II 
+
+3 . (20) This yields the re-referenced input xref = [ I, II, V WCT  
+
+> x
+
+]⊤.Re-referencing is applied before window-level normalization to preserve voltage relationships. PTB-XL provides 12-lead ECGs referenced to WCT. To simulate 3-lead inputs: - Limb leads: Lead I and II are di-rectly available. - Chest lead: Select V 2 as x; simulate V RL 
+
+> 2
+
+via: 
+
+V RL  
+
+> 2
+
+= V WCT  
+
+> 2
+
+− I + II 
+
+3 . (21) This yields [I, II, V RL  
+
+> 2
+
+] with ground-truth 12-lead targets. Filter for normal sinus rhythm (SCP code NORM ≥
+
+80% confidence), yielding ∼9,500 recordings. Use 10-second windows with 50% overlap; split 80/20 for train-ing/validation. LeadBridge Aϕ : R3×T → R12 ×T uses a linear projection: 
+
+Aϕ(x) := σ(BatchNorm (W x )) , W ∈ R12 ×3, (22) where σ is ReLU. Implemented as Conv1D (kernel size 1, stride 1), BatchNorm1D, and ReLU. Batch normalization aligns distributions with the foundation model’s inputs. Initialize W with Kaiming initialization; BatchNorm affine parameters to identity. Pre-train on PTB-XL using MSE loss for 3 →12 lead reconstruction. Freeze weights during down-stream cognitive load training. Limb leads III, aVR, aVL, aVF use deterministic relation-ships (Einthoven’s Law, Goldberger’s equations). Precordial leads V 1, V 3–V 6 are learned via the projection, accommodat-ing non-standard placements without hard-coded constraints. 
+
+C.2 Normalization Strategies for Subject-Independent Modeling 
+
+Normalization Schemes. Three normalization strategies exist for ECG signals: • Global: Mean μ and standard deviation σ computed over the entire training set. Fails to account for inter-subject amplitude differences and requires storing popu-lation statistics. • Subject-wise: Statistics computed per subject. Creates leakage in LOSO evaluation, as test-time normalization requires statistics from the held-out subject. • Window-wise: Statistics computed independently per window. Removes baseline and amplitude variations within each segment, preventing subject-specific infor-mation leakage. 
+
+C.3 Bandpass Filtering and Artifact Handling 
+
+Filter Design. We apply a zero-phase 4th-order Butter-worth bandpass filter (0.5–40 Hz) using forward-backward filtering. This removes: (i) baseline wander ( <0.5 Hz) from respiration and motion artifacts, and (ii) high-frequency noise (>40 Hz) from muscle activity, powerline interference, and instrumentation. Zero-phase filtering ensures no temporal distortion of cardiac waveforms (P-wave, QRS complex, T-wave morphology preserved). 
+
+Handling Missing and Degenerate Data. We employ con-servative data cleaning: 1. Missing samples within a lead: Zero-fill individual NaN values (rare, <0.1% of samples). 2. Constant/flat lead: If a lead exhibits zero variance (e.g., electrode disconnection), set that lead to zero to avoid degenerate normalization. 3. Entirely missing rows: Discard data points where all ECG leads are simultaneously missing. This conservative approach prioritizes signal quality over data quantity. 
+
+C.4 Data Augmentation 
+
+During scenario A training (adapter and classification head only), we apply stochastic augmentations to improve gener-alization. Each augmentation is applied independently with probability p = 0 .5:
+
+Amplitude Jitter. Per-lead multiplicative scaling: 
+
+x′ 
+
+> c
+
+= xc · (1 + α · zc), zc ∼ N (0 , 1) (23) where α = 0 .1 and c indexes the lead. This simulates elec-trode impedance variations. 
+
+Additive Gaussian Noise. 
+
+x′ = x + η, η ∼ N (0 , σ 2I) (24) with σ = 0 .02 (applied after z-score normalization). This improves robustness to measurement noise. 
+
+Temporal Shift. Circular shift by δ samples: 
+
+x′[t] = x[( t + δ) mod T ], δ ∼ U{− 50 , 50 } (25) At 500 Hz, this corresponds to ±100 ms temporal jitter, sim-ulating window alignment variations. Augmentations are disabled during scenarios B and C (en-coder fine-tuning) to avoid disrupting pre-trained feature rep-resentations. C.5 Windowing and Resampling 
+
+Window Extraction. We extract 5-second windows us-ing timestamp-based segmentation to respect data gaps (e.g., from sensor disconnections). For training data, we use 50% overlap (2.5-second stride) to increase sample count; for val-idation/test, we use 0% overlap to prevent temporal leakage between evaluation windows. 
+
+Resampling. All windows are resampled to 500 Hz using polyphase FIR resampling, yielding fixed-length outputs of 
+
+T = 2500 samples per window. Resampling is performed be-fore filtering to ensure consistent filter behavior across vary-ing source sampling rates. 
+
+Label Alignment. Self-reported cognitive load labels are collected at 10-second intervals. We assign each 5-second window the label corresponding to the 10-second epoch con-taining the window’s temporal center: label (w) = labels 
+
+ tcenter (w) − t0
+
+∆tlabel 
+
+ 
+
+(26) where t0 is the experiment start time and ∆tlabel = 10 s. 
+
+## D Progressive Fine-Tuning: Theoretical Motivation 
+
+This section provides the theoretical foundation and mathe-matical details for the progressive unfreezing strategy intro-duced in Section 3.5 of the main paper. 
+
+D.1 Catastrophic Forgetting in Transfer Learning 
+
+When fine-tuning all parameters from a randomly initialized task head: 
+
+θt+1 = θt − η∇θ Ltask (θt) (27) large gradients from the randomly initialized head propagate through the encoder, causing drastic weight changes in early layers. Pre-trained features encoding general cardiac patterns are overwritten to fit the limited downstream data, leading to overfitting and degraded generalization. 
+
+D.2 Tiered Learning Rate Decay 
+
+To mitigate forgetting, we apply tier-wise learning rate de-cay , assigning progressively smaller learning rates to deeper (earlier) layers. For ECG-FM’s L = 12 Transformer layers, we partition the encoder into three groups: 
+
+Gtop = {ℓ9, . . . , ℓ 12 }, (28) 
+
+Gmid = {ℓ5, . . . , ℓ 8}, (29) 
+
+Gbot = {ℓ1, . . . , ℓ 4} (30) where ηtop > η mid > η bot .Lower layers capture low-level signal structure (QRS mor-phology, P-wave shapes) that generalizes across tasks and pa-tient populations. Upper layers encode progressively more task-specific features. Smaller learning rates for lower layers preserve general representations while allowing upper layers to adapt to cognitive-load-specific patterns. 
+
+D.3 Convergence Characteristics Across Scenarios 
+
+The progressive unfreezing strategy described in Section 3.5 exhibits distinct convergence behaviors: 
+
+Scenario A: Feature Evaluation. Convergence is rapid (∼15 epochs) due to the small trainable parameter count (≈199K). The frozen encoder provides stable features, allow-ing the adapter and head to converge quickly. 
+
+Scenario C: Full Fine-Tuning. Early stopping with pa-tience=10 is critical; typical best epochs occur between 3–8. The large parameter space and small dataset make the model prone to overfitting beyond this range. 
+
+D.4 Plasticity–Stability Trade-off 
+
+The progression A → B → C reveals a plasticity–stability trade-off with distinct patterns across evaluation settings, as illustrated in Figure 5 and Figure 6.  
+
+> Figure 5: Plasticity–stability trade-off for CLARE dataset across fine-tuning scenarios (A: frozen encoder, B: top-layer adaptation, C: full fine-tuning). Error bars represent standard deviation across folds (K-Fold) or subjects (LOSO). While K-Fold shows controlled variance growth, LOSO reveals substantially increasing variability with greater model plasticity.
+
+K-Fold Cross-Validation. Under K-fold evaluation (within-subject data splitting), we observe a consistent trade-off across both datasets: • Scenario A : Highest stability with lowest standard devi-ations (CLARE: ±0.010; CL-DRIVE: ±0.018), but lim-ited adaptation yields baseline performance. • Scenario B : Modest performance gains with marginally increased variance (CLARE: ±0.012; CL-DRIVE: 
+
+±0.019). Top-layer adaptation captures task-specific patterns while preserving low-level ECG representa-tions. • Scenario C : Maximum plasticity achieves highest per-formance at the cost of elevated variance (CLARE: 
+
+±0.034; CL-DRIVE: ±0.025), indicating greater sensi-tivity to fold composition. 
+
+Leave-One-Subject-Out (LOSO). Under the more chal-lenging LOSO regime, the trade-off manifests differently be-tween the two datasets (Fig. 5 vs. Fig. 6): • CLARE : Progressive increase in both performance and variance ( ±0.052 → ± 0.085 → ± 0.119). The widen-ing error bars across scenarios A, B, and C indicate that greater model flexibility improves cognitive load detec-tion but reduces cross-subject generalization stability. Figure 6: Plasticity–stability trade-off for CL-DRIVE dataset across fine-tuning scenarios. Note the non-monotonic variance pattern in LOSO: Scenario A exhibits high instability ( ±0.149), which im-proves in Scenario B ( ±0.099), suggesting that frozen ECG rep-resentations are poorly aligned with driving-specific cognitive load patterns. 
+
+• CL-DRIVE : Scenario A exhibits surprisingly high vari-ance ( ±0.149), which decreases substantially in Sce-nario B ( ±0.099) before moderately increasing in Sce-nario C ( ±0.117). This non-monotonic pattern, clearly visible in Fig. 6, suggests that frozen representations may be misaligned with driving-specific cognitive pat-terns, and that controlled adaptation (Scenario B) stabi-lizes predictions while substantially improving perfor-mance. 
+
+Practical Implications. As shown in both figures, Sce-nario C consistently achieves the highest performance when within-subject data is available (K-Fold), making it suitable for personalized applications. For cross-subject generaliza-tion (LOSO), the optimal choice is task-dependent: CL-DRIVE benefits most from Scenario B, which offers a favor-able stability-performance balance ( ±0.099), while CLARE shows continued performance gains through Scenario C de-spite increased variability ( ±0.119). The contrasting variance patterns visible in Figure 5 and Figure 6 highlight the im-portance of task-specific fine-tuning strategies when adapting foundation models to cognitive state estimation. 
+
+## E Evaluation Metrics 
+
+Let D = {(xi, y i)}Ni=1 denote a test set of N labeled ECG windows, where yi ∈ { 0, 1} represents binary cognitive load labels (0 = low, 1 = high) and ˆyi is the predicted class. Let 
+
+ˆpi ∈ [0 , 1] denote the predicted probability for the positive class. For binary classification, let TP , FP , TN , and FN 
+
+denote the counts of true positives, false positives, true nega-tives, and false negatives, respectively. 
+
+E.1 Macro F1 Score 
+
+For each class c ∈ { 0, 1}, we define precision and recall un-der the one-vs-rest convention: 
+
+Pc = TP c
+
+TP c + FP c
+
+(31) 
+
+Rc = TP c
+
+TP c + FN c
+
+(32) The class-wise F1 score is then computed as: 
+
+F 1c = 2PcRc
+
+Pc + Rc
+
+. (33) Macro F1 averages uniformly across both classes, ensuring equal weight regardless of class imbalance: 
+
+F 1macro = 12
+
+> 1
+
+X
+
+> c=0
+
+F 1c = F 10 + F 11
+
+2 (34) 
+
+E.2 Accuracy 
+
+Accuracy measures the proportion of correctly classified win-dows: Accuracy = TP + TN TP + TN + FP + FN = 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+⊮[ˆ yi = yi]
+
+(35) where 1[·] denotes the indicator function. 
+
+E.3 Area Under the ROC Curve (AUROC) 
+
+The area under the receiver operating characteristic curve (AUROC) evaluates discrimination ability across all classi-fication thresholds. For each threshold τ ∈ [0 , 1] , we define the true positive rate and false positive rate: 
+
+TPR (τ ) = |{ i : ˆ pi ≥ τ, y i = 1 }| |{ i : yi = 1 }| (36) 
+
+FPR (τ ) = |{ i : ˆ pi ≥ τ, y i = 0 }| |{ i : yi = 0 }| (37) The AUROC is computed as: AUROC =
+
+Z 10
+
+TPR d(FPR ) (38) which is equivalent to the probability that a randomly chosen positive example receives a higher predicted probability than a randomly chosen negative example. In practice, we com-pute AUROC using the trapezoidal rule over the empirical ROC curve. 
+
+## F Hyperparameters 
+
+For reproducibility, we provide the complete hyperparame-ter configurations for our proposed approach. These settings were carefully tuned to ensure robust performance across both CLARE and CL-Drive datasets under K-fold and LOSO evaluation protocols. All experiments were conducted on a single NVIDIA A100 GPU. 
+
+F.1 Progressive Fine-Tuning Configurations 
+
+We implement our approach using PyTorch with automatic mixed precision (AMP) enabled for computational efficiency. The complete hyperparameter settings for each scenario are summarized in Tables 4, 5, 6, and 7. Hyperparameter K-Fold LOSO                                               
+
+> Scenario A (Frozen Encoder)
+> Training Epochs 30 30 Batch Size 64 64 LR Head 1e −31e −3
+> LR Adapter 1e −41e −4
+> Loss Function Focal ( γ=2) Focal ( γ=2) Class Weighting Auto-αAuto-α
+> Data Augmentation Enabled Enabled
+> Scenario B (Partial Unfreeze)
+> Training Epochs 20 20 Batch Size 64 64 LR Head 5e −45e −4
+> LR Adapter 1e −41e −4
+> LR Encoder (Top 2) 1e −51e −5
+> Loss Function Cross-Entropy Cross-Entropy Data Augmentation Disabled Disabled
+> Scenario C (Full Fine-Tuning)
+> Training Epochs 10 10 Batch Size 32 32 LR Head 1e −45e −5
+> LR Adapter 3e −51e −5
+> LR Encoder (Top) 1e −55e −6
+> LR Encoder (Mid) 3e −61e −6
+> LR Encoder (Bottom) 1e −65e −7
+> Loss Function Cross-Entropy Cross-Entropy Data Augmentation Disabled Disabled
+
+Table 4: Progressive fine-tuning hyperparameters for K-Fold and LOSO configurations. Auto-α denotes inverse frequency class weights.               
+
+> Configuration Value
+> Model Architecture
+> Adapter Dropout 0.1 ECG-FM Encoder Dim 768 ECG-FM Encoder Layers 12 Classifier Hidden Dim 256 Classifier Dropout 0.2
+> Optimization
+> Optimizer AdamW Weight Decay 1e −4
+> Scheduler Cosine + Warmup Warmup Ratio 0.1 Early Stop Patience 10 epochs Metric (K-fold) AUC Metric (LOSO) Macro F1 Mixed Precision Enabled
+
+Table 5: Model architecture and optimization configuration. 
+
+F.2 Implementation Details 
+
+AdamW Optimizer Configuration 
+
+We use the AdamW optimizer with default momentum pa-rameters ( β1 = 0.9, β2 = 0.999 ) and weight decay of 
+
+1×10 −4 applied to all parameters except bias terms and batch normalization parameters. 
+
+Cosine Annealing Schedule 
+
+The learning rate follows a cosine annealing schedule with a warmup period of 10% of total training steps. During warmup, the learning rate linearly increases from 0 to the target learning rate. After warmup, the learning rate decays following: 
+
+ηt = ηmin + 12 (ηmax − ηmin )
+
+
+
+1 + cos 
+
+ t − twarmup 
+
+T − twarmup 
+
+π
+
+ 
+
+(39) where ηmin = 0 , ηmax is the initial learning rate, t is the current epoch, twarmup is the warmup duration, and T is the total number of epochs.                   
+
+> Configuration Value
+> Data Augmentation (Scenario A)
+> Amplitude Jitter ±10% (p=0.5) Gaussian Noise σ0.02 (p=0.5) Time Shift ±50 samp (p=0.5)
+> Data Processing
+> Sampling Rate 500 Hz Resampling Method Polyphase FIR Bandpass Filter 0.5–40 Hz Filter Order 4th Butterworth Filter Type Zero-phase Window Size 5s (2500 samp) Train Stride 2.5s (50% overlap) Test Stride 5s (no overlap) Normalization Per-window z-score Label Binarization 1–4 →Low 5–9 →High
+> Cross-Validation
+> K-Fold Splits 10 (stratified) LOSO Subjects 20 (CLARE) 21 (CL-Drive) Split Strategy Subject-wise
+
+Table 6: Data processing and augmentation configuration.                 
+
+> Configuration Value
+> Adapter Training Protocol
+> Loss Function Smooth L1 ( β=0.1) Optimizer AdamW Learning Rate 3×10 −4
+> Weight Decay 10 −4
+> LR Schedule Linear warmup (5 epochs) + Cosine annealing + Plateau reduction Plateau Factor 0.5 Plateau Patience 5 epochs Early Stop Patience 5 epochs Minimum Epochs 20 Batch Size 512 Gradient Accumulation 4 steps Effective Batch Size 2048 Mixed Precision FP16
+
+Table 7: Adapter training protocol configuration. 
+
+Early Stopping 
+
+We implement early stopping with a patience of 10 epochs. For K-fold evaluation, the model is selected based on vali-dation AUC to maximize discrimination ability. For LOSO evaluation, we use macro F1 score as the selection metric since it is more robust when validation sets contain imbal-anced single-subject data. 
+
+## G Per-Subject Performance Analysis 
+
+To understand how CogAdapt’s ProFine strategy affects indi-vidual subjects under leave-one-subject-out (LOSO) evalua-tion, we provide detailed per-subject analysis on the CLARE dataset. This analysis reveals the heterogeneity in subject-independent generalization and identifies which subjects ben-efit most from progressive fine-tuning. Figure 7 presents per-subject macro F1-scores across all three ProFine scenarios (A: frozen encoder, B: partial un-freeze, C: full fine-tuning), while Figure 8 shows the corre-sponding accuracy metrics. Several notable patterns emerge from this granular analysis. 
+
+Substantial inter-subject heterogeneity. Performance varies dramatically across subjects, with F1-scores in Sce-nario C ranging from 0.591 (Subject 20) to 0.813 (Subject 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 
+
+> Subject ID
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> Macro F1-Score
+> Stage A Mean: 0.527
+> Stage B Mean: 0.623
+> Stage C Mean: 0.704
+> Stage A (Adapter Only)
+> Stage B (Top-2 Layers)
+> Stage C (Full Fine-tuning)
+
+Figure 7: Per-subject macro F1-score across all training stages under LOSO cross-validation on the CLARE dataset 
+
+9)—a 22.2 percentage point gap. This substantial variance underscores the challenge of subject-independent cognitive load assessment and validates our focus on LOSO evaluation rather than random k-fold splitting. 
+
+Consistent progressive improvement. Most subjects exhibit monotonic performance gains across scenarios A→B→C. Subject 9 exemplifies this trend, achieving F1-scores of 0.548 (A), 0.699 (B), and 0.813 (C)—a cumula-tive improvement of 26.5 percentage points. Similarly, Sub-ject 8 progresses from 0.561 (A) to 0.694 (B) to 0.811 (C). This consistency across diverse physiological profiles sug-gests that ProFine’s layer-wise adaptation strategy effectively transfers clinical ECG knowledge to cognitive load patterns. 
+
+Identification of challenging subjects. A subset of sub-jects (5, 6, 10, 15, 20) demonstrate relatively lower perfor-mance across all scenarios, with Scenario C F1-scores below 0.65. Subject 6 achieves only 0.622 F1 even under full fine-tuning, compared to the dataset mean of 0.702. These sub-jects may exhibit atypical physiological responses to cogni-tive load or higher signal noise, representing realistic deploy-ment challenges for subject-independent systems. 
+
+Accuracy-F1 divergence reveals class imbalance. Sub-ject 11 presents a striking divergence: 0.978 accuracy but only 0.561 F1 in Scenario A. This pattern—high accuracy with moderate F1—indicates severe class imbalance for this participant, where the model achieves high accuracy by pre-dicting the majority class while failing to detect the minority class. The focal loss employed in our training objective par-tially addresses this, as evidenced by improved F1 balance in Scenarios B (0.565) and C (0.737), though the gap persists. 
+
+Differential benefit from fine-tuning. The magnitude of improvement from A →C varies substantially: Subject 9 gains +26.5pp F1, while Subject 15 improves only +12.6pp. Sub-jects with initially poor Scenario A performance (below 0.50 F1) tend to benefit more from fine-tuning, suggesting that frozen features transfer poorly for these individuals but task-specific adaptation can recover performance. Conversely, subjects with strong Scenario A baselines (e.g., Subject 12: 0.622 F1) show smaller absolute gains (+13.4pp), indicat-ing their physiological signatures already align well with pre-trained representations. 
+
+Robustness of top performers. Subjects 8, 9, and 13 con-sistently rank in the top quartile across all scenarios, achiev-ing Scenario C F1-scores of 0.811, 0.813, and 0.801 re-spectively. These subjects likely exhibit canonical cognitive load signatures that align with the foundation model’s learned ECG patterns, making them easier to classify in subject-independent settings. 
+
+## H Comparative Performance Distribution Analysis 
+
+To provide comprehensive insight into CogAdapt’s perfor-mance relative to baseline methods, we present detailed dis-tributional analyses of macro-F1 scores under leave-one-subject-out (LOSO) cross-validation. Figures 9 and 10 vi-sualize the complete statistical distributions for the CLARE and CL-Drive datasets, respectively, enabling direct compar-ison of model robustness and consistency across individual subjects. 
+
+H.1 CLARE Dataset Performance Distribution 
+
+Figure 9 presents box plot comparisons of F1 scores across all 20 subjects in the CLARE dataset under LOSO evalua-tion. CogAdapt (Scenario C) achieves a mean F1 score of 0.704 with a median of 0.707, substantially outperforming both baseline methods. The Transformer baseline obtains a mean of 0.496 (median: 0.503), while ECG-LightCNN achieves 0.514 (median: 0.525). This represents absolute im-provements of +20.8 percentage points over Transformer and +19.0 percentage points over ECG-LightCNN, demonstrat-ing the substantial benefit of foundation model adaptation for cognitive load assessment. The interquartile range (IQR) for CogAdapt spans from Q1=0.632 to Q3=0.757, indicating relatively consistent per-formance across the majority of subjects. In contrast, both baselines exhibit tighter but lower-performing distributions, with ECG-LightCNN showing an IQR of [0.495, 0.535] and 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 
+
+> Subject ID
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> Accuracy
+> Stage A Mean: 0.681
+> Stage B Mean: 0.698
+> Stage C Mean: 0.765
+> Stage A (Adapter Only)
+> Stage B (Top-2 Layers)
+> Stage C (Full Fine-tuning)
+
+Figure 8: Per-subject accuracy across all training stages under LOSO cross-validation on the CLARE dataset. 
+
+Transformer spanning [0.473, 0.526]. The whiskers for Co-gAdapt extend from 0.591 to 0.813, revealing considerable subject-to-subject variability—a characteristic challenge of LOSO evaluation that our approach navigates more success-fully than training-from-scratch alternatives. 
+
+Figure 9: Performance distribution comparison on CLARE dataset under LOSO cross-validation. CogAdapt (Scenario C) achieves mean F1=0.704, substantially outperforming Transformer (F1=0.496) and ECG-LightCNN (F1=0.514) baselines. Box plots show median (black line), mean (red diamond), interquartile range (colored box), and whiskers extending to 1.5 ×IQR. 
+
+Notably, CogAdapt’s distribution exhibits a slight positive skew, with the mean (0.704) closely aligned with the median (0.707), suggesting that the majority of subjects benefit sub-stantially from foundation model transfer. The baseline meth-ods, conversely, show more symmetric distributions centered at significantly lower performance levels, indicating funda-mental limitations in learning generalizable cognitive load signatures from limited training data. 
+
+H.2 CL-Drive Dataset Performance Distribution 
+
+Figure 10 illustrates the performance distributions on the CL-Drive dataset across 21 subjects. CogAdapt maintains strong performance with a mean F1 score of 0.704 and median of 0.707. The CL-Drive Transformer baseline achieves a mean of 0.541 (median: 0.560), representing a +16.3 percentage point improvement for our approach. The CL-Drive CNN baseline obtains a mean of 0.607 (median: 0.600), which Co-gAdapt surpasses by +9.7 percentage points. The distributional characteristics reveal important insights into cross-dataset generalization. CogAdapt’s IQR spans [0.630, 0.762], demonstrating robustness comparable to CLARE despite the different task domain (driving simulation vs. multitasking). The Transformer baseline exhibits greater variability with an IQR of [0.493, 0.600] and whiskers ex-tending from 0.425 to 0.669, suggesting inconsistent subject-independent generalization. The CNN baseline shows a wider distribution with IQR [0.527, 0.666] and whiskers spanning [0.437, 0.810], indicating that while some subjects are clas-sified effectively, performance degrades substantially for oth-ers. The superior mean and tighter distribution of CogAdapt across both datasets underscore the effectiveness of our pro-gressive fine-tuning strategy (Scenario C) combined with LeadBridge adaptation. While both baselines struggle with subject-independent generalization—evidenced by their lower central tendencies and in some cases high variance— CogAdapt consistently achieves higher F1 scores across the majority of test subjects, validating the hypothesis that pre-trained ECG foundation models capture more generalizable physiological signatures than models trained from scratch on limited cognitive load data. 
+
+H.3 Cross-Dataset Robustness 
+
+Comparing Figures 9 and 10 reveals that CogAdapt maintains consistent performance characteristics across both datasets, with identical mean (0.704) and median (0.707) values de-spite differences in task paradigm, participant demographics, and recording conditions. This consistency suggests that the Figure 10: Performance distribution comparison on CL-Drive dataset under LOSO cross-validation. CogAdapt (Scenario C) achieves mean F1=0.704, outperforming CL-Drive Transformer (F1=0.541) and CL-Drive CNN (F1=0.607) baselines. Consistent performance across datasets demonstrates robust cross-domain gen-eralization. 
+
+features learned through progressive fine-tuning of ECG-FM generalize not only across individuals within a dataset but also across different cognitive load elicitation protocols. In contrast, both baseline methods exhibit dataset-specific per-formance variations, with ECG-LightCNN showing notably different distributions between CLARE and CL-Drive, indi-cating potential overfitting to dataset-specific artifacts. The box plot visualizations demonstrate that foundation model adaptation via CogAdapt provides substantial and sta-tistically robust improvements over training-from-scratch ap-proaches for subject-independent cognitive load assessment from wearable ECG signals. The distributional analyses com-plement our main results (Table 1) by revealing not only su-perior average performance but also more favorable variance characteristics, which are critical for reliable deployment in real-world human-computer interaction applications. 
+
+## I K-Fold Cross-Validation Analysis 
+
+To complement the leave-one-subject-out (LOSO) evalua-tion presented in the main paper, we provide detailed K-fold cross-validation results that illuminate the performance characteristics of our progressive fine-tuning strategy under within-subject data splitting. Unlike LOSO evaluation, which tests cross-subject generalization, K-fold validation allows some subject data to appear in both training and validation sets, providing an upper bound on achievable performance and revealing the intrinsic difficulty of the cognitive load clas-sification task independent of subject transfer challenges. 
+
+I.1 Performance Across Training Scenarios 
+
+Figures 11 and 12 present comprehensive K-fold cross-validation results for the CLARE and CL-Drive datasets re-spectively, tracking three key metrics (Macro F1-Score, Ac-curacy, and AUROC) across all 10 folds for each ProFine sce-nario. 
+
+CLARE Dataset Progression. On the CLARE dataset (Figure 11), we observe consistent monotonic improvement across scenarios A →B→C. Scenario A (frozen encoder) achieves a mean macro F1-score of 0.717, establishing a strong baseline that already validates the transferability of clinical ECG features to cognitive load assessment. Scenario B (top-layer adaptation) improves this to 0.736 (+1.9pp), while Scenario C (full fine-tuning) reaches 0.785 (+6.8pp over A). Notably, AUROC shows the most dramatic gains, progressing from 0.843 (A) to 0.857 (B) to 0.898 (C), indi-cating that full fine-tuning substantially improves class sepa-ration in the learned feature space. The fold-wise trajectories reveal interesting patterns: Folds 8-10 consistently achieve the highest performance across all scenarios, with Fold 8 reaching F1=0.830 in Scenario C—the best single-fold result on CLARE. This suggests that certain combinations of subject data facilitate more effective learn-ing, possibly due to reduced inter-subject physiological vari-ability or more balanced class distributions within those par-ticular splits. 
+
+CL-Drive Dataset Characteristics. The CL-Drive re-sults (Figure 12) demonstrate notably higher baseline per-formance compared to CLARE, with Scenario A achieving mean F1=0.821 versus 0.717 on CLARE—a 10.4pp advan-tage. This gap persists across all scenarios: Scenario C reaches F1=0.860 on CL-Drive versus 0.785 on CLARE. We attribute this to the more controlled recording environment of the driving simulator, which reduces motion artifacts and maintains consistent sensor placement across trials, resulting in higher-quality ECG signals. Interestingly, CL-Drive exhibits greater fold-to-fold vari-ability than CLARE, particularly in Scenario A where F1 scores range from 0.790 (Fold 2) to 0.845 (Fold 10)—a 5.5pp spread versus CLARE’s 2.7pp range. This heightened vari-ance likely reflects the diverse driving scenarios (highway, urban, adverse weather) that create heterogeneous cognitive load patterns across different experimental blocks. 
+
+I.2 Scenario-Specific Convergence Patterns 
+
+A striking observation emerges when examining the relative improvements between scenarios. On CLARE, the A →Btransition yields modest gains (+1.9pp F1), while B →C pro-duces substantially larger improvements (+4.9pp F1). This asymmetric pattern suggests that shallow adaptation of top encoder layers captures only incremental task-specific refine-ments, whereas full fine-tuning enables more comprehensive feature reorganization that better aligns with cognitive load signatures. Conversely, CL-Drive shows more balanced incremental gains: A→B yields +1.0pp and B →C adds +2.9pp. The smaller B →C improvement on CL-Drive, despite using iden-tical hyperparameters and architecture, indicates that the frozen ECG-FM features already align reasonably well with driving-related cognitive load patterns, requiring less aggres-sive adaptation than the multitasking paradigm in CLARE. 
+
+I.3 Stability and Variance Analysis 
+
+The standard deviations across folds (shown as dotted hori-zontal lines in the figures) provide insight into model stability. 1 2 3 4 5 6 7 8 9 10                            
+
+> Fold Number
+> 0.70
+> 0.75
+> 0.80
+> 0.85
+> Macro F1-Score
+> Stage A ( =0.717)
+> Stage B ( =0.736)
+> Stage C ( =0.785)
+> 12345678910
+> Fold Number
+> 0.70
+> 0.75
+> 0.80
+> 0.85
+> 0.90
+> Accuracy
+> Stage A ( =0.742)
+> Stage B ( =0.762)
+> Stage C ( =0.813)
+> 12345678910
+> Fold Number
+> 0.800
+> 0.825
+> 0.850
+> 0.875
+> 0.900
+> 0.925
+> 0.950
+> 0.975
+> AUROC
+> Stage A ( =0.843)
+> Stage B ( =0.857)
+> Stage C ( =0.898)
+
+Figure 11: CLARE dataset K-fold cross-validation performance across 10 folds. Line charts show macro F1-score (left), accuracy (center), and AUROC (right) for each fold and training stage. Markers indicate individual fold results: circles for Stage A (teal), squares for Stage B (light blue), triangles for Stage C (lavender). Dotted horizontal lines mark stage-wise means. Stage C achieves consistent improvements across all folds (mean F1 = 0.785, accuracy = 0.813, AUROC = 0.898), with universal gains over Stages A and B. The relatively smooth progression across folds indicates stable performance, though Fold 8 and Fold 10 show notably stronger Stage C results (F1 ¿ 0.82), suggesting some sensitivity to specific train-test partitions. 
+
+On CLARE, Scenario C exhibits slightly elevated variance (std=0.034 for F1) compared to Scenario A (std=0.010), re-flecting the increased model capacity and sensitivity to train-ing data composition when all 91M parameters are trainable. However, this variance increase is modest relative to the sub-stantial performance gains, maintaining a favorable stability-performance trade-off. CL-Drive demonstrates comparable variance patterns but with uniformly higher absolute performance across all met-rics. The AUROC metric shows particularly impressive con-sistency in Scenario C, with 8 out of 10 folds exceeding 0.945 and a peak performance of 0.966 on Fold 9—approaching near-perfect discrimination between high and low cognitive load states under within-subject evaluation conditions. 
+
+I.4 K-Fold versus LOSO Performance Gap 
+
+Comparing these K-fold results to the LOSO evaluation in Table 1 (main paper) quantifies the subject-independent gen-eralization challenge. On CLARE, Scenario C achieves F1=0.785 under K-fold but drops to 0.626 under LOSO— a degradation of 15.9pp. CL-Drive shows a smaller gap: F1=0.860 (K-fold) versus 0.768 (LOSO), representing 9.2pp degradation. This differential highlights that CLARE partic-ipants exhibit greater inter-subject physiological variability, making cross-subject transfer more challenging despite simi-lar within-subject classification accuracy. The K-fold results thus establish an empirical upper bound for cognitive load assessment performance when subject-specific data is available during training, motivating future work on meta-learning or few-shot adaptation approaches that could narrow the K-fold/LOSO gap for practical deploy-ment scenarios where limited per-user calibration data might be collected. 1 2 3 4 5 6 7 8 9 10 
+
+Fold Number             
+
+> 0.750
+> 0.775
+> 0.800
+> 0.825
+> 0.850
+> 0.875
+> 0.900
+> 0.925
+> Macro F1-Score
+> Stage A ( =0.821)
+> Stage B ( =0.831)
+> Stage C ( =0.860)
+> 12345678910
+
+Fold Number             
+
+> 0.750
+> 0.775
+> 0.800
+> 0.825
+> 0.850
+> 0.875
+> 0.900
+> 0.925
+> Accuracy
+> Stage A ( =0.823)
+> Stage B ( =0.833)
+> Stage C ( =0.862)
+> 12345678910
+
+Fold Number    
+
+> 0.84
+> 0.86
+> 0.88
+> 0.90
+> 0.92
+> 0.94
+> 0.96
+> 0.98
+> 1.00
+> AUROC
+> Stage A ( =0.906)
+> Stage B ( =0.919)
+> Stage C ( =0.945)
+
+Figure 12: CL-Drive dataset K-fold cross-validation performance across 10 folds. Similar visualization to Figure 11, showing consistently high baseline performance (Stage A mean F1 = 0.821, AUROC = 0.906) that improves with progressive training. Stage C achieves near-ceiling performance (mean F1 = 0.860, AUROC = 0.945), with several folds exceeding F1 = 0.88 and AUROC = 0.96. The tighter clustering of fold performances (smaller variance) compared to CLARE suggests more homogeneous data characteristics in the driving simulation task. Folds 6, 8, and 9 consistently achieve the highest performance across all stages, indicating these particular train-test splits may have more separable cognitive load patterns.
