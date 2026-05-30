@@ -25,3 +25,54 @@ subscriptions:
     stage: A
     diff_threshold_pct: 15
   keyword_recall_mode: or
+  intent_profiles:
+    - tag: eeg-latent
+      description: EEG论文，latent space缺失通道补全
+      enabled: true
+      paper_sources:
+        - arxiv
+      keywords:
+        - keyword: EEG Foundation mode
+          keyword_cn: eeg大模型
+          query: E
+        - keyword: EEG latent space
+          keyword_cn: 脑电潜空间
+          query: EEG latent space representation
+        - keyword: deep learning EEG
+          keyword_cn: 深度学习脑电
+          query: deep learning for EEG signal reconstruction
+        - keyword: generative model EEG
+          keyword_cn: 生成模型脑电
+          query: generative models for EEG channel imputation
+      intent_queries:
+        - query: EEG missing channel completion using latent space models
+          query_cn: 使用潜空间模型的脑电缺失通道补全
+          enabled: true
+          source: manual
+          note: ''
+        - query: latent space based imputation for multichannel EEG
+          query_cn: 基于潜空间的多通道脑电补全
+          enabled: true
+          source: manual
+          note: ''
+        - query: reconstruct missing EEG channels with deep generative networks
+          query_cn: 用深度生成网络重建缺失脑电通道
+          enabled: true
+          source: manual
+          note: ''
+      updated_at: '2026-05-30T08:19:58.663Z'
+source_backends:
+  arxiv:
+    papers_table: arxiv_papers
+    use_vector_rpc: true
+    vector_rpc: match_arxiv_papers
+    vector_rpc_exact: match_arxiv_papers_exact
+    use_bm25_rpc: true
+    bm25_rpc: match_arxiv_papers_bm25
+    sync_table: arxiv_sync_status
+    sync_success_value: success
+    schema: public
+    kind: supabase
+    enabled: true
+    url: https://lyucdwgefyfbmaiopjbk.supabase.co
+    anon_key: sb_publishable_lX-oi64Uxyd7SIVv3_w2Uw_MTOojeKq
