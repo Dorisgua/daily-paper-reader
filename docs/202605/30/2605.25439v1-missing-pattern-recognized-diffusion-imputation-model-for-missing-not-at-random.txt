@@ -1,0 +1,2938 @@
+Title: Missing Pattern Recognized Diffusion Imputation Model for Missing Not At Random
+
+URL Source: https://arxiv.org/pdf/2605.25439v1
+
+Published Time: Tue, 26 May 2026 02:15:03 GMT
+
+Number of Pages: 41
+
+Markdown Content:
+# Missing Pattern Recognized Diffusion Imputation Model for Missing Not At Random 
+
+Gyuwon Sim 1 Sumin Lee 1 Heesun Bae 1 Byeonghu Na 1
+
+Doyun Kwon 1 Ju-Hee Hwang 2 Jae-Young Lim 2 Il-Chul Moon 11KAIST 2Seoul National University 
+
+{gkwlaks4886, sumlee, cat2507, byeonghu.na, dy.kwon, icmoon}@kaist.ac.kr {wngml30777, drlim1}@snu.ac.kr 
+
+Abstract 
+
+Missing data frequently arises across diverse domains, including time-series and image domains. In the real world, missing occurrences often depend on the un-observable values themselves, which are referred to as Missing Not at Random (MNAR). In this work, we introduce the Missing Pattern Recognized Diffusion 
+
+Imputation Model ( PRDIM ), a novel framework that explicitly captures the miss-ing pattern and precisely imputes unobserved values. PRDIM iteratively maximizes the likelihood of the joint distribution for observed values and missing mask under an Expectation-Maximization (EM) algorithm. In this sense, we first employ a pat-tern recognizer, which approximates the underlying missing pattern and provides guidance during every inference toward more plausible imputations with respect to the missing information. Through extensive experiments, we demonstrate that PRDIM consistently achieves strong imputation performance under MNAR settings across multiple data modalities. 
+
+1 Introduction 0.6       
+
+> 0.8
+> 1.0
+> 1.2
+> 1.4
+> Value
+> Observed
+> Missing, Artificial
+> Missing, Original
+> Ground Truth
+> cDiffPuter
+> PRDIM
+> 020 40 60 80 100 120
+> Time
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> Missing Ratio
+> Ground Truth
+> MCAR Assumed
+> Pattern Recognizer Estimated (Ours)
+
+Figure 1: (Top) Comparison of imputation performance on original missing (orange re-gion) versus artificial missing entries (blue dots) under observed values (green dots). (Bottom) Estimated missing ratio by pattern recognizer (red curve) regard to true missing ratio. Table 1: Numerical results; imputing original missing presents a more challenging task. Artificial missing entries Original missing entries Method RMSE( ↓) MAE( ↓) MRE( ↓) RMSE( ↓) MAE( ↓) MRE( ↓)cDiffPuter [1] 0.230 0.146 21.572 1.209 0.782 46.188 PRDIM 0.201 0.124 18.310 1.057 0.663 39.156 
+
+Missing data imputation aims to recover missing values from partially observed incomplete datasets, and the imputation algorithms serve as a fundamen-tal component in many domains, including health-care [ 2], traffic [ 3 ], and image domain [ 4]. Formally, the imputation goal is to accurately estimate missing values conditioned on observed values. Many recent imputation models assume the missing to be random or to depend on observed values, which are referred to as Missing Completely at Random (MCAR) and Missing at Random (MAR) respectively [ 5, 6]. How-ever, in real-world scenarios, we have missing values because of some underlying causes such as health deterioration or mortality [ 7]; so the missing tends to have patterns in its occurrences. Therefore, such pat-terned missing cases are referred to as Missing Not at Random (MNAR), which is considered to be a more realistic situation. Therefore, developing imputation methods that can reliably handle MNAR mechanisms is crucial for achieving practical performance in real-world applications. 
+
+Preprint. 
+
+> arXiv:2605.25439v1 [cs.LG] 25 May 2026
+
+To impute high-dimensional data, recent studies have increasingly employed diffusion models [ 8, 9], which provide a powerful framework for capturing complex data distributions under incomplete settings. Existing methods are generally built upon conditional diffusion frameworks [ 10 , 11 ], in which target entries are artificially masked and treated as missing values for training and evaluation. In such standard frameworks, we recognize potential weaknesses in the model objective, the training algorithm, and the evaluation procedure. Consequently, we first propose a diffusion-based imputation model with missing pattern estimation to better recover missing values under the MNAR setting. 
+
+2 Preliminaries 
+
+2.1 Missing Data Imputation for MNAR 
+
+As discussed earlier, accurate estimation of the missing values requires conditioning on both the observed variables Xobs and the missing mask M . Let X = [ Xd] ∈ RD be a complete instance with 
+
+D dimensions, and M ∈ { 0, 1}D the missing indicator where Md = 1 if Xd is observed, otherwise 0. We denote the observed and missing subsets by Xobs = X ⊙ M and Xmis = X ⊙ (1 − M ),respectively. Given access to the underlying complete data X and its mask M , the ultimate goal is to recover the joint distribution of the observed data, missing mask, and missing data: 
+
+max  
+
+> θ,ϕ
+
+Epdata (X,M )
+
+ log pθ,ϕ (Xobs , X mis , M ) (1) Here, θ and ϕ are the parameters of the conditional distribution, which will be discussed in their individual roles on describing distributions of X and M |X, respectively. In the scenario of missing value imputation on incomplete data, the inference becomes maximizing the joint distribution of only two random variables Xobs and M because of an unobservable property of Xmis . This likelihood maximization is formulated with the expectation on Xmis , which eventually turns the problem into the Expectation-Maximization (EM) framework. 
+
+pθ,ϕ (Xobs , M ) = 
+
+Z
+
+> Xmis
+
+pθ,ϕ (Xobs , X mis , M )dX mis =
+
+Z
+
+> Xmis
+
+pθ (X) pϕ(M |X)dX mis (2) Consequently, principled inference requires joint modeling of pθ (X) and pϕ(M |X) and optimizing a suitable lower bound of the EM algorithm. Now, the focus becomes how to infer the two distributions: 
+
+pθ (X) and pϕ(M |X). Particularly, the inference requirement on pϕ(M |X) becomes different depending on the assumed missing mechanism across different scenarios. 
+
+Missing Mechanisms Since the distribution pθ,ϕ (X, M ) can be decomposed as pθ (X)pϕ(M |X),it becomes necessary to explicitly model the generation process of the mask variable M . Under the standard taxonomy of missing data mechanisms [ 5], the missing process is characterized by the conditional distribution pϕ(M |X):
+
+pϕ(M |X) = 
+
+
+
+pϕ(M ) (MCAR) 
+
+pϕ(M |Xobs ) (MAR) 
+
+pϕ(M |Xobs , X mis ) (MNAR) (3) Under MCAR/MAR, the likelihood pθ,ϕ (Xobs , M ) which is proportional to pθ (Xobs ) can be learned while ignoring missing process [ 12 ] with respect to the missing variable Xmis . In contrast, the mask also depends on unobserved values under MNAR; makes the missing process non-ignorable [ 13 ]. While more realistic scenario comes from MNAR, this new requirement of inferring pϕ(M |X)
+
+renders the imputation models under MAR and MCAR to be ineffective and needs to be overhauled significantly. 
+
+Missing Model Some previous works have incorporated the missing mask M as a supervised learning target. Originated from Generative Adversarial Network [ 14 ], GAIN [ 15 ] first proposed that a discriminator Dϕ(X) can be trained to approximate p(M |X), with the objective of optimal discriminator Dϕ∗ towards the specific missing ratio. This design ensures that, when the missing mechanism is independent of the data, the discriminator converges to a uniform prediction over missing and observed variables. 2Modified from Variational Autoencoder [ 16 ], not-MIWAE [ 13 ] extended the discriminator framework to MNAR by directly modeling p(M |Xobs , X mis ). Their approach demonstrated that the discriminator loss can be integrated into a variational objective, allowing optimization via minimization of an additional term in the ELBO. Under the shared assumption adopted by GAIN and not-MIWAE, each missing value indicator follows Bernoulli distribution conditioned on the entire data. The loss of the missing model can be formulated as a binary cross-entropy (BCE) objective:               
+
+> L(M, X, D ϕ) = −M⊤log Dϕ(X)−(1−M)⊤log  1−Dϕ(X)(4)
+
+where optimal Dϕ∗ (X) predicts the probability whether each entry would be observed or not ( i.e. 
+
+Dϕ∗ (X) = [ p(Md = 1 |X)] ∈ RD ). This formulation provides a flexible way to incorporate the missing mechanism into generative imputation models. In this sense, we hereafter refer to the discriminator Dϕ as the pattern recognizer . Correspondingly, the loss L will be denoted as LPR .
+
+2.2 Diffusion Models 
+
+Diffusion models have achieved state-of-the-art generation performances in multiple domains, in-cluding vision [ 17 ], audio [ 18 ], graphs [ 19 ], and time-series [ 20 ]. They learn a data distribution by inverting a Markovian noising process. The forward process gradually corrupts a clean sample 
+
+X0 ∼ q(X0) with Gaussian noise according to a prescribed variance schedule {βt}Tt=1 :
+
+q(X1: T |X0) := Π Tt=1 q(Xt|Xt−1) where q(Xt|Xt−1) = N (√αtXt−1, (1 − αt)I) (5) Here, αt := 1 − βt and ¯αt := Π ts=1 αs. This yields the closed form to sample Xt at time t given X0:
+
+q(Xt|X0) = N (√¯αtX0, (1 − ¯αt)I) (6) The reverse process is modeled as a learned Markov chain that gradually removes noise: 
+
+pθ (X0: T ) := Π Tt=1 p(XT )pθ (Xt−1|Xt) (7) where p(XT ) is a standard Gaussian prior, θ is the learnable parameter of a diffusion model. Diffusion models are trained by maximizing a variational lower bound on the log-likelihood: 
+
+EX0∼q(X0) [log pθ (X0)] ≥ EX0∼q(X0),X 1: T ∼q(X1: T |X0)
+
+
+
+log pθ (X0: T )
+
+q(X1: T |X0)
+
+
+
+(8) This objective could be reduced as the data reconstruction [ 21 ], the noise prediction [ 8 ], or the score matching objective [ 9]. At inference time, sampling proceeds by drawing XT ∼ p(XT ) and iteratively applying the learned reverse transitions pθ (Xt−1|Xt) to obtain a clean sample X0.We present the entire methodology of this work from the perspective of data reconstruction ( i.e. X0
+
+prediction). Under this view, the diffusion model is trained to reconstruct the clean data X0 from noisy samples Xt across timesteps. Accordingly, the diffusion loss function for a single sample X0 is defined as (Refer to Equation 2 of EDM [21]): 
+
+Ldiff (X0, X t, t, f θ ) = λ(t)∥fθ (Xt, t ) − X0∥22 (9) where t ∼ U (0 , T ), λ (t) = 1 in our experiment, fθ is the X0 prediction network parameterized by 
+
+θ, and Xt follows Equation 6. 
+
+3 Methodology 
+
+We decompose PRDIM into two major components: (i) diffusion backbone pre-training and (ii) missing model training with joint distribution fine-tuning. Each component contains practical implementation details that stabilize training and enhance imputation performance. We first present an overview of PRDIM in Section 3.1, followed by theoretical analyses in subsequent sections. 
+
+3.1 Pre-imputation and EM algorithm 
+
+Figure 2 illustrates the graphical model and overall training procedure of PRDIM. The framework consists of two complementary phases: a diffusion-based pre-imputation stage (Phase 1) and an EM iteration stage (Phase 2). The combination of these two phases enables PRDIM to learn both the data distribution and the missing pattern in a principled manner. 3(c) Phase 2: EM iteration of PRDIM                              
+
+> Iterations
+> (b ) Phase 1 :Diffusion model pre -training
+> 𝑋 0
+> 𝑜𝑏𝑠 ,𝐴
+> 𝑋 𝑡
+> 𝑜𝑏𝑠 𝑓 𝜃 𝑋 𝑡 ,𝑡 ;𝑋 0
+> 𝑜𝑏𝑠 ,𝐴
+> Diffusion model ℒdiff
+> 𝑋 0
+> 𝑜𝑏𝑠
+> 𝑡 ,𝜀 𝜃
+> (a) PRDIM
+> 𝑀 ……𝑋 𝑡 𝑋 𝑇 𝑋 0
+> Expectation 𝑋 0
+> 𝑜𝑏𝑠
+> 𝑓 𝜃 (𝑋 𝑡
+> 𝑚𝑖𝑠 ,𝑡 ;𝑋 0
+> 𝑜𝑏𝑠 )
+> Pattern recognizer
+> 𝜙 ෡𝑀
+> update
+> 𝑋 𝑡
+> Diffusion model
+> 𝛻 𝑋 𝑡 ℒ𝑃𝑅 𝑀 ,𝑓 𝜃 𝑋 𝑡 |𝑋 0
+> 𝑜𝑏𝑠 𝑚𝑖𝑠 ,𝑋 0
+> 𝑜𝑏𝑠 ,𝐷 𝜙
+> 𝜃
+> Maximization
+> ෡𝑀 𝜙
+> ℒPR
+> 𝑀
+> Pattern recognizer
+> 𝑋 0
+> ℒdiff
+> 𝑿 𝒕
+> 𝑡 ,𝜀
+> Diffusion model
+> 𝜃 𝑓 𝜃 (𝑋 𝑡 ,𝑡 ;𝑋 0
+> 𝑜𝑏𝑠 )
+> 𝑋 0
+> 𝑜𝑏𝑠
+> 𝑋 𝑡 −1
+> 𝑞 (𝑋 𝑡 |𝑋 0)𝑞 (𝑋 𝑇 |𝑋 𝑡 )
+> 𝑝 𝜃 ,𝜙 (𝑋 0|𝑋 𝑡 ,𝑀 )𝑝 𝜃 ,𝜙 (𝑋 𝑡 |𝑋 𝑇 ,𝑀 )
+> Approximated Guidance
+
+Figure 2: Overall training procedure of PRDIM; (a) Graphical model of PRDIM, (b) Diffusion model pre-training, (c) EM iteration for diffusion model fine-tuning and pattern recognizer training. In expectation step, PRDIM progressively denoising the sample with additional guidance of pattern recognizer (Top). In maximization step, diffusion model and pattern recognizer are trained indepen-dently based on Xobs  
+
+> 0
+
+, X mis  
+
+> 0
+
+which generated in the previous expectation step (Bottom). 
+
+Phase 1: Diffusion model Pre-training and Pre-imputation. Direct optimization of the joint distribution pθ (Xobs  
+
+> 0
+
+, X mis  
+
+> 0
+
+) often suffers from instability and overfitting when missing entries are simply set to zero. Phase 1 of PRDIM pre-trains a diffusion backbone under a conditional diffusion framework [ 10 ] enabling the model to capture plausible data distributions from observed variables. For generic imputation tasks, we extend the diffusion target up to conditional input which is proposed at [ 22 ] as Observed Reconstruction Task, which demonstrates joint distribution learning under a conditional modeling. Therefore, to train the diffusion model for pre-imputation, we need to artificially select missing entries. Unlike CSDI [ 10 ], which adopts artificial masking under the MCAR assumption, we introduce an adjacent target masking scheme, where artificial missing entries located near original missing values are randomly selected to exploit potential correlations. In multivariate time-series data, the artificial missing values are chosen only across the temporal axis. In image data, they are selected as the top, bottom, left, or right neighboring missing pixels. All subsequent experimental results are conducted under this adjacent target masking setup. (except for tabular experiment, Table 4.) We denote this artificial missing mask as A and define the corresponding subset Xobs ,A := Xobs ⊙ A. Through this strategy, the diffusion backbone learns to reconstruct plausible imputations while being robust to any missing pattern. Then, the diffusion loss objective can be rewritten as follows: 
+
+Ldiff (X0, X t, t, f θ ) = ∥ fθ (Xt, t ; Xobs ,A  
+
+> 0
+
+) − X0
+
+ ⊙ M ∥22 (10) where fθ (X0, X t, t ; Xobs ,A  
+
+> 0
+
+) ⊙ M is the subset of X0 prediction corresponds to observed entries at timestep t and ⊙ is element-wise product. Recent studies have shown that plausible data distributions can be effectively estimated from artificially masked data, as evidenced by [ 23 , 24 ]. Furthermore, we demonstrate the performance gain across adjacent target masking and different ratio of MCAR masking schemes in Table 5. 
+
+Phase 2: EM Iteration of PRDIM. After diffusion pre-training, PRDIM proceeds with the EM algorithm phase. Whereas DiffPuter [ 1] trains only a joint diffusion model, PRDIM trains both diffusion model θ and pattern recognizer ϕ simultaneously to enhance the imputation performance. In the maximization step, the diffusion model θ is updated to capture the full joint distribution 
+
+pθ (Xobs  
+
+> 0
+
+, X mis  
+
+> 0
+
+), while the pattern recognizer Dϕ(X0) is trained to discriminate the mask variable M
+
+as a supervised learning target. 
+
+Ldiff (X0, X t, t, f θ ) = fθ (Xt, t ; Xobs  
+
+> 0
+
+) − X0 
+
+> 22
+
+(11) 
+
+LPR (M, X 0, D ϕ) = −M ⊤ log Dϕ(X0) − (1 − M )⊤ log  1 − Dϕ(X0) (12) This enables the model to explicitly incorporate the missing pattern. Section 3.2 provides the details of maximization objective. 4In the expectation step, the diffusion model generates Xmis conditioned on M and Xobs , while the pattern recognizer provides an additional approximated guidance signal that biases the generation toward imputations consistent with the estimated missing patterns. Importantly, during the early iterations, it is acceptable to use a randomly initialized pattern recognizer as guidance. Since such a recognizer has no discriminative ability, the guidance provides a degenerate signal toward a near-zero vector, yielding a neutral effect on the generation process [ 25 ]. Corresponding experiment results are reported in Appendix F.3. Furthermore, while DiffPuter adopts a soft EM strategy, our framework employs a hard EM variant to enhance the exploration ability to generate Xmis  
+
+> 0
+
+distribution, which has been theoretically justified within the prior EM literature [ 26 ]. (See Appendix C.2 for a detailed description.) The EM steps under the X0 prediction parameterization are summarized in Algorithm 1 and Algorithm 2. 
+
+3.2 ELBO objective of MNAR on Diffusion Model Framework 
+
+To address the MNAR problem, we formulate the evidence lower bound (ELBO) of the log-likelihood 
+
+log pθ,ϕ (Xobs  
+
+> 0
+
+, M ) under a diffusion framework. For the true data X0 = ( Xobs  
+
+> 0
+
+, X mis  
+
+> 0
+
+), we derive the ELBO of log pθ,ϕ (Xobs  
+
+> 0
+
+, M ) as follows: 
+
+Proposition 3.1. Given the graphical model in Figure 2, assume that the forward process and missing mechanism satisfy the following conditional independencies: q(X1: T |X0, M ) = q(X1: T |X0) and 
+
+pϕ(M |X0, X 1: T ) = pϕ(M |X0).Then, the ELBO of joint log-likelihood objective of the observed data and mask can be expressed as 
+
+log pθ,ϕ (Xobs  
+
+> 0
+
+, M ) ≥ EX1: T
+
+h
+
+log pθ (XT ) QTt=1 pθ (Xt−1|Xt)
+
+QTt=1 q(Xt|Xt−1)
+
+i
+
++ EXmis 
+
+> 0
+
+h
+
+log pϕ(M |X0)
+
+i
+
+(13) 
+
++ H(q(Xmis  
+
+> 0
+
+|Xobs  
+
+> 0
+
+, M )) 
+
+where H(q(x)) := − R 
+
+> x∼q
+
+q log qdx . The proof is given in Appendix A.1. This formulation explicitly incorporates the pattern recognizer into the diffusion-based imputation objective under MNAR. Unlike not-MIWAE [ 13 ], the iterative forward and reverse processes inherent to diffusion models render direct ELBO optimization intractable. Thus, we utilize the above ELBO in the EM framework, so that the generation of Xmis becomes an expectation step. In the maximization step, we simultaneously train the missing model ϕ for the missing mask M and the diffusion model θ that estimates the joint probability of Xobs , X mis by the Equation 13. Based on this EM formulation, alternating between the E step and M step guarantees a monotonic increase in the log-likelihood of the observed data and the missing mask, as formally stated in the following Corollary: 
+
+Corollary 3.2 (EM Monotonicity) . Under the same assumptions in Proposition 3.1 with the ideal-ized EM setting, the sequence of parameters (θ(k), ϕ (k)) generated by the proposed EM algorithm monotonically increases the joint log-likelihood of the observed variables at each iteration k:
+
+log pθ(k+1) ,ϕ (k+1) (Xobs  
+
+> 0
+
+, M ) ≥ log pθ(k),ϕ (k) (Xobs  
+
+> 0
+
+, M ) (14) The theoretical justification follows directly from the monotonicity theorem of EM [ 27 ] (see Theorem 1 of Section 3). We provide detailed proof in Appendix A.2. 
+
+3.3 Find Best Xmis  
+
+> 0
+
+with Approximated Guidance of Pattern Recognizer 
+
+After training both the missing model and the diffusion model, the expectation step allows us to replace 
+
+q(Xmis  
+
+> 0
+
+|Xobs  
+
+> 0
+
+, M ) with the parameters θ, ϕ that were optimized in the preceding maximization step. Since the underlying generative process is score-based, the gradient term ∇Xt log pθ,ϕ (Xt|Xobs  
+
+> 0
+
+, M )
+
+can be decomposed into two components: the score function term ∇Xt log pθ (Xt|Xobs  
+
+> 0
+
+) correspond-ing to the joint distribution, and the pattern recognizer guidance term ∇Xt log pϕ(M |Xobs  
+
+> 0
+
+, X mis  
+
+> t
+
+)
+
+reflecting the missing pattern. We further show that the pattern recognizer guidance term can be approximated with the pattern recognizer Dϕ according to Proposition 3.3. 5Algorithm 1 PRDIM E step  
+
+> 1:
+
+Diffusion model θ, pattern recognizer ϕ, ob-served data Xobs  
+
+> 0
+
+, and mask data M . 
+
+> 2:
+
+Sample XT ∼ N (0 , I) 
+
+> 3:
+
+for t = T, . . . , 1 do  
+
+> 4:
+
+Get ˆX0 = fθ (Xt, t ; Xobs  
+
+> 0
+
+) 
+
+> 5:
+
+ˆX0 ← ˆX0 ⊙ (1 − M ) + Xobs  
+
+> 0
+
+⊙ M 
+
+> 6:
+
+ˆX0 ← ˆX0 − 1− ¯αt√ ¯αt ∇Xt LPR (M, ˆX0, D ϕ) 
+
+> 7:
+
+Sample ε ∼ N (0 , I) 
+
+> 8:
+
+Xt−1 = √¯αt−1 ˆX0 + √1 − ¯αt−1ε 
+
+> 9:
+
+end for  
+
+> 10:
+
+return X0
+
+Algorithm 2 PRDIM M step  
+
+> 1:
+
+Diffusion model θ, pattern recognizer ϕ,corresponding learning rate ηθ , η ϕ, imputed data X0, mask data M , and maximization epoch Nm. 
+
+> 2:
+
+for i = 1 , . . . , N m do  
+
+> 3:
+
+Sample t, ε ∼ U (0 , T ), N (0 , I) 
+
+> 4:
+
+Xt = √¯αtX + √1 − ¯αtε 
+
+> 5:
+
+θ ← θ − ηθ ∇θ Ldiff (X0, X t, t, f θ ) 
+
+> 6:
+
+ϕ ← ϕ − ηϕ∇ϕLPR (M, X 0, D ϕ) 
+
+> 7:
+
+end for  
+
+> 8:
+
+return θ, ϕ 
+
+Proposition 3.3. Suppose that the pattern recognizer Dϕ is optimal, satisfying Dϕ∗ (X0) =[pϕ(Md|X0)] ∈ RD , the score function of the joint log-likelihood with respect to the missing mask can be approximated as 
+
+∇Xt log pθ,ϕ (Xt|Xobs  
+
+> 0
+
+, M ) ≃ ∇ Xt log pθ (Xt|Xobs  
+
+> 0
+
+) − ∇ Xt LPR 
+
+
+
+M, ˆX0, D ϕ∗
+
+
+
+(15) 
+
+where ˆX0 := fθ (Xt, t ; Xobs  
+
+> 0
+
+) ⊙ (1 − M ) + Xobs  
+
+> 0
+
+⊙ M .
+
+Here, fθ (Xt, t ; Xobs  
+
+> 0
+
+) is X0 prediction at timestep t, and ˆX0 represents the estimated X0 in the intermediate timestep t. The detailed proof is given in Appendix A.3. Proposition 3.3 is noteworthy because it steers the more informative gradient of the intermediate sample Xt with respect to the estimated missing pattern Dϕ; it provides a meaningful signal according to the negative missing probability LPR . Further analysis of the practical behavior of the pattern recognizer is provided in Appendix F. To summarize, within the DDPM framework, given Xt at time step t, the variable Xt−1 can be obtained through the following three steps. First, using the diffusion model together with Tweedie’s formula [28, 29], we can compute the posterior mean ˆX0 [8] only with the diffusion parameter θ:
+
+ˆX0 = fθ (Xt, t ; Xobs  
+
+> 0
+
+) ⊙ (1 − M ) + Xobs  
+
+> 0
+
+⊙ M (16) Second, the pattern recognizer evaluates the missing probability for each entry based on the estimated missing values and the observed variables. Finally, according to Proposition 3.3, the denoised sample 
+
+Xt−1 = ( Xobs 
+
+> t−1
+
+, X mis 
+
+> t−1
+
+) at time t − 1 is updated by incorporating the approximated guidance. 
+
+Xt−1 = √¯αt−1( ˆX0 − 1 − ¯αt
+
+√¯αt
+
+∇Xt LPR (M, ˆX0, D ϕ)) + p1 − ¯αt−1ε where ε ∼ N (0 , I) (17) 
+
+4 Experiments 
+
+In this section, we evaluate PRDIM on various datasets under the MNAR setting. The results show that PRDIM achieves consistent improvements over prior methods, confirming the effectiveness of incorporating the missing model into the diffusion framework. The detailed experimental settings are provided in the Appendix D. 
+
+4.1 Revisiting the Objective of Diffusion Imputation Models under MNAR 
+
+Primarily, we clarify how the target objective adopted in our work differs in perspective from those used in existing diffusion imputation models, and we justify the validity of our proposed objective. In this work, we refer to the missing entries inherent to the dataset, which constitute the target for imputation as original missing values, where M denotes the corresponding indicator mask variable. In some cases, the underlying values of M are often inaccessible such as PhysioNet [ 2]and AirQuality [ 30 ]. Therefore, for quantitative evaluation, we simulate this setting by applying specific missing mechanisms (MCAR, MAR, and MNAR) to real-world complete datasets, thereby generating incomplete distributions ( Xobs  
+
+> 0
+
+, M ). In many prior works [ 10 , 31 , 11 , 32 ], it is common practice to impose an additional mask on Xobs 
+
+> 0
+
+during training. Let M − A denotes indicator mask variable of artificially missing entries, and Xobs ,A 
+
+> 0
+
+indicates the subset of observed entries remaining after the additional artificial masking is applied 6Table 2: Overall MAE ( ↓) performance on three benchmark datasets. We report mean ± std over 5 runs according to each methodology. Best results are in bold , and second best results are in underline .Method Original / Out-of-Sample Original / In-Sample ETT STOCK PEMS-Bay ETT STOCK PEMS-Bay Mean 2.034 ±0.000 1.949 ±0.000 0.813 ±0.000 1.486 ±0.000 2.039 ±0.000 0.789 ±0.000 
+
+Discriminative models 
+
+TimesNet 1.044 ±0.065 1.111 ±0.073 0.291 ±0.007 1.154 ±0.068 1.221 ±0.077 0.225 ±0.001 
+
+TimeMixer++ 1.642 ±0.025 1.287 ±0.239 0.579 ±0.018 1.100 ±0.032 1.369 ±0.260 0.557 ±0.020 
+
+BRITS 0.992 ±0.037 0.627 ±0.010 0.278 ±0.006 0.491 ±0.008 0.701 ±0.010 0.182 ±0.003 
+
+SAITS 0.814 ±0.046 0.442 ±0.022 0.302 ±0.009 0.366 ±0.014 0.498 ±0.025 0.212 ±0.003 
+
+Generative models 
+
+GP-VAE 1.511 ±0.011 0.902 ±0.109 0.345 ±0.001 0.896 ±0.018 1.010 ±0.118 0.292 ±0.002 
+
+not-MIWAE 1.311 ±0.016 0.681 ±0.045 0.396 ±0.005 0.637 ±0.011 0.759 ±0.039 0.352 ±0.005 
+
+Diffusion-based models 
+
+CSDI 1.071 ±0.001 0.641 ±0.000 0.177 ±0.000 0.522 ±0.001 0.710 ±0.000 0.158 ±0.000 
+
+MTSCI 0.957 ±0.001 0.736 ±0.001 0.193 ±0.000 0.500 ±0.000 0.809 ±0.001 0.179 ±0.000 
+
+cDiffPuter 0.782 ±0.000 0.406 ±0.000 0.182 ±0.000 0.362 ±0.000 0.450 ±0.000 0.168 ±0.000 
+
+PRDIM 0.663 ±0.000 0.254 ±0.000 0.170 ±0.000 0.303 ±0.000 0.275 ±0.000 0.154 ±0.000 
+
+(i.e. , Xobs ,A  
+
+> 0
+
+:= Xobs  
+
+> 0
+
+⊙ A). These artificially masked entries supply the supervision required for both training and evaluation. We can formulate these works aim to obtain pθ (X0 | Xobs ,A  
+
+> 0
+
+, A ) and evaluation follows the same protocol by inserting an artificial mask into the test data. Considering the above current practice of imputation studies, our research question emerges from a fundamentally different viewpoint. If the distribution of the original missing mask M differs substantially from that of the artificial mask A, we conjecture that a model trained under pθ (X0 |
+
+Xobs ,A  
+
+> 0
+
+, A ) is not expected to perform well under pθ (X0 | Xobs  
+
+> 0
+
+, M ). We provide a more detailed description in Appendix C.3. This distinction is crucial to the motivation of our work. PRDIM introduces a pattern recognizer, which explicitly learns the missing pattern, and it enables us to model pθ,ϕ (X0 | Xobs  
+
+> 0
+
+, M ) with regard to underlying missing pattern. We hypothesize that this distributional discrepancy is most pronounced under MNAR settings. We empirically validate this hypothesis in the subsequent experiments; and we also provide the performance by following the practices from the past work, as well. 
+
+4.2 Experimental Setting Datasets We evaluate our method on widely used multivariate time-series datasets, image datasets, and tabular datasets: (1) ETT [33 ], which records load and temperature of electricity transformers and has been a standard benchmark in time-series imputation task; (2) STOCK 1, which contains historical daily stock prices and reflects complex temporal dynamics; (3) PEMS-Bay [ 3], which consists of road occupancy rates collected from highway sensors, exhibiting spatial-temporal patterns; (4) Fashion-MNIST (FMNIST) [ 4 ], which consists of gray-scale images of clothing items across 10 categories, (5) CelebA-HQ [ 34 ], which represents RGB-based human face images, and (6) five different tabular datasets are from UCI machine Learning Repository. 2 We provide a detailed description of all of these datasets in Appendix D.2. 
+
+MNAR mechanism Since the datasets are complete, we arbitrarily generate missing under MNAR mechanisms. As discussed in the section 4.1, all baseline models are trained on the resulting incomplete data, while evaluation is performed on the imputation of unobserved ground-truth values. For example, we adopt the missing mechanism from not-MIWAE [ 13 ] to validate the imputation performance of PRDIM in Table 2 and Figure 12. In addition, detailed description of the employed missing mechanisms on time-series, image, and tabular datasets are provided in the Appendix D.2, E.2, and E.3 respectively. 
+
+Baselines We compare PRDIM against 10 representative imputation methods on time-series datasets. Mean serves as a traditional statistical baseline. TimesNet [35 ], TimeMixer++ [ 36 ], 
+
+BRITS [37 ], and SAITS [ 22 ] are discriminative models, known to achieve strong performance for 
+
+> 1
+
+http://github.com/Y-debug-sys/Diffusion-TS 
+
+> 2
+
+archive.ics.uci.edu/ 
+
+7Figure 3: Qualitative imputation results on CelebA-HQ 64. Second row shows ob-served inputs, where red pixels indicate missing. The detailed description of data processing is written in Appendix E.2. Table 4: Quantitative results on tabular datasets. We report the average MAE( ↓) on 5 runs and total ranking across the datasets for in-sample MNAR imputation. Baseline details are in Appendix D.4. Bold denotes the best result. Data Adult Bean Default Gesture Magic Avg Rank                                                 
+
+> MissForest [41] 0.609 0.264 0.370 0.389 0.518 4.4 MICE [42] 0.969 0.203 0.580 0.662 0.766 6.6 MOT [43] 0.506 0.255 0.354 0.438 0.494 4.0 TDM [44] 0.523 0.216 0.374 0.409 0.485 3.7 TabCSDI [45] 0.631 0.764 0.572 0.562 0.770 7.4 Hyperimpute [46] 0.533 0.284 0.345 0.386 0.588 4.2 DiffPuter [1] 0.497 0.240 0.374 0.391 0.539 3.9
+> PRDIM 0.474 0.199 0.336 0.394 0.490 1.8
+
+time-series imputations. GP-VAE [ 38 ] and not-MIWAE [ 13 ] are VAE-based imputation model that could be implemented on incomplete data. Among diffusion-based methods, we reproduce CSDI [10 ], MTSCI [11 ], and DiffPuter [ 1 ] which shows robust performance on various datasets. Specifically, We modified DiffPuter into conditional diffusion framework, which denote as cDiffPuter . In image domain, we additionally reproduce 
+
+misGAN [ 39 ] and MCFlow [ 40 ] which are GAN, Flow based generative imputation model respec-tively. Further explanations of baselines can be found in Appendix B and hyperparameter settings are reported in Appendix D.4. 
+
+Evaluation Metrics We consider two types of evaluation: (i) in-sample imputation and out-of-sample imputation, both targeting the recovery of original missing values (Detailed description in Appendix C.3). As highlighted in the introduction, our main goal is to impute original missing entries, as opposed to artificially masked ones. We report the three error-based metrics (i) RMSE, (ii) MAE, and (iii) MRE which are defined in Appendix D.1, throughout this section. 
+
+4.3 Overall Performance 
+
+Table 3: MAE ( ↓) performance for ar-tificial missing entries ( M − A) across diffusion imputation models on 5 runs.                
+
+> Method Artificial / Out-of-Sample ETT STOCK PEMS-Bay CSDI 0.243 ±0.001 0.117 ±0.000 0.115 ±0.000 MTSCI 0.208 ±0.001 0.165 ±0.002 0.123 ±0.000 cDiffPuter 0.146 ±0.001 0.101 ±0.000 0.117 ±0.000 PRDIM 0.124 ±0.001 0.092 ±0.002 0.114 ±0.001
+
+Time-Series Dataset We first evaluate PRDIM against representative discriminative, generative, and diffusion-based baselines on multivariate time-series datasets. As re-ported in Table 2 and detailed in the Appendix E, PRDIM consistently achieves the best performance across all met-rics and datasets. In particular, the gains are most pro-nounced on out-of-sample imputation tasks, while in-sample results remain competitive, suggesting that PRDIM generalizes well to unseen missing values. We further eval-uate the performance on artificial missing entries to align with the metrics used in prior studies, as shown in Table 3. A comparison with Table 2 confirms a notable performance gap between imputing original and artificial missing entries, supporting our claim that artificial masking may not fully reflect the challenges of MNAR scenarios. Nevertheless, PRDIM consistently achieves strong results even on artificial entries, ensuring its effectiveness regardless of the masking scheme. 
+
+Image Dataset Due to space constraints, experiment results on FMNIST are provided in Figures 11 and 12 of Appendix E.1. These results illustrate that PRDIM generates semantically more consistent reconstructions than other approaches. They also highlight the importance of explicitly modeling the missing mechanism in the diffusion process. We extend this analysis to the more complicate RGB image space, CelebA-HQ in Figure 3. 3 While the vanilla model struggles to infer missing semantic components such as eyes, noses, and mouths and tends to merely fill the regions with averaged color derived from the global context, PRDIM effectively leverages local contextual cues. We reproduce additional quantitative metrics in Appendix E.2. 
+
+Tabular Dataset To verify the effectiveness of PRDIM’s pattern recognizer on tabular data, we evaluate our model using the identical experimental setup as DiffPuter, incorporating the proposed   
+
+> 3Our intention is only to demonstrate the feasibility of applying PRDIM to general datasets in diverse modalities; we do not intend to compare our method to the inpainting methods which utilize the pre-trained generative models since we use diffusion models trained with incomplete data.
+
+8pattern recognizer. The results on Table 4 confirm that PRDIM outperforms DiffPuter on tabular datasets as well. Comprehensive results on out-of-sample are provided in Appendix E.3. 
+
+Computational Overhead PRDIM incurs additional inference cost due to gradient-based pattern guidance during inference, but the overhead remains moderate relative to the diffusion baselines. As further analyzed in Appendix E.4, the pattern recognizer is lightweight across modalities, and this additional cost is justified by consistent performance gains under MNAR settings. 
+
+4.4 Ablation Studies 
+
+We further conduct ablation experiments to quantify the contribution of each component in PRDIM. Table 5 reports results when either the pattern recognizer is removed or hard EM is replaced with soft EM. Both modifications lead to a significant performance drop, indicating that explicit missing modeling and iterative EM updates are indispensable for exploring the missing data distribution. Furthermore, we investigate the impact of the artificial missing mask A. While previous works typically generate artificial missing entries under the MCAR ( M − A is the corresponding indicator mask of artificial missing entries), we report performances across different missing rates of 10% ,
+
+50% , and 90% for M − A. Overall, the missing rate of M − A has limited influence on imputation. Table 6 investigate robustness under different missing mechanisms by applying MNAR and MCAR masks to the ETT dataset. Implementation details for the corresponding mechanisms are described in Appendix D. PRDIM consistently outperforms baselines under MNAR, whereas under MCAR the advantage diminishes, as the pattern recognizer learns randomness in this scenario. Together, these ablation studies confirm the necessity of PRDIM’s design choices and its robustness across varying missing conditions. Table 5: Ablation study results on the STOCK 
+
+dataset. X % denotes the missing rate of M − A
+
+in Phase 1 pre-training, and the last line is same with DiffPuter. Method Out-of-Sample In-Sample RMSE( ↓) MAE( ↓) MRE( ↓) RMSE( ↓) MAE( ↓) MRE( ↓)PRDIM 0.599 0.254 16.79 0.633 0.275 17.15                               
+
+> 10% 0.590 0.258 17.06 0.630 0.282 17.63 50% 0.624 0.259 17.12 0.667 0.281 17.56 90% 0.631 0.293 19.40 0.677 0.323 20.15 w/o PR 0.650 0.306 20.23 0.691 0.339 21.17 w/o PR + w/o hard EM 0.734 0.406 26.88 0.778 0.450 28.06
+
+Table 6: Imputation results on the ETT 
+
+dataset in (top) different MNAR and (bottom) 
+
+MCAR pattern. We report the average RMSE / MAE / MRE over 5 runs. Method Out-of-Sample In-Sample CSDI 0.345 / 0.218 / 13.825 0.233 / 0.159 / 13.259 cDiffPuter 0.264 / 0.177 / 11.168 0.281 / 0.178 / 14.836 PRDIM 0.282 / 0.171 / 10.837 0.197 / 0.130 / 10.816               
+
+> CSDI 0.237 / 0.160 / 15.550 0.182 / 0.128 / 16.752 cDiffPuter 0.251 / 0.162 / 15.737 0.202 / 0.136 / 17.795 PRDIM 0.225 /0.147 /14.267 0.172 /0.118 /15.485
+
+4.5 Applications of PRDIM 
+
+Table 7: Out-of-Sample MAE ( ↓)under different Phase 1 methods. Initialization Method ETT STOCK PEMS-Bay MEAN 0.766 0.326 0.207 BRITS 0.824 0.300 0.188 SAITS 0.774 0.307 0.180    
+
+> CSDI (PRDIM) 0.663 0.254 0.170
+
+Table 8: Post-imputation classifica-tion results on FMNIST. Method Clean test data accuracy (%) Clean Data 92.59 ±0.09           
+
+> PRDIM 91.14 ±0.33
+> DiffPuter 91.09 ±0.27
+> MCFlow 90.49 ±0.25
+> CSDI 87.41 ±0.87
+> misGAN 84.34 ±1.48
+
+We conducted two additional experiments to investigate the importance of Phase 1 initialization and the generalization ca-pability of PRDIM. First, we replaces Phase 1 with several different strategies (MEAN, BRITS, SAITS) under identical conditions to examine how different pre-imputation methods influence PRDIM’s performance. As shown in Table 7, initial-ization with CSDI yields the best results. Second, we assessed post-imputation classification accuracy on the FMNIST dataset to evaluate how well the imputed data support downstream tasks. This experiment examines whether higher-quality imputations translate into improved task perfor-mance. As reported in Table 8, PRDIM surpasses Flow-based, GAN-based, and prior diffusion-based approaches, indicating that PRDIM is capable of restoring meaningful semantic infor-mation even in the image domain. 
+
+5 Conclusion 
+
+We presented PRDIM, a diffusion-based imputation framework that incorporates an additional dis-criminator denoted pattern recognizer under an EM algorithm to explicitly estimate missing patterns. We show that the guidance which understands missing pattern can be helpful for generating missing values precisely in diffusion imputation model. Our theoretical derivation and extensive experiments demonstrate that PRDIM consistently improves imputation compared to existing methods. 9References 
+
+[1] Hengrui Zhang, Liancheng Fang, Qitian Wu, and Philip S Yu. Diffputer: Empowering diffusion models for missing data imputation. In The Thirteenth International Conference on Learning Representations , 2025. [2] Ary L Goldberger, Luis AN Amaral, Leon Glass, Jeffrey M Hausdorff, Plamen Ch Ivanov, Roger G Mark, Joseph E Mietus, George B Moody, Chung-Kang Peng, and H Eugene Stanley. Physiobank, physiotoolkit, and physionet: components of a new research resource for complex physiologic signals. circulation , 101(23):e215–e220, 2000. [3] Yaguang Li, Rose Yu, Cyrus Shahabi, and Yan Liu. Diffusion convolutional recurrent neural network: Data-driven traffic forecasting. arXiv preprint arXiv:1707.01926 , 2017. [4] Han Xiao, Kashif Rasul, and Roland Vollgraf. Fashion-mnist: a novel image dataset for benchmarking machine learning algorithms. arXiv preprint arXiv:1708.07747 , 2017. [5] Roderick JA Little and Donald B Rubin. Statistical analysis with missing data. New York: Wiley ,1987. [6] Joseph L Schafer. Analysis of incomplete multivariate data . CRC press, 1997. [7] Giulia Carreras, Guido Miccinesi, Andrew Wilcock, Nancy Preston, Daan Nieboer, Luc Deliens, Mogensm Groenvold, Urska Lunder, Agnes van der Heide, Michela Baccini, et al. Missing not at random in end of life care studies: multiple imputation and sensitivity analysis on data from the action study. BMC medical research methodology , 21(1):13, 2021. [8] Jonathan Ho, Ajay Jain, and Pieter Abbeel. Denoising diffusion probabilistic models. Advances in neural information processing systems , 33:6840–6851, 2020. [9] Yang Song, Jascha Sohl-Dickstein, Diederik P Kingma, Abhishek Kumar, Stefano Ermon, and Ben Poole. Score-based generative modeling through stochastic differential equations. In 
+
+International Conference on Learning Representations , 2021. [10] Yusuke Tashiro, Jiaming Song, Yang Song, and Stefano Ermon. Csdi: Conditional score-based diffusion models for probabilistic time series imputation. Advances in neural information processing systems , 34:24804–24816, 2021. [11] Jianping Zhou, Junhao Li, Guanjie Zheng, Xinbing Wang, and Chenghu Zhou. Mtsci: A conditional diffusion model for multivariate time series consistent imputation. In Proceedings of the 33rd ACM International Conference on Information and Knowledge Management , pages 3474–3483, 2024. [12] Pierre-Alexandre Mattei and Jes Frellsen. Miwae: Deep generative modelling and imputation of incomplete data sets. In International conference on machine learning , pages 4413–4423. PMLR, 2019. [13] Niels Bruun Ipsen, Pierre-Alexandre Mattei, and Jes Frellsen. not-miwae: Deep generative modelling with missing not at random data. arXiv preprint arXiv:2006.12871 , 2020. [14] Ian J Goodfellow, Jean Pouget-Abadie, Mehdi Mirza, Bing Xu, David Warde-Farley, Sherjil Ozair, Aaron Courville, and Yoshua Bengio. Generative adversarial nets. Advances in neural information processing systems , 27, 2014. [15] Jinsung Yoon, James Jordon, and Mihaela Schaar. Gain: Missing data imputation using generative adversarial nets. In International conference on machine learning , pages 5689–5698. PMLR, 2018. [16] Diederik P Kingma and Max Welling. Auto-encoding variational bayes. arXiv preprint arXiv:1312.6114 , 2013. [17] Patrick Esser, Sumith Kulal, Andreas Blattmann, Rahim Entezari, Jonas Müller, Harry Saini, Yam Levi, Dominik Lorenz, Axel Sauer, Frederic Boesel, et al. Scaling rectified flow trans-formers for high-resolution image synthesis. In Forty-first international conference on machine learning , 2024. 10 [18] Zhifeng Kong, Wei Ping, Jiaji Huang, Kexin Zhao, and Bryan Catanzaro. Diffwave: A versatile diffusion model for audio synthesis. arXiv preprint arXiv:2009.09761 , 2020. [19] Jaehyeong Jo, Seul Lee, and Sung Ju Hwang. Score-based generative modeling of graphs via the system of stochastic differential equations. In International conference on machine learning ,pages 10362–10383. PMLR, 2022. [20] Andrea Coletta, Sriram Gopalakrishnan, Daniel Borrajo, and Svitlana Vyetrenko. On the constrained time-series generation problem. Advances in Neural Information Processing Systems , 36:61048–61059, 2023. [21] Tero Karras, Miika Aittala, Timo Aila, and Samuli Laine. Elucidating the design space of diffusion-based generative models. Advances in neural information processing systems ,35:26565–26577, 2022. [22] Wenjie Du, David Côté, and Yan Liu. Saits: Self-attention-based imputation for time series. 
+
+Expert Systems with Applications , 219:119619, 2023. [23] Kaiming He, Xinlei Chen, Saining Xie, Yanghao Li, Piotr Dollár, and Ross Girshick. Masked autoencoders are scalable vision learners. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 16000–16009, 2022. [24] William Peebles and Saining Xie. Scalable diffusion models with transformers. In Proceedings of the IEEE/CVF international conference on computer vision , pages 4195–4205, 2023. [25] Dongjun Kim, Yeongmin Kim, Se Jung Kwon, Wanmo Kang, and Il-Chul Moon. Refining generative process with discriminator guidance in score-based diffusion models. arXiv preprint arXiv:2211.17091 , 2022. [26] Rajhans Samdani, Ming-Wei Chang, and Dan Roth. Unified expectation maximization. In 
+
+Proceedings of the 2012 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies , pages 688–698, 2012. [27] Arthur P Dempster, Nan M Laird, and Donald B Rubin. Maximum likelihood from incomplete data via the em algorithm. Journal of the royal statistical society: series B (methodological) ,39(1):1–22, 1977. [28] Bradley P Carlin, Thomas A Louis, et al. Bayes and empirical Bayes methods for data analysis .Chapman & Hall/CRC, 2000. [29] Bradley Efron. Tweedie’s formula and selection bias. Journal of the American Statistical Association , 106(496):1602–1614, 2011. [30] Shuyi Zhang, Bin Guo, Anlan Dong, Jing He, Ziping Xu, and Song Xi Chen. Cautionary tales on air-quality improvement in beijing. Proceedings of the Royal Society A: Mathematical, Physical and Engineering Sciences , 473(2205):20170457, 2017. [31] Juan Miguel Lopez Alcaraz and Nils Strodthoff. Diffusion-based time series imputation and forecasting with structured state space models. arXiv preprint arXiv:2208.09399 , 2022. [32] Yixin Liu, Thalaiyasingam Ajanthan, Hisham Husain, and Vu Nguyen. Self-supervision improves diffusion models for tabular data imputation. In Proceedings of the 33rd ACM International Conference on Information and Knowledge Management , pages 1513–1522, 2024. [33] Haoyi Zhou, Shanghang Zhang, Jieqi Peng, Shuai Zhang, Jianxin Li, Hui Xiong, and Wancai Zhang. Informer: Beyond efficient transformer for long sequence time-series forecasting. In 
+
+Proceedings of the AAAI conference on artificial intelligence , volume 35, pages 11106–11115, 2021. [34] Cheng-Han Lee, Ziwei Liu, Lingyun Wu, and Ping Luo. Maskgan: Towards diverse and interactive facial image manipulation. In IEEE Conference on Computer Vision and Pattern Recognition (CVPR) , 2020. 11 [35] Haixu Wu, Tengge Hu, Yong Liu, Hang Zhou, Jianmin Wang, and Mingsheng Long. Times-net: Temporal 2d-variation modeling for general time series analysis. arXiv preprint arXiv:2210.02186 , 2022. [36] Shiyu Wang, Jiawei Li, Xiaoming Shi, Zhou Ye, Baichuan Mo, Wenze Lin, Shengtong Ju, Zhixuan Chu, and Ming Jin. Timemixer++: A general time series pattern machine for universal predictive analysis. arXiv preprint arXiv:2410.16032 , 2024. [37] Wei Cao, Dong Wang, Jian Li, Hao Zhou, Lei Li, and Yitan Li. Brits: Bidirectional recurrent imputation for time series. Advances in neural information processing systems , 31, 2018. [38] Vincent Fortuin, Dmitry Baranchuk, Gunnar Rätsch, and Stephan Mandt. Gp-vae: Deep probabilistic time series imputation. In International conference on artificial intelligence and statistics , pages 1651–1661. PMLR, 2020. [39] Steven Cheng-Xian Li, Bo Jiang, and Benjamin Marlin. Misgan: Learning from incomplete data with generative adversarial networks. arXiv preprint arXiv:1902.09599 , 2019. [40] Trevor W Richardson, Wencheng Wu, Lei Lin, Beilei Xu, and Edgar A Bernal. Mcflow: Monte carlo flow models for data imputation. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 14205–14214, 2020. [41] Daniel J Stekhoven and Peter Bühlmann. Missforest—non-parametric missing value imputation for mixed-type data. Bioinformatics , 28(1):112–118, 2012. [42] Stef Van Buuren and Karin Groothuis-Oudshoorn. mice: Multivariate imputation by chained equations in r. Journal of statistical software , 45:1–67, 2011. [43] Boris Muzellec, Julie Josse, Claire Boyer, and Marco Cuturi. Missing data imputation using optimal transport. In International Conference on Machine Learning , pages 7130–7140. PMLR, 2020. [44] He Zhao, Ke Sun, Amir Dezfouli, and Edwin V Bonilla. Transformed distribution matching for missing value imputation. In International Conference on Machine Learning , pages 42159– 42186. PMLR, 2023. [45] Shuhan Zheng and Nontawat Charoenphakdee. Diffusion models for missing value imputation in tabular data. arXiv preprint arXiv:2210.17128 , 2022. [46] Daniel Jarrett, Bogdan C Cebere, Tennison Liu, Alicia Curth, and Mihaela van der Schaar. Hyperimpute: Generalized iterative imputation with automatic model selection. In International Conference on Machine Learning , pages 9916–9937. PMLR, 2022. [47] Hyungjin Chung, Jeongsol Kim, Michael T McCann, Marc L Klasky, and Jong Chul Ye. Diffu-sion posterior sampling for general noisy inverse problems. In 11th International Conference on Learning Representations, ICLR 2023 , 2023. [48] Chao Ma and Cheng Zhang. Identifiable generative models for missing not at random data imputation. Advances in Neural Information Processing Systems , 34:27645–27658, 2021. [49] Mehmed Kantardzic. Data mining: concepts, models, methods, and algorithms . John Wiley & Sons, 2011. [50] Jinsung Yoon, William R Zame, and Mihaela Van Der Schaar. Estimating missing data in temporal data streams using multi-directional recurrent neural networks. IEEE Transactions on Biomedical Engineering , 66(5):1477–1490, 2018. [51] Yukai Liu, Rose Yu, Stephan Zheng, Eric Zhan, and Yisong Yue. Naomi: Non-autoregressive multiresolution sequence imputation. Advances in neural information processing systems , 32, 2019. [52] Wenjie Du, Yiyuan Yang, Linglong Qian, Jun Wang, and Qingsong Wen. PyPOTS: A Python Toolkit for Machine Learning on Partially-Observed Time Series. arXiv preprint arXiv:2305.18811 , 2023. 12 [53] Kashif Rasul, Calvin Seward, Ingmar Schuster, and Roland Vollgraf. Autoregressive denois-ing diffusion models for multivariate probabilistic time series forecasting. In International conference on machine learning , pages 8857–8868. PMLR, 2021. [54] Xinyu Yuan and Yan Qiao. Diffusion-ts: Interpretable diffusion for general time series genera-tion. CoRR , 2024. [55] Olaf Ronneberger, Philipp Fischer, and Thomas Brox. U-net: Convolutional networks for biomedical image segmentation. In International Conference on Medical image computing and computer-assisted intervention , pages 234–241. Springer, 2015. [56] Martin Heusel, Hubert Ramsauer, Thomas Unterthiner, Bernhard Nessler, and Sepp Hochreiter. Gans trained by a two time-scale update rule converge to a local nash equilibrium. Advances in neural information processing systems , 30, 2017. [57] Maximilian Seitzer. pytorch-fid: FID Score for PyTorch. https://github.com/mseitzer/ pytorch-fid , August 2020. Version 0.3.0. [58] Chenlin Meng, Yutong He, Yang Song, Jiaming Song, Jiajun Wu, Jun-Yan Zhu, and Stefano Ermon. Sdedit: Guided image synthesis and editing with stochastic differential equations. arXiv preprint arXiv:2108.01073 , 2021. [59] Andreas Lugmayr, Martin Danelljan, Andres Romero, Fisher Yu, Radu Timofte, and Luc Van Gool. Repaint: Inpainting using denoising diffusion probabilistic models. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 11461–11471, 2022. [60] Wang Miao, Lan Liu, Eric Tchetgen Tchetgen, and Zhi Geng. Identification, doubly robust estimation, and semiparametric efficiency theory of nonignorable missing data with a shadow variable. arXiv preprint arXiv:1509.02556 , 2015. [61] John F Cursio, Robin J Mermelstein, and Donald Hedeker. Latent trait shared-parameter mixed models for missing ecological momentary assessment data. Statistics in Medicine ,38(4):660–673, 2019. [62] Jasmit S Shah, Shesh N Rai, Andrew P DeFilippis, Bradford G Hill, Aruni Bhatnagar, and Guy N Brock. Distribution based nearest neighbor imputation for truncated high dimensional data with applications to pre-clinical and clinical metabolomics studies. BMC bioinformatics ,18(1):114, 2017. [63] Elsa Cazelles, Arnaud Robert, and Felipe Tobar. The wasserstein-fourier distance for stationary time series. IEEE Transactions on Signal Processing , 69:709–721, 2020. [64] Jonathan Ho and Tim Salimans. Classifier-free diffusion guidance. arXiv preprint arXiv:2207.12598 , 2022. [65] Jacob Austin, Daniel D Johnson, Jonathan Ho, Daniel Tarlow, and Rianne Van Den Berg. Structured denoising diffusion models in discrete state-spaces. Advances in neural information processing systems , 34:17981–17993, 2021. [66] Emiel Hoogeboom, Didrik Nielsen, Priyank Jaini, Patrick Forré, and Max Welling. Argmax flows and multinomial diffusion: Learning categorical distributions. Advances in neural information processing systems , 34:12454–12465, 2021. [67] Juntong Shi, Minkai Xu, Harper Hua, Hengrui Zhang, Stefano Ermon, and Jure Leskovec. Tabdiff: a unified diffusion model for multi-modal tabular data generation. In NeurIPS 2024 Third Table Representation Learning Workshop , 2024. 13 Appendix 
+
+A Proofs 15 
+
+A.1 Proof of Proposition 3.1 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15 A.2 Proof of Corollary 3.2 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15 A.3 Proof of Proposition 3.3 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 16 A.4 Rewritten Theorem 1 of DiffPuter . . . . . . . . . . . . . . . . . . . . . . . . . . 17 
+
+B Related Works 17 C Terminology Details 18 
+
+C.1 In-Sample and Out-of-Sample imputation . . . . . . . . . . . . . . . . . . . . . . 18 C.2 Soft EM and Hard EM . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 18 C.3 Detailed Description of Data Processing and Objective . . . . . . . . . . . . . . . 18 
+
+D Experimental Details 19 
+
+D.1 Evaluation Metrics . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 19 D.2 Missing Mechanisms and Datasets . . . . . . . . . . . . . . . . . . . . . . . . . . 20 D.3 Diffusion Imputation Model Configuration . . . . . . . . . . . . . . . . . . . . . . 21 D.4 Hyperparameter Settings of Baselines . . . . . . . . . . . . . . . . . . . . . . . . 22 
+
+E Additional Experiments 23 
+
+E.1 Fashion-MNIST . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 23 E.2 CelebA-HQ . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 23 E.3 Tabular data . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 24 E.4 Cost–Performance Trade-offs under Different EM Configurations . . . . . . . . . 24 E.5 Evaluation on Various Missing Senarios . . . . . . . . . . . . . . . . . . . . . . . 25 E.6 Different Evaluation Metrics for Imputation . . . . . . . . . . . . . . . . . . . . . 26 E.7 Controlled Parameter Analysis . . . . . . . . . . . . . . . . . . . . . . . . . . . . 27 E.8 Qualitative Results Including Real-world Dataset . . . . . . . . . . . . . . . . . . 27 
+
+F Pattern Recognizer Analysis 28 
+
+F.1 Interpretability of the Pattern Recognizer with Case Study . . . . . . . . . . . . . 28 F.2 Control the Pattern Recognizer’s Capacity . . . . . . . . . . . . . . . . . . . . . . 28 F.3 Impact of Pattern Recognizer across Intermediate Training Process on Imputation . 29 
+
+G Future Works 29 
+
+G.1 Discrete State Diffusion for Imputation . . . . . . . . . . . . . . . . . . . . . . . . 29 G.2 Orthogonal Refinement: Prior Distribution Optimization . . . . . . . . . . . . . . 30 14 A Proofs 
+
+A.1 Proof of Proposition 3.1 Proposition 3.1. Given the graphical model in Figure 2, assume that the forward process and missing mechanism satisfy the following conditional independencies: q(X1: T |X0, M ) = q(X1: T |X0) and 
+
+pϕ(M |X0, X 1: T ) = pϕ(M |X0).Then, the ELBO of joint log-likelihood objective of the observed data and mask can be expressed as 
+
+log pθ,ϕ (Xobs  
+
+> 0
+
+, M ) ≥ EX1: T
+
+h
+
+log pθ (XT ) QTt=1 pθ (Xt−1|Xt)
+
+QTt=1 q(Xt|Xt−1)
+
+i
+
++ EXmis 
+
+> 0
+
+h
+
+log pϕ(M |X0)
+
+i
+
+(13) 
+
++ H(q(Xmis  
+
+> 0
+
+|Xobs  
+
+> 0
+
+, M )) 
+
+Proof. 
+
+log pθ,ϕ (Xobs , M ) = log 
+
+Z
+
+> Z
+
+Z
+
+> Xmis
+
+pθ,ϕ (Xobs , X mis , M, Z )dX mis dZ (18) 
+
+= log 
+
+Z
+
+> Z
+
+Z
+
+> Xmis
+
+pθ,ϕ (Xobs , X mis , M, Z )
+
+q(Xmis , Z |Xobs , M ) q(Xmis , Z |Xobs , M )dX mis dZ (19) 
+
+= log 
+
+Z
+
+> Z
+
+Z
+
+> Xmis
+
+pϕ(M |X)pθ (X|Z)pθ (Z)
+
+q(Z|X)q(Xmis |Xobs , M ) q(Z|X)q(Xmis |Xobs , M )dX mis dZ 
+
+(20) 
+
+≥ EZ∼q(Z|X), X mis ∼q(Xmis |Xobs ,M )[log pϕ(M |X) + log pθ (X|Z)pθ (Z)
+
+q(Z|X) ] (21) 
+
++ H(q(Xmis |Xobs , M )) (22) Equation 21 defines the loss objective between the true parameters and the corresponding variational distribution. Replacing the latent variable Z with the diffusion latents X1: T , can be formulated as equation 23 under the Markov property of the diffusion process. 
+
+EX1: T ∼q(X1: T |X), X mis ∼q(Xmis |Xobs ,M )[log pϕ(M |X) + log pθ (X|X1)pθ (X1: T )
+
+q(X1: T |X) ] (23) 
+
+A.2 Proof of Corollary 3.2 Corollary 3.2 (EM Monotonicity) . Under the same assumptions in Proposition 3.1 with the ideal-ized EM setting, the sequence of parameters (θ(k), ϕ (k)) generated by the proposed EM algorithm monotonically increases the joint log-likelihood of the observed variables at each iteration k:
+
+log pθ(k+1) ,ϕ (k+1) (Xobs  
+
+> 0
+
+, M ) ≥ log pθ(k),ϕ (k) (Xobs  
+
+> 0
+
+, M ) (14) 
+
+Proof. Regarding the missing values and diffusion trajectories as latent variables 
+
+Z := ( Xmis 0 , X 1: T )
+
+where 
+
+X0 = ( Xobs 0 , X mis 0 )
+
+For notational simplicity, let 
+
+Y := ( Xobs 0 , M )
+
+denote the observed variables. Then the marginal likelihood optimized by the EM procedure is 
+
+pθ,ϕ (Y ) = pθ,ϕ (Xobs 0 , M ) = 
+
+Z
+
+pθ,ϕ (Y, Z ) dZ 
+
+For any variational distribution q(Z), the marginal log-likelihood can be decomposed as 
+
+log pθ,ϕ (Y ) = log 
+
+Z
+
+pθ,ϕ (Y, Z ) dZ = log 
+
+Z
+
+q(Z) pθ,ϕ (Y, Z )
+
+q(Z) dZ ≥ Eq(Z)
+
+
+
+log pθ,ϕ (Y, Z )
+
+q(Z)
+
+
+
+(24) 15 We define the corresponding evidence lower bound as 
+
+L(q, θ, ϕ ) := Eq(Z)
+
+log pθ,ϕ (Xobs 0 , X mis 0 , M, X 1: T ) − log q(Z) (25) where the variational distribution q(Z) is decomposed as we mentioned in Proposition 3.1, 
+
+q(Z) = q(Xmis 0 , X 1: T | Xobs 0 , M ) = q(Xmis 0 | Xobs 0 , M )
+
+> T
+
+Y
+
+> t=1
+
+q(Xt | Xt−1) (26) We now show the monotonicity of the EM framework. At iteration k, the E step sets the variational distribution to the posterior under the current parameters: 
+
+q(k+1) (Z) = pθ(k),ϕ (k) (Z | Y ) = pθ(k),ϕ (k) (Xmis 0 , X 1: T | Xobs 0 , M ) (27) For this choice of q(k+1) , the ELBO is tight at the current parameters. 
+
+L(q(k+1) , θ (k), ϕ (k)) = Eq(k+1) (Z)
+
+
+
+log pθ(k),ϕ (k) (Y, Z )
+
+q(k+1) (Z)
+
+
+
+(28) 
+
+= Epθ(k),ϕ (k) (Z|Y )
+
+
+
+log pθ(k),ϕ (k) (Y, Z )
+
+pθ(k),ϕ (k) (Z | Y )
+
+
+
+(29) 
+
+= Epθ(k),ϕ (k) (Z|Y )
+
+log pθ(k),ϕ (k) (Y ) (30) 
+
+= log pθ(k),ϕ (k) (Y ) (31) The M step then updates the parameters such that 
+
+L(q(k+1) , θ (k+1) , ϕ (k+1) ) ≥ L (q(k+1) , θ (k), ϕ (k)) (32) Furthermore, since L(q, θ, ϕ ) is a lower bound on the log-likelihood, we have 
+
+log pθ(k+1) ,ϕ (k+1) (Y ) ≥ L (q(k+1) , θ (k+1) , ϕ (k+1) ) (33) Combine the above inequalities 
+
+log pθ(k+1) ,ϕ (k+1) (Y ) ≥ L (q(k+1) , θ (k+1) , ϕ (k+1) ) (34) 
+
+≥ L (q(k+1) , θ (k), ϕ (k)) (35) 
+
+= log pθ(k),ϕ (k) (Y ) (36) Recall that Y = ( Xobs 0 , M ), we obtain 
+
+log pθ(k+1) ,ϕ (k+1) (Xobs 0 , M ) ≥ log pθ(k),ϕ (k) (Xobs 0 , M ) (37) This result should be interpreted as a justification of the underlying EM objective rather than a guarantee for the approximate neural implementation. 
+
+A.3 Proof of Proposition 3.3 Proposition 3.3. Suppose that the pattern recognizer Dϕ is optimal, satisfying Dϕ∗ (X0) =[pϕ(Md|X0)] ∈ RD , the score function of the joint log-likelihood with respect to the missing mask can be approximated as 
+
+∇Xt log pθ,ϕ (Xt|Xobs  
+
+> 0
+
+, M ) ≃ ∇ Xt log pθ (Xt|Xobs  
+
+> 0
+
+) − ∇ Xt LPR 
+
+
+
+M, ˆX0, D ϕ∗
+
+
+
+(15) 
+
+where ˆX0 := fθ (Xt, t ; Xobs  
+
+> 0
+
+) ⊙ (1 − M ) + Xobs  
+
+> 0
+
+⊙ M .
+
+16 Proof. From the graphical model of Figure 2 (a), conditional independence for missing process satisfies pϕ(M |X0, X t) = pϕ(M |X0) at Equation 39. The approximation 40 came from the Thm 1 of [47]. 
+
+∇Xt log pθ,ϕ (Xt|Xobs  
+
+> 0
+
+, M ) = ∇Xt log pθ (Xt|Xobs  
+
+> 0
+
+) + ∇Xt log pθ,ϕ (M |Xt, X obs  
+
+> 0
+
+) (38) 
+
+= ∇Xt log pθ (Xt|Xobs  
+
+> 0
+
+) + ∇Xt log 
+
+Z
+
+pϕ(M |X0)pθ (Xmis  
+
+> 0
+
+|Xt, X obs  
+
+> 0
+
+)dX mis  
+
+> 0
+
+(39) 
+
+≃ ∇ Xt log pθ (Xt|Xobs  
+
+> 0
+
+) + ∇Xt log pϕ(M |fθ (Xt, t ; Xobs  
+
+> 0
+
+)mis , X obs  
+
+> 0
+
+) (40) 
+
+= ∇Xt log pθ (Xt|Xobs  
+
+> 0
+
+) + ∇Xt M log Dϕ∗
+
+
+
+fθ (Xt, t ; Xobs  
+
+> 0
+
+)mis , X obs 
+
+> 0
+
+
+
+(41) 
+
++ ∇Xt (1 − M ) log 
+
+n
+
+1 − Dϕ∗
+
+
+
+fθ (Xt, t ; Xobs  
+
+> 0
+
+)mis , X obs 
+
+> 0
+
+o 
+
+(42) 
+
+= ∇Xt log pθ (Xt|Xobs  
+
+> 0
+
+) − ∇ Xt LPR 
+
+
+
+M, (fθ (Xt, t ; Xobs  
+
+> 0
+
+)mis , X obs  
+
+> 0
+
+), D ϕ∗
+
+
+
+(43) Since d-th element of Dϕ∗ (X0) converges to pϕ(Md = 1 |X0) [ 13 , 48 ], entire probability of mask variable M follows: 
+
+log pϕ(M |fθ (Xt, t ; Xobs  
+
+> 0
+
+)mis , X obs  
+
+> 0
+
+) = 
+
+> D
+
+X
+
+> i=1
+
+log pϕ(Md|fθ (Xt, t ; Xobs  
+
+> 0
+
+)mis , X obs  
+
+> 0
+
+) (44) 
+
+= M log Dϕ∗
+
+
+
+fθ (Xt, t ; Xobs  
+
+> 0
+
+)mis , X obs 
+
+> 0
+
+
+
++ (1 − M ) log 
+
+n
+
+1 − Dϕ∗
+
+
+
+fθ (Xt, t ; Xobs  
+
+> 0
+
+)mis , X obs 
+
+> 0
+
+o 
+
+(45) where (fθ (Xt, t ; Xobs  
+
+> 0
+
+)mis , X obs  
+
+> 0
+
+) = fθ (Xt, t ; Xobs  
+
+> 0
+
+) ⊙ (1 − M ) + Xobs  
+
+> 0
+
+⊙ M .
+
+A.4 Rewritten Theorem 1 of DiffPuter Theorem A.1. Let XT be a sample from the prior distribution pθ (XT ) = N (0 , I), X be the data to impute, and the known entries of X are denoted by Xobs = Xobs  
+
+> 0
+
+. The score function ∇Xt log p(Xt)
+
+could be parameterized by neural network fθ (Xt, t ; Xobs  
+
+> 0
+
+). Applying forward and reverse process of the diffusion model iteratively from t = T ≫ 0 until t = 0 with ∆t → 0, then ˆX0 is a sample from 
+
+pθ (X), under the condition that its observed entries ˆXobs  
+
+> 0
+
+= Xobs  
+
+> 0
+
+. Formally, 
+
+ˆX0 ∼ pθ (X|Xobs = Xobs  
+
+> 0
+
+) (46) We presents a rewritten version of Theorem 1 from DiffPuter [ 1], and refer the reader to the original paper for the detailed proof. The theorem establishes that when learning the joint probability of 
+
+Xobs and Xmis , the missing values can be inferred by conditioning on the observed values of a given sample. We adopt the same line of reasoning in Section 3.3 to support our theoretical development. 
+
+B Related Works 
+
+Traditional imputation approaches typically rely on simple statistical heuristics such as mean, median, or last observation carried forward to fill in missing entries of multivariate time-series data [ 49 ]. These strategies often fail to capture the complex temporal dynamics and cross-feature dependencies in them. To improve upon these methods, more sophisticated methods such as MICE [ 42 ], which iteratively ap-plies the EM algorithm, and MissForest [ 41 ], which leverages random forests for iterative refinement, have been proposed. Although these techniques provide more better imputation performances than naive statistical rules, their capacity remains limited when handling high-dimensional time-series data with intricate dependencies. 
+
+Imputation with Deep Learning Early attempts to exploit deep learning for time-series imputation include mRNN [ 50 ], which leverages recurrent neural networks to capture temporal dependencies and model complex patterns in partially observed sequences. BRITS [ 37 ] further improves upon RNN-based imputers by introducing a bidirectional structure, allowing information to flow forward and backward across time to enhance estimation accuracy. Then NAOMI [ 51 ] combines multi-resolution RNNs with adversarial training strategies to refine imputations at different time scales. SAITS [ 22 ]17 introduces a self-attention mechanism to better capture long-range temporal dependencies. Most of them could be reproduced with the released Python toolkit [52]. Beyond time-series-specific architectures, several general-purpose imputation frameworks have also shaped the development of recent methods. GAIN [ 15 ], although not tailored to time-series data, was the first to introduce an adversarial discriminator to imputation, providing a novel mechanism to distinguish observed values and missing values. Successively, misGAN [ 39 ] provided multiple generators and discriminators system for stable training across varied missing patterns. Flow-based approaches such as MCFlow [ 40 ] further demonstrated that the EM algorithm can be combined with invertible generative models to jointly optimize flow parameters and missing entries. not-MIWAE [ 13 ] addressed the MNAR scenario by explicitly optimizing a missing model within the ELBO objective, which can inference missing values by missing model weighted importance sampling. Although originally proposed for general imputation tasks, these frameworks have significantly influenced subsequent advances in time-series imputation by highlighting the value of probabilistic, adversarial, and likelihood-based modeling. 
+
+Diffusion-based Approaches for Imputation In the time-series domain, TimeGrad [ 53 ] applies diffusion to probabilistic forecasting, though its design mainly focuses on forecasting task. For the imputation task, CSDI [ 10 ] introduces a conditional diffusion framework with masking to handle arbitrary missing. Building on this line of research, methods such as SSSD [ 31 ] and Diffusion-TS [ 54 ]incorporate additional regularization losses tailored to time-series characteristics, thereby enhancing the interpretability of the imputed sequences. On the other hand, MTSCI [ 11 ] integrates a contrastive loss to maximize mutual information between observed variable and missing variable which improves generated sample consistency. More recently, DiffPuter [ 1] further improves probabilistic imputation with the EM algorithm, which progressively refines the missing values. 
+
+C Terminology Details 
+
+C.1 In-Sample and Out-of-Sample imputation 
+
+In our experiments, In-Sample imputation refers to evaluating imputation performance on the same dataset used for training, whereas out-of-sample imputation evaluates the model on held-out test splits containing unseen data. The simulated MNAR pattern distributions are generated consistently for each split to ensure complete evaluation. Figure 4 summarizes the distinction between the in-sample imputation process and the out-of-sample imputation process. 
+
+C.2 Soft EM and Hard EM 
+
+Soft EM refers to an approach in which multiple samples are generated using Monte Carlo sampling, and the model parameters are updated based on the expected imputed value. In this case, the imputed sample corresponds to the posterior expectation 
+
+ˆX0 = Epθ (X0|Xobs   
+
+> 0,M )
+
+[X0]
+
+In contrast, Hard EM can be viewed as producing a single imputed output obtained by the posterior mode: ˆX0 = arg max 
+
+> X0
+
+pθ (X0|Xobs  
+
+> 0
+
+, M )
+
+We adopt Hard EM for two main reasons. (i) It significantly reduces the sampling time because only one imputed sample is required at each iteration. (ii) In our experiments, Hard EM yields slightly better imputation performance than Soft EM. This observation is consistent with the findings of the prior work [ 26 ], who report that Hard EM performs better when the initialization is strong, whereas Soft EM is preferable under uninformed initialization. Since PRDIM benefits from Phase 1, where the diffusion model is well initialized by CSDI, the Hard EM variant is naturally more effective in our setting. 
+
+C.3 Detailed Description of Data Processing and Objective 
+
+In this section, we aim to clarify the rationale behind our choice of datasets, draw theoretical connections to the EM-based training procedure in PRDIM, and contrast our evaluation protocol with 18 Data Instances with Missing Values     
+
+> Training Instances Test Instances
+> Training Procedure of
+> Imputation Model 𝑓 𝜃
+> Trained Imputation Model 𝑓 𝜃
+> Out -Sample
+> Evaluation
+> In -Sample
+> Evaluation
+> Complete Data Instances
+> Simulation of Missing (under MNAR, MAR, MCAR)
+> ground -truth used only for evaluation
+
+Figure 4: Overall information flow between the in-sample imputation and the out-of-sample imputa-tion. that of prior studies that share a similar experimental framework. Figure 5 provides an overview of two distinct classes of objectives used in existing imputation research, highlighting why directly evaluating models on naturally incomplete datasets such as PhysioNet [ 2] or AirQuality [ 30 ] can be problematic. Imputation applicable diffusion models including CSDI [ 10 ], SSSD [ 31 ], and Diffusion-TS [ 54 ], generally rely on one of two strategies. (i) injecting artificial missing into a complete dataset so that ground-truth values are available during training, or (ii) into already incomplete datasets, thereby increasing the overall missing ratio and using the resulting data as model input. A key commonality between the two imputation paradigms is that the ground-truth values employed for evaluation are implicitly utilized during model training. Let M denote the original missing mask of the incomplete dataset Xobs  
+
+> 0
+
+, and let A denote the mask obtained after applying additional artificial missing. The missing distributions induced by these two masks differ intrinsically, which can be formalized as p(M |X0)̸ = p(A|X0, M ). Consequently, the imputed results generated under these differing mask conditions also become different. ( i.e. 
+
+pθ (X0|M, X obs  
+
+> 0
+
+)̸ = pθ (X0|A, X obs  
+
+> 0
+
+⊙ A).) Such discrepancies indicate that the imputation task inevitably involves a latent missing variable Xmis  
+
+> 0
+
+, whose distribution cannot be directly inferred from artificially masked data alone. This observation motivates the necessity of adopting an Ex-pectation–Maximization (EM) training framework, wherein the missing entries are treated as latent variables and iteratively refined during model optimization. 
+
+D Experimental Details 
+
+D.1 Evaluation Metrics 
+
+We report three error-based metrics: RMSE =
+
+vuutPN,D n=1 ,d =1 (Xnd − ˆXnd )2 × M nd
+
+PN,D n=1 ,d =1 M nd
+
+, (47) MAE =
+
+PN,D n=1 ,d =1 |Xnd − ˆXnd | × M nd
+
+PN,D n=1 ,d =1 M nd
+
+, (48) 19 Additionally masked data 
+
+> (Add artificial missing)
+
+XX
+
+XX
+
+X
+
+X
+
+X  
+
+> Initial State of Complete data
+> (e.g. ETT, Pems -Bay)
+
+XX
+
+X
+
+X             
+
+> Simulated incomplete data
+> Imputation model 𝒇 𝜽
+> (not -MIWAE, GAIN,
+> MCFlow ,DiffPuter ,
+> PRDIM)
+> Imputation model 𝒇 𝜽
+> (CSDI, SADI, etc )
+> : Original Missing Mask ( 𝑀 )
+> : Artificially Masked Entries ( 𝑀 −𝐴 )
+> : Observed Value ( 𝑋 0
+> 𝑜𝑏𝑠 )
+> : Missing Value ( 𝑋 0
+> 𝑚𝑖𝑠 )X
+> : Imputed Value ( ෠𝑋 0
+> 𝑚𝑖𝑠 )
+> Evaluation with Original Missing Mask ( 𝑀 )
+> Naturally incomplete data
+> (e.g. PhysioNet, AirQuality )
+> XX
+> X
+> X
+> Missing pattern
+> simulation
+> (under MCAR,
+> MAR, MNAR)
+> Evaluation only with Artificially Masked Entries ( 𝑀 −𝐴 )
+> (that result is mimicked on left box of Table 1)
+
+Figure 5: Overview of the data processing pipeline and the distinction between two classes of imputation objectives. MRE =
+
+PN,D n=1 ,d =1 |Xnd − ˆXnd | × M nd
+
+PN,D n=1 ,d =1 |Xnd | × M nd
+
+× 100(%) (49) where Xnd denotes the ground-truth value of dimension d of nth sample and ˆXnd its imputed counter-part. These complementary measures assess squared error, absolute error, and relative error, providing a comprehensive evaluation of imputation performance. 
+
+D.2 Missing Mechanisms and Datasets Missing Mechanisms Table 2 reports results obtained under the following MNAR mechanism. Inspired by the MNAR mechanism of not-MIWAE [ 13 ], we design the MNAR mechanism such that the probability of a missing entry increases exponentially with its value: 
+
+p(Md = 1 |Xd) = 11 + e−logits , logits = W (Xd − b), (50) where Md ∈ { 0, 1} denotes the mask variable of entry Xd, W controls the slope, and b is a bias term. This mechanism ensures that entries with values larger than the mean are more likely to be missing, thus faithfully mimicking MNAR conditions. In main experiments on section 4.3, we set W = 5 and 
+
+b = 0 .8 for all time-series dataset while W = 7 and b = 0 .6 for FMNIST. To verify coherent results under MCAR and MNAR mechanisms, we follow the missing simulation procedures of Hyperimpute [ 46 ] and MissingOT [ 43 ], as reported in Table 6. To construct the MNAR setting ( i.e. top of Table 6.), we employ a quantile-based mechanism distinct from the previous logistic approach. A subset of variables is randomly selected, and missing values are generated within the q-quantile. Otherwise, in MCAR setting ( i.e. bottom of Table 6.), each value is excluded following the Bernoulli random variable with a fixed parameter. In our implementation, we randomly assign 10% of the entries as missing to maintain MCAR property. 
+
+Time-series and Image Datasets Table 9 summarizes the dataset configurations employed in our experiments across (train / test / valid) set. For the three time-series datasets (ETT, STOCK, and PEMS-Bay), the data size are represented as time length × feature dimension , while for FMNIST and CelebA-HQ, the dimensions are denoted as width × height . The reported missing ratios correspond to the proportion of original missing values observed after applying the MNAR mechanism to generate incomplete data for training, thereby reflecting the intrinsic difficulty of the imputation task. 
+
+Tabular Datasets To verify the effectiveness of the pattern recognizer in tabular data imputation, we report the in-sample MAE performance in Table 4. To reproduce the tabular data experiments from the DiffPuter framework, we selected a subset of five datasets from the ten UCI datasets originally 20 Table 9: Dataset configuration used in Table 2. For time-series datasets (ETT, STOCK, PEMS-Bay), the data size is denoted as time length × feature dimension , whereas for FMNIST, it is expressed as 
+
+width × height . The missing ratios represent the proportion of original missing values after applying the MNAR mechanism to construct incomplete data. Dataset ETTm1 STOCK PEMS-Bay FMNIST CelebA-HQ Data size 24 × 7 24 × 6 12 × 325 28 × 28 64 × 64           
+
+> # of Samples 3861 / 983 / 959 2418 / 622 / 622 5788 / 1448 / 1448 60000 / 5000 / 5000 25000 / - / 5000 Missing ratio (%) 21.4 / 43.9 / 14.0 21.2 / 20.0 / 20.9 13.5 / 13.0 / 14.1 25.8 / 25.8 / 25.8 2.7 / - / 2.7
+
+evaluated. Specifically, the Bean 4, Magic 5, and Gesture 6 datasets consist exclusively of continuous features, whereas the Adult 7 and Default 8 datasets contain both continuous and discrete features. Detailed statistics for these five datasets are summarized in Table 10. It is important to note that PRDIM is principally designed as a diffusion imputation framework for continuous feature domain. Consequently, for the Adult and Default datasets, we follow DiffPuter’s procedure that applying label encoding and subsequently treating them as continuous features. Table 10: Statistics of tabular datasets. # Num denotes the number of numerical features, and # Cat denotes the number of discrete features. Dataset # Total dataset # Num # Cat # In-Sample # Out-of-Sample 
+
+Adult 32,561 6 8 22,792 9,769 Bean 13,610 17 - 9,527 4,083 Default 30,000 14 10 21,000 9,000 Gesture 9,522 32 - 6,665 2,857 Magic 19,020 10 - 13,314 5,706 
+
+D.3 Diffusion Imputation Model Configuration 
+
+In our implementation, the pattern recognizer is designed as a lightweight neural network architecture across dataset modalities to minimize additional complexity. 
+
+Time-series Imputation As summarized in Table 11, the overall model size remains comparable to other diffusion-based approaches. The higher inference time of PRDIM, relative to competing methods, arises from the use of autogradient of the input with respect to the outputs of the pattern recognizer during the inference process. This design choice, while incurring additional computa-tional cost, enables the model to provide more informative guidance for imputing missing values. Futhermore, for all diffusion-based imputation models (CSDI, MTSCI, cDiffPuter, and PRDIM) used in time-series imputation, the diffusion backbone architecture follows the official CSDI repository 9,with only the depth of the diffusion layers adjusted 4 to 2. In PRDIM, the pattern recognizer is constructed from a single diffusion layer, where the transformer blocks are replaced with simple MLP layers operating along the time and feature axes. This results in a lightweight module with approximately 10% of the diffusion model size. Table 11: Detailed model configuration. "# of Params" indicates the number of parameter of each diffusion-based model, and +n in PRDIM shows the number of pattern recognizer. The inference time (s) is measured based on the a single inference required to impute the entire out-of-sample data.                                
+
+> ETT STOCK Method # of Params Training Time (s) Inference Time (s) # of Params Training Time (s) Inference Time (s) CSDI 164,025 366 22 164,017 138 11 MTSCI 162,321 585 21 146,969 354 12 cDiffPuter 163,769 981 28 163,761 516 11 PRDIM 163,769+17,376 1812 46 163,761+17,359 1052 27
+> 4https://archive.ics.uci.edu/dataset/602/dry+bean+dataset
+> 5https://archive.ics.uci.edu/dataset/159/magic+gamma+telescope
+> 6https://archive.ics.uci.edu/dataset/302/gesture+phase+segmentation
+> 7https://archive.ics.uci.edu/dataset/2/adult
+> 8https://archive.ics.uci.edu/dataset/350/default+of+credit+card+clients
+> 9https://github.com/ermongroup/csdi
+
+21 Image and Tabular Imputation For image datasets (FMNIST and CelebA), the diffusion model uses a U-Net [ 55 ] architecture composed of two stacked blocks (each with down, mid, and up compo-nents), while the pattern recognizer uses only a single U-Net block, corresponding to approximately 38% of the full model size. For tabular datasets, the diffusion backbone follows the architecture reported in the official DiffPuter repository 10 , and the pattern recognizer is implemented as a sim-ple MLP with three 512-dimension hidden layers. For example, in the Adult dataset, the number of parameters of the diffusion architecture is 4.89 times larger than that of the pattern recognizer. Additionally, we provide the architectural details of the pattern recognizer for all dataset types in Table 12. Table 12: Pattern recognizer architectures for time-series, image, and tabular dataset. 
+
+Time-series data Image data Tabular data 
+
+Input x ∈ RB×1×K×L Input x ∈ RB×1×H×W Input x ∈ Rdin 
+
+Reshape (B, 1, K, L → B, 1, KL ) Conv2D (1 → C) Linear (din → dt)1 × 1 Conv1D (1 → C) DownBlock (C → C) SiLU ReLU DownBlock (C → 2C) Linear (dt → dt)
+
+Reshape (B, C, KL → B, C, K, L ) MidBlock (2 C → 2C) SiLU Repeat for r = 1 , . . . , R : ConvTranspose2D (2 C → C) Linear (dt → dt)
+
+Time-MLP along length L ConvBlock (C → C) SiLU Feature-MLP along dimension K ConvTranspose2D (C → C) Linear (dt → dt)1 × 1 Conv1D (C → 2C) ConvBlock (C → C) SiLU Gated activation 1 × 1 Conv2D (C → 1) Linear (dt → din )1 × 1 Conv1D (C → 2C) Sigmoid Sigmoid Residual update Squeeze channel dimension Output ˆm ∈ (0 , 1) din 
+
+1 × 1 Conv1D (C → 1) Output ˆm ∈ (0 , 1) B×H×W
+
+Reshape (B, 1, KL → B, K, L )
+
+Sigmoid Output ˆm ∈ (0 , 1) B×K×L
+
+D.4 Hyperparameter Settings of Baselines 
+
+We followed the established guidelines from existing benchmarks to ensure a fair comparison across all models. For the time-series imputation task, which includes BRITS [ 37 ], SAITS [ 22 ], and GP-VAE [ 38 ], we adopted the hyperparameter search space and tuning procedures specified in Appendix A of the SAITS paper [ 22 ]. For TimesNet [ 35 ], the hyperparameter search space is defined as follows: the number of layers from (3, 4, 5), model dimension from (256, 512), feed-forward network dimension from (128, 256), and training epochs from (30, 40, 50, 60). TimeMixer++ [ 36 ] is tuned over an identical search space, with the exception that the number of layers is sampled from (2, 3, 4). Additionally, since the official source code for not-MIWAE [ 13 ] is unavailable, we implement not-MIWAE by integrating a simple MLP missing model into the MIWAE [ 12 ] plug-in module provided in the HyperImpute repository 11 .Similarly, for the tabular imputation experiments (Table 4 and Table 14), the settings for MissFor-est [ 41 ], MICE [ 42 ], MOT [ 43 ], TDM [ 44 ], TabCSDI [ 45 ], and HyperImpute [ 46 ] were configured based on the implementation details and hyperparameter guidelines provided in Appendices D.5 and D.6 of DiffPuter [ 1 ]. By directly adopting these validated configurations, we ensure that each baseline is evaluated under its intended optimal settings. 
+
+> 10 https://github.com/hengruizhang98/DiffPuter
+> 11 https://github.com/vanderschaarlab/hyperimpute/blob/main/src/hyperimpute/plugins/imputers/ plugin_miwae.py
+
+22 E Additional Experiments 
+
+In this section, we provide additional results on the overall imputation performance across all time-series datasets in Table 23, Table 24, and Table 25. These results complement the main findings reported in the paper and further validate the effectiveness of our approach. 
+
+E.1 Fashion-MNIST 
+
+In the image domain, missing values are not limited to the MNAR mechanism demonstrated in the main experiment. As a representative example in the image dataset, we additionally exhibit imputation results under the block missing mechanism. Experiments are conducted on the FMNIST dataset, and we further include comparisons with representative GAN-based and Flow-based imputation approaches, namely misGAN [39] and MCFlow [40]. As illustrated by the following Figure 11, among the three methods, our proposed PRDIM most effectively captures the underlying object structure and achieves the most faithful reconstructions. These findings demonstrate that PRDIM can generalize beyond MNAR to handle other types of missing, such as block-MAR, while retaining its ability to generate semantically plausible imputations. Furthermore, to highlight the general imputation ability of our model under the MNAR mechanism from the main experiment, we also present additional qualitative results in Figure 12. For both experiments, we evaluate the quality of generated samples using the Fréchet Inception Distance (FID) [56], which is computed with the released Python library [57]. 
+
+E.2 CelebA-HQ 
+
+To verify the scalability of PRDIM on high-dimensional data, we conducted an additional imputation experiment on the RGB image benchmark dataset named CelebA-HQ [ 34 ]. We compared our method with a vanilla diffusion model trained under the CSDI objective. Each image in CelebA-HQ is accompanied by corresponding annotation mask vectors that label facial attributes such as eyes, nose, mouth, and hair. To design an incomplete dataset under an MNAR pattern, we utilized the annotation masks of eyes, nose, and mouth to construct a missing-value mask. Specifically, for each facial attribute, we introduced missing pixels with an 80% probability within the annotated regions, forming an MNAR missing mechanism for the experiment. To efficiently manage the training time of the EM-based PRDIM model trained from a scratch, both images and their corresponding mask vectors were resized to a resolution of 64×64. The original CelebA-HQ dataset consists of 1024×1024 images and 512×512 annotation masks. Qualitative results are shown in Figure 6. The vanilla diffusion model trained with the CSDI objective tends to fill in missing areas with averaged color tones around the missing regions, resulting in naive reconstructions and relatively high FID scores despite a moderate missing ratio. In contrast, PRDIM generates more detailed and realistic facial structures, accurately reconstructing attribute boundaries and color variations, which leads to significantly improved perceptual quality and lower FID values. 
+
+E.2.1 Comparison with Image Inpainting Methods Trained on Complete Data Distribution 
+
+As noted in the footnote in section 4.3, there is a fundamental difference between diffusion image inpainting and imputation: inpainting methods assume access to a diffusion model trained on a fully observed data distribution, whereas PRDIM addresses the setting where only incomplete data is available. Therefore, the two approaches are not directly comparable. Nevertheless, given the shared goal of restoring masked images, we additionally conduct a comparison by applying zero-shot inpainting methods in Table 13. Specifically, we use a pre-trained diffusion model on the FFHQ 12 dataset (The model weight is provided in the EDM repository 13 .) and apply SDEdit [ 58 ] and RePaint [59] to the CelebA-HQ test dataset. Inference settings are follows: DDPM sampling steps = 100, t0 = 0 .5 (Refer to Figure 3 of SDEdit [ 58 ]), and we set jump length j = 2 and resampling number r = 2 (Refer to Section 5.6 of RePaint [ 59 ]). For quantitative comparison, we report peak signal-to-noise-ratio (PSNR), 
+
+> 12 https://github.com/nvlabs/ffhq-dataset
+> 13 https://github.com/nvlabs/edm
+
+23 (a) Ground Truth (b) Observed Input (c) Vanilla Diffusion (d) PRDIM (Ours) 
+
+Figure 6: Qualitative comparison on CelebA-HQ. The rows represent (a) Ground Truth, (b) Observed Input, (c) Vanilla Diffusion, and (d) PRDIM, respectively. We demonstrate that PRDIM achieves superior reconstruction quality and quantitative performance than vanilla diffusion model which is trained with CSDI objective. structural similarity index (SSIM), and Learned Perceptual Image Patch Similarity (LPIPS) distance. From these results, we observe that models trained directly on the incomplete target distribution can outperform models trained on a complete but different source distribution, even when the latter is semantically similar (e.g., FFHQ vs CelebA). Table 13: Image imputation performance comparison with alternative methods for zero-shot image inpainting. Lower is better for FID and LPIPS, higher is better for PSNR and SSIM.                                                        
+
+> Method FID ( ↓)PSNR ( ↑)SSIM ( ↑)LPIPS ( ↓,×10 −3)Vanilla Diffusion 1.67 37 .39 ±2.32 0.990 ±0.004 5.21 ±3.53
+> DiffPuter 1.00 38 .76 ±2.38 0.992 ±0.004 2.98 ±2.30
+> SDEdit 1.49 36 .51 ±2.90 0.987 ±0.007 2.38 ±2.44
+> RePaint 0.48 39 .49 ±2.80 0.993 ±0.004 4.94 ±4.63
+> PRDIM 0.47 40.43 ±2.62 0.995 ±0.003 2.09 ±1.78
+
+E.3 Tabular data 
+
+To further verify the generalization capability of PRDIM, we reproduced the official implementation of DiffPuter 14 and compared its performance with PRDIM under the MNAR setting. In this experiment, we followed the practical implementation of DiffPuter with default configuration regardless to dataset, which differs from the main experiments in that incomplete samples were not used as conditional information during imputation. We selected 5 different tabular datasets available from the UCI Machine Learning Repository 15 .Among them, bean, gesture, and magic consist solely of continuous features, while adult and default contain both continuous and discrete features. The discrete attributes were label-encoded to preserve the original data dimensionality, and the corresponding mask vectors were designed to match this structure. Table 14 present out-of-sample imputation performance of DiffPuter and PRDIM, respectively. Across most datasets, PRDIM achieves more accurate imputations, validating its robustness and adaptability across different data modalities. 
+
+E.4 Cost–Performance Trade-offs under Different EM Configurations 
+
+Since PRDIM is built upon the EM framework, both training time and imputation performance depend on the choice of EM configuration. In this section, we analyze how different configurations affect the trade-off between computational cost and performance on the STOCK dataset. We denote 
+
+1E NmM as the number of training epochs in the maximization step per expectation step, and N as 
+
+> 14 https://github.com/hengruizhang98/DiffPuter
+> 15 https://archive.ics.uci.edu/
+
+24 Table 14: Out-of-Sample imputation results across tabular datasets. We report the mean ± std over five different MNAR missing simulations. adult bean default gesture magic Avg.Rank MissForest 0.635 ±0.037 0.283 ±0.046 0.357 ±0.051 0.373 ±0.011 0.534 ±0.031 5.2 MOT 0.504 ±0.017 0.263 ±0.026 0.334 ±0.036 0.427 ±0.014 0.501 ±0.034 4.1 TDM 0.514 ±0.015 0.170 ±0.029 0.336 ±0.062 0.399 ±0.013 0.508 ±0.037 4.0 HyperImpute 0.559 ±0.016 0.138 ±0.009 0.300 ±0.023 0.389 ±0.019 0.471 ±0.036 2.6 DiffPuter 0.504 ±0.012 0.219 ±0.053 0.315 ±0.040 0.353 ±0.007 0.539 ±0.049 3.3 PRDIM 0.482 ±0.022 0.199 ±0.053 0.279 ±0.039 0.371 ±0.052 0.488 ±0.047 1.8 
+
+the total number of EM iterations. In the main experiments, both cDiffPuter and PRDIM are trained with N = 100 EM iterations under the 1E 1M configuration. 
+
+Figure 7: Training time and imputation per-formance (MAE) under different EM config-urations on the STOCK dataset. As the number of training epochs in the maximization step increases, the overall training time grows pro-portionally, while the relative cost of the expectation step becomes negligible. Consequently, the training time of PRDIM approaches that of cDiffPuter as the maximization step becomes dominant. Importantly, however, we observe that PRDIM achieves a more favorable cost–performance trade-off. As shown in Figures 7 (a) and (b), PRDIM with the 1E 10M con-figuration and N = 50 EM iterations not only attains superior imputation performance, but also requires less training time compared to cDiffPuter with the 1E 50M configuration and N = 50 EM iterations. This result indicates that PRDIM can achieve better performance at lower computational cost by leveraging the pattern recognizer under MNAR settings. It further highlights that appropriate EM configuration allows PRDIM to operate at more efficient points on the cost-performance frontier, demonstrating its practical scalability for real-world imputation tasks. 
+
+E.5 Evaluation on Various Missing Senarios MNAR Subtypes We additionally examined several real-world motivated MNAR subtypes and conducted further experiments on the ETT dataset. These subtypes were selected because they (i) appear in real-world domains and (ii) can be implemented without domain-specific knowledge, enabling reproducible evaluation: • Self-censoring [ 60 ]: The true observed value directly determines whether the entry becomes missing. • Latent-trait MNAR [ 61 ]: missing depends on an unobserved latent effect or individual-specific factor. • Censoring / Truncation MNAR [ 62 ]: Values outside a certain interval are unobserved or collapsed, simulating realistic censoring processes. To demonstrate the variation in MNAR severity across these subtypes, we provide the train/val/test missing ratios produced during data processing in Table 15. Across all MNAR subtypes, PRDIM consistently outperforms prior diffusion-based imputation methods, as shown in Table 16. We observe that the performance gap between PRDIM and cDiffPuter is smallest under the latent-trait mechanism. This suggests that the latent-trait subtype may be the most challenging among those tested, which is intuitive as missing driven by latent attributes is more difficult to approximate using only simple CNN (or MLP) structures. 
+
+MAR missing situation To demonstrate robustness of PRDIM across general missing patterns, we conducted additional experiments using the PyGrinder 16 repository, a public toolkit for generating 
+
+> 16 https://github.com/WenjieDu/PyGrinder
+
+25 Table 15: Missing ratios (%) across different MNAR subtypes.             
+
+> Type Train Valid Test
+> Self-censoring 19.75 13.52 37.16 Latent traits 30.05 30.09 29.95 Truncation. 27.76 27.75 28.05
+
+Table 16: Performance comparison (MAE) on ETT dataset under different MNAR subtypes. We report both In-Sample (In) and Out-of-Sample (Out) imputation errors.                                 
+
+> Method Self-censoring Latent traits Truncation
+> In Out In Out In Out CSDI 0.3073 0.5303 0.2338 0.2621 0.3682 0.5780 MTSCI 0.3296 0.4848 0.1629 0.1968 0.4368 0.5353 cDiffPuter 0.3845 0.3819 0.1973 0.2074 0.5471 0.5709
+> PRDIM 0.2738 0.3819 0.1711 0.1930 0.3570 0.4833
+
+missing in time-series datasets. Following its MAR configuration, we introduced 25% missing ratio to the ETT, STOCK, and PEMS-Bay datasets, and evaluated both out-of-sample and in-sample MAE performance. Table 17 show that PRDIM continues to perform consistently well under MAR, confirming that the pattern recognizer still provides useful guidance even when the missing mechanism no longer depends on unobserved values. Our empirical results demonstrate that PRDIM maintains performance comparable to DiffPuter under MCAR and MAR settings, while significantly outperforming the baseline in MNAR scenarios where the missing probability explicitly depends on the unobserved values Xmis 
+
+> 0
+
+Table 17: Imputation performance comparison with MAE ( ↓) under MAR 25% missing mechanism. We report Out-of-Sample and In-Sample errors for ETT, STOCK, and PEMS-Bay datasets respec-tively.                           
+
+> Method ETT STOCK PEMS-Bay
+> Out-of-Sample In-Sample Out-of-Sample In-Sample Out-of-Sample In-Sample CSDI 0.1895 0.2428 0.1472 0.0477 0.2158 0.2034 cDiffPuter 0.1785 0.1853 0.1469 0.0268 0.2248 0.2012 PRDIM 0.1776 0.1699 0.1523 0.0315 0.2120 0.1971
+
+E.6 Different Evaluation Metrics for Imputation 
+
+In addition to point-wise error metrics, we further evaluate the quality of imputed samples using distribution-level generative metrics, namely the exact 2-Wasserstein distance (WD) and the Fourier Wasserstein distance (FWD). 
+
+Wasserstein Distance We computed the exact 2-Wasserstein distance using a existing Python library and report the updated results in Table 18. As shown in the table 18 (a), PRDIM consistently achieves the smallest W2 discrepancy among diffusion-based imputation models across datasets, indicating that the generated samples from PRDIM are closer to the target data distribution in the sense of optimal transport. 
+
+Fourier Wasserstein Distance We additionally consider the Fourier Wasserstein distance (FWD) [ 63 ], which measures the Wasserstein discrepancy between the normalized power spec-tral densities (NPSD) of two time-series distributions. As discussed in the prior work, the FWD metric provides an interpretable measure of temporal misalignment while retaining the stability and geometric grounding of optimal transport in the spectral domain. Following this formulation, we extend the publicly available univariate FWD implementation to the multivariate setting and compute FWD distances for all diffusion-based imputation methods. The corresponding results are also summarized in Table 18 (b). Overall, PRDIM achieves competitive and consistently low FWD across most datasets. We note that in certain cases, such as CSDI on the STOCK dataset or MTSCI on PEMS-Bay, alternative methods attain slightly lower FWD values. One possible explanation is that models trained without an EM framework tend to generate less stochastic variability across diffusion trajectories. While such reduced variability may lower the FWD, the additional sampling diversity induced by PRDIM is beneficial for modeling complex MNAR mechanisms, albeit at the cost of a marginally increased FWD metric in some settings. 26 Table 18: Quantitative evaluation using generative quality metrics: (a) Wasserstein Distance (WD) and (b) Fourier Wasserstein Distance (Fourier WD) on three datasets. 
+
+(a) Wasserstein Distance ( ↓)
+
+Method ETT STOCK PEMS-Bay 
+
+In-Sample Out-of-Sample In-Sample Out-of-Sample In-Sample Out-of-Sample CSDI 4.2535 11.7118 5.3450 4.8446 6.9161 7.5871 MTSCI 4.3723 11.4063 5.6456 5.1334 7.4099 7.8256 cDiffPuter 3.6684 10.3398 4.1093 3.8013 7.5825 7.8158 
+
+PRDIM 3.2449 9.0755 3.3878 3.1422 6.6534 7.5517 
+
+(b) Fourier Wasserstein Distance ( ↓)
+
+Method ETT STOCK PEMS-Bay 
+
+In-Sample Out-of-Sample In-Sample Out-of-Sample In-Sample Out-of-Sample CSDI 0.0988 0.3825 0.0532 0.0480 0.0230 0.0304 MTSCI 0.1072 0.3489 0.0883 0.0794 0.0224 0.0290 
+
+cDiffPuter 0.0856 0.3233 0.0927 0.0841 0.0244 0.0313 
+
+PRDIM 0.0783 0.2213 0.0760 0.0694 0.0224 0.0294 
+
+E.7 Controlled Parameter Analysis 
+
+To better understand the dynamics of PRDIM, we analyze the training behavior of the EM procedure. Figure 8 shows the convergence of the pattern recognizer’s loss, where red curves indicate the ability to distinguish missing values and blue curves correspond to observed values. The results on both the ETT and STOCK datasets demonstrate that the pattern recognizer effectively captures the missing pattern, thereby providing informative guidance during generation. Furthermore, Figure 9 illustrates the evolution of MRE across EM iterations on ETT and STOCK datasets, revealing a consistent improvement in imputation accuracy as the number of EM epochs increases. (a)  (b) 
+
+Figure 8: Convergence of the pat-tern recognizer’s loss during EM training. (a) ETT (b) STOCK. (a)  (b) 
+
+Figure 9: Evolution of MRE across EM epochs. (a) ETT (b) STOCK. 2 4 6 8 10 12 14 
+
+> Guidance Scale
+> 0.28
+> 0.30
+> 0.32
+> 0.34
+> 0.36
+> MAE
+> PRDIM
+> cDiffPuter
+
+Figure 10: Effect of guid-ance scale on STOCK. Moreover, according to the findings on a previous work [ 64 ], increasing the weight of guidance gen-erally leads to the better generation. As shown in Figure 10, the imputation performance consistently improves as the guidance scale increases, demonstrating the effectiveness of guidance weighting. These findings confirm that EM refinement is a critical component of PRDIM, substantially enhancing its capacity to model the joint distribution of the data and the missing pattern. Despite the strong performance of our proposed PRDIM framework, it should be noted that introducing an additional guidance term in diffusion models inherently incurs extra computational cost [ 25 , 47 ]. To clarify this trade-off, we provide supplementary results in Table 11 of Appendix D, where training and inference times are compared across different diffusion-based imputation models. 
+
+E.8 Qualitative Results Including Real-world Dataset 
+
+To further illustrate the behavior of PRDIM under the out-of-sample imputation setting, we provide qualitative visualizations across ETT, STOCK, and PEMS-Bay on Figure 17, 18, and 19 respectively. For each dataset, we randomly sample 4 test instances and display (i) the locations of missing values 27 as yellow points and (ii) the corresponding imputation results produced by CSDI, MTSCI, cDiffPuter, MTSI, and PRDIM respectively. These visualization results allow for a direct visual comparison of reconstruction quality, highlighting the degree to which each model captures temporal structure and recovers unseen missing values. To examine whether PRDIM can operate on data with naturally occurring missing values where ground-truth values for the missing entries are not available, we additionally conducted experiments on the PhysioNet [ 2 ] dataset. Figure 20 visualizes the out-of-sample imputation results of CSDI, cDiffPuter, and PRDIM on PhysioNet. We also provide the quantitative results under different missing ratios of out-of-sample imputation in Table 19. One notable observation is that both cDiffPuter and PRDIM involve a joint optimization procedure over the latent missing variables Xmis  
+
+> 0
+
+and the observed variables Xobs  
+
+> 0
+
+during the EM iterations. As a consequence, when the natural missing rate is extremely high (approaching nearly 80% in the PhysioNet dataset), the imputed values may become biased toward zero ( i.e. initial imputed value). This highlights an inherent limitation of EM-based diffusion imputation methods under severe natural missing. Table 19: MAE (mean ±std) on 5 runs under different missing ratios of out-of-sample imputation. 
+
+Missing ratio 10% 50% 90% 
+
+CSDI 0.2733 ± 0.0002 0.3607 ± 0.0002 0.5191 ± 0.0003 DiffPuter 0.2755 ± 0.0003 0.3471 ± 0.0001 0.4670 ± 0.0003 PRDIM 0.2737 ± 0.0008 0.3384 ± 0.0001 0.4646 ± 0.0003 
+
+F Pattern Recognizer Analysis 
+
+F.1 Interpretability of the Pattern Recognizer with Case Study 
+
+To evaluate whether the pattern recognizer Dϕ trained under the EM iterations has effectively learned the underlying missing mechanism, we conducted a case study on three time-series datasets: ETT, STOCK, and PEMS-Bay. Specifically, we randomly sampled instances from the ETT dataset and plotted both the true missing ratio for each entry and the corresponding output of the trained pattern recognizer, Dϕ( ˆX0), where ˆX0 represents the imputed sample generated through approximate guided generation by PRDIM. This visualization allows us to examine whether the learned Dϕ accurately captures and mimics the MNAR missing patterns inherent in high dimensional data. For each dataset, we sampled time intervals of length 72. The ETT and STOCK datasets contain 7 and 6 features, respectively, and we visualized all features for completeness. In the case of the PEMS-Bay dataset, which has a total of 325 feature dimensions, only the first 10 features were used for visualization due to its high dimensionality. The experimental results for ETT, STOCK, and PEMS-Bay are shown in Figure 13, Figure 14, and Figure 15, 16, respectively. Overall, the results demonstrate that while the pattern recognizer tends to slightly overestimate missing entries, it nonetheless captures the overall tendency and structure of the true missing pattern remarkably well, indicating its strong capability to model MNAR mechanisms.This interpretability analysis provides empirical evidence that the pattern recognizer contributes meaningful guidance during the generation phase. 
+
+F.2 Control the Pattern Recognizer’s Capacity 
+
+To systematically analyze the impact of the pattern recognizer’s capacity on the imputation, we reduced its parameter size, thereby restricting the solution space and forcing it to converge to less accurate estimates. We then measured the average cross-entropy on observed entries ( Mi,j = 1 )and on missing entries ( Mi,j = 0 ). A larger average cross-entropy indicates a poorer ability to discriminate missing patterns. For example, when the value approaches − ln 0 .5 ≃ 0.693 , the recognizer effectively collapses to random guessing and fails to capture any meaningful missing pattern. Using this setup, we evaluated PRDIM on the ETT and STOCK datasets while keeping all other conditions identical and varying only the parameter number of pattern recognizer. Below Table 20 summarizes the results. As expected, higher cross-entropy corresponds to degraded imputation 28 accuracy. However, it is noteworthy that PRDIM still outperforms cDiffPuter even with significantly weakened pattern recognizers. We can demonstrate that the pattern recognizer provides meaningful guidance to the diffusion process when properly learned. Table 20: Impact of Pattern Recognizer parameter size on imputation performance. We report average Cross Entropy (CE) and MAE on ETT and STOCK test datasets.                             
+
+> Number of parameters CE (Observable Values) CE (Missing Values) MAE (Out) MAE (In) ETT Dataset
+> 17,376 0.323 0.283 0.663 0.303
+> 4,608 0.339 0.311 0.744 0.354 1,296 0.480 0.456 0.763 0.360
+> STOCK Dataset
+> 17,359 0.165 0.151 0.254 0.275
+> 4,599 0.168 0.155 0.271 0.301 1,291 0.169 0.162 0.277 0.303
+
+A fully non-trained recognizer provides no gain to the score function, consistent with Table 1 of Kim et al. [ 25 ], which shows that discriminator (or guidance) collapse recovers the unguided diffusion model. Thereby explaining why the theoretical gap between PRDIM and DiffPuter naturally diminishes under MCAR settings. 
+
+F.3 Impact of Pattern Recognizer across Intermediate Training Process on Imputation 
+
+To further analyze the sensitivity of the guidance effect relative to the training progress of the pattern recognizer and degradation effect of a randomly initialized pattern recognizer, we evaluate imputation performance as a function of the training progress of the pattern recognizer under six different settings in Figure 21. Across all settings, we observe that as the pattern recognizer is trained, imputation performance consistently improves. However, the performance curves stabilize early, and further improvements in the recognizer yield diminishing returns. Table 21: Ablation study on the effect of the pattern recognizer across different missing configurations and intermediate checkpoints. n% denotes the percentile of entire training procedure. Each column shows (W, b ) with corresponding train/test missing ratios (%). We report MAE( ↓) of Out-of-Sample imputation. Method ETT STOCK (5,0.8) 
+
+> 21.4 / 43.9
+
+(5,0.5) 
+
+> 32.2 / 57.1
+
+(5,0.2) 
+
+> 44.3 / 70.1
+
+(5,0.8) 
+
+> 21.2 / 20.0
+
+(5,0.5) 
+
+> 26.6 / 25.8
+
+(5,0.2) 
+
+> 33.5 / 32.9
+
+w/o PR 0.697 0.795 0.914 0.306 0.338 0.392 random PR 0.697 0.799 0.916 0.312 0.339 0.392 20% 0.668 0.742 0.787 0.254 0.331 0.386 40% 0.665 0.741 0.769 0.254 0.332 0.383 
+
+60% 0.665 0.738 0.770 0.255 0.328 0.384 80% 0.664 0.738 0.766 0.253 0.329 0.383 
+
+PRDIM 0.663 0.737 0.766 0.254 0.328 0.383 
+
+G Future Works 
+
+G.1 Discrete State Diffusion for Imputation 
+
+In this work, we only focus on continuous-state diffusion imputation models. However, real-world datasets encountered in practical applications often comprise a mixture of continuous and discrete features. To effectively handle such data, it is necessary to consider the application of diffusion models in discrete domains. Recent works, such as D3PM [ 65 ], have introduced diffusion frameworks for discrete state spaces, and several studies have explored their application to imputation tasks [ 66 , 67 ]. Nevertheless, introducing a pattern recognizer under MNAR settings within a discrete diffusion framework entails non-trivial formulation challenges as well as practical considerations. We leave the 29 formal derivation and implementation of the MNAR-aware discrete diffusion framework for future work. 
+
+G.2 Orthogonal Refinement: Prior Distribution Optimization 
+
+In addition to extending the model to discrete settings, we can also consider orthogonal directions for improving imputation performance within the diffusion framework. Moving beyond the imputation task, we investigate the prior gap inherent in the diffusion framework through an empirical study, defined as the potential discrepancy in the prior loss LT = Eq(X0)[DKL (q(XT |X0)|| p(XT ))] . In our diffusion design, we would like to demonstrate the practical effect of this gap turns out to be minimal. Before training, all datasets undergo standard normalization, which centers the empirical mean of X0
+
+extremely close to zero. Combined with the forward diffusion coefficients adopted from the CSDI implementation: βmin = 10 −4, β max = 0 .5, diffusion steps = 50 with a quadratic schedule. (We can obtain ¯αT ≡ QTt=1 (1 − βt) = 3 .354 × 10 −5)
+
+It enables us to compute the mean μ1 and variance σ21 of the terminal forward process q(XT |X0)
+
+Assuming dimensional independence, we can calculate the closed-form KL divergence between the forward terminal distribution and the standard Gaussian prior. To further examine the empirical effect of this mismatch, we conducted an additional experiment. Instead of sampling XT from the standard prior p(XT ) = N (0 , I ), we sampled from the data-induced terminal distribution Eq(X0)[q(XT |X0)] and performed inference with the same pre-trained diffusion model. The results are summarized in the Table 22. The results show that the imputation performance remains virtually unchanged across all datasets, indicating that the prior loss LT has negligible impact on the diffusion inference process in our setting. This suggests that, beyond the current design, PRDIM can be further improved by incorporating additional mathematical techniques to reduce imputation error (or reduce training and inference time via a controllled guidance mechanism) in some orthogonal manners. Table 22: Out-of-Sample MAE and statistics between default diffusion sampling setting and prior optimized setting. 
+
+ETT STOCK PEMS-Bay 
+
+Mean μ1 −1.532 × 10 −3 −5.95 × 10 −4 5.32 × 10 −4
+
+Variance σ21 1.001236 1.001055 1.000088 
+
+DKL 
+
+ Eq(X0)[q(XT |X0)] ∥ N (0 , I ) 2.61 × 10 −4 6.60 × 10 −5 5.59 × 10 −4
+
+MAE (p(XT ) prior ) 0.663 0.254 0.170 
+
+MAE (Eq(X0)[q(XT |X0)] prior ) 0.663 0.255 0.172 
+
+30 Table 23: Overall performance on the ETT dataset. We report mean ± std over 5 runs according to each methodology. Best results are in bold . Second best results are in underline. 
+
+Method Original / Out-of-Sample Original / In-Sample RMSE ( ↓) MAE ( ↓) MRE ( ↓) RMSE ( ↓) MAE ( ↓) MRE ( ↓)Mean 2.307 ±0.000 2.034 ±0.000 120.233 ±0.000 1.618 ±0.000 1.486 ±0.000 127.379 ±0.000 
+
+Discriminative models 
+
+TimesNet 1.393 ±0.038 1.044 ±0.065 69.040 ±4.305 1.485 ±0.044 1.154 ±0.068 72.065 ±4.222 
+
+TimeMixer++ 1.965 ±0.012 1.642 ±0.025 97.093 ±0.015 1.283 ±0.015 1.100 ±0.032 94.319 ±0.028 
+
+BRITS 1.461 ±0.048 0.992 ±0.037 58.600 ±0.022 0.850 ±0.020 0.491 ±0.008 42.067 ±0.007 
+
+SAITS 1.247 ±0.069 0.814 ±0.046 48.119 ±0.027 0.626 ±0.018 0.366 ±0.014 31.417 ±0.012 
+
+Generative models 
+
+GP-VAE 1.915 ±0.006 1.511 ±0.011 89.315 ±0.638 1.147 ±0.008 0.896 ±0.018 76.809 ±1.507 
+
+not-MIWAE 1.781 ±0.012 1.311 ±0.016 77.512 ±0.972 0.945 ±0.010 0.637 ±0.011 54.643 ±0.918 
+
+Diffusion-based models 
+
+CSDI 1.658 ±0.001 1.071 ±0.001 63.254 ±0.038 0.822 ±0.001 0.522 ±0.001 44.733 ±0.049 
+
+MTSCI 1.335 ±0.001 0.957 ±0.001 56.574 ±0.036 0.730 ±0.000 0.500 ±0.000 42.827 ±0.018 
+
+cDiffPuter 1.209 ±0.001 0.782 ±0.000 46.188 ±0.020 0.612 ±0.001 0.362 ±0.000 31.069 ±0.020 
+
+PRDIM 1.057 ±0.000 0.663 ±0.000 39.156 ±0.009 0.538 ±0.000 0.303 ±0.000 25.986 ±0.015 
+
+Table 24: Overall performance on the STOCK dataset. We report mean ± std over 5 runs according to each methodology. Best results are in bold . Second best results are in underline. 
+
+Method Original / Out-of-Sample Original / In-Sample RMSE ( ↓) MAE ( ↓) MRE ( ↓) RMSE ( ↓) MAE ( ↓) MRE ( ↓)Mean 2.079 ±0.000 1.949 ±0.000 128.903 ±0.000 2.168 ±0.000 2.039 ±0.000 127.313 ±0.000 
+
+Discriminative models 
+
+TimesNet 1.415 ±0.054 1.111 ±0.073 73.528 ±0.049 1.509 ±0.057 1.221 ±0.077 76.237 ±0.048 
+
+TimeMixer++ 1.490 ±0.223 1.287 ±0.239 85.153 ±0.158 1.569 ±0.239 1.369 ±0.260 85.456 ±0.162 
+
+BRITS 0.953 ±0.016 0.627 ±0.010 41.478 ±0.006 1.020 ±0.016 0.701 ±0.010 43.757 ±0.006 
+
+SAITS 0.743 ±0.021 0.442 ±0.022 29.115 ±0.015 0.801 ±0.023 0.498 ±0.025 31.071 ±0.016 
+
+Generative models 
+
+GP-VAE 1.239 ±0.118 0.902 ±0.109 59.684 ±7.220 1.333 ±0.123 1.010 ±0.118 63.046 ±7.371 
+
+not-MIWAE 1.028 ±0.043 0.681 ±0.045 45.039 ±0.296 1.114 ±0.043 0.759 ±0.039 47.368 ±0.243 
+
+Diffusion-based models 
+
+CSDI 0.932 ±0.000 0.641 ±0.000 42.393 ±0.004 0.995 ±0.000 0.710 ±0.000 44.330 ±0.001 
+
+MTSCI 0.988 ±0.002 0.736 ±0.001 48.629 ±0.009 1.056 ±0.001 0.809 ±0.001 50.485 ±0.041 
+
+cDiffPuter 0.734 ±0.000 0.406 ±0.000 26.878 ±0.100 0.778 ±0.000 0.450 ±0.000 28.064 ±0.008 
+
+PRDIM 0.599 ±0.001 0.254 ±0.000 16.794 ±0.027 0.633 ±0.000 0.275 ±0.000 17.150 ±0.008 
+
+31 Table 25: Overall performance on the PEMS-Bay dataset. We report mean ± std over 5 runs according to each methodology. Best results are in bold . Second best results are in underline. 
+
+Method Original / Out-of-Sample Original / In-Sample RMSE ( ↓) MAE ( ↓) MRE ( ↓) RMSE ( ↓) MAE ( ↓) MRE ( ↓)Mean 0.901 ±0.000 0.813 ±0.000 119.064 ±0.000 0.868 ±0.000 0.789 ±0.000 119.066 ±0.000 
+
+Discriminative models 
+
+TimesNet 0.481 ±0.009 0.291 ±0.007 42.579 ±0.010 0.392 ±0.004 0.225 ±0.001 33.970 ±0.002 
+
+TimeMixer++ 0.684 ±0.013 0.579 ±0.018 84.816 ±0.026 0.652 ±0.015 0.557 ±0.020 84.113 ±0.030 
+
+BRITS 0.503 ±0.007 0.278 ±0.006 40.758 ±0.008 0.342 ±0.004 0.182 ±0.003 27.490 ±0.004 
+
+SAITS 0.481 ±0.011 0.302 ±0.009 44.266 ±0.013 0.356 ±0.004 0.212 ±0.003 31.970 ±0.005 
+
+Generative models 
+
+GP-VAE 0.537 ±0.001 0.345 ±0.001 50.561 ±0.208 0.470 ±0.003 0.292 ±0.002 44.039 ±0.367 
+
+not-MIWAE 0.623 ±0.006 0.396 ±0.005 57.510 ±0.774 0.608 ±0.004 0.352 ±0.005 53.181 ±0.746 
+
+Diffusion-based models 
+
+CSDI 0.338 ±0.002 0.177 ±0.000 25.912 ±0.017 0.302 ±0.000 0.158 ±0.000 23.910 ±0.005 
+
+MTSCI 0.349 ±0.000 0.193 ±0.000 28.289 ±0.011 0.322 ±0.000 0.179 ±0.000 27.017 ±0.003 
+
+cDiffPuter 0.349 ±0.007 0.182 ±0.000 26.714 ±0.011 0.330 ±0.000 0.168 ±0.000 25.377 ±0.005 
+
+PRDIM 0.334 ±0.002 0.170 ±0.000 24.966 ±0.015 0.306 ±0.000 0.154 ±0.000 23.304 ±0.006 
+
+FID: 20.596 FID: 10.762 FID: 10.376 
+
+(a) Ground Truth (b) Observed Input (c) misGAN (d) MCFlow (e) PRDIM Figure 11: Comparison of out-of-sample imputation results under block missing pattern. 32 FID: 198.328 FID: 32.893 FID: 15.893 
+
+(a) Ground Truth (b) Observed Input (c) misGAN (d) MCFlow (e) PRDIM Figure 12: Comparison of out-of-sample imputation results under MNAR missing pattern. 33 0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+> Missing Ratio
+
+Feature 0 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+> Missing Ratio
+
+Feature 1 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+> Missing Ratio
+
+Feature 2 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+> Missing Ratio
+
+Feature 3 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+> Missing Ratio
+
+Feature 4 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+> Missing Ratio
+
+Feature 5 
+
+0 10 20 30 40 50 60 70 
+
+Time 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+> Missing Ratio
+
+Feature 6 
+
+Time interval 5057 5129 
+
+Ground Truth missing ratio Estimated missing ratio 0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+> Missing Ratio
+
+Feature 0 
+
+0.0 
+
+0.1 
+
+0.2 
+
+0.3 
+
+0.4 
+
+> Missing Ratio
+
+Feature 1 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+> Missing Ratio
+
+Feature 2 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+> Missing Ratio
+
+Feature 3 
+
+0.0 
+
+0.2 
+
+0.4 
+
+> Missing Ratio
+
+Feature 4 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+> Missing Ratio
+
+Feature 5 
+
+0 10 20 30 40 50 60 70 
+
+Time 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+> Missing Ratio
+
+Feature 6 
+
+Time interval 21895 21967 
+
+Ground Truth missing ratio Estimated missing ratio 0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+> Missing Ratio
+
+Feature 0 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+> Missing Ratio
+
+Feature 1 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+> Missing Ratio
+
+Feature 2 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+> Missing Ratio
+
+Feature 3 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+> Missing Ratio
+
+Feature 4 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+> Missing Ratio
+
+Feature 5 
+
+0 10 20 30 40 50 60 70 
+
+Time 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+> Missing Ratio
+
+Feature 6 
+
+Time interval 37249 37321 
+
+Ground Truth missing ratio Estimated missing ratio 0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+> Missing Ratio
+
+Feature 0 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+> Missing Ratio
+
+Feature 1 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+> Missing Ratio
+
+Feature 2 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+> Missing Ratio
+
+Feature 3 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+1.0 
+
+> Missing Ratio
+
+Feature 4 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+> Missing Ratio
+
+Feature 5 
+
+0 10 20 30 40 50 60 70 
+
+Time 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+> Missing Ratio
+
+Feature 6 
+
+Time interval 37549 37621 
+
+Ground Truth missing ratio Estimated missing ratio Figure 13: Randomly sampled 4 ETT segments with time length 72: Ground-truth missing ratio (black) versus Pattern Recognizer-estimated missing ratio Dϕ( ˆX0) across 7 features. 34 0.0 
+
+0.1 
+
+0.2 
+
+0.3 
+
+> Missing Ratio
+
+Feature 0 
+
+0.0 
+
+0.1 
+
+0.2 
+
+0.3 
+
+> Missing Ratio
+
+Feature 1 
+
+0.0 
+
+0.1 
+
+0.2 
+
+0.3 
+
+> Missing Ratio
+
+Feature 2 
+
+0.0 
+
+0.1 
+
+0.2 
+
+0.3 
+
+> Missing Ratio
+
+Feature 3 
+
+0.0 
+
+0.1 
+
+0.2 
+
+0.3 
+
+> Missing Ratio
+
+Feature 4 
+
+0 10 20 30 40 50 60 70 
+
+Time 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+> Missing Ratio
+
+Feature 5 
+
+Time interval 7572 7644 
+
+Ground Truth missing ratio Estimated missing ratio 0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+> Missing Ratio
+
+Feature 0 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+> Missing Ratio
+
+Feature 1 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+> Missing Ratio
+
+Feature 2 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+> Missing Ratio
+
+Feature 3 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+> Missing Ratio
+
+Feature 4 
+
+0 10 20 30 40 50 60 70 
+
+Time 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+> Missing Ratio
+
+Feature 5 
+
+Time interval 14794 14866 
+
+Ground Truth missing ratio Estimated missing ratio 0.0 
+
+0.1 
+
+0.2 
+
+> Missing Ratio
+
+Feature 0 
+
+0.0 
+
+0.1 
+
+0.2 
+
+0.3 
+
+> Missing Ratio
+
+Feature 1 
+
+0.0 
+
+0.1 
+
+0.2 
+
+0.3 
+
+> Missing Ratio
+
+Feature 2 
+
+0.0 
+
+0.1 
+
+0.2 
+
+> Missing Ratio
+
+Feature 3 
+
+0.0 
+
+0.1 
+
+0.2 
+
+0.3 
+
+> Missing Ratio
+
+Feature 4 
+
+0 10 20 30 40 50 60 70 
+
+Time 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+> Missing Ratio
+
+Feature 5 
+
+Time interval 18436 18508 
+
+Ground Truth missing ratio Estimated missing ratio 0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+> Missing Ratio
+
+Feature 0 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+> Missing Ratio
+
+Feature 1 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+> Missing Ratio
+
+Feature 2 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+> Missing Ratio
+
+Feature 3 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+> Missing Ratio
+
+Feature 4 
+
+0 10 20 30 40 50 60 70 
+
+Time 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+> Missing Ratio
+
+Feature 5 
+
+Time interval 27295 27367 
+
+Ground Truth missing ratio Estimated missing ratio Figure 14: Randomly sampled 4 STOCK segments with time length 72: Ground-truth missing ratio (black) versus Pattern Recognizer-estimated missing ratio Dϕ( ˆX0) across 6 features. 35 0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+> Missing Ratio
+
+Feature 0 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+> Missing Ratio
+
+Feature 1 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+> Missing Ratio
+
+Feature 2 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+> Missing Ratio
+
+Feature 3 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+> Missing Ratio
+
+Feature 4 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+> Missing Ratio
+
+Feature 5 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+> Missing Ratio
+
+Feature 6 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+> Missing Ratio
+
+Feature 7 
+
+0.0 
+
+0.2 
+
+0.4 
+
+> Missing Ratio
+
+Feature 8 
+
+0 10 20 30 40 50 60 70 
+
+Time 
+
+0.2 
+
+0.4 
+
+0.6 
+
+> Missing Ratio
+
+Feature 9 
+
+Time interval 572 644 
+
+Ground Truth missing ratio Estimated missing ratio 0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+> Missing Ratio
+
+Feature 0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+> Missing Ratio
+
+Feature 1 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+> Missing Ratio
+
+Feature 2 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+1.0 
+
+> Missing Ratio
+
+Feature 3 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+> Missing Ratio
+
+Feature 4 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+> Missing Ratio
+
+Feature 5 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+> Missing Ratio
+
+Feature 6 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+> Missing Ratio
+
+Feature 7 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+1.0 
+
+> Missing Ratio
+
+Feature 8 
+
+0 10 20 30 40 50 60 70 
+
+Time 
+
+0.2 
+
+0.4 
+
+0.6 
+
+> Missing Ratio
+
+Feature 9 
+
+Time interval 10668 10740 
+
+Ground Truth missing ratio Estimated missing ratio Figure 15: Randomly sampled 2 PEMS-Bay segments with time length 72: Ground-truth missing ratio (black) versus Pattern Recognizer-estimated missing ratio Dϕ( ˆX0) across 10 of 325 features. 36 0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+> Missing Ratio
+
+Feature 0 
+
+0.0 
+
+0.2 
+
+0.4 
+
+> Missing Ratio
+
+Feature 1 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+> Missing Ratio
+
+Feature 2 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+> Missing Ratio
+
+Feature 3 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+> Missing Ratio
+
+Feature 4 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+> Missing Ratio
+
+Feature 5 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+> Missing Ratio
+
+Feature 6 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+> Missing Ratio
+
+Feature 7 
+
+0.0 
+
+0.2 
+
+0.4 
+
+> Missing Ratio
+
+Feature 8 
+
+0 10 20 30 40 50 60 70 
+
+Time 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+> Missing Ratio
+
+Feature 9 
+
+Time interval 17713 17785 
+
+Ground Truth missing ratio Estimated missing ratio 0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+> Missing Ratio
+
+Feature 0 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+> Missing Ratio
+
+Feature 1 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+> Missing Ratio
+
+Feature 2 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+> Missing Ratio
+
+Feature 3 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+> Missing Ratio
+
+Feature 4 
+
+0.0 
+
+0.2 
+
+0.4 
+
+> Missing Ratio
+
+Feature 5 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+> Missing Ratio
+
+Feature 6 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+> Missing Ratio
+
+Feature 7 
+
+0.0 
+
+0.2 
+
+0.4 
+
+> Missing Ratio
+
+Feature 8 
+
+0 10 20 30 40 50 60 70 
+
+Time 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+> Missing Ratio
+
+Feature 9 
+
+Time interval 21911 21983 
+
+Ground Truth missing ratio Estimated missing ratio Figure 16: Additional 2 random samples of 2 PEMS-Bay segments with time length 72: Ground-truth missing ratio (black) versus Pattern Recognizer-estimated missing ratio Dϕ( ˆX0) across 10 of 325 features. 37 Figure 17: Qualitative results of PRDIM compared to other diffusion imputation models. 4 randomly selected imputed out-of-samples from the ETT dataset are visualized. Each panel labeled start = n corresponds to the time interval (n,n+24). 38 Figure 18: Qualitative results of PRDIM compared to other diffusion imputation models. 4 randomly selected imputed out-of-samples from the STOCK dataset are visualized. Each panel labeled start = n corresponds to the time interval (n,n+24). 39 Figure 19: Qualitative results of PRDIM compared to other diffusion imputation models. 4 randomly selected imputed out-of-samples from the PEMS-Bay dataset are visualized. Each panel labeled start = n corresponds to the time interval (n,n+24). 40 Figure 20: Qualitative results of PRDIM compared to other diffusion imputation models. 4 randomly selected imputed out-of-samples from the PhysioNet dataset are visualized. Each panel labeled start = n corresponds to the time interval (n,n+24). 41

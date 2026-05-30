@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-05-30T09:03:16.129501+00:00",
-  "updated_date": "20260521-20260530",
+  "generated_at": "2026-05-30T20:40:21.683581+00:00",
+  "updated_date": "20260530",
   "carryover_days": 9,
   "tag_states": {
     "eeg-latent": {
-      "updated_date": "20260521-20260530",
+      "updated_date": "20260530",
       "carryover_days": 9,
       "items": []
     }

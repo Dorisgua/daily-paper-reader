@@ -1,0 +1,798 @@
+Title: Multimodal Signal Restoration with Signed Twofold Graph Learning
+
+URL Source: https://arxiv.org/pdf/2605.26760v1
+
+Published Time: Wed, 27 May 2026 00:53:23 GMT
+
+Number of Pages: 34
+
+Markdown Content:
+APSIPA Transactions on Signal and Information Processing, 2026, xx, e This is an Open Access article, distributed under the terms of the Creative Commons Attribution licence (http:// creativecommons.org/ licenses/ by-nc/ 4.0/ ), which per-mits unrestricted re-use, distribution, and reproduction in any medium, for non-commercial use, provided the original work is properly cited. 
+
+# Original Paper 
+
+# Multimodal Signal Restoration with Signed Twofold Graph Learning 
+
+Haruki Yokota 1* , Hiroshi Higashi 2 and Yuichi Tanaka 11The University of Osaka, Suita, Japan 
+
+> 2
+
+Kansai University, Suita, Japan 
+
+ABSTRACT Multimodal signals on sensor networks are commonly mod-eled under the twofold graph assumption (TGA), which represents spatial structure and inter-modality relations as two separate graphs. Existing TGA-based signal restora-tion methods, however, either assume the graphs are known or restrict edge weights to be non-negative, preventing them from capturing negative inter-modal correlations. We ad-dress both limitations by formulating joint signal restora-tion and twofold graph learning as MAP estimation under a matrix normal prior, where the spatial and modality graph Laplacians appear directly as precision matrices. The re-sulting non-convex objective is solved by alternating mini-mization: The signal is updated via conjugate gradient ap-plied to the arising Sylvester-type linear system; the graphs are updated via primal-dual hybrid gradient (PDHG). We further propose a method to estimate the signed structure of the modality graph from the dominant eigenspace of a 
+
+> ∗
+
+Corresponding author: h.yokota@sip.comm.eng.osaka-u.ac.jp. The preliminary version of this work was presented at the Asia Pacific Signal and Information Pro-cessing Association Annual Summit and Conference (APSIPA ASC) 2025 [1]. Received xx xxxxx 2026; Revised xx xxxxx 2026 ISSN xxxx-xxxx; DOI 10.1561/xxx.xxxxxxxx 
+
+© H. Yokota, H. Higashi and Y. Tanaka  
+
+> arXiv:2605.26760v1 [eess.SP] 26 May 2026 2Haruki Yokota et al.
+
+complementary kernel matrix, which is then used in PDHG to update edge magnitudes. These iterative solvers are then unrolled into a feedforward network, with regulariza-tion weights and step sizes as layer-wise trainable param-eters. Experiments on synthetic multimodal graph signals and a real Japan meteorological dataset confirm that the proposed method outperforms existing baselines across a range of noise levels and missing-data patterns. 
+
+Keywords: Graph Learning, Graph Signal Processing, Multimodal Signals, Algorithm Unrolling 
+
+1 Introduction 
+
+In sensor networks, sensors often capture a rich variety of data simulta-neously, like video/audio streams and temperature/pressure readings. Such data are called multimodal signals. In practice, real-world mul-timodal signals are imperfect, suffering from noise or missing values. Signal restoration for those multimodal signals, including denoising and interpolation, is therefore crucial for a wide range of applications, such as autonomous driving, human-computer interaction, and medical di-agnostics [2, 3, 4, 5]. A key principle in signal restoration on sensor networks is utiliz-ing underlying structures of data, whose structures are mathematically represented as graphs [6, 7, 8]. Multimodal signals on a network can be modeled as a spatial graph, with underlying spatial structure, and inter-modality relations are represented by a modality graph. This assumption is known as twofold graph assumption (TGA) [9]. Previous works for signal restoration with TGA face two key chal-lenges. First, many approaches either assume graphs are known a pri-ori or rely on heavily parameterized networks to learn them [10, 11, 12], limiting applicability in data-scarce scenarios. Second, all existing TGA methods are designed for unsigned graphs, modeling only pairwise 
+
+similarities [13]. This neglects negative correlations across modalities— for example, in environmental monitoring, the anti-correlation between temperature and precipitation is naturally encoded as a negative edge Multimodal Signal Restoration with Signed Twofold Graph Learning 3
+
+weight. Such a relationship can be represented by signed graphs [14, 15], but unsigned graphs cannot. In this paper, we address these limitations by proposing a method that: 1) formulates joint signal restoration and twofold graph learning as MAP estimation under a matrix normal prior, linking the graph Laplacians directly to the signal prior; 2) learns a spatial unsigned graph and a modality signed graph simultaneously, using a sign-magnitude decoupling with a spectral sign estimator; and 3) unrolls the resulting alternating iterative solvers into an interpretable deep network whose hyperparameters are trained end-to-end. Specifically, we model the multimodal signal as a matrix normal random variable [16] with graph Laplacians as the precision matrices, yielding a MAP objective that couples data fidelity with twofold graph smoothness. We solve the resulting non-convex problem by alternating minimization over three variables: the signal is updated by solving a Sylvester-type linear system via conjugate gradient (CG); the spatial graph is updated by primal-dual hybrid gradient (PDHG) [17]; and the signed modality graph is updated by decoupling sign from magnitude, estimating the sign structure via subspace iteration and solving for edge magnitudes with PDHG. Finally, we unroll the CG and PDHG iterations into a feedforward network [18], with regularization weights and step sizes as layer-wise trainable parameters. We evaluate the proposed method on synthetic multimodal graph signals and a real Japan meteorological dataset. Experimental results demonstrate that the proposed method outperforms competing base-lines in both denoising and interpolation across a range of noise levels and missing-data patterns. 
+
+Notation: We use bold uppercase letters for matrices ( A), and bold lowercase letters for vectors ( a). The corresponding non-bold letters with subscripts denote their elements ( Aij and ai). The jth column of matrix A is denoted as the vector aj . The identity matrix is I, and vectors of all ones and zeros are 1 = [1 , . . . , 1] ⊤ and 0 = [0 , . . . , 0] ⊤,respectively. The ℓ-p norm is ∥ · ∥ p and the Frobenius norm is denoted as ∥ · ∥ F . An undirected graph is denoted as G, and we denote the set of N nodes in G as V = {v1, v 2, . . . , v N }. The topology and edge weights of G are defined by a symmetric weighted adjacency matrix 
+
+W ∈ RN ×N , where Wij represents the weight of the edge between node 4 Haruki Yokota et al. 
+
+vi and vj . Throughout the paper, we assume Wii = 0 , i.e., the graphs have no self-loops. The degree matrix is the diagonal matrix denoted as D = diag( d1, . . . , d N ), where di = P 
+
+> j
+
+Wij . The combinatorial graph Laplacian L for unsigned graphs is given by L = D − W, and those for signed graphs are defined as ¯L = ¯D − ¯W, where ¯D is an absolute degree matrix whose ith diagonal element is defined as ¯dii = P 
+
+> j
+
+| ¯Wij |.
+
+2 Related Works 
+
+In this section, we review the three bodies of work most directly related to the proposed method: multimodal graph signal restoration, unsigned graph learning, and signed graph learning.  
+
+> 2.1 Multimodal Graph Signal Restoration
+
+Under the twofold graph assumption (TGA) [9, 13], a multimodal signal 
+
+X ∈ RN ×M is assumed to be smooth on a spatial graph Gs over N nodes and on a modality graph Gm over M modalities simultaneously. Signal restoration under TGA is then formulated as minimizing a regularizer involving both graph Laplacians. The conventional TGA-based methods only consider the sum of two graph regularizers [9, 13]; 
+
+min  
+
+> X
+
+∥Y − A (X)∥2 
+
+> F
+
++ αtr (X⊤LsX) + βtr (XL mX⊤), (1) where A(·) is a degradation operator, and α and β are regularization parameters. This formulation does not explicitly model the interaction between the two graphs. Another assumption based on the combinations of spatial and tem-poral graphs is known as product graphs [19, 20]. Product graphs allow the modeling of the mixture of two graph priors, which has been shown to improve the performance of posterior tasks such as denoising and interpolation of signals observed in a spatio-temporal environment. The matrix normal prior considered in this work is related to the Kronecker-product graph, where the variation of signals observed on a node of the spatial graph is dominated by the structure defined in the modality graph. Multimodal Signal Restoration with Signed Twofold Graph Learning 5
+
+Note that, product graph-based methods often simplify the tem-poral (modality) graph with a simple graph structure, such as a path graph [20], which ignores the correlational information of the domain. Also, the conventional product graph methods require a large product graph Laplacian matrix Lproduct ∈ RN M ×N M , whose dimension is the product of the dimensions of the two graphs. Methods based on graph neural networks [10, 11, 12] can learn the graph implicitly but require large training sets and offer limited interpretability.  
+
+> 2.2 Unsigned Graph Learning
+
+Let us consider an observation model of a graph signal y ∈ RN on a single spatial graph G with N nodes as y = x + ϵ where x is the unknown true signal and ϵ is additive white Gaussian noise (AWGN) with ϵ ∼ N (0, σ 2 
+
+> ϵ
+
+IN ).Based on the graph factor analysis model [21], x can be seen as a sample drawn from a multivariate Gaussian distribution with the precision matrix L: x ∼ N (μx, L† + σ2 
+
+> ϵ
+
+IN ) where μx is the mean of x
+
+and (·)† represents the Moore-Penrose pseudo inverse. The joint graph learning and signal restoration under this model is discussed in [21], where they formulate an optimization problem to find x and L from y as: 
+
+min  
+
+> x,L∈L
+
+∥x − y∥22 + αx⊤Lx + β
+
+2 ∥L∥2 
+
+> F
+
+(2) where L is a set of graph Laplacians given by 
+
+L = {L|tr (L) = N, L ij = Lji ≤ 0, i ̸ = j, L1 = 0 },
+
+and α and β are regularization parameters. The first term measures the data fidelity, and the second term measures the signal variation on the given L where x⊤Lx = PNi<j Wij (xi − xj )2, and the third term is a regularization on edge weights. (2) is generally non-convex due to the coupling of variables x and L in the second term. In [21], the following alternating optimization is applied. 1. L is optimized with the fixed x by solving the following con-strained quadratic optimization problem: 
+
+min  
+
+> L∈L
+
+αx⊤Lx + β∥L∥2 
+
+> F
+
+. (3) 6 Haruki Yokota et al. 
+
+2. x is obtained with the fixed L by solving 
+
+min  
+
+> x
+
+∥x − y∥22 + αx⊤Lx . (4) This has a closed-form solution x = ( IN + αL)−1 y as long as 
+
+(IN + αL) is invertible. These two steps are iterated until the difference from the previous it-eration reaches a pre-defined tolerance value.  
+
+> 2.3 Signed Graph Learning
+
+Most graph learning methods, including the aforementioned one, are designed for unsigned graphs, i.e., Wij ≥ 0 for all i, j . Unsigned graphs encode similarities. However, it is natural that we often encounter dissimilarities as well: In this case, signed graph learning is required [15, 22, 23]. A signed graph uses both positive and negative edge weights, which are stored in a signed adjacency matrix ¯W ∈ RN ×N . The goal is to find a ¯W that reflects the relationships in a set of observed signals 
+
+X ∈ RM ×N , where M is the number of observations or features and N
+
+is the number of nodes. An edge weight of a signed graph can be represented as ¯Wij =
+
+Sij | ¯Wij | where Sij = sign( ¯Wij ) is the edge sign matrix. Therefore, signed graph learning is formulated as follows [24]: 
+
+min  
+
+> S,¯W
+
+α X
+
+> i,j
+
+| ¯Wij |∥ xi − Sij xj ∥22 + β∥ ¯W∥2 
+
+> F
+
+(5) where ¯W is a symmetric matrix with zero-diagonals, and S ∈ {− 1, 1}N ×N .Optimizing S together with ¯W is non-convex and hence, a two-step ap-proach is considered in [24]. First, compute the distance matrix ¯Z together with the sign matrix 
+
+S as: 
+
+¯Zij = min {∥ xi − xj ∥22, ∥xi + xj ∥22}
+
+Sij =
+
+(
+
+1 if ∥xi − xj ∥22 ≤ ∥ xi + xj ∥22
+
+−1 otherwise . (6) Multimodal Signal Restoration with Signed Twofold Graph Learning 7
+
+Second, given these precomputed signs S and distances ¯Z, optimize the weight magnitude W ≥ 0 by solving a convex optimization problem; 
+
+min  
+
+> W∈W
+
+α X
+
+> i,j
+
+Wij ¯Zij + β
+
+2 ∥W∥2 
+
+> F
+
+, (7) where W = {W|Wij = Wji , Wij ≥ 0, Wii = 0 ∀i}. The signed adjacency matrix is then given by ¯W⋆ = S◦W, where ◦ is the element-wise product. The minimization in (7) can be efficiently solved using proximal gradient-based algorithms [17]. In [24], the sign matrix S is estimated by comparing the sum /differ-ence of signal vectors (see (6)), which is highly sensitive to noise. In the proposed method, however, we learn the signed graph from the comple-mentary kernel matrix K = X⊤LsX, which captures the cross-modal variation of the signal X on the spatial graph Gs. Therefore, instead of computing the signs from distance, we estimate the sign structure from the dominant eigenspace of K via subspace iteration, yielding a continuous relaxation that is compatible with end-to-end training. 
+
+3 Twofold Signed Graph Learning and Signal Restoration for Mul-timodal Signals 
+
+In this section, we present our proposed method for jointly restoring the multimodal signals and learning its underlying twofold graph. The method proceeds via alternating minimization over three coupled vari-ables: The signal X, the spatial graph Laplacian Ls, and the modal-ity graph Laplacian Lm. We first establish the probabilistic problem formulation (Section 3.1), then describe each update as a standalone convex sub-problem (Sections 3.2–3.3), and conclude by showing how these iterative solvers are unrolled into a deep network (Section 3.5).   
+
+> 3.1 Problem Formulation
+> 3.1.1 Observation Model
+
+Analogous to the multimodal graph signal model in related works [9, 13], we consider the observation model 
+
+Y = A(X) + N, (8) 8 Haruki Yokota et al. 
+
+where X ∈ RN ×M is the unknown true multimodal graph signal: its M
+
+columns are signals on the spatial graph Gs, and its N rows are signals on the modality graph Gm. The operator A(·) models a degradation process ( e.g. , missing-data masking), and N is noise. We aim to jointly recover X and the twofold graph (Gs, Gm) from Y.
+
+3.1.2 MAP Estimation via Matrix Normal Distribution 
+
+In contrast to prior works on TGA [9, 13] that lack explicit signal models, we place a matrix normal prior [16] on X:
+
+X ∼ MN (0, L†
+
+> s
+
+, L†
+
+> m
+
+), (9) where Ls ∈ RN ×N and Lm ∈ RM ×M are the row-wise and column-wise precision matrices, respectively, identified with the spatial and modality graph Laplacians. Without loss of generality, we assume the mean of X is zero. The probability density of X is then 
+
+p(X) ∝ exp 
+
+
+
+− 12 tr 
+
+h
+
+LmX⊤LsX
+
+i 
+
+. (10) The term tr (LmX⊤LsX) simultaneously penalizes spatial variation on 
+
+Gs and cross-modal variation on Gm. Assuming i.i.d. noise Nij ∼N (0 , σ 2), the likelihood is 
+
+p(Y|X) ∝ exp  − 12σ2 ∥Y − A (X)∥2
+
+> F
+
+ . (11) Applying Bayes’ rule, the MAP estimator minimizes 
+
+X⋆ = arg min  
+
+> X
+
+(− log p(Y|X) − log p(X)) . (12) 
+
+3.1.3 Joint Optimization Objective 
+
+Substituting (10) and (11) into (12), the MAP objective for X is 
+
+J(X) = 12σ2 ∥Y − A (X)∥2 
+
+> F
+
++ 12 tr (LmX⊤LsX). (13) For the missing-data case we set A(X) = M◦X, where M ∈ { 0, 1}N ×M
+
+is a binary observation mask. Since Ls and Lm are typically unknown, we jointly minimize over all three variables: 
+
+min   
+
+> X,Ls,Lm∈L
+
+12 ∥M ◦ (Y − X)∥2 
+
+> F
+
++ μ
+
+2 tr (LmX⊤LsX) + Rs(Ls) + Rm(Lm),
+
+(14) Multimodal Signal Restoration with Signed Twofold Graph Learning 9
+
+where μ balances data fidelity against the twofold-graph regularization term, and Rs(·), Rm(·) are regularizers on the spatial and modality graphs, e.g. , Frobenius-norm penalties promoting sparsity and con-trolled edge magnitudes.   
+
+> 3.2 Signal Reconstruction via Unrolled Conjugate Gradient
+> 3.2.1 Formulation
+
+Due to the coupling of X, Ls, and Lm in the trace term, the objective (14) is non-convex in general. We therefore adopt an alternating min-imization strategy, updating one variable at a time while holding the others fixed. With Ls and Lm fixed, (14) reduces to the convex quadratic sub-problem 
+
+min  
+
+> X
+
+F (X) = 12 ∥M ◦ (Y − X)∥2 
+
+> F
+
++ μ
+
+2 tr (LmX⊤LsX). (15) Setting ∇XF = 0 yields the optimality condition 
+
+μLsXL m + M ◦ X = M ◦ Y. (16) If M = 1N 1⊤ 
+
+> M
+
+, (16) is a standard Sylvester equation AXB + X =
+
+C, solvable in closed form [25]. For an arbitrary binary mask, the vectorized form of (16) is a large-scale linear system of size N M ×
+
+N M with Kronecker structure (μLm ⊗ Ls + diag(vec( M))) vec( X) = vec( M ◦ Y). However, directly solving this system is computationally prohibitive for large N and M due to the O(( N M )3) complexity of naive linear solvers and the O(( N M )2) memory requirement of storing the full system matrix. Since Ls, Lm ⪰ 0 and Mij ∈ { 0, 1}, the operator H(X) ≜ M ◦ X +
+
+μLsXL m in (16) is self-adjoint and positive semidefinite on RN ×M ; we solve (16) with the conjugate gradient (CG) method, which is efficient for large-scale linear systems with such properties.  
+
+> 3.2.2 Conjugate Gradient Solver
+
+We solve (16) via the conjugate gradient (CG) algorithm (Algorithm 1). Starting from an initial estimate X(0) with residual R(0) = M ◦ Y −10 Haruki Yokota et al. 
+
+Algorithm 1 Conjugate Gradient for signal reconstruction (16) 
+
+Require: X(0) , R(0) = M ◦ Y − H (X(0) ), P(0) = R(0) 
+
+Ensure: X(k+1) 
+
+k ← 0
+
+while ∥R(k)∥F ≥ ϵ do 
+
+S(k) ← H (P(k))
+
+κ(k) ← ∥ R(k)∥2 
+
+> F
+
+/ ⟨P(k), S(k)⟩F
+
+X(k+1) ← X(k) + κ(k)P(k)
+
+R(k+1) ← R(k) − κ(k)S(k)
+
+ξ(k) ← ∥ R(k+1) ∥2 
+
+> F
+
+/ ∥R(k)∥2
+
+> F
+
+P(k+1) ← R(k+1) + ξ(k)P(k)
+
+k ← k + 1 
+
+end while 
+
+H(X(0) ) and search direction P(0) = R(0) , the algorithm iterates while updating the step size κ and conjugate direction coefficient ξ.CG is well-suited to this sub-problem for two reasons. First, it ex-ploits the Kronecker structure of the system: The linear operator is ap-plied as matrix products LsXL m, without forming the full N M × N M 
+
+system explicitly. Second, every operation in Algorithm 1—inner prod-ucts, matrix multiplications, and scalar rescalings—is strictly differen-tiable, enabling gradient backpropagation through the truncated CG iterations when the solver is later embedded in the unrolled network. 
+
+3.3 Twofold Graph Learning 
+
+3.3.1 Formulation 
+
+With X and one Laplacian fixed ( e.g. , Lm when updating the spatial graph), the sub-problem for the target Laplacian L is 
+
+min  
+
+> L∈L
+
+θ1tr (LK ) + θ2∥L∥2 
+
+> F
+
+− θ31⊤ log( diag (L)) , (17) where θ1 scales the kernel fitting term, θ2 controls edge-weight magni-tude, and θ3 > 0 prevents degenerate zero-degree solutions. This has the same form as the single-graph learning objective in [21]; the cou-pling between the spatial and modality topologies is encoded entirely in the kernel K.Multimodal Signal Restoration with Signed Twofold Graph Learning 11 
+
+3.3.2 The Role of the Target Kernel ( K)
+
+The kernel K is the key to coupling the two graph sub-problems. When learning the spatial graph, K = XL mX⊤ ∈ RN ×N ; when learning the modality graph, K = X⊤LsX ∈ RM ×M . In either case, the (i, j ) entry of K,
+
+Kij = x⊤ 
+
+> i
+
+Lcxj = X
+
+> p<q
+
+W (c) 
+
+> pq
+
+(Xip − Xiq )( Xjp − Xjq ), ∀c ∈ { s, m } (18) measures the co-variation of signals at nodes i and j as filtered through the complementary graph Lc, mathematically coupling the two topolo-gies. Expanding the trace term in (17) yields, tr (LK ) = 12
+
+X
+
+> ij
+
+Wij (Kii + Kjj − 2Kij )= 14
+
+X
+
+> ij
+
+X
+
+> pq
+
+Wij W ′
+
+> pq
+
+(Xip − Xjp ) − (Xiq − Xjq )2. (19) Thus, minimizing tr (LK ) enforces a structural regularization on the target weights Wij , such that nodes with similar variation on the com-plementary graphs are encouraged to have large weights between them. 
+
+3.3.3 Continuous Relaxation for Signed Modality Graphs 
+
+The feasible set L in (17) enforces Wij ≥ 0, which is appropriate for the spatial graph. For the modality graph, however, unsigned edges cannot represent negative inter-modal correlations. We therefore extend the formulation to signed modality graphs. We parameterize the signed modality Laplacian as ¯L = S ◦ Lm,where S = ss ⊤ ∈ {− 1, +1 }M ×M is a polarity matrix and Lm =
+
+diag (Wm1) − Wm is a standard non-negative Laplacian encoding the edge magnitudes. The following proposition shows that learning ¯L re-duces to learning an unsigned Laplacian on a sign-modulated kernel, making the problem fully tractable. 
+
+Proposition 3.1 (Trace Equivalence under Hadamard Product) . Let 
+
+K ∈ RM ×M be symmetric and S ∈ {− 1, 1}M ×M be a symmetric sign matrix with Sii = 1 for all i. For any positive graph Laplacian Lm =diag( Wm1) − Wm with Wm ≥ 0, and Kmag = S ◦ K:
+
+tr( ¯L K ) = tr( Lm Kmag ). (20) 12 Haruki Yokota et al. 
+
+Proof. Expanding ¯L = diag( Wm1) − S ◦ Wm:
+
+tr( ¯L K ) = tr(diag( Wm1) K) − tr(( S ◦ Wm)K). (21) For the adjacency term, since K and S are symmetric, 
+
+tr(( S ◦ Wm)K) = X
+
+> i,j
+
+Wm,ij Sij Kij = tr( Wm Kmag ). (22) For the degree term, Sii = 1 implies (Kmag )ii = Kii , so 
+
+tr(diag( Wm1) K) = tr(diag( Wm1) Kmag ). (23) Recombining: tr( ¯L K ) = tr((diag( Wm1)−Wm) Kmag ) = tr( Lm Kmag ).Proposition 3.1 reduces the signed graph learning problem to the standard unsigned objective (17) applied to the modulated kernel Kmag =
+
+S ◦ K, provided that the sign matrix S is estimated. Obtaining the exact bipartite partition S from data is in general NP-hard, so we estimate a continuous approximation via subspace it-eration. Let P ∈ RM ×r collect the r leading eigenvectors of K, and let 
+
+˜P be obtained by row-normalizing P. We form the rank-r approxima-tion of S as the cosine similarity matrix of ˜P:
+
+C = ˜P ˜P⊤ ∈ [−1, 1] M ×M , (24) which serves as a continuous surrogate for S: The entry Cij = cos( θij )
+
+is the cosine similarity between nodes i and j in the dominant spec-tral subspace of K, capturing the globally consistent polarity structure while suppressing local noise. Replacing S with C in (20), the modu-lated kernel becomes Kmag = C ◦ K. Compared to the polarity esti-mation in [24] that is based on pairwise signal distances, our spectral approach captures the global structure of K, making it more robust to noise and local discrepancies.  
+
+> 3.3.4 Primal-Dual Hybrid Gradient Solver
+
+We solve (17), where K replaced by Kmag for the modality graph, by reparametrizing the graph Laplacian matrix with the adjacency matrix Multimodal Signal Restoration with Signed Twofold Graph Learning 13 
+
+L = diag (W1 ) − W:
+
+min  
+
+> W∈W
+
+θ1(d⊤diag (K) − tr (WK )) + θ2(∥d∥22 + ∥W∥2 
+
+> F
+
+) − θ31⊤ log( d)
+
+s.t. d = W1 .
+
+(25) Introducing a dual variable u to decouple the degree constraint d =
+
+W1 , the problem becomes finding the saddle point of 
+
+F(W, d, u) = f (W) + h(d) + u⊤(W1 − d), (26) where f (W) = θ1∥W∥2 
+
+> F
+
+− αtr (WK ) is the smooth primal objective, 
+
+h(d) = θ1∥d∥22 + αd⊤diag (K) − θ21⊤ log( d) is the degree-specific regu-larization. We solve (26) via an accelerated primal-dual hybrid gradient (PDHG) method (Algorithm 2) as follows. 1. Primal Descent (Adjacency Matrix Update): The adjacency ma-trix is updated with a gradient step on f followed by projection onto W:
+
+W(k+1) = Proj W
+
+
+
+W(k) − τ
+
+
+
+∇f (W(k)) + S∗(u(k))
+
+ 
+
+, (27) where τ is the primal step-size, S∗(u) = u1 ⊤ + 1u ⊤ is the adjoint of the degree operator S(W) = W1 = d, and Proj W enforces non-negativity, symmetry, and a zero diagonal. Since f (W) = 
+
+θ1∥W∥2 
+
+> F
+
+− αtr (WK ), its gradient is 
+
+∇f (W) = 2 θ1W − αK. (28) 2. Extrapolation: To achieve an O(1 /k ) convergence rate, we ex-trapolate the updated adjacency matrix: 
+
+¯W = 2 W(k+1) − W(k), ¯d(k+1) = ¯W1 . (29) 3. Dual Ascent (Degree Update): Setting v = ( u(k) + σ ¯d(k+1) )/σ 
+
+and applying Moreau’s identity, the dual update reduces to the element-wise separable proximal problem 
+
+min 
+
+> di
+
+
+
+θ1d2 
+
+> i
+
++ Kii di − θ2 log( di) + 12σ (di − vi)2
+
+
+
+, (30) 14 Haruki Yokota et al. 
+
+Algorithm 2 Primal-Dual Hybrid Gradient for Graph Learning 
+
+Require: K (or Kmag for the modality graph), W(0) , u(0) 
+
+Ensure: L
+
+while ∥W(k+1) − W(k)∥F /∥W(k)∥F ≤ ϵg do 
+
+W(k+1) ← Proj W
+
+ W(k) − τ  2θ1W(k) − αK + S∗(u(k)) 
+
+¯W ← 2W(k+1) − W(k)
+
+v ← (u(k) + σ ¯W1 )/σ d(k+1)  
+
+> i
+
+← −2σK ii +vi+√(2 σK ii −vi)2+4 σθ 2(1+ σ)2(1+ σ)
+
+u(k+1) ← (u(k) + σ ¯W1 ) − σd(k+1) 
+
+end while 
+
+dfinal ← W(k+1) 1L ← diag (dfinal ) − W(k+1) 
+
+where vi = ui/σ + ¯di. This is a one-dimensional strongly convex problem with the closed-form solution 
+
+d(k+1)  
+
+> i
+
+= −2σK ii + vi + p(2 σK ii − vi)2 + 4 σθ 2(1 + σ)2(1 + σ) , (31) after which the dual variable is updated as: 
+
+u(k+1) = v − σd(k+1) . (32) 
+
+3.4 Computational Complexity 
+
+We summarize the per-layer cost of each module in terms of N (spatial nodes) and M (modalities). 1. Signal Reconstruction: Each iteration applies the operator LsP(k)Lm
+
+via two successive matrix products, costing O(N 2M + N M 2) per iteration and O(N 2M + N M 2) total for a fixed number of steps. 2. Kernel and Polarity Estimation: Computing the kernel K =
+
+X⊤LX ∈ R is O(N M (N + M )) for both spatial and modality kernels, and the polarity surrogate C = ˜P ˜P⊤ via subspace itera-tion cost O(M 2).Multimodal Signal Restoration with Signed Twofold Graph Learning 15 
+
+3. Graph Learning: Each iteration in the proposed PDHG algorithm updates a N × N adjacency matrix in O(N 2).The overal computational complexity is dominated by the kernel com-putation and the CG operator, giving a squared order: O(N 2M +
+
+N M 2).
+
+3.5 Deep Algorithm Unrolling 
+
+3.5.1 Network Architecture 
+
+The alternating minimization over (X, Ls, Lm) directly defines the for-ward pass of the unrolled network. Each outer layer l ∈ { 1, . . . , L }
+
+comprises one full alternating cycle with three sub-modules executed in sequence: (i) Modality Graph Module. Compute K = X(l−1) ⊤L(l−1)  
+
+> s
+
+X(l−1) ,form Kmag = C ◦ K, and run T PDHG inner iterations (Algo-rithm 2) with Kmag to produce L(l) 
+
+> m
+
+.(ii) Spatial Graph Module. Run T PDHG inner iterations with unsigned kernel K = X(l−1) L(l) 
+
+> m
+
+X(l−1) ⊤ to produce L(l) 
+
+> s
+
+.(iii) Signal Reconstruction Module. Run K CG inner iterations (Algorithm 1) with the updated pair (L(l) 
+
+> s
+
+, L(l) 
+
+> m
+
+) to produce X(l).The output of the final outer layer, X(L), is the reconstructed signal. We show the overview of the unrolled network architecture in Fig. 1. 
+
+3.5.2 Learnable Parameters 
+
+By fixing the number of inner iterations and promoting all algorithmic hyperparameters to layer-wise trainable weights, we obtain the follow-ing parameter sets. For the two graph learning modules at outer layer 
+
+l:
+
+Θ(l)GL := 
+
+nθ(t,l )1 , θ (t,l )2 , θ (t,l )3 , τ (t,l ), σ (t,l ) 
+
+> c
+
+c ∈ { s, m }, t = 1 , . . . , T 
+
+o
+
+,
+
+(33) Here, θ1 is a learnable scale for the kernel fitting term, and θ2, θ 3 are the regularization weights in (17). τ, σ are the PDHG primal and dual 16 Haruki Yokota et al.     
+
+> Figure 1: Overview of the unrolled network architecture. Each outer layer consists of a modality graph module, a spatial graph module, and a signal reconstruction module executed in sequence. The inner PDHG and CG iterations are truncated to fixed numbers Tand K, respectively, with learnable parameter Θ.
+
+step-sizes in Algorithm 2. Each parameter is learned separately for the spatial and modality modules. For the signal reconstruction module at outer layer l:
+
+Θ(l)SR := κ(k,l ), ξ (k,l ), μ (l) Kk=1 , (34) where κ(k), ξ (k) are the per-iteration CG step size and conjugate direc-tion coefficient in Algorithm 1, and μ(l) is the twofold-graph regular-ization weight in ( ?? ). Here T and K are the numbers of inner PDHG and CG iterations, respectively. The full trainable parameter set is 
+
+Θ = {Θ(l)GL , Θ(l)SR }Ll=1 .
+
+3.5.3 End-to-End Training 
+
+Given training pairs {(Y(n), X(n)gt )}Ntrain  
+
+> n=1
+
+, we minimize the mean squared error on the missing entries: 
+
+J (Θ) = 1
+
+N M En
+
+h
+
+∥Mc ◦ (X(L) − Xgt )∥2
+
+> F
+
+i
+
+, (35) where Mc = 11 ⊤ − M selects only the unobserved entries. Since ev-ery component of the forward pass—CG iterations, PDHG updates—is (sub-)differentiable, the network is trained end-to-end via backpropa-gation. The overall number of trainable parameters is O(L(T + K)) ,which is independent of the signal dimensions N and M , making the method scalable to large graphs. Multimodal Signal Restoration with Signed Twofold Graph Learning 17 
+
+4 Experiments 
+
+In this section, we evaluate the proposed method on multimodal signal denoising and interpolation against competing baselines in two set-tings: (i) synthetic multimodal graph signals with varying noise levels and missing rates, and (ii) interpolation of a real Japan meteorological dataset. We fix the number of inner PDHG iterations to T = 5 and CG iterations to K = 5 in all experiments. The baselines include the following methods: 1. Model based methods: graph low-pass filtering (GLF), singular value decomposition (SVD) 2. Data-driven methods: autoencoder (AE) [26], graph convolu-tional network (GCN) [27] 3. Algorithm-unrolling methods: TGSR-DAU [9], LLAP-DAU [13] TGSR-DAU is a recent unrolling method for multimodal graph sig-nal recovery, which requires a pair of pre-specified spatial graph and modality graph. LLAP-DAU is an unrolling method that learns twofold graphs from observations, but are unsigned. All methods are imple-mented in PyTorch and trained on a NVIDIA RTX 5060 GPU.  
+
+> 4.1 Evaluation on Synthetic Dataset
+
+Synthetic Data Generation :We generate synthetic graph signals based on the matrix normal distribution, where the sample distribution is parametrized with two pre-defined precision matrices. We compare the performance of the proposed method against base-lines with two types of synthetic datasets: 1. Matrix Normal dataset: Signals are sampled from a matrix nor-mal distribution with synthetic precision matrices 2. Piecewise Smooth dataset: Signals are generated with smooth spatial patterns and piecewise smooth modality variations. 18 Haruki Yokota et al. 
+
+Specifically, the synthetic dataset is generated in two stages. First, we create a twofold graph. Then, we sample the clean signal X from the matrix normal distribution defined by the twofold graph, and add i.i.d. Gaussian noise to obtain the noisy observation Y.The spatial graph Gs is a six-nearest neighbor graph of N nodes randomly placed in a 2-D space [0 , 1] × [0 , 1] . The modality graph 
+
+Gm is a community graph with M nodes randomly assigned to six communities. Each community in the modality graph corresponds to a single modality. For the matrix normal dataset, we consider the stochastic block model [28] for the connectivity of the modality graph: Intra-community edges and inter-community edges are generated with probability p =0.3 and q = 0 .5, respectively. The magnitudes of edge weights are drawn uniformly from [0 .1, 1.0] . Then, the communities are split ran-domly into two groups, where edge weights between the communities within the same groups remain positive, and edge weights between communities across groups are multiplied by −1. A sample matrix ob-servation X ∈ RN ×M is drawn from the distribution MN (0, L†
+
+> s
+
+, L†
+
+> m
+
+).For the piecewise smooth dataset, we sample six base spatial signals 
+
+xj ∼ N (0, L†
+
+> s
+
+), one for each modality community j ∈ { 1, . . . , 6}. The 
+
+m th spatial signal for community j is then generated as 
+
+xj,m = xj + ϕj (tm)1, (36) where tm ∈ [0 , 1] is the normalized modality node index. The additive signal ϕj (tm) is a sinusoidal function introducing anti-phase oscillations between adjacent communities: 
+
+ϕj (tm) = 
+
+( 14 sin( π 
+
+> 2
+
+tm), if j is odd , 
+
+> 14
+
+sin( π 
+
+> 2
+
+tm − π), if j is even . (37) Finally, an i.i.d. noise matrix E ∈ RN ×M is generated with Eij ∼N (0 , σ 2), where we control σ2 to achieve four levels of signal to noise ratio (SNR) in dB: [5 , 10 , 15 , 20] . The observation mask matrix 
+
+M ∈ RN ×M for interpolation is generated with five different missing rates in %: [10 , 20 , 30 , 40 , 50] . We visualize the sample signals from the two datasets in Fig. 2. 
+
+Experimental Setup :Multimodal Signal Restoration with Signed Twofold Graph Learning 19  
+
+> (a) Matrix normal dataset (b) Piecewise smooth dataset Figure 2: Sample signals from the two synthetic datasets.
+
+We generate five sets of twofold graphs with N = 50 and M = 60 ,and sample T = 20 signals for each twofold graph to perform five-fold cross-validation. We set samples from one twofold graph as the validation set, and use the remaining samples as the training set at each cross-validation fold. For baselines requiring a known graph (TGSR-DAU), we constructed a six-nearest neighbor graph from the noisy observation Y.All methods are trained for 50 epochs with the Adam optimizer at a learning rate of 0.01 . For all unrolled methods (AE, TGSR-DAU, and the proposed method), the number of outer layers is set to L = 3 ,as performance did not improve significantly beyond three layers. To evaluate each component of the proposed method, we also perform an ablation study. For ablation, we compare three other variations of the proposed model: 
+
+• Fixed modality graph : Inspired by [20], we fix the modality graph as a weighted path graph, which only models the smooth-ness individually per spatial node. The number of trainable pa-rameters is O(LT ).
+
+• Without graph learning : Inspired by [9], we compute the twofold graph from the input as a fixed nearest-neighbor graph, and use it across the layers. The number of trainable parameters is O(L).20 Haruki Yokota et al.                                                                    
+
+> Table 1: Average MSE on Matrix Normal Dataset at 20 dB
+> Methods\Missing rate (%) 10 20 30 40 50 Params. Model-based Graph Low-pass 0.281 0.285 0.289 0.293 0.297 1SVD 0.310 0.311 0.312 0.314 0.314 1Proposed (Iterative) 0.217 0.224 0.228 0.236 0.246 7Data-driven Auto-Encoder 0.317 0.318 0.319 0.320 0.320 298392 GCN 1.649 1.439 1.306 1.151 1.144 25906 Unrolled TGSR 0.256 0.266 0.274 0.283 0.291 18 LLAP 0.179 0.242 0.334 0.458 0.598 18 Prop. (Fixed Modality) 0.270 0.278 0.284 0.291 0.296 108 Prop. (Without GL) 0.278 0.286 0.293 0.299 0.305 7Proposed 0.215 0.221 0.225 0.234 0.240 183
+
+• Iterative solver : The proposed method without unrolling, with the regularization parameters tuned via grid-search to achieve the best MSE for denoising on data with SNR 10 dB. 
+
+Results :Tables 1 and 2 report the average MSE at 20 dB SNR. We also show the number of trainbale parameters for each method in the last col-umn. The proposed method achieves the lowest error on both datasets across all missing rates, with a particularly large margin on the piece-wise smooth dataset where negative inter-modal correlations are the dominant structure. Figure 3 extends this comparison across SNR lev-els, confirming that the proposed method consistently outperforms all baselines over the full noise range. From the ablation, we observe that fixing the modality graph to a path graph yields competitive performance on the piecewise smooth dataset, where a path graph is a reasonable prior approximation. How-ever, the performance degrades substantially when the signal distribu-tion deviates from that assumption for matrix normal dataset (Fig. 3(a)). Disabling graph learning leads to a larger drop on the piecewise smooth dataset (Table 2), confirming that adaptive graph estimation is essen-tial for signals with complex inter-modal structure. The iterative solver without unrolled training achieves competitive accuracy but tends to oversmooth under high noise (Fig. 3(d)), motivating end-to-end learn-ing of the regularization parameters. Multimodal Signal Restoration with Signed Twofold Graph Learning 21 
+
+(a) Masked MSE (b) MSE 
+
+(c) Masked MSE (d) MSE Figure 3: Masked MSE and MSE as functions of SNR. Values are averaged over all folds and missing rates; error bars indicate cross-fold standard deviations. Top row: Matrix normal dataset. Bottom row: Piecewise smooth dataset. We omit the GCN from matrix normal dataset for better visualization, as its MSE is an order of magnitude higher than the other methods. 22 Haruki Yokota et al. 
+
+Table 2: Average MSE on Piecewise Smooth Dataset at 20 dB                                                                    
+
+> Methods\Missing rate (%) 10 20 30 40 50 Params. Model-based Graph Low-pass 0.614 0.658 0.724 0.795 0.851 1SVD 1.009 0.994 0.998 1.004 1.001 1Proposed (Iterative) 0.020 0.020 0.025 0.033 0.080 7Data-driven Auto-Encoder 0.892 0.874 0.882 0.886 0.882 293892 GCN 1.020 0.859 0.719 0.609 0.484 25906 Unrolled TGSR 0.249 0.306 0.378 0.467 0.593 18 LLAP 0.260 0.271 0.279 0.288 0.295 18 Prop. (Fixed Modality) 0.038 0.041 0.052 0.063 0.088 108 Prop. (Without GL) 0.514 0.557 0.612 0.676 0.749 7Proposed 0.013 0.017 0.024 0.036 0.079 183
+
+4.2 Evaluation on Real-world Data 
+
+We evaluate the proposed method on interpolation of a real meteoro-logical dataset. 
+
+Japan Meteorological Dataset 1:The dataset consists of daily records for four modalities: average temperature, average sea-level air pressure, average humidity, and sun-shine duration. The records between the years 2018–2025 were col-lected from 141 observatories located across Japan. We stack 28 days of observations per month into a single matrix, resulting in 96 matrices of dimension 141 × 112 . The value of each modality is standardized to have a mean of zero and a standard deviation of one. We perform leaving-one-year-out cross-validation, where each year is treated as a validation set, while the rest of the years are used as training sets, and report the average MSEs. 
+
+Experimental Setup :We evaluate two types of missing patterns: Missing completely at random (MCAR) and missing with random spatial outages (MRSO). In the MCAR pattern, each entry is removed independently at random, modeling sensor failures whose occurrence is unrelated to the measured values. In the MRSO pattern, a randomly selected subset of stations experiences a fixed 14-day blackout, modeling structured outages in which all modalities at a station are simultaneously unavailable. Ex-ample observations and masks for both patterns are shown in Fig. 4. 
+
+> 1
+
+Japan Meteorological Agency, “AMeDAS,”. Available: jma.go.jp Multimodal Signal Restoration with Signed Twofold Graph Learning 23    
+
+> (a) MCAR Sample (b) MCAR Mask
+> (c) MRSO Sample (d) MRSO Mask Figure 4: Example observations and mask matrices for the MCAR (top) and MAR (bottom) patterns at a missing rate of 50%. For MCAR the missing rate is the fraction of missing entries; for MRSO it is the fraction of stations with blackouts.
+
+For each type, we vary the missing rate over {10 , 20 , 30 , 40 , 50 }%: for MCAR this is the fraction of missing entries, and for MRSO it is the fraction of stations with blackouts. 
+
+Results :Figure 5 shows the masked MSE as a function of missing rate. The proposed method outperforms all baselines across the full missing-rate range for both MCAR and MRSO patterns, with notably smaller cross-fold variance than competing methods, indicating more stable generalization across years. Qualitative reconstructions at a missing rate of 50% are shown in Figs. 6 and 7. The baseline methods tend to oversmooth the signal, 24 Haruki Yokota et al.  
+
+> (a) MCAR (b) MRSO Figure 5: Masked MSE as a function of missing rate, averaged over all folds. Error bars indicate cross-fold standard deviations.
+
+losing the temporal dynamics within each modality. The proposed method recovers the temporal structure more faithfully. Figure 8 reports per-modality normalized errors. While most base-lines exhibit a large error in temperature, the proposed method achieves consistently low error across all four modalities (temperature, pressure, humidity, and sunshine duration). Compared to the fixed-modality variant, the proposed method yields substantially lower errors for hu-midity and sunshine duration recovery, particularly under the MRSO pattern. This gap demonstrates the benefit of modeling negative inter-modal correlations through a signed modality graph, which a fixed path graph cannot capture. 
+
+Learned Graph Structures :Figure 9 shows the normalized weights of the learned spatial adja-cency matrix Ws and signed modality adjacency matrix ¯Wm from a representative fold, taken from each layer of the unrolled network. The spatial graph encodes proximity relations among the 141 meteorologi-cal stations partitioned into geographical regions; the modality graph encodes pairwise correlations—including signed ones—among the four observed quantities (temperature, pressure, humidity, and sunshine du-ration). From the first to the third layer, the spatial graph becomes more sparse and localized, indicating that the network gathers global infor-mation in the early layers and refines local structure in the later layers. The modality graph consistently captures strong negative correlations Multimodal Signal Restoration with Signed Twofold Graph Learning 25 
+
+(a) Ground Truth (b) Graph Low-pass (c) SVD 
+
+(d) Prop. (iterative) (e) Auto-Encoder (f) GCN 
+
+(g) TGSR (h) LLAP (i) Prop.(without GL) 
+
+(j) Prop.(fixed Modality) (k) Proposed Figure 6: Reconstructed signals under the MCAR pattern at a missing rate of 50%. 26 Haruki Yokota et al. 
+
+(a) Ground Truth (b) Graph Low-pass (c) SVD 
+
+(d) Prop. (iterative) (e) Auto-Encoder (f) GCN 
+
+(g) TGSR (h) LLAP (i) Prop.(without GL) 
+
+(j) Prop.(fixed Modality) (k) Proposed Figure 7: Reconstructed signals under the MRSO pattern at a missing rate of 50%. Multimodal Signal Restoration with Signed Twofold Graph Learning 27  
+
+> (a) MCAR (b) MRSO Figure 8: Normalized MSE per modality, averaged across all folds and missing rates.
+
+between humidity and sunshine duration, which is a known physical relationship in meteorology. 
+
+Learned Model Parameters :Figure 10 shows the learned graph-learning regularization param-eters ( θ1, θ2, θ3, τ , σ) and signal-reconstruction parameters ( κ, ξ, μ)across the three outer layers, for a representative fold. These parame-ters are initialized from the iterative solver and refined by end-to-end training; their layer-wise variation reflects the network’s adaptation of the regularization strength and solver step sizes to the signal statistics at each stage of the unrolled computation. From Figs. 10(a) and 10(b), we see that θ1 and θ2, θ 3 show alter-nating pattern across the outer layers, which may reflect the network’s strategy of alternating between stronger data fitting and stronger spar-sity regularization in the graph learning modules. The PDHG step sizes 
+
+τ and σ also vary across layers, suggesting that the network learns to adjust the convergence speed of the inner graph learning iterations at each stage. Specifically, primal step size τ tends to lower values when the structural regularization parameters are higher, which reflects the conservative updates on the graph weights when the regularization is strong. On the other hand, the dual step size σ show a clear pattern of cliff-like decrease near the last inner layer, which may reflect the network’s strategy of prioritizing the primal updates over the dual up-dates in the later stages of graph learning, when the graph estimates are more refined and require more careful adjustments. From Figs. 10(c) and 10(d), we see that the twofold-graph regu-28 Haruki Yokota et al. 
+
+larization weight μ tends to increase across layers, indicating that the network relies more on the learned graph structure for signal recon-struction in the later stages. The CG step sizes κ and ξ also show increasing trends across the outer layers. This is consistent with the architectural design of the unrolled network, where the later layers can afford more aggressive updates as the graph estimates become more accurate and the signal reconstruction becomes more reliable. 
+
+5 Conclusions 
+
+We proposed an interpretable deep network for jointly restoring multi-modal graph signals and learning their underlying twofold graph struc-ture. By placing a matrix normal prior on the signal, we derived a MAP objective in which the spatial and modality graph Laplacians serve as precision matrices, and solved it via alternating minimization over three variables: the signal, the unsigned spatial graph, and the signed modality graph. Each sub problem is handled by a dedicated differentiable solver—conjugate gradient for the Sylvester-type signal update and PDHG for each graph update—which are unrolled into a feedforward network whose regularization weights and step sizes are learned end-to-end. The sign structure of the modality graph is esti-mated via subspace iteration on a spectral kernel, yielding a continuous relaxation that is compatible with backpropagation. Experiments on synthetic multimodal graph signals and a real Japan meteorological dataset confirm that the proposed method outperforms competing baselines in both denoising and interpolation across a range of noise levels and missing-data patterns. The ablation study shows that signed modality graph learning provides the largest gain when neg-ative inter-modal correlations are present, and that end-to-end training of the unrolled parameters improves robustness under high noise. On the real dataset, the proposed method also exhibits lower cross-fold variance than the baselines, suggesting stable generalization across dif-ferent years and missing-data regimes. Multimodal Signal Restoration with Signed Twofold Graph Learning 29 
+
+Acknowledgments 
+
+This work was supported in part by JSPS KAKENHI under Grants 24K15047, 25KJ1755, 26H02536 and JST AdCORP under Grant JP-MJKB2307. 30 Haruki Yokota et al. 
+
+(a) Spatial graph, MCAR 
+
+(b) Spatial graph, MRSO 
+
+(c) Modality graph, MCAR 
+
+(d) Modality graph, MRSO Figure 9: Learned spatial adjacency matrix Ws (top) and signed modality adjacency matrix ¯Wm (bottom) for the MCAR (left) and MRSO (right) patterns, from the final outer layer of a representative fold. The weights are normalized for visualization. Lines indicate the partition of stations into geographical regions (for the spatial graph) and modalities (for the modality graph). Multimodal Signal Restoration with Signed Twofold Graph Learning 31 
+
+(a) Graph learning parameters, MCAR 
+
+(b) Graph learning parameters, MRSO 
+
+(c) Signal reconstruction parameters, MCAR 
+
+(d) Signal reconstruction parameters, MRSO Figure 10: Learned parameters for MCAR (left) and MRSO (right). The values are normalized for visualization. Top: graph learning regularization weights θ1, θ2, θ 3
+
+and PDHG step sizes τ , σ for the spatial and modality modules. Bottom: CG step size κ(k), step direction ξ(k) and twofold-graph regularization weight μ.32 Haruki Yokota et al. 
+
+References 
+
+[1] H. Yokota, H. Higashi, and Y. Tanaka, “Unrolled Multimodal Sig-nal Restoration with Signed Twofold Graph Learning”, in 2025 Asia Pacific Signal and Information Processing Association An-nual Summit and Conference (APSIPA ASC) , 2025, 1291–6. [2] Y. Xiao, F. Codevilla, A. Gurram, O. Urfalioglu, and A. M. López, “Multimodal End-to-End Autonomous Driving”, IEEE Trans-actions on Intelligent Transportation Systems , 23(1), 2022, 537– 47. [3] H. Liu, T. Lou, Y. Zhang, Y. Wu, Y. Xiao, C. S. Jensen, and D. Zhang, “EEG-Based Multimodal Emotion Recognition: A Ma-chine Learning Perspective”, IEEE Transactions on Instrumen-tation and Measurement , 73, 2024, 1–29, issn : 1557-9662. [4] W. Liu, J. Chen, H. Wang, Z. Fu, W. J. G. M. Peijnenburg, and H. Hong, “Perspectives on Advancing Multimodal Learning in Environmental Science and Engineering Studies”, Environmental Science & Technology , 58(38), September 24, 2024, 16690–703, 
+
+issn : 0013-936X. [5] J. C. Arceo, L. Yu, and S. Bai, “Robust Sensor Fusion and Biomimetic Control of a Lower-Limb Exoskeleton With Multimodal Sensors”, 
+
+IEEE Transactions on Automation Science and Engineering , 22, 2025, 5425–35, issn : 1558-3783. [6] D. I. Shuman, S. K. Narang, P. Frossard, A. Ortega, and P. Vandergheynst, “The Emerging Field of Signal Processing on Graphs: Extending High-Dimensional Data Analysis to Networks and Other Irregular Domains”, IEEE Signal Processing Magazine ,30(3), 2013, 83–98. [7] A. Ortega, P. Frossard, J. Kovačević, J. M. F. Moura, and P. Vandergheynst, “Graph Signal Processing: Overview, Challenges, and Applications”, Proc. IEEE , 106(5), 2018, 808–28. [8] Y. Tanaka, Y. C. Eldar, A. Ortega, and G. Cheung, “Sampling Signals on Graphs: From Theory to Applications”, IEEE Signal Processing Magazine , 37(6), 2020, 14–30. [9] M. Nagahama and Y. Tanaka, “Multimodal Graph Signal Denois-ing Via Twofold Graph Smoothness Regularization with Deep Algorithm Unrolling”, in ICASSP 2022 - 2022 IEEE Interna-Multimodal Signal Restoration with Signed Twofold Graph Learning 33 
+
+tional Conference on Acoustics, Speech and Signal Processing (ICASSP) , 2022, 5862–6. [10] N. Shahid, N. Perraudin, V. Kalofolias, G. Puy, and P. Van-dergheynst, “Fast Robust PCA on Graphs”, IEEE Journal of Se-lected Topics in Signal Processing , 10(4), 2016, 740–56. [11] F. Wang, Y. Wang, G. Cheung, and C. Yang, “Graph Sampling for Matrix Completion Using Recurrent Gershgorin Disc Shift”, 
+
+IEEE Transactions on Signal Processing , 68, 2020, 2814–29. [12] S. Zheng, Z. Zhu, Z. Liu, Z. Guo, Y. Liu, Y. Yang, and Y. Zhao, “Multi-Modal Graph Learning for Disease Prediction”, IEEE Trans-actions on Medical Imaging , 41(9), 2022, 2207–16. [13] H. Kojima, K. Takanami, J. Hara, Y. Bandoh, S. Takamura, H. Higashi, and Y. Tanaka, “Algorithm Unrolling-Based Denoising of Multimodal Graph Signals”, IEEE Transactions on Signal and Information Processing over Networks , 12, 2026, 544–55. [14] C. Dinesh, G. Cheung, S. Bagheri, and I. V. Bajić, “Efficient Signed Graph Sampling via Balancing & Gershgorin Disc Perfect Alignment”, IEEE Transactions on Pattern Analysis and Ma-chine Intelligence , 47(4), 2025, 2330–48. [15] H. Yokota, H. Higashi, Y. Tanaka, and G. Cheung, “Efficient Learning of Balanced Signed Graphs via Iterative Linear Pro-gramming”, in ICASSP 2025 - 2025 IEEE International Confer-ence on Acoustics, Speech and Signal Processing (ICASSP) , 2025, 1–5. [16] A. K. Gupta and D. K. Nagar, Matrix Variate Distributions , New York: Chapman and Hall/CRC, 2000, 384 pp., isbn : 978-0-203-74928-9. [17] L. Condat, “A Primal—Dual Splitting Method for Convex Op-timization Involving Lipschitzian, Proximable and Linear Com-posite Terms”, J. Optim. Theory Appl. , 158(2), 2013, 460–79. [18] V. Monga, Y. Li, and Y. C. Eldar, “Algorithm Unrolling: Inter-pretable, Efficient Deep Learning for Signal and Image Process-ing”, IEEE Signal Processing Magazine , 38(2), 2021, 18–44. [19] G. Ortiz-Jiménez, M. Coutino, S. P. Chepuri, and G. Leus, “SAM-PLING AND RECONSTRUCTION OF SIGNALS ON PROD-UCT GRAPHS”, in 2018 IEEE Global Conference on Signal and Information Processing (GlobalSIP) , 2018, 713–7. 34 Haruki Yokota et al. 
+
+[20] X. Jiang, Z. Tian, and K. Li, “A Graph-Based Approach for Missing Sensor Data Imputation”, IEEE Sensors Journal , 21(20), 2021, 23133–44. [21] X. Dong, D. Thanou, P. Frossard, and P. Vandergheynst, “Learn-ing Laplacian Matrix in Smooth Graph Signal Representations”, 
+
+IEEE Transactions on Signal Processing , 64(23), 2016, 6160–73. [22] C. Yang, G. Cheung, and W. Hu, “Signed Graph Metric Learning via Gershgorin Disc Perfect Alignment”, IEEE Trans. Pattern Anal. Mach. Intell. , 44(10), 2022, 7219–34. [23] C. Dinesh, S. Bagheri, G. Cheung, and I. V. Bajić, “Linear-Time Sampling on Signed Graphs Via Gershgorin Disc Perfect Align-ment”, in ICASSP 2022 - 2022 IEEE Int. Conf. Acoust. Speech Signal Process. ICASSP , 2022, 5942–6. [24] G. Matz and T. Dittrich, “Learning Signed Graphs from Data”, in 
+
+ICASSP 2020 - 2020 IEEE International Conference on Acous-tics, Speech and Signal Processing (ICASSP) , 2020, 5570–4. [25] J. Zhou, R. Wang, and Q. Niu, “A Preconditioned Iteration Method for Solving Sylvester Equations”, Journal of Applied Mathemat-ics , 2012(1), 2012, 401059, issn : 1687-0042. [26] P. Vincent, H. Larochelle, I. Lajoie, Y. Bengio, and P.-A. Man-zagol, “Stacked Denoising Autoencoders: Learning Useful Repre-sentations in a Deep Network with a Local Denoising Criterion”, 
+
+Journal of Machine Learning Research , 11(110), 2010, 3371–408. [27] T. N. Kipf and M. Welling, “Semi-Supervised Classification with Graph Convolutional Networks”, in International Conference on Learning Representations , 2017. [28] P. W. Holland, K. B. Laskey, and S. Leinhardt, “Stochastic Block-models: First Steps”, Social Networks , 5(2), 1983, 109–37.

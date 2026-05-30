@@ -1,0 +1,218 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-05-30T20:40:21.682874+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 4,
+    "quick_skim_target": 11,
+    "quick_selected": 4
+  },
+  "deep_dive": [
+    {
+      "id": "2605.28625v1",
+      "source": "arxiv",
+      "title": "Random Process Flow Matching: Generative Implicit Representations of Multivariate Random Fields",
+      "abstract": "Generative modeling provides a powerful framework for learning data distributions. These models initially relied on probabilistic methods such as Gaussian Processes (GP) for uncertainty-aware predictions and shifted towards larger trainable models to learn more complex distributions. In this work, we introduce Random Process (RP) Flow, a Flow Matching-based framework that represents the vector field as a neural implicit function. Unlike modern generative methods, our setting involves a single observed field, from which only sparse measurements are available. RP Flow uses Random Fourier Features to learn an implicit signal representation that can be queried at any arbitrary location from a limited set of observations, while encoding uncertainty through ensemble sampling. We propose constructing a Bayesian posterior by GP regression in the source space to generate high-quality samples. Our empirical results demonstrate that this framework generates realistic samples along with calibrated uncertainty estimates, even under challenging conditions such as high frequency, high sparsity, or high dimensionality. These findings position RP Flow as a milestone towards generative models for reconstruction tasks where data is scarce and uncertainty must remain traceable.",
+      "authors": [
+        "Julien Lalanne",
+        "David Picard",
+        "Lionel Boillot",
+        "Lina-María Guayacán-Carrillo",
+        "Leon Barens",
+        "Jean-Michel Pereira"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-05-27T15:31:29+00:00",
+      "link": "https://arxiv.org/pdf/2605.28625v1",
+      "tags": [
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Flow matching generative model for implicit representation, can infer values at arbitrary locations from sparse observations, applicable to EEG channel imputation",
+      "llm_evidence_cn": "流匹配生成模型用于隐式表示，能从稀疏观测推断任意位置的值，适用于EEG通道插补",
+      "llm_evidence": "流匹配生成模型用于隐式表示，能从稀疏观测推断任意位置的值，适用于EEG通道插补",
+      "canonical_evidence": "流匹配生成模型用于隐式表示，能从稀疏观测推断任意位置的值，适用于EEG通道插补",
+      "llm_tldr_en": "Proposes Random Process Flow Matching, a flow matching framework that learns an implicit neural representation of multivariate random fields, enabling query at arbitrary locations from limited measurements. Suitable for EEG channel imputation.",
+      "llm_tldr_cn": "现有的生成模型通常需要大量完整观测数据，难以处理仅含稀疏测量值的单次场观测。本文提出随机过程流匹配（RP Flow）框架，基于流匹配和随机傅里叶特征学习隐式信号表示，能从有限的稀疏观测中推断任意位置的值。该方法在多个合成和实际数据集上验证了有效性，为EEG缺失通道补全等任务提供了可迁移的生成式建模方案。",
+      "llm_tldr": "现有的生成模型通常需要大量完整观测数据，难以处理仅含稀疏测量值的单次场观测。本文提出随机过程流匹配（RP Flow）框架，基于流匹配和随机傅里叶特征学习隐式信号表示，能从有限的稀疏观测中推断任意位置的值。该方法在多个合成和实际数据集上验证了有效性，为EEG缺失通道补全等任务提供了可迁移的生成式建模方案。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "reconstruct missing EEG channels with deep generative networks",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2605.26271v1",
+      "source": "arxiv",
+      "title": "Learning Nonlinear Factor Models with Unknown Monotone Links from Incomplete and Noisy Data",
+      "abstract": "We study a nonlinear factor model in which observed responses depend on low-rank latent factors through an unknown monotone link function. This setting is challenging and largely underexplored due to severe nonconvexity and identifiability issues. The link function is assumed to lie in a reproducing kernel Hilbert space (RKHS), enabling flexible nonparametric modeling while preserving identifiability. We formulate the problem as the joint recovery of the low-rank factors, loadings, and the nonlinear link function from possibly incomplete and noisy observations and propose a projected block coordinate descent (BCD) algorithm with explicit regularization to address scale and rotational ambiguities. Under mild incoherence of factors and standard sampling conditions, we establish convergence guarantees in both noiseless and noisy regimes, along with sublinear regret bounds for the link-function updates. Our results extend classical linear factor models to a broad nonlinear regime and provide a principled framework for learning nonlinear latent structures. We evaluate the proposed approach using controlled synthetic experiments, indicating promising performance.",
+      "authors": [
+        "Yutong Chao",
+        "Resat Gökhan",
+        "Jalal Etesami",
+        "Ali Habibnia"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.LG",
+        "econ.EM"
+      ],
+      "published": "2026-05-25T18:57:03+00:00",
+      "link": "https://arxiv.org/pdf/2605.26271v1",
+      "tags": [
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "learns nonlinear factor models with unknown monotone links from incomplete data, enabling latent-space imputation",
+      "llm_evidence_cn": "从不完整数据学习非线性因子模型，实现基于潜在空间的补全",
+      "llm_evidence": "从不完整数据学习非线性因子模型，实现基于潜在空间的补全",
+      "canonical_evidence": "从不完整数据学习非线性因子模型，实现基于潜在空间的补全",
+      "llm_tldr_en": "Joint recovery of low-rank factors and nonlinear link function from incomplete and noisy data using projected block coordinate descent with RKHS regularization.",
+      "llm_tldr_cn": "该论文研究从不完整且含噪观测中联合恢复低秩因子、载荷和未知单调链接函数的问题，提出基于投影块坐标下降的算法，利用RKHS正则化处理非凸性和可识别性。该方法天然适用于多通道EEG缺失数据的潜在空间补全，因为因子模型可视为低维潜在表示。",
+      "llm_tldr": "该论文研究从不完整且含噪观测中联合恢复低秩因子、载荷和未知单调链接函数的问题，提出基于投影块坐标下降的算法，利用RKHS正则化处理非凸性和可识别性。该方法天然适用于多通道EEG缺失数据的潜在空间补全，因为因子模型可视为低维潜在表示。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "latent space based imputation for multichannel EEG",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.25439v1",
+      "source": "arxiv",
+      "title": "Missing Pattern Recognized Diffusion Imputation Model for Missing Not At Random",
+      "abstract": "Missing data frequently arises across diverse domains, including time-series and image domains. In the real world, missing occurrences often depend on the unobservable values themselves, which are referred to as Missing Not at Random (MNAR). In this work, we introduce the Missing Pattern Recognized Diffusion Imputation Model (PRDIM), a novel framework that explicitly captures the missing pattern and precisely imputes unobserved values. PRDIM iteratively maximizes the likelihood of the joint distribution for observed values and missing mask under an Expectation-Maximization (EM) algorithm. In this sense, we first employ a pattern recognizer, which approximates the underlying missing pattern and provides guidance during every inference toward more plausible imputations with respect to the missing information. Through extensive experiments, we demonstrate that PRDIM consistently achieves strong imputation performance under MNAR settings across multiple data modalities.",
+      "authors": [
+        "Gyuwon Sim",
+        "Sumin Lee",
+        "Heesun Bae",
+        "Byeonghu Na",
+        "Doyun Kwon",
+        "Ju-Hee Hwang",
+        "Jae-Young Lim",
+        "Il-Chul Moon"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-05-25T05:29:59+00:00",
+      "link": "https://arxiv.org/pdf/2605.25439v1",
+      "tags": [
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Diffusion imputation model that captures missing pattern under MNAR, relevant to generative imputation methods",
+      "llm_evidence_cn": "捕获MNAR缺失模式的扩散插补模型，与生成式插补方法相关",
+      "llm_evidence": "捕获MNAR缺失模式的扩散插补模型，与生成式插补方法相关",
+      "canonical_evidence": "捕获MNAR缺失模式的扩散插补模型，与生成式插补方法相关",
+      "llm_tldr_en": "Introduces PRDIM, a diffusion-based imputation model that explicitly models the missing pattern for MNAR data using an EM algorithm and pattern recognizer.",
+      "llm_tldr_cn": "真实世界缺失数据常呈现非随机缺失（MNAR）模式，而现有扩散插补模型忽略缺失模式。本文提出缺失模式识别扩散插补模型（PRDIM），通过EM算法迭代最大化观测值和缺失掩膜的联合似然，并利用模式识别器指导每个推断步骤。该方法显式建模缺失机制，可提高插补精度，但其面向通用数据而非专门针对EEG通道。",
+      "llm_tldr": "真实世界缺失数据常呈现非随机缺失（MNAR）模式，而现有扩散插补模型忽略缺失模式。本文提出缺失模式识别扩散插补模型（PRDIM），通过EM算法迭代最大化观测值和缺失掩膜的联合似然，并利用模式识别器指导每个推断步骤。该方法显式建模缺失机制，可提高插补精度，但其面向通用数据而非专门针对EEG通道。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "generative models for EEG channel imputation",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.26760v1",
+      "source": "arxiv",
+      "title": "Multimodal Signal Restoration with Signed Twofold Graph Learning",
+      "abstract": "Multimodal signals on sensor networks are commonly modeled under the twofold graph assumption (TGA), which represents spatial structure and inter-modality relations as two separate graphs. Existing TGA-based signal restoration methods, however, either assume the graphs are known or restrict edge weights to be non-negative, preventing them from capturing negative inter-modal correlations. We address both limitations by formulating joint signal restoration and twofold graph learning as MAP estimation under a matrix normal prior, where the spatial and modality graph Laplacians appear directly as precision matrices. The resulting non-convex objective is solved by alternating minimization: The signal is updated via conjugate gradient applied to the arising Sylvester-type linear system; the graphs are updated via primal-dual hybrid gradient (PDHG). We further propose a method to estimate the signed structure of the modality graph from the dominant eigenspace of a complementary kernel matrix, which is then used in PDHG to update edge magnitudes. These iterative solvers are then unrolled into a feedforward network, with regularization weights and step sizes as layer-wise trainable parameters. Experiments on synthetic multimodal graph signals and a real Japan meteorological dataset confirm that the proposed method outperforms existing baselines across a range of noise levels and missing-data patterns.",
+      "authors": [
+        "Haruki Yokota",
+        "Hiroshi Higashi",
+        "Yuichi Tanaka"
+      ],
+      "primary_category": "eess.SP",
+      "categories": [
+        "eess.SP"
+      ],
+      "published": "2026-05-26T09:31:05+00:00",
+      "link": "https://arxiv.org/pdf/2605.26760v1",
+      "tags": [
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "multimodal signal restoration method applicable to EEG channel imputation",
+      "llm_evidence_cn": "多模态信号恢复方法可应用于EEG通道补全",
+      "llm_evidence": "多模态信号恢复方法可应用于EEG通道补全",
+      "canonical_evidence": "多模态信号恢复方法可应用于EEG通道补全",
+      "llm_tldr_en": "Joint signal restoration and twofold graph learning for multimodal signals, handling missing data and negative correlations, solved via alternating minimization.",
+      "llm_tldr_cn": "该论文针对多模态传感器网络中的信号恢复问题，提出联合信号恢复与双图学习方法，通过矩阵正态先验建模空间和模态图拉普拉斯矩阵，并采用交替最小化求解。该方法可处理缺失数据并捕获负相关，能够直接应用于EEG多通道信号的缺失补全任务。",
+      "llm_tldr": "该论文针对多模态传感器网络中的信号恢复问题，提出联合信号恢复与双图学习方法，通过矩阵正态先验建模空间和模态图拉普拉斯矩阵，并采用交替最小化求解。该方法可处理缺失数据并捕获负相关，能够直接应用于EEG多通道信号的缺失补全任务。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "generative models for EEG channel imputation",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.29591v1",
+      "source": "arxiv",
+      "title": "Mind-Omni: A Unified Multi-Task Framework for Brain-Vision-Language Modeling via Discrete Diffusion",
+      "abstract": "Modeling the interplay between external stimuli and internal neural representations is a pivotal research area for Brain-Computer Interfaces (BCIs). A major limitation of prior work is the prevailing paradigm of specialized, single-task models, which curtails versatility and neglects inter-task synergies. To address this, we propose Mind-Omni, the first versatile framework that unifies seven distinct encoding and decoding tasks through a discrete diffusion paradigm. At its core is a novel Brain Tokenizer that transforms heterogeneous, continuous brain signals into standardized, discrete tokens. This enables direct, token-level interactions for mutual understanding and generation between any two or more modalities within a shared semantic space. To unlock advanced reasoning capabilities, we further curate a specialized Brain Question Answering (BQA) instruction-tuning dataset. Our model not only establishes a new state-of-the-art among multi-task unified frameworks but also provides strong evidence for multi-task synergy. By demonstrating performance competitive with, and at times superior to, larger specialized models, our work offers a powerful new paradigm for neural modeling and paves the way for foundation models of neural activity. The code is publicly available at https://github.com/ReedOnePeck/Mind-Omni.",
+      "authors": [
+        "Yizhuo Lu",
+        "Changde Du",
+        "Qingyu Shi",
+        "Hang Chen",
+        "Jie Peng",
+        "Liuyun Jiang",
+        "Shuangchen Zhao",
+        "Huiguang He"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-05-28T08:33:43+00:00",
+      "link": "https://arxiv.org/pdf/2605.29591v1",
+      "tags": [
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Brain Tokenizer converts brain signals into discrete tokens for latent space modeling",
+      "llm_evidence_cn": "脑信号分词器将连续脑信号转换为离散token，用于潜在空间建模",
+      "llm_evidence": "脑信号分词器将连续脑信号转换为离散token，用于潜在空间建模",
+      "canonical_evidence": "脑信号分词器将连续脑信号转换为离散token，用于潜在空间建模",
+      "llm_tldr_en": "Mind-Omni unifies seven brain-vision-language tasks via discrete diffusion and a Brain Tokenizer that tokenizes brain signals into discrete latent codes.",
+      "llm_tldr_cn": "该论文提出Mind-Omni，首个通过离散扩散统一七种脑-视-语言编码与解码任务的框架。其核心是脑信号分词器，将异构连续脑信号转化为标准离散token，实现多模态交互与生成。虽然并非专门针对EEG通道补全，但其离散潜在表示方法为EEG潜在空间建模提供了新思路。",
+      "llm_tldr": "该论文提出Mind-Omni，首个通过离散扩散统一七种脑-视-语言编码与解码任务的框架。其核心是脑信号分词器，将异构连续脑信号转化为标准离散token，实现多模态交互与生成。虽然并非专门针对EEG通道补全，但其离散潜在表示方法为EEG潜在空间建模提供了新思路。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
