@@ -1,0 +1,96 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-05-31T20:10:43.364746+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2605.26921v1",
+      "source": "arxiv",
+      "title": "Revealing the core dimensions underlying representations in brains, behavior and AI",
+      "abstract": "The study of representations is widespread across fields, including neuroscience, psychology, and artificial intelligence. While representations are often studied and compared through similarities between stimuli, current methods provide only limited access to the dimensions that shape these representations and are often limited in interpretability. To overcome these challenges, here we introduce Similarity-Based Representation Factorization (SRF), a general computational method for recovering low-dimensional, non-negative, interpretable embeddings from similarity matrices derived from measured data. Across simulations and many neural, behavioral, and computational datasets, SRF recovers interpretable dimensions from diverse forms of representational data, even for very sparsely sampled, incomplete data. The dimensions derived from these datasets match those obtained by task-specific models, predict independent behavioral properties, improve exploratory analysis, and offer higher power for confirmatory hypothesis testing than comparing similarity matrices. Together, these results establish SRF as a general-purpose method with broad applications for uncovering, understanding, and leveraging the dimensions underlying representations.",
+      "authors": [
+        "Florian P. Mahner",
+        "Ka Chun Lam",
+        "Francisco Pereira",
+        "Martin N. Hebart"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "q-bio.NC"
+      ],
+      "published": "2026-05-26T12:19:17+00:00",
+      "link": "https://arxiv.org/pdf/2605.26921v1",
+      "tags": [
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "similarity-based representation factorization for latent dimensions",
+      "llm_evidence_cn": "基于相似性的表征因子化以发现潜在维度",
+      "llm_evidence": "基于相似性的表征因子化以发现潜在维度",
+      "canonical_evidence": "基于相似性的表征因子化以发现潜在维度",
+      "llm_tldr_en": "Proposes Similarity-Based Representation Factorization (SRF) to recover low-dimensional interpretable dimensions from similarity matrices, applicable to neural and behavioral data, and can be used for EEG latent space analysis.",
+      "llm_tldr_cn": "当前方法难以从相似性矩阵中恢复可解释的低维表征维度。本文提出基于相似性的表征因子化（SRF），从测量数据的相似性矩阵中恢复非负、低维、可解释的嵌入。在多个神经、行为和计算数据集上，SRF成功恢复了有意义的维度。该方法为脑电等神经数据的潜在空间分析提供了通用工具。",
+      "llm_tldr": "当前方法难以从相似性矩阵中恢复可解释的低维表征维度。本文提出基于相似性的表征因子化（SRF），从测量数据的相似性矩阵中恢复非负、低维、可解释的嵌入。在多个神经、行为和计算数据集上，SRF成功恢复了有意义的维度。该方法为脑电等神经数据的潜在空间分析提供了通用工具。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.28507v1",
+      "source": "arxiv",
+      "title": "Universal Time Series Generation with Neural Controlled Differential Equations",
+      "abstract": "Recent work on the sequence universality of State Space Models (SSMs) has introduced efficient, maximally expressive continuous-time approaches for time-series modelling. While these works focus on discriminative settings, we extend this perspective to generative time-series modelling by proving that maximally expressive Structured Linear Controlled Differential Equations (SLiCEs) are universal time-series generators, in the sense that they can approximate the induced path laws of continuous causal pushforwards on compact latent sets in $W_\\infty$. Building on these theoretical results, we propose Generative SLiCEs (G-SLiCEs), a maximally expressive continuous-time model for flow matching on path-space. Empirically, we show that expressivity improves performance in probabilistic forecasting and downstream tasks, while retaining the advantages of continuous-time models such as generalising to arbitrary observation grids. This is particularly beneficial for irregular grids, where fixed-grid models often struggle.",
+      "authors": [
+        "Torben Berndt",
+        "Elyes Farjallah",
+        "Leif Seute",
+        "Raeid Saqur",
+        "Benjamin Walker",
+        "Jan Stühmer"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-05-27T14:10:41+00:00",
+      "link": "https://arxiv.org/pdf/2605.28507v1",
+      "tags": [
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "universal time series generation with flow matching, applicable to missing channel imputation",
+      "llm_evidence_cn": "通用时间序列生成流匹配，可应用于缺失通道插补",
+      "llm_evidence": "通用时间序列生成流匹配，可应用于缺失通道插补",
+      "canonical_evidence": "通用时间序列生成流匹配，可应用于缺失通道插补",
+      "llm_tldr_en": "Proposes Generative SLiCEs, a maximally expressive continuous-time model for flow matching on path-space, proven to be universal time-series generators.",
+      "llm_tldr_cn": "本文提出G-SLiCEs，一种基于神经控制微分方程的最具表达力连续时间生成模型，用于路径空间上的流匹配。理论证明其可以逼近连续因果推前路径律，从而成为通用时间序列生成器。该生成方法可直接用于时间序列缺失值插补，包括EEG多通道信号，但缺乏对潜在空间显式建模。",
+      "llm_tldr": "本文提出G-SLiCEs，一种基于神经控制微分方程的最具表达力连续时间生成模型，用于路径空间上的流匹配。理论证明其可以逼近连续因果推前路径律，从而成为通用时间序列生成器。该生成方法可直接用于时间序列缺失值插补，包括EEG多通道信号，但缺乏对潜在空间显式建模。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "reconstruct missing EEG channels with deep generative networks",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

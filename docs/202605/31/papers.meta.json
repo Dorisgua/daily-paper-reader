@@ -1,0 +1,39 @@
+{
+  "label": "2026-05-31",
+  "date": "2026-05-31",
+  "generated_at": "2026-05-31T20:12:43",
+  "count": 2,
+  "papers": [
+    {
+      "paper_id": "202605/31/2605.26921v1-revealing-the-core-dimensions-underlying-representations-in-brains-behavior-and-ai",
+      "section": "quick",
+      "title_en": "Revealing the core dimensions underlying representations in brains, behavior and AI",
+      "authors": "Florian P. Mahner, Ka Chun Lam, Francisco Pereira, Martin N. Hebart",
+      "date": "2026-05-26",
+      "pdf": "https://arxiv.org/pdf/2605.26921v1",
+      "score": "6.0",
+      "evidence": "基于相似性的表征因子化以发现潜在维度",
+      "tldr": "表征研究在神经科学、心理学和AI中广泛进行，但现有方法难以揭示形成表征的维度且可解释性有限。本文提出相似性表征分解（SRF），一种从相似性矩阵中恢复低维、非负、可解释嵌入的通用方法。在模拟和多种神经、行为及计算数据集上，SRF能从不完整数据中提取可解释维度，其维度匹配任务特定模型，预测独立行为属性，提升探索性分析和假设检验能力。SRF为揭示和理解表征底层的核心维度提供了通用工具。",
+      "tags": "query:eeg-latent",
+      "abstract_en": "The study of representations is widespread across fields, including neuroscience, psychology, and artificial intelligence. While representations are often studied and compared through similarities between stimuli, current methods provide only limited access to the dimensions that shape these representations and are often limited in interpretability. To overcome these challenges, here we introduce Similarity-Based Representation Factorization (SRF), a general computational method for recovering low-dimensional, non-negative, interpretable embeddings from similarity matrices derived from measured data. Across simulations and many neural, behavioral, and computational datasets, SRF recovers interpretable dimensions from diverse forms of representational data, even for very sparsely sampled, incomplete data. The dimensions derived from these datasets match those obtained by task-specific models, predict independent behavioral properties, improve exploratory analysis, and offer higher power for confirmatory hypothesis testing than comparing similarity matrices. Together, these results establish SRF as a general-purpose method with broad applications for uncovering, understanding, and leveraging the dimensions underlying representations.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202605/31/2605.28507v1-universal-time-series-generation-with-neural-controlled-differential-equations",
+      "section": "quick",
+      "title_en": "Universal Time Series Generation with Neural Controlled Differential Equations",
+      "authors": "Torben Berndt, Elyes Farjallah, Leif Seute, Raeid Saqur, Benjamin Walker, Jan Stühmer",
+      "date": "2026-05-27",
+      "pdf": "https://arxiv.org/pdf/2605.28507v1",
+      "score": "6.0",
+      "evidence": "通用时间序列生成流匹配，可应用于缺失通道插补",
+      "tldr": "针对现有状态空间模型在判别任务中表现优异但缺乏生成能力的问题，本文证明了结构化线性受控微分方程（SLiCEs）是生成式时间序列的通用逼近器。提出G-SLiCEs模型，在路径空间上实现流匹配，兼具最大表达力与连续时间优势。实验表明，该模型在概率预测与下游任务中性能显著提升，尤其能自然处理不规则观测网格。贡献在于首次将连续时间生成模型的普适性从判别拓展至生成场景。",
+      "tags": "query:eeg-latent",
+      "abstract_en": "Recent work on the sequence universality of State Space Models (SSMs) has introduced efficient, maximally expressive continuous-time approaches for time-series modelling. While these works focus on discriminative settings, we extend this perspective to generative time-series modelling by proving that maximally expressive Structured Linear Controlled Differential Equations (SLiCEs) are universal time-series generators, in the sense that they can approximate the induced path laws of continuous causal pushforwards on compact latent sets in $W_\\infty$. Building on these theoretical results, we propose Generative SLiCEs (G-SLiCEs), a maximally expressive continuous-time model for flow matching on path-space. Empirically, we show that expressivity improves performance in probabilistic forecasting and downstream tasks, while retaining the advantages of continuous-time models such as generalising to arbitrary observation grids. This is particularly beneficial for irregular grids, where fixed-grid models often struggle.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
