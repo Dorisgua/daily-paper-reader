@@ -1,0 +1,411 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-01T22:52:53.967375+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 1,
+    "deep_cap": 7,
+    "deep_selected": 1,
+    "quick_candidates": 9,
+    "quick_skim_target": 12,
+    "quick_selected": 9
+  },
+  "deep_dive": [
+    {
+      "id": "2605.29754v1",
+      "source": "arxiv",
+      "title": "Benchmarking Positional Encoding Strategies for Transformer-Based EEG Foundation Models",
+      "abstract": "Electroencephalography (EEG) is a widely used non-invasive technique for measuring brain activity in brain-computer interface (BCI) applications. Supervised EEG decoding models often struggle to generalize across tasks, subjects, and datasets, motivating transformer-based EEG foundation models trained with self-supervised learning. Since transformers are permutation-invariant, they require explicit positional information. Unlike textual tokens, EEG electrodes are spatially distributed across the scalp, raising the question of how electrode positions should be encoded in transformer-based EEG models. In this study, we benchmark five positional encoding strategies within the CBraMod backbone and evaluate them under linear probing and fine-tuning protocols on motor imagery classification and emotion recognition. Our results show that no single strategy consistently outperforms across tasks. Spherical Positional Encoding (SPE) yields strong representations for motor imagery but underperforms on emotion recognition, while Asymmetric Conditional Positional Encoding (ACPE) demonstrates more consistent performance across tasks. These findings suggest that the optimal positional encoding strategy is task-dependent, with no universal solution across EEG decoding scenarios.",
+      "authors": [
+        "Ayse Betul Yuce",
+        "Sebastian Stober"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-05-28T10:58:34+00:00",
+      "link": "https://arxiv.org/pdf/2605.29754v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "benchmark of positional encoding strategies for transformer-based EEG foundation models",
+      "llm_evidence_cn": "对基于Transformer的EEG基础模型的位置编码策略进行基准测试",
+      "llm_evidence": "对基于Transformer的EEG基础模型的位置编码策略进行基准测试",
+      "canonical_evidence": "对基于Transformer的EEG基础模型的位置编码策略进行基准测试",
+      "llm_tldr_en": "Evaluates five positional encoding strategies for EEG transformer models, showing the importance of spatial electrode encoding for EEG representation learning.",
+      "llm_tldr_cn": "针对EEG解码任务中Transformer模型需要位置信息的问题，该论文在CBraMod骨干网络上基准测试了五种电极位置编码策略。实验在线性探测和微调设置下评估，揭示了空间电极编码对EEG表示学习的重要性。该工作为构建EEG基础模型提供了编码选择指导，直接推动了EEG信号分析与BCI应用。",
+      "llm_tldr": "针对EEG解码任务中Transformer模型需要位置信息的问题，该论文在CBraMod骨干网络上基准测试了五种电极位置编码策略。实验在线性探测和微调设置下评估，揭示了空间电极编码对EEG表示学习的重要性。该工作为构建EEG基础模型提供了编码选择指导，直接推动了EEG信号分析与BCI应用。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2605.26295v1",
+      "source": "arxiv",
+      "title": "Sleep-stage efficient classification using a lightweight self-supervised model",
+      "abstract": "Accurate classification of sleep stages is crucial for diagnosing sleep disorders and automating this process can significantly enhance clinical assessments. This study aims to explore the use of a self-supervised model (more specifically, an adapted version of mulEEG) combined with a Linear SVM classifier to improve sleep stage classification. \\textbf{Methods:} The mulEEG model, which learns electroencephalogram signal representations in a self-supervised manner, was simplified here by replacing ResNet-50 with 1D-convolutions used as time series encoder by a ResNet-18 backbone. Two other adaptations were conducted: the first one evaluated different configurations of the model and data volume for training, while the second tested the effectiveness of time series features, spectrogram features, and their concatenation as inputs to a Linear SVM classifier. \\textbf{Results:} The results showed that reducing the volume of data offered a better cost-benefit ratio compared to simplifying the model. Using the concatenated features with ResNet-18 also outperformed the linear evaluations of the original mulEEG model, achieving higher classification performance. \\textbf{Conclusions:} Simplifying the mulEEG model to extract features and pairing it with a robust classifier leads to more efficient and accurate sleep stage classification. This approach holds promise for improving clinical sleep assessments and can be extended to other biological signal classification tasks.",
+      "authors": [
+        "Eldiane Borges dos Santos Durães",
+        "João Batista Florindo"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-25T19:37:54+00:00",
+      "link": "https://arxiv.org/pdf/2605.26295v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Self-supervised EEG representation learning using mulEEG model for sleep stage classification",
+      "llm_evidence_cn": "使用mulEEG模型进行自监督EEG表示学习用于睡眠阶段分类",
+      "llm_evidence": "使用mulEEG模型进行自监督EEG表示学习用于睡眠阶段分类",
+      "canonical_evidence": "使用mulEEG模型进行自监督EEG表示学习用于睡眠阶段分类",
+      "llm_tldr_en": "Adapts mulEEG for sleep stage classification, learning EEG representations in a self-supervised manner with a lightweight ResNet-18 backbone and SVM classifier.",
+      "llm_tldr_cn": "该论文针对睡眠阶段分类任务采用轻量级自监督学习模型mulEEG对EEG信号进行表示学习。通过简化ResNet-50为ResNet-18骨干网络结合线性SVM分类器，在保持高效的同时提升了分类精度。方法在多个配置和数据量下进行评估，验证了自监督表示对EEG信号的有效性。该工作为EEG信号的潜在空间表示提供了实践案例但与缺失通道补全任务无直接关联。",
+      "llm_tldr": "该论文针对睡眠阶段分类任务采用轻量级自监督学习模型mulEEG对EEG信号进行表示学习。通过简化ResNet-50为ResNet-18骨干网络结合线性SVM分类器，在保持高效的同时提升了分类精度。方法在多个配置和数据量下进行评估，验证了自监督表示对EEG信号的有效性。该工作为EEG信号的潜在空间表示提供了实践案例但与缺失通道补全任务无直接关联。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.25061v1",
+      "source": "arxiv",
+      "title": "GL-LFGNN:A Global-Local Dual-branch Causal Graph Neural Network Based on Liang-Kleeman Information Flow for EEG Emotion Recognition",
+      "abstract": "EEG-based emotion recognition holds significant promise for objective diagnosis of mood disorders. Graph neural networks (GNNs) have emerged as the dominant paradigm for modeling inter-channel dependencies in EEG, yet existing approaches rely on symmetric adjacency matrices derived from spatial proximity or functional correlations that fundamentally capture statistical associations rather than directed causal influences, which conflicts with the inherently asymmetric, causally-driven nature of neural information flow. To bridge this gap, we propose GL-LFGNN, a Global-Local Dual-branch Causal Graph Neural Network grounded in Liang-Kleeman information flow theory. Unlike Granger causality that merely assesses temporal precedence, our approach rigorously quantifies causal strength from a dynamical systems perspective, yielding neurophysiologically interpretable directed graphs. A dual-branch architecture further integrates whole-brain connectivity with region-specific processing aligned to established functional neuroanatomy. On the MEEG dataset, GL-LFGNN achieves 86.17% (Arousal) and 86.71% (Valence) accuracy with only 37K parameters -- approximately 10% of the current state-of-the-art -- demonstrating that principled causal modeling can simultaneously enhance interpretability, generalization, and computational efficiency. Code will be released.",
+      "authors": [
+        "Ziyi Wang",
+        "Dongyang Kuang"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-05-24T13:11:55+00:00",
+      "link": "https://arxiv.org/pdf/2605.25061v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Causal graph neural network for EEG emotion recognition with global-local branches",
+      "llm_evidence_cn": "用于EEG情绪识别的因果图神经网络，全局-局部分支",
+      "llm_evidence": "用于EEG情绪识别的因果图神经网络，全局-局部分支",
+      "canonical_evidence": "用于EEG情绪识别的因果图神经网络，全局-局部分支",
+      "llm_tldr_en": "Proposes GL-LFGNN, a global-local dual-branch causal GNN using Liang-Kleeman information flow for directed EEG channel relationship modeling.",
+      "llm_tldr_cn": "现有GNN使用对称邻接矩阵无法建模神经信息的因果流向。本文提出GL-LFGNN，基于梁-克利曼信息流构建有向因果图，全局和局部双分支结构有效捕捉通道间不对称依赖，提升情绪识别性能。",
+      "llm_tldr": "现有GNN使用对称邻接矩阵无法建模神经信息的因果流向。本文提出GL-LFGNN，基于梁-克利曼信息流构建有向因果图，全局和局部双分支结构有效捕捉通道间不对称依赖，提升情绪识别性能。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.27790v1",
+      "source": "arxiv",
+      "title": "SYNAPSE: Neuro-Symbolic Visual Thought-to-Text Decoding via Topological Semantic Denoising",
+      "abstract": "Recent advances in large language models have accelerated open-vocabulary EEG-to-imagined-text decoding, where non-invasive neural activity recorded during visual perception is translated into coherent natural language descriptions of viewed stimuli. However, existing systems remain highly vulnerable to biological noise, where corrupted neural projections induce hallucinated or semantically unstable generation in frozen language models. We introduce SYNAPSE (Symbolic Neural Alignment for Precise Semantic Extraction), a lightweight neuro-symbolic framework that stabilizes neural text generation through inference-time symbolic regularization. By purifying EEG-derived semantic candidates using commonsense graph structure and latent exemplars, SYNAPSE improves semantic stability without end-to-end LLM fine-tuning. Experiments across popular EEG decoding benchmarks and multiple frozen LLM backends demonstrate consistent gains over unconstrained prompting baselines, robustness under object-label ablation, and performance commensurate with substantially more resource-intensive fine-tuned systems, while preserving biometric privacy by localizing raw EEG processing entirely within the encoder stack.",
+      "authors": [
+        "Akshaj Murhekar",
+        "Abhijit Mishra"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-05-27T00:12:44+00:00",
+      "link": "https://arxiv.org/pdf/2605.27790v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "EEG-to-text decoding using neuro-symbolic and latent space denoising for BCI",
+      "llm_evidence_cn": "使用神经符号和潜在空间去噪的EEG到文本解码，用于BCI",
+      "llm_evidence": "使用神经符号和潜在空间去噪的EEG到文本解码，用于BCI",
+      "canonical_evidence": "使用神经符号和潜在空间去噪的EEG到文本解码，用于BCI",
+      "llm_tldr_en": "Proposes SYNAPSE, a lightweight neuro-symbolic framework that stabilizes EEG-to-text generation by symbolic regularization with commonsense graph structure and latent execution.",
+      "llm_tldr_cn": "现有EEG到文本解码系统易受生物噪声影响导致语义不稳定。本文提出SYNAPSE框架，通过推理时符号正则化，利用常识图和潜在执行来净化EEG语义候选，从而稳定生成。该方法轻量且有效，提升了EEG解码的鲁棒性和准确性，推动了基于EEG的脑机接口发展。",
+      "llm_tldr": "现有EEG到文本解码系统易受生物噪声影响导致语义不稳定。本文提出SYNAPSE框架，通过推理时符号正则化，利用常识图和潜在执行来净化EEG语义候选，从而稳定生成。该方法轻量且有效，提升了EEG解码的鲁棒性和准确性，推动了基于EEG的脑机接口发展。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.25648v1",
+      "source": "arxiv",
+      "title": "StrTransformer: Source-Wise Structured Transformers for Unsupervised Blind Source Recovery",
+      "abstract": "This paper proposes StrTransformer, a source-wise structured Transformer framework for blind source recovery and branch-wise latent modeling. Instead of using an encoder to infer latent variables, StrTransformer directly optimizes the latent source matrix together with an observation-space mixer and source-wise structural Transformer branches. The mixer enforces reconstruction consistency, while each Transformer branch imposes a differentiable structural constraint on one latent source trajectory. Specifically, each source is converted into multi-scale patch tokens, randomly masked, processed by a locality-biased Transformer, and evaluated through a masked patch reconstruction energy. This energy acts as an implicit source-wise structural prior. To encourage different latent branches to specialize into different temporal regimes, StrTransformer further introduces an ordered multi-scale controller that learns branch-specific patch-scale weights, ordered scale centers, and locality attention slopes. The resulting objective combines observation reconstruction, source-wise structural regularization, and modular auxiliary penalties for separation and scale specialization. We analyze the decoupling and coupling structure of the objective, the regularized exact-reconstruction fiber, and the reduction of permutation symmetry induced by ordered branch descriptors. A controlled case study shows that the learned branches converge to distinct temporal-scale structures and recover source-aligned latent trajectories under post-hoc evaluation.",
+      "authors": [
+        "Yuan-Hao Wei"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.LG"
+      ],
+      "published": "2026-05-25T09:53:24+00:00",
+      "link": "https://arxiv.org/pdf/2605.25648v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Proposes StrTransformer for blind source recovery with latent source matrix optimization and masked patch reconstruction, relevant to latent space imputation.",
+      "llm_evidence_cn": "提出StrTransformer盲源恢复框架，通过优化潜在源矩阵和掩码斑块重建，与潜在空间补全相关。",
+      "llm_evidence": "提出StrTransformer盲源恢复框架，通过优化潜在源矩阵和掩码斑块重建，与潜在空间补全相关。",
+      "canonical_evidence": "提出StrTransformer盲源恢复框架，通过优化潜在源矩阵和掩码斑块重建，与潜在空间补全相关。",
+      "llm_tldr_en": "StrTransformer directly optimizes latent source matrix with masked reconstruction for blind source recovery; method transferable to EEG channel imputation.",
+      "llm_tldr_cn": "本文提出StrTransformer框架，直接优化潜在源矩阵并利用掩码斑块重建能量进行盲源恢复，通过源分支Transformer施加结构化约束。该方法在无监督情况下实现源信号重建，其潜变量建模和重建机制可迁移至多通道EEG缺失通道补全任务。",
+      "llm_tldr": "本文提出StrTransformer框架，直接优化潜在源矩阵并利用掩码斑块重建能量进行盲源恢复，通过源分支Transformer施加结构化约束。该方法在无监督情况下实现源信号重建，其潜变量建模和重建机制可迁移至多通道EEG缺失通道补全任务。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "reconstruct missing EEG channels with deep generative networks",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.28792v1",
+      "source": "arxiv",
+      "title": "CaMBRAIN: Real-time, Continuous EEG Inference with Causal State Space Models",
+      "abstract": "Electroencephalography (EEG) is a critical, non-invasive method to monitor electrical brain activity. EEGs can span anywhere from a couple seconds to multiple hours, posing a major hurdle for existing deep learning methods due to two major factors: (1) existing EEG models are predominantly built upon the attention mechanism, incurring quadratic scaling as the sequence length increases, and (2) raw EEG signals must be processed in a sliding-window fashion due to fixed-length input requirements, preventing global understanding of the entire signal. To this extent, we propose CaMBRAIN - the first Causal, Mamba-based state space model (SSM) capable of real-time inference of EEG signals, arguing that bidirectional approaches are needlessly expensive given the causal, unidirectional nature of EEG. However, training such a model is non-trivial, as crucial EEG events can be extremely brief - within fractions of a second - yet separated by long intervals spanning minutes. Current EEG methods use self-supervised objectives that optimize for signal reconstruction, but these are not well suited for streaming SSMs; they fail to explicitly train the hidden state to retain the salient long-range context needed for streaming inference. We therefore introduce a multi-stage self-supervised training pipeline specifically tailored to encourage long-range memory retention and strong performance on EEG signals, while preserving the linear-time complexity of state space models. CaMBRAIN achieves state-of-the-art (SOTA) results across 3 different EEG datasets with >10x higher throughput than existing models, enabling the first model capable of long-range, continuous inference of variable-length EEG signals.",
+      "authors": [
+        "Abhilash Durgam",
+        "Nyle Siddiqui",
+        "Jeffrey A. Chan-Santiago",
+        "Qiushi Fu",
+        "Elakkat D. Gireesh",
+        "Mubarak Shah"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.HC",
+        "cs.LG"
+      ],
+      "published": "2026-05-27T17:50:36+00:00",
+      "link": "https://arxiv.org/pdf/2605.28792v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Causal state space model for real-time EEG inference",
+      "llm_evidence_cn": "用于实时EEG推理的因果状态空间模型",
+      "llm_evidence": "用于实时EEG推理的因果状态空间模型",
+      "canonical_evidence": "用于实时EEG推理的因果状态空间模型",
+      "llm_tldr_en": "Proposes CaMBRAIN, the first causal Mamba-based state space model for real-time continuous EEG inference, overcoming quadratic scaling of attention and fixed-length window limitations.",
+      "llm_tldr_cn": "现有EEG深度学习方法因注意力机制二次复杂度和固定长度窗口限制难以处理长时程信号。本文提出CaMBRAIN，首个基于因果Mamba的状态空间模型，实现实时连续EEG推理，克服上述瓶颈，为EEG实时分析提供新范式。",
+      "llm_tldr": "现有EEG深度学习方法因注意力机制二次复杂度和固定长度窗口限制难以处理长时程信号。本文提出CaMBRAIN，首个基于因果Mamba的状态空间模型，实现实时连续EEG推理，克服上述瓶颈，为EEG实时分析提供新范式。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.26194v1",
+      "source": "arxiv",
+      "title": "On the Role of Inductive Bias in Time-Series Pretraining: A Case Study in Learning Generalizable Representations for Clinical Time Series",
+      "abstract": "Clinical time-series learning is routinely constrained by small, heterogeneous cohorts and protocol drift, while its downstream use spans both classification (e.g., pathology diagnosis) and regression (e.g., temporal forecasting). These constraints make foundation-model pretraining appealing, but raises an important question of which inductive biases should the pretraining objective impose so that representations transfer across task types and subjects. We study this question in pathological gait analysis for spinal cord injury (SCI) via PathoFM, an encoder-centric transformer pretrained on multivariate gait windows with three complementary objectives: Local Completion (reconstruct contiguous masked spans to enforce local structure), Temporal Continuity (predict a masked mid-horizon continuation from an observed prefix to enforce smoothness and causal consistency), and Unsupervised In-Context Dynamics (support-query reconstruction conditioned on subject exemplar windows via attention). Empirically comparing objective families (grouping/contrastive, dynamics-based, and generative reconstruction), we find that dynamics-centric mixtures produce the most balanced transfer: grouping objectives favor discriminative margins but can degrade magnitude fidelity needed for continuous targets, whereas reconstruction-only objectives preserve waveform structure but may underperform on classification. Overall, combining local reconstruction with temporal continuity, and adding in-context conditioning when exemplar access is realistic, yields robust subject-generalizing representations.",
+      "authors": [
+        "Sharmita Dey",
+        "Diego Paez-Granados"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-05-25T15:40:33+00:00",
+      "link": "https://arxiv.org/pdf/2605.26194v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Studies inductive bias in clinical time-series pretraining with local completion objective, transferable to EEG reconstruction.",
+      "llm_evidence_cn": "研究临床时间序列预训练中的归纳偏置，包含局部重建任务，可迁移至EEG信号重建。",
+      "llm_evidence": "研究临床时间序列预训练中的归纳偏置，包含局部重建任务，可迁移至EEG信号重建。",
+      "canonical_evidence": "研究临床时间序列预训练中的归纳偏置，包含局部重建任务，可迁移至EEG信号重建。",
+      "llm_tldr_en": "Examines inductive bias for clinical time-series pretraining using local completion and other objectives, showing transfer across tasks; applicable to EEG reconstruction methods.",
+      "llm_tldr_cn": "本文研究临床时间序列预训练中归纳偏置的作用，通过PathoFM模型在多元步态数据上采用局部完成等互补预训练目标，证明了表示跨任务类型和受试者的迁移能力。该工作为设计EEG信号重建预训练目标提供了借鉴。",
+      "llm_tldr": "本文研究临床时间序列预训练中归纳偏置的作用，通过PathoFM模型在多元步态数据上采用局部完成等互补预训练目标，证明了表示跨任务类型和受试者的迁移能力。该工作为设计EEG信号重建预训练目标提供了借鉴。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "deep learning for EEG signal reconstruction",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.26624v1",
+      "source": "arxiv",
+      "title": "MSCGC-KAN: Multi-scale Causal Graph Convolution and Kolmogorov-Arnold Feature Mapping for EEG Emotion Recognition",
+      "abstract": "Electroencephalogram (EEG)-based emotion recognition is an important affective computing task, and recent EEG foundation models provide useful generic representations for downstream adaptation. However, under the fine-tuning setting, three limitations remain prominent: insufficient modeling of multi-scale emotional dynamics, inadequate exploitation of inter-channel functional connectivity, and the limited expressive power of simple linear classification heads. To address these issues, this paper proposes a new EEG emotion recognition method, termed MSCGC-KAN, which introduces a structured task head composed of multi-scale causal graph convolution and Kolmogorov--Arnold feature mapping. Built on a pre-trained CBraMod backbone, MSCGC-KAN enhances downstream adaptation by jointly strengthening multi-scale temporal modeling, learnable inter-channel connectivity modeling, and nonlinear discriminative mapping within a compact task-specific head. This design preserves the representation advantage of the foundation model while making the classifier more sensitive to emotion-related spatiotemporal patterns. Extensive experiments are conducted on the public FACED and SEED-VII datasets. The proposed method achieves a balanced accuracy of 60.66\\%, a Cohen's Kappa of 0.5525, and a weighted F1-score of 60.40\\% on FACED, and obtains 33.27\\%, 0.2223, and 33.64\\%, respectively, on SEED-VII. Compared with the CBraMod+Linear baseline, the balanced accuracy is improved by 5.91 and 2.03 percentage points on the two datasets, respectively. These results indicate that structured task-head design is an effective way to improve EEG emotion recognition when fine-tuning pre-trained EEG models.",
+      "authors": [
+        "Haoliang Gong",
+        "Qingshan She",
+        "Jiale Xua",
+        "Yunyan Gao",
+        "Xugang Xi"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-26T07:02:13+00:00",
+      "link": "https://arxiv.org/pdf/2605.26624v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Multi-scale causal graph convolution for EEG emotion recognition; learns latent representations",
+      "llm_evidence_cn": "用于EEG情绪识别的多尺度因果图卷积，学习潜在表示",
+      "llm_evidence": "用于EEG情绪识别的多尺度因果图卷积，学习潜在表示",
+      "canonical_evidence": "用于EEG情绪识别的多尺度因果图卷积，学习潜在表示",
+      "llm_tldr_en": "Proposes MSCGC-KAN, a structured task head with multi-scale causal graph convolution and KAN mapping for EEG emotion recognition, enhancing representation learning.",
+      "llm_tldr_cn": "针对EEG情绪识别中多尺度动态建模不足和线性分类头表达力有限的问题，提出MSCGC-KAN方法，引入多尺度因果图卷积和Kolmogorov-Arnold特征映射作为任务头，有效利用通道间功能连接，提升分类性能。",
+      "llm_tldr": "针对EEG情绪识别中多尺度动态建模不足和线性分类头表达力有限的问题，提出MSCGC-KAN方法，引入多尺度因果图卷积和Kolmogorov-Arnold特征映射作为任务头，有效利用通道间功能连接，提升分类性能。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.31043v1",
+      "source": "arxiv",
+      "title": "Routing on the Stiefel Manifold: When Does Adaptive Subspace Selection Help for Cross-Domain EEG Decoding?",
+      "abstract": "Cross-domain EEG decoding remains challenging despite advances in Riemannian deep learning: covariance matrices from different subjects occupy systematically distinct regions of the SPD manifold, yet existing domain adaptation methods either require target-domain calibration data or learn subject-specific components that cannot generalise across domains. We propose dynamic Stiefel routing: a pool of $K$ expert projection filters on the Stiefel manifold, each specialised for a different region of the SPD manifold, with each input covariance routed to the most appropriate filter via cross-attention, adapting the subspace projection per sample. A central finding is that this approach, implemented naively, provably collapses to ensemble averaging: when routing weights are uniform, the adaptive filter reduces exactly to an equal-contribution combination of experts, indistinguishable from a single fixed filter. Three structural properties break this degeneracy: a symmetric anchor $W_{\\mathrm{base}} \\in \\mathrm{St}(n,k)$ that removes proximity bias among experts; a frozen domain-discriminative query encoder that decouples routing from task optimisation; and a decoupled key alignment loss that trains expert keys toward stable domain attractors. Together they produce the first genuinely committed and domain-structured routing on SPD manifolds, with consistent gains across three datasets: balanced accuracy improves from $0.773\\to 0.823$, $0.757\\to 0.809$, and $0.801\\to 0.839$, with the alignment strategy determined automatically by a single data-driven rule and no dataset-specific hyperparameter search.",
+      "authors": [
+        "Isabella Costa Maia",
+        "Pedro L. C. Rodrigues",
+        "Salem Said",
+        "Marco Congedo"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-05-29T09:20:25+00:00",
+      "link": "https://arxiv.org/pdf/2605.31043v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "cross-domain EEG decoding using adaptive subspace selection on Stiefel manifold",
+      "llm_evidence_cn": "在Stiefel流形上自适应子空间选择以跨域EEG解码",
+      "llm_evidence": "在Stiefel流形上自适应子空间选择以跨域EEG解码",
+      "canonical_evidence": "在Stiefel流形上自适应子空间选择以跨域EEG解码",
+      "llm_tldr_en": "Proposes dynamic Stiefel routing for cross-domain EEG decoding, adapting subspace projections per sample via cross-attention, achieving domain generalization without target calibration.",
+      "llm_tldr_cn": "跨域EEG解码面临协方差矩阵分布差异的挑战。本文提出动态Stiefel路由方法，在Stiefel流形上学习多个专家投影滤波器，通过交叉注意力为每个样本选择最合适的子空间投影。实验表明该方法无需目标域标定数据即可有效泛化，为EEG潜空间表示提供了新的流形学习视角。",
+      "llm_tldr": "跨域EEG解码面临协方差矩阵分布差异的挑战。本文提出动态Stiefel路由方法，在Stiefel流形上学习多个专家投影滤波器，通过交叉注意力为每个样本选择最合适的子空间投影。实验表明该方法无需目标域标定数据即可有效泛化，为EEG潜空间表示提供了新的流形学习视角。",
+      "llm_tags": [
+        "query:eeg-latent:composite"
+      ],
+      "matched_query_tag": "query:eeg-latent:composite",
+      "matched_query_text": "Papers central to EEG论文，latent space缺失通道补全, especially work that connects or combines: E; EEG latent space representation; deep learning for EEG signal reconstruction; generative models for EEG channel imputation; EEG missing channel completion using latent space models; latent space based imputation for multichannel EEG; reconstruct missing EEG channels with deep generative networks.",
+      "matched_requirement_id": "req-composite-eeg-latent",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.31580v1",
+      "source": "arxiv",
+      "title": "Giving Sensors a Voice: Multimodal JEPA for Semantic Time-Series Embeddings",
+      "abstract": "Transformer-based architectures have advanced sequence modeling in language and vision, yet general-purpose representation learning for heterogeneous multivariate time series remains underexplored. We introduce CHARM (Channel-Aware Representation Model), which incorporates channel-level textual descriptions into a Transformer encoder equivariant to channel order. CHARM is trained with a Joint Embedding Predictive Architecture (JEPA) and a novel loss promoting informative, temporally stable embeddings; latent-space prediction encourages robustness to sensor noise while description-aware gating provides interpretability through learned inter-channel relationships. Across anomaly detection, classification, and short- and long-term forecasting, the learned embeddings achieve strong performance using only a linear probe. Performance is driven primarily by the JEPA objective and conditioning architecture, with text descriptions serving as channel identifiers for cross-dataset generalization.",
+      "authors": [
+        "Utsav Dutta",
+        "Gerardo Pastrana",
+        "Sina Khoshfetrat Pakazad",
+        "Henrik Ohlsson"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-05-29T17:48:30+00:00",
+      "link": "https://arxiv.org/pdf/2605.31580v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Introduces CHARM for multivariate time-series embeddings using JEPA with latent-space prediction; relevant to latent space representation learning.",
+      "llm_evidence_cn": "提出CHARM多元时间序列嵌入模型，使用JEPA和潜在空间预测，与潜在空间表示学习相关。",
+      "llm_evidence": "提出CHARM多元时间序列嵌入模型，使用JEPA和潜在空间预测，与潜在空间表示学习相关。",
+      "canonical_evidence": "提出CHARM多元时间序列嵌入模型，使用JEPA和潜在空间预测，与潜在空间表示学习相关。",
+      "llm_tldr_en": "CHARM combines textual descriptions and JEPA for time-series embeddings with latent-space prediction; method applicable to EEG latent representation.",
+      "llm_tldr_cn": "本文提出CHARM模型，将通道级文本描述与Transformer编码器结合，采用联合嵌入预测架构（JEPA）和潜在空间预测损失，学习多变量时间序列的语义嵌入。该方法在异常检测、分类和预测任务上表现优异，其潜在空间预测机制可直接应用于EEG潜在表示学习。",
+      "llm_tldr": "本文提出CHARM模型，将通道级文本描述与Transformer编码器结合，采用联合嵌入预测架构（JEPA）和潜在空间预测损失，学习多变量时间序列的语义嵌入。该方法在异常检测、分类和预测任务上表现优异，其潜在空间预测机制可直接应用于EEG潜在表示学习。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

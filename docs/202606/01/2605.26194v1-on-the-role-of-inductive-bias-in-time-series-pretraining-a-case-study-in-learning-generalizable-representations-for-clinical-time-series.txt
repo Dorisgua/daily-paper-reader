@@ -1,0 +1,396 @@
+Title: On the Role of Inductive Bias in Time-Series Pretraining: A Case Study in Learning Generalizable Representations for Clinical Time Series
+
+URL Source: https://arxiv.org/pdf/2605.26194v1
+
+Published Time: Wed, 27 May 2026 00:03:03 GMT
+
+Number of Pages: 12
+
+Markdown Content:
+# ON THE ROLE OF INDUCTIVE BIAS IN TIME -S ERIES 
+
+# PRETRAINING : A C ASE STUDY IN LEARNING GENERALIZABLE 
+
+# REPRESENTATIONS FOR CLINICAL TIME SERIES 
+
+A P REPRINT 
+
+Sharmita Dey ∗
+
+ETH Zurich Zurich, Switzerland 
+
+contact.deysharmita@gmail.com 
+
+Diego Paez-Granados 
+
+ETH Zurich, Swiss Paraplegic Research, Nottwil Zurich, Switzerland May 27, 2026 
+
+# ABSTRACT 
+
+Clinical time-series learning is routinely constrained by small, heterogeneous cohorts and protocol drift, while its downstream use spans both classification (e.g., pathology diagnosis) and regression (e.g., temporal forecasting). These constraints make foundation-model pretraining appealing, but raises an important question of which inductive biases should the pretraining objective impose so that representations transfer across task types and subjects . We study this question in pathological gait analysis for spinal cord injury (SCI) via P ATHO FM, an encoder-centric transformer pretrained on multivariate gait windows with three complementary objectives: Local Completion (reconstruct contiguous masked spans to enforce local structure), Temporal Continuity (predict a masked mid-horizon continuation from an observed prefix to enforce smoothness and causal consistency), and Unsupervised In-Context Dynamics (support-query reconstruction conditioned on subject exemplar windows via attention). Empirically comparing objective families (grouping/contrastive, dynamics-based, and generative reconstruction), we find that dynamics-centric mixtures produce the most balanced transfer: grouping objectives favor discriminative margins but can degrade magnitude fidelity needed for continuous targets, whereas reconstruction-only objectives preserve waveform structure but may underperform on classification. Overall, combining local reconstruction with temporal continuity, and adding in-context conditioning when exemplar access is realistic, yields robust subject-generalizing representations. 
+
+# 1 Introduction 
+
+Clinical time series, such as pathological kinematics and kinetics, encode rich information about physiological state, pathology, and progression [ 1 ], but they also embody the peculiar constraints of medicine: cohorts are small, labels are expensive, and data are collected under heterogeneous protocols (different clinics, sensors, patient populations) [ 2, 3]. These constraints create two recurring failure modes: (i) supervised models overfit cohort idiosyncrasies and generalize poorly to new subjects [ 2 ], and (ii) representations optimized for one endpoint (say, diagnosis) transfer poorly to another (say, a continuous kinetic target) [4, 5]. Foundation-model pretraining offers a partial escape hatch [ 6, 7]: by learning representations from large pools of unlabeled sequences, we can amortize feature learning and reduce the label burden on downstream tasks [ 8, 9]. Yet in clinical time series, pretraining is not only an optimization trick; it is a way of committing to an inductive bias , a set of assumptions about what structure matters in the data [ 10 ]. Contrastive objectives [ 11 ], for example, impose a “grouping” bias (instances should be separable and invariant to nuisances), while forecasting objectives impose a “dynamics” bias (future should be predictable from past and trajectories should be temporally consistent) [ 12 , 13 ]. The central question we address is: 
+
+> ∗
+
+Corresponding author 
+
+> arXiv:2605.26194v1 [cs.LG] 25 May 2026
+
+Role of Inductive Bias in Time-Series Pretraining A P REPRINT 
+
+Which inductive biases matter for clinical time-series pretraining when the goal is cross-task transfer to both classification and regression under subject shift? 
+
+Case study: pathological gait for SCI. We ground our study in gait analysis for spinal cord injury (SCI), where each trial yields multivariate gait cycles (kinematics and kinetics) and downstream endpoints include both categorical labels (e.g., paraplegic vs. tetraplegic patterns, functional independence scores) and continuous targets (e.g., ground reaction force components). Gait is a particularly sharp microscope for inductive bias: clinically relevant cues can be local and phase-specific (e.g., swing-phase anomalies), while clinically useful kinetics depend on faithful modeling of magnitudes, phase, and temporal dynamics [14, 15, 16]. 
+
+Approach. We develop P ATHO FM, an encoder-only transformer pretrained on gait windows with three complementary objectives: (i) Local Completion (LC) : reconstruct contiguous masked spans (a masked-autoencoding bias), (ii) Temporal Continuity (TC) : predict masked mid-horizon futures from observed prefixes (a dynamics bias), and (iii) Unsupervised In-Context Dynamics (uICD) : reconstruct masked query windows while attending to same-subject support windows (an in-context adaptation bias). The implementation accompanying this paper (summarized in Sec. 5) further includes interpolation-based missing-value handling and a subject-balanced batch sampler to mitigate subject imbalance during pretraining. 
+
+Contributions. This paper makes the following contributions: 1. We present a practical taxonomy of inductive biases for time-series pretraining (Sec. 3) and discuss favored transfers and failure modes. 2. We formalize P ATHO FM’s three-objective pretraining as a dynamics-centric mixture with an explicit in-context component (Sec. 4). 3. We compare objectives spanning grouping, dynamics, and generative families, showing empirically that a dynamics-centric mixture yields balanced transfer across classification and regression under strict subject holdout (Sec. 6). 
+
+# 2 Related Work and Context 
+
+Self-supervised learning has become a standard approach to representation learning in domains where labels are scarce but unlabeled data are plentiful [ 17 ]. In clinical time series, however, the question is not merely whether self-supervision helps, but which self-supervised biases align with clinically relevant endpoints .
+
+Grouping-based objectives. Contrastive learning [ 18 ] and prototype-based clustering [ 19 ] impose a bias that nearby augmentations of an instance should map to nearby embeddings, while different instances should be separated. This is instantiated by InfoNCE-style objectives (popularized in vision by SimCLR [ 11 ] and MoCo [ 20 ]) and by prototype methods such as DINO [ 21 ]. In biomedical time series, similar ideas are used by treating each subject as a “class” (subject-ID pretraining) or by contrasting different windows from the same recording [ 22 , 23 , 24 ]. These objectives often yield strong classification features but can suppress absolute magnitude information and fine-grained waveform details when augmentations encourage invariance to amplitude or timing [25]. 
+
+Masked reconstruction. Masked modeling learns representations by reconstructing missing input tokens; it is well known in language (masked language modeling) and has become a standard in vision via masked autoencoders (MAE) [ 26 ]. In time series, masked span reconstruction tends to preserve local signal morphology and cross-channel correlations [ 13 ]. For clinical signals, this is attractive because many downstream tasks, from denoising to biomechanical interpretation, require preserving clinically meaningful waveform structure, not only class separability. 
+
+Forecasting and dynamics learning. Forecasting objectives (next-step prediction, multi-horizon prediction, or continuation) explicitly pressure representations to encode temporal dynamics [ 12 ]. In forecasting-centric architectures such as Temporal Fusion Transformers [ 27 ], the inductive bias is that future outcomes depend predictably on past context [ 28 ]. For representation learning, forecasting can be used as a pretext to learn phase-consistent latent dynamics even when the eventual downstream task is not forecasting [ 29 ]. A known concern is exposure bias: a model trained on short horizons may learn brittle dynamics that do not transfer [30, 31]. 
+
+Diffusion and probabilistic reconstruction. Diffusion models for time series [ 32 , 33 ] replace point reconstruction with distribution modeling, capturing uncertainty and rich local structure. This can be beneficial for continuous-valued 2Role of Inductive Bias in Time-Series Pretraining A P REPRINT 
+
+Table 1: Taxonomy of inductive biases for time-series pretraining. “Favored transfers” are task types that typically benefit most; “failure modes” are common when a bias is over-applied. 
+
+Inductive bias Representative objectives Favored transfers Common failure modes Grouping in latent space 
+
+Contrastive instance discrimination (In-foNCE [ 12 ]); prototype clustering (e.g., DINO [21]); supervised subject-ID [23] Category classification, cohort stratification, retrieval Loses fine-scale waveform fidelity and calibrated mag-nitude; can over-emphasize between-subject differences 
+
+Generative reconstruc-tion 
+
+Masked span modeling (MAE-style) [ 26 ,13 ]; conditional diffusion for imputation [32]; denoising [34, 35] Denoising, imputation, signal restoration; features with high SNR May under-emphasize dis-criminative margins; train-ing is costly (e.g., diffusion) 
+
+Dynamics learning 
+
+Next/mid-horizon forecasting [ 27 ]; con-tinuation; autoregressive modeling [ 30 ,31]. Trajectory prediction; con-tinuous clinical endpoints sensitive to timing/rate-of-change Exposure bias; overfit to short-term trends; may blur class boundaries if dynamics dominate 
+
+In-context adaptation 
+
+Support–query conditioning [ 48 ]; non-parametric meta-learning [39, 49]. Personalization; cross-subject transfer under distribution shift Data-inefficient if supports are poor; possible memoriza-tion of idiosyncrasies targets and missing-data regimes, but diffusion training typically incurs higher compute and may not optimize for discriminative margins [34, 35, 36]. 
+
+In-context adaptation and meta-learning. In-context learning refers to models that adjust behavior at inference time based on a prompt or support set, without parameter updates. In time series, this can be emulated by presenting multiple windows in a support–query structure and training the model to solve a masked reconstruction conditioned on supports [ 37 , 38 ]. This resembles non-parametric meta-learning and, in the clinical setting, mirrors the common practice of comparing a patient’s measurements to reference exemplars [39, 40]. 
+
+Why gait is a good stress test. Gait analysis sits at the intersection of discriminative and generative needs: clinicians may want to classify pathology type, but also to estimate continuous kinetic variables and understand phase-specific deviations [41, 42, 43, 44, 45, 46, 47]. A representation that is “good for classification” but poor at magnitude fidelity is therefore incomplete. Standard gait references provide biomechanical context and typical waveform structure [ 14 ], while machine learning surveys emphasize the diversity of gait-based tasks [ 15 ]. This makes gait a useful case study for objective-induced inductive bias. 
+
+# 3 A Taxonomy of Inductive Bias in Time-Series Pretraining 
+
+Pretraining objectives can be understood as imposing preferences about which information should be retained or discarded by the representation. We group common objectives into four families by their dominant inductive bias (Table 1). The families are not mutually exclusive, but they predict downstream behavior surprisingly well. 
+
+Why this taxonomy matters. Clinical workloads rarely involve a single endpoint [ 5]. In gait, classification tasks such as diagnosis [ 50 , 51 ] and decision making [ 52 ] prefer representations that emphasize discriminative margins (grouping), while regression tasks such as kinetics prediction [ 53 , 54 ] or clinical forecasting prefer representations that preserve magnitudes and phase-resolved dynamics (dynamics + reconstruction). A foundation model intended for both must therefore balance biases, rather than optimizing any one to extremality [55]. 
+
+# 4 PATHO FM: Multi-Objective Pretraining with Complementary Biases 
+
+4.1 Problem setup and notation 
+
+Let X ∈ RT ×D denote a multivariate gait window of length T with D features. In the reference implementation, we use fixed-length windows with a past portion and a future portion, T = Tp + Tf (Sec. 5). Let ϕ(·) be a transformer encoder and g(·) a lightweight decoder head that maps encoder states back to the feature space. 3Role of Inductive Bias in Time-Series Pretraining A P REPRINT 
+
+Figure 1: P ATHO FM pretraining objectives and architecture. A shared transformer encoder processes multivariate gait windows. (i) Local Completion reconstructs masked spans. (ii) Temporal Continuity predicts masked futures from observed past. (iii) Unsupervised In-Context Dynamics reconstructs a masked query window conditioned on same-subject support windows in a small table, enabling non-parametric adaptation via attention. 
+
+4.2 Architecture: encoder-centric transformer 
+
+PATHO FM (Figure 1) is encoder-centric: the transformer encoder bears the burden of representation learning, while each pretext objective uses only a small reconstruction head. The reference implementation uses: (i) an input projection Win : RD → Rd, (ii) learned or sinusoidal time positional encodings, (iii) a standard transformer encoder stack, and (iv) a linear decoder Wout : Rd → RD . For the in-context objective, we additionally embed each row of a support–query table with a learned row positional embedding, allowing attention to combine temporal tokens within and across windows. 
+
+4.3 Objective 1: Local Completion (LC) 
+
+Local Completion instills a locality/compositionality bias by requiring the model to infer missing contiguous spans from surrounding context. We sample a boolean mask M ∈ { 0, 1}T that covers a set of time indices (typically as a union of contiguous segments) and form a masked input eX by replacing masked positions with a learned [MASK] token in the embedding space. The LC loss is mean-squared error on masked positions: 
+
+LLC (X) = 1
+
+P 
+
+> t
+
+Mt D
+
+X
+
+> t:Mt=1
+> D
+
+X
+
+> d=1
+
+
+
+Xt,d − ˆXt,d 
+
+2
+
+ˆX = g(ϕ( eX)) .
+
+(1) In the implementation, M is generated by repeatedly sampling contiguous segments until the desired mask ratio is achieved (Sec. 5). 
+
+4.4 Objective 2: Temporal Continuity (TC) 
+
+Temporal Continuity imposes a dynamics bias by requiring prediction of a mid-horizon continuation from an observed prefix. Let Tp and Tf denote past and future lengths, and let the future index set be F = {Tp + 1 , . . . , T p + Tf }. We sample a mask M(f ) supported on F and replace masked future tokens with [MASK] . The TC loss is MSE over the masked future positions: 
+
+LTC (X) = 1
+
+P 
+
+> t∈F
+
+M (f ) 
+
+> t
+
+D
+
+X   
+
+> t∈F :M(f)
+> t=1
+> D
+
+X
+
+> d=1
+
+
+
+Xt,d − ˆXt,d 
+
+2
+
+. (2) In the strict forecasting setting, we mask all future positions ( M(f ) 
+
+> t
+
+= 1 ∀t ∈ F ), turning TC into full-horizon continuation. 4Role of Inductive Bias in Time-Series Pretraining A P REPRINT 
+
+4.5 Objective 3: Unsupervised In-Context Dynamics (uICD) 
+
+The uICD objective adds a non-parametric adaptation bias: the model must reconstruct a masked query window while attending to a small set of same-subject support windows. 
+
+Support-query table. Given a batch containing multiple windows per subject (enforced by a balanced sampler), we build a small table T = [ X(1) ; . . . ; X(R)] of R windows from a single subject. We designate one or more rows as queries and mask either (i) the entire query row or (ii) contiguous spans within the query row. 
+
+Row-aware attention. We flatten the R × T temporal tokens into a single sequence and add a learned row embedding to all tokens in a row. Self-attention then allows the query to borrow information from supports without explicit parameter updates. The uICD objective is used solely during pretraining to shape the representation via attention over same-subject windows. It encourages the encoder to organize latent space such that temporally and structurally related trajectories can be retrieved and composed through attention. Importantly, our downstream evaluation does not assume access to same-subject support windows at test time: all results are obtained using a frozen encoder and standard probing heads . While the formulation is compatible with test-time exemplar conditioning when such supports are available (e.g., longitudinal patient monitoring), this is not required for the learned representations to transfer effectively. The table-construction choices used for uICD are summarized in Table 2. In the reference configuration, each table contains one fully masked query row, uses same-subject windows as candidate supports, and caps the table size at 16 rows for computational stability. These choices keep the uICD task simple while still allowing the model to learn attention-based, subject-specific reconstruction from exemplar windows. 
+
+Loss. Let Q denote query rows and let M(q) denote a mask on query time steps. The uICD loss is: 
+
+LuICD (T ) = 1
+
+P
+
+> r∈Q
+
+P 
+
+> t
+
+M (q) 
+
+> r,t
+
+D
+
+X
+
+> r∈Q
+
+X  
+
+> t:M(q)
+> r,t =1
+> D
+
+X
+
+> d=1
+
+
+
+X(r) 
+
+> t,d
+
+− ˆX(r)
+
+> t,d
+
+2
+
+. (3) 
+
+4.6 Joint objective 
+
+We pretrain with a weighted sum of objectives: 
+
+L = λLC LLC + λTC LTC + λuICD LuICD . (4) In the reference configuration, we set λLC = λTC = λuICD = 1 .
+
+# 5 Experimental Setup and Implementation Details 
+
+5.1 Data and protocol 
+
+We consider multivariate gait time series from SCI patients (230 subjects), where each trial is represented as a multivariate sequence of gait-related biomechanical variables. Downstream evaluation uses strict subject holdout : 10 subjects are held out for test and 10 for validation, with the remainder for training. This protocol evaluates generalization to entirely unseen subjects, reflecting realistic deployment where new patients appear at test time. 
+
+5.2 Downstream tasks and probing protocol 
+
+Our goal is cross-task transfer : a single pretrained encoder should support both categorical and continuous endpoints with minimal task-specific fine-tuning. We evaluate three classification tasks and one regression task: (i) pathology category (tetraplegic vs. paraplegic gait patterns), (ii) gender (binary), (iii) SCIM level [ 56 ] (binary; high vs. low functional independence), and (iv) GRF regression (ground reaction force components). For each downstream task, we freeze the pretrained encoder ϕ and train a lightweight head h on training subjects only (linear probing or a shallow MLP probing depending on task). Classification heads use cross-entropy loss; regression heads use mean-squared error. Early stopping and model selection are performed on the validation-subject split, and we report test performance on the held-out subjects. 5Role of Inductive Bias in Time-Series Pretraining A P REPRINT 
+
+Table 2: uICD table-construction options. 
+
+Option Default 
+
+Queries per table Q = 1 
+
+Query masking full-row mask (ratio = 1 .0)Support selection random Supports per query all same-subject rows (no k-NN cap) Max rows per table 16 
+
+5.3 Windowing and feature selection 
+
+We use biomechanical variables such as angles, progression, power, moment as inputs to the model. Each trial is segmented into fixed-length windows using a sliding window with stride s. We use Tp = 50 past steps and Tf = 50 
+
+future steps (so T = 100 ) and stride s = 10 .
+
+5.4 Pretraining data composition and augmentations 
+
+The pretraining code include both original recordings and additional augmented samples (in our experiments, we use a pre-generated “augmented” dataset directory). Conceptually, we favor dynamics-preserving transformations: amplitude scaling, mild temporal warping (phase perturbations), and small jitter that do not violate biomechanical plausibility. Such augmentations encourage invariance to noise variation while retaining clinically meaningful phase-locked morphology. 
+
+5.5 Handling missing values via interpolation 
+
+Clinical time series often contain missing values due to sensor dropouts or preprocessing artifacts. Instead of filling with zeros (which introduces an out-of-distribution value for many channels), we apply per-feature linear interpolation 
+
+along time with edge filling: missing values inside a sequence are linearly interpolated between nearest valid neighbors; leading/trailing missing spans are filled with the first/last valid value. 
+
+5.6 Global min-max normalization 
+
+We compute per-feature global minimum and maximum across training subjects only , and normalize all windows to [0 , 1] using these training statistics. This preserves a consistent scale across subjects and avoids leakage from validation/test subjects. 
+
+5.7 Subject-balanced batching 
+
+Clinical datasets are typically imbalanced: some subjects contribute more trials or longer recordings. To prevent the model from being dominated by a few high-volume subjects, we use a BalancedSubjectBatchSampler that constructs each batch by sampling S subjects and drawing W windows per subject (with replacement when needed). In our configuration, S = 32 and W = 4 , giving batch size B = S × W = 128 . This batching is also crucial for uICD: it ensures each batch contains multiple windows per subject so that support-query tables can be formed. 
+
+5.8 uICD table construction and phase-aware supports 
+
+The uICD objective requires a small support-query table with multiple windows from the same subject. The reference implementation constructs such a table within each batch :1. Group batch indices by subject ID and select a subject with at least two windows in the batch. 2. From that subject’s windows, choose Q query rows (default Q = 1 ; multi-query tables are supported) and designate the remaining rows as candidate supports. 3. Mask the query rows either fully (default) or by masking contiguous spans (controlled by a query mask ratio). 4. Optionally select nearby supports : prioritize windows from the same trial as the query and with closest start index (a phase-aware heuristic), then include additional supports from other trials if needed. 5. Cap the table size to a maximum number of rows (default 16) for computational stability. This construction yields a compact, subject-consistent context that allows attention to implement a form of non-parametric personalization without labels or gradient updates. 6Role of Inductive Bias in Time-Series Pretraining A P REPRINT 
+
+Table 3: Reference implementation hyperparameters 
+
+Category Setting 
+
+Window lengths Tp = 50 , Tf = 50 (total T = 100 ); stride s = 10 
+
+Batching S = 32 subjects/batch, W = 4 windows/subject (batch B = 128 )Objectives λLC = λTC = λuICD = 1 
+
+LC masking mask ratio 0.80; segment length [4 , 16] 
+
+TC masking future mask ratio 1.00; segment length [5 , 25] 
+
+Transformer d = 128 , depth 8, heads 4, dropout 0.1, FF mult 2 Optimizer AdamW, LR 10 −4, weight decay 10 −3
+
+Schedule cosine annealing, 200 epochs, early stop patience 20 Table 4: Pretext task performance on held-out subjects. Higher is better. 
+
+Pretext task R2 ↑ Pearson r ↑
+
+Local Completion (LC) 0.90 0.95 Temporal Continuity (TC) 0.85 0.92 
+
+5.9 Masking scheme 
+
+Both LC and TC use contiguous-span masking. To generate a mask with target coverage ρ, we repeatedly sample segment lengths ℓ ∼ Unif( ℓmin , ℓ max ) and start indices uniformly in the allowed range until the mask covers approximately ρ fraction of the region. In the reference configuration: LC masks ρLC = 0 .8 of the window using segment lengths ℓ ∈ [4 , 16] , while TC masks ρTC = 1 .0 of the future region using automatically chosen segment lengths proportional to the horizon (here 
+
+ℓ ∈ [5 , 25] ). 
+
+5.10 Model and optimization 
+
+We use a transformer encoder with embedding dimension d = 128 , depth of eight, four attention heads, dropout of 0.1, and feed-forward width multiplier of two. The encoder is pre-normalized. We optimize with AdamW (learning rate 10 −4, weight decay 10 −3), apply gradient clipping at 1.0, and use cosine annealing over 200 epochs with early stopping based on validation pretext loss. Table 3 consolidates the reference implementation hyperparameters, including the windowing scheme, batching strategy, masking ratios, transformer configuration, optimizer, and training schedule. Unless otherwise stated, all reported pretraining and downstream evaluations use these settings. 
+
+# 6 Results and Analysis 
+
+We evaluate (i) pretext generalization under strict subject holdout for Local Completion (LC) and Temporal Continuity (TC), and (ii) downstream transfer to heterogeneous endpoints: classification and continuous regression using frozen pretrained encoders with lightweight probe heads. Strict subject holdout reflects the clinically relevant regime where the test set contains entirely unseen subjects. 
+
+6.1 Pretext generalization under subject holdout 
+
+For LC and TC, we measure R2 and Pearson correlation r between reconstructed predictions and ground truth on held-out subjects (evaluated only on masked positions). Table 4 shows that both objectives generalize strongly to unseen subjects, suggesting that the learned representations encode fundamental gait morphology and dynamics rather than memorizing subject identity. The qualitative reconstructions in Figure 2 provide a complementary sanity check on these quantitative results. Across joint-angle and GRF channels, the predicted trajectories closely follow the ground-truth curves on an unseen SCI subject, suggesting that the pretrained encoder captures both phase-aligned waveform morphology and channel-specific temporal dynamics. 7Role of Inductive Bias in Time-Series Pretraining A P REPRINT 
+
+Figure 2: Qualitative pretext sanity check on an unseen SCI subject. Ground truth (solid) vs. P ATHO FM predictions (dashed) across multiple joint angles and ground reaction force (GRF) components over a normalized gait window.                                                                            
+
+> Pathology category Gender SCIM GRF_X GRF_Y GRF_Z Method F1 ↑AUC ↑F1 ↑AUC ↑F1 ↑AUC ↑ρ↑RMSE ρRMSE ↓ρ↑RMSE ↓
+> TC+uICD 0.68 0.64 0.762 0.54 0.70 0.64 0.65 0.021 0.83 0.033 0.89 0.199
+> LC+uICD 0.69 0.64 0.770 0.54 0.70 0.64 0.70 0.020 0.83 0.033 0.89 0.200 LC+TC 0.66 0.64 0.780 0.61 0.69 0.60 0.64 0.022 0.81 0.035 0.84 0.246
+> LC+TC+uICD 0.69 0.66 0.764 0.55 0.71 0.65 0.71 0.020 0.83 0.033 0.88 0.202
+
+Table 5: Performance across downstream classification and prediction tasks when each component of the loss term is ablated. Arrows indicate whether higher ( ↑) or lower ( ↓) values are better. The full loss term performs best in four out of six tasks, illustrating the importance of the combined loss in learning generalizable representations. 
+
+6.2 Downstream transfer: ablations 
+
+We ablate the three-objective mixture by removing one component at a time and evaluate transfer to three classification tasks (pathology category, gender, SCIM independence level) and GRF regression. Table 5 shows that the full mixture is the most balanced overall: removing any component degrades at least one task family. Adding uICD substantially improves GRF metrics across axes. This is consistent with uICD behaving like non-parametric personalization: query reconstruction can borrow cues consistent across subjects from supports, which is valuable for continuous targets. By contrast, adding exemplar conditioning using uICD does not add useful information for gender classification. In summary, the multi-bias recipe that we used avoids a single-task optimum in exchange for a consistent cross-task competence under subject shift. 
+
+Interpretation. LC preserves local morphology that aids classification; TC and uICD are especially beneficial for continuous outcomes where phase-consistent dynamics and magnitude fidelity matter. The full mixture benefits from 8Role of Inductive Bias in Time-Series Pretraining A P REPRINT 
+
+the complementarity of these biases: LC teaches what local patterns look like, TC teaches how they evolve, and uICD teaches when to adapt from exemplars. 
+
+6.3 Benchmarks by inductive-bias family 
+
+We compare P ATHO FM to representatives from grouping-based pretraining (contrastive, DINO-style prototypes, subject-ID), generative diffusion, and a diffusion+reconstruction hybrid. Table 6 shows a recurring pattern: grouping objectives are competitive for classification but underperform on regression, while generative objectives improve continuous targets but may not maximize class separation. P ATHO FM balances both.                                                                    
+
+> Pathology category GRF_X GRF_Y GRF_Z Method F1 ↑AUC ↑ρ↑MSE ↓ρ↑MSE ↓ρ↑MSE ↓
+> Dino 0.67 0.62 0.67 0.020 0.82 0.035 0.89 0.230 Contrastive 0.68 0.68 0.63 0.021 0.78 0.038 0.78 0.281 subject identification 0.63 0.65 0.69 0.020 0.82 0.034 0.86 0.224 Diffusion only 0.63 0.65 0.58 0.024 0.73 0.043 0.84 0.230 Diffusion+LC+uICD 0.61 0.64 0.70 0.019 0.83 0.033 0.87 0.212
+> LC+TC+uICD 0.69 0.66 0.71 0.020 0.83 0.033 0.88 0.202
+
+Table 6: Benchmark performance comparison by inductive bias family across pathology category classification and GRF prediction tasks. Arrows indicate whether higher ( ↑) or lower ( ↓) values are better. The combined loss term that we propose performs best in one or both the metrics reported for each task. 
+
+# 7 Discussion: What Biases Help, When, and Why? 
+
+The results highlight that inductive bias is not an abstract philosophical garnish; it is an operational design axis with predictable trade-offs. 
+
+Grouping bias: strong discrimination, weaker magnitude fidelity. Grouping-based objectives (contrastive, proto-types, subject-ID) produce representations that separate instances or subjects, which benefits classification. But they can discard calibrated magnitude information and fine-grained waveform details, exactly what continuous kinetic tasks require. 
+
+Dynamics bias: essential for continuous endpoints. Temporal continuity (forecasting/continuation) directly trains the representation to encode phase-consistent trajectories. This aligns with kinetic regression tasks, where the model must preserve timing and rate-of-change. 
+
+Reconstruction bias: preserves local structure, but needs a discriminative complement. Masked reconstruction improves signal fidelity and is naturally aligned with denoising and imputation. However, if used alone it may not explicitly enlarge class margins. 
+
+In-context bias: non-parametric personalization. uICD acts like a learned “compare to similar examples” procedure. It can improve cross-subject generalization when test-time supports from the same subject (or clinic) are available. The main practical constraint is support selection: irrelevant supports can mislead attention. 
+
+A mechanistic view: uICD as attention-based exemplar regression. It is useful to interpret uICD through a simple lens: in a transformer, a token representation is updated by attention-weighted combinations of value vectors. If we denote (for a single head) the query/key/value matrices by Q, K, V and the attention output by 
+
+Attn( Q, K, V ) = softmax 
+
+ QK ⊤
+
+√dk
+
+
+
+V, (5) then a masked query token can be viewed as performing a learned similarity search over support tokens (via QK ⊤)and assembling an estimate from retrieved values. In uICD, row embeddings encourage the model to treat windows as distinct exemplars while still allowing cross-row retrieval. Under this view, “phase-aware” support selection (same trial, nearby start index) is not merely a heuristic: it increases the probability that the nearest neighbors in representation space correspond to biomechanically aligned events (e.g., heel strike, toe-off), which in turn stabilizes attention-based reconstruction. 
+
+Why balancing and interpolation matter in clinical time series. Two implementation choices from Sec. 5 deserve emphasis because they directly shape what the model can learn. (i) Subject-balanced batching reduces spurious shortcuts: without it, the encoder can partially “solve” uICD by memorizing high-frequency subjects. Balancing 9Role of Inductive Bias in Time-Series Pretraining A P REPRINT 
+
+forces the model to explain within-subject structure rather than exploit data volume. (ii) Linear interpolation with edge fill treats missingness as a smooth measurement artifact rather than a special symbol. This is appropriate for gait kinematics/kinetics, where abrupt zeros are biomechanically implausible and can become a misleading cue. 
+
+Design guidance. For clinical foundation models with limited data and compute: (i) if regression and calibration matter, include a dynamics objective (forecasting/continuation) and consider in-context conditioning; (ii) if classification dominates, include local reconstruction and optionally a light grouping objective (but avoid letting grouping dominate); (iii) for balanced transfer, combine LC+TC+uICD and tune weights. 
+
+# 8 Conclusion 
+
+We analyzed time-series pretraining through the lens of inductive bias using pathological gait as a case study. We showed that a dynamics-centric mixture of Local Completion, Temporal Continuity, and Unsupervised In-Context Dynamics yields balanced transfer to both classification and regression under strict subject holdout. Beyond this specific domain, the larger lesson is that pretraining objectives are not interchangeable: each encodes assumptions about what structure matters, and careful combinations can achieve robustness that single-bias objectives struggle to match. 
+
+# Funding declaration 
+
+This research was partially funded by Innosuisse - Schweizerische Agentur für Innovationsförderung. 
+
+# References 
+
+[1] David H Sutherland. The evolution of clinical gait analysis part iii–kinetics and energy assessment. Gait & posture , 21(4):447–461, 2005. [2] Kirsten Zantvoort, Barbara Nacke, Dennis Görlich, Silvan Hornstein, Corinna Jacobi, and Burkhardt Funk. Estimation of minimal data sets sizes for machine learning predictions in digital mental health interventions. npj Digital Medicine , 7(1):361, 2024. [3] Hao Guan and Mingxia Liu. Domain adaptation for medical image analysis: a survey. IEEE Transactions on Biomedical Engineering , 69(3):1173–1185, 2021. [4] Wen Zhang, Lingfei Deng, Lei Zhang, and Dongrui Wu. A survey on negative transfer. IEEE/CAA Journal of Automatica Sinica , 10(2):305–329, 2022. [5] Hrayr Harutyunyan, Hrant Khachatrian, David C Kale, Greg Ver Steeg, and Aram Galstyan. Multitask learning and benchmarking with clinical time series data. Scientific data , 6(1):96, 2019. [6] Tom Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared D Kaplan, Prafulla Dhariwal, Arvind Nee-lakantan, Pranav Shyam, Girish Sastry, Amanda Askell, et al. Language models are few-shot learners. Advances in neural information processing systems , 33:1877–1901, 2020. [7] Rishi Bommasani. On the opportunities and risks of foundation models. arXiv preprint arXiv:2108.07258 , 2021. [8] Geoffrey E Hinton and Ruslan R Salakhutdinov. Reducing the dimensionality of data with neural networks. 
+
+science , 313(5786):504–507, 2006. [9] Dumitru Erhan, Aaron Courville, Yoshua Bengio, and Pascal Vincent. Why does unsupervised pre-training help deep learning? In Proceedings of the thirteenth international conference on artificial intelligence and statistics ,pages 201–208. JMLR Workshop and Conference Proceedings, 2010. [10] Tom M Mitchell. The need for biases in learning generalizations. 1980. [11] Ting Chen, Simon Kornblith, Mohammad Norouzi, and Geoffrey Hinton. A simple framework for contrastive learning of visual representations. In International conference on machine learning , pages 1597–1607. PmLR, 2020. [12] Aaron van den Oord, Yazhe Li, and Oriol Vinyals. Representation learning with contrastive predictive coding. 
+
+arXiv preprint arXiv:1807.03748 , 2018. [13] Zhe Li, Zhongwen Rao, Lujia Pan, Pengyun Wang, and Zenglin Xu. Ti-mae: Self-supervised masked time series autoencoders. arXiv preprint arXiv:2301.08871 , 2023. [14] Jacquelin Perry and Judith Burnfield. Gait analysis: normal and pathological function . CRC Press, 2024. [15] Elsa J Harris, I-Hung Khoo, and Emel Demircan. A survey of human gait-based artificial intelligence applications. 
+
+Frontiers in Robotics and AI , 8:749274, 2022. 10 Role of Inductive Bias in Time-Series Pretraining A P REPRINT 
+
+[16] David A Winter. Biomechanics and motor control of human movement . John wiley & sons, 2009. [17] Jie Gui, Tuo Chen, Jing Zhang, Qiong Cao, Zhenan Sun, Hao Luo, and Dacheng Tao. A survey on self-supervised learning: Algorithms, applications, and future trends. IEEE Transactions on Pattern Analysis and Machine Intelligence , 46(12):9052–9071, 2024. [18] Phuc H Le-Khac, Graham Healy, and Alan F Smeaton. Contrastive representation learning: A framework and review. Ieee Access , 8:193907–193934, 2020. [19] Junnan Li, Pan Zhou, Caiming Xiong, and Steven CH Hoi. Prototypical contrastive learning of unsupervised representations. arXiv preprint arXiv:2005.04966 , 2020. [20] Kaiming He, Haoqi Fan, Yuxin Wu, Saining Xie, and Ross Girshick. Momentum contrast for unsupervised visual representation learning. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition ,pages 9729–9738, 2020. [21] Mathilde Caron, Hugo Touvron, Ishan Misra, Hervé Jégou, Julien Mairal, Piotr Bojanowski, and Armand Joulin. Emerging properties in self-supervised vision transformers. In Proceedings of the IEEE/CVF international conference on computer vision , pages 9650–9660, 2021. [22] Ziyu Liu, Azadeh Alavi, Minyi Li, and Xiang Zhang. Self-supervised contrastive learning for medical time series: A systematic review. Sensors , 23(9):4221, 2023. [23] Mattson Ogg and William G Coon. Self-supervised transformer model training for a sleep-eeg foundation model. In 2024 46th Annual International Conference of the IEEE Engineering in Medicine and Biology Society (EMBC) ,pages 1–6. IEEE, 2024. [24] Zhihan Yue, Yujing Wang, Juanyong Duan, Tianmeng Yang, Congrui Huang, Yunhai Tong, and Bixiong Xu. Ts2vec: Towards universal representation of time series. In Proceedings of the AAAI conference on artificial intelligence , volume 36, pages 8980–8987, 2022. [25] Qingsong Wen, Liang Sun, Fan Yang, Xiaomin Song, Jingkun Gao, Xue Wang, and Huan Xu. Time series data augmentation for deep learning: A survey. arXiv preprint arXiv:2002.12478 , 2020. [26] Kaiming He, Xinlei Chen, Saining Xie, Yanghao Li, Piotr Dollár, and Ross Girshick. Masked autoencoders are scalable vision learners. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition ,pages 16000–16009, 2022. [27] Bryan Lim, Sercan Ö Arık, Nicolas Loeff, and Tomas Pfister. Temporal fusion transformers for interpretable multi-horizon time series forecasting. International journal of forecasting , 37(4):1748–1764, 2021. [28] Sharmita Dey, Benjamin Paassen, Sarath Ravindran Nair, Sabri Boughorbel, and Arndt F Schilling. Continual learning from simulated interactions via multitask prospective rehearsal for bionic limb behavior modeling. arXiv preprint arXiv:2405.01114 , 2024. [29] Kexin Zhang, Qingsong Wen, Chaoli Zhang, Rongyao Cai, Ming Jin, Yong Liu, James Y Zhang, Yuxuan Liang, Guansong Pang, Dongjin Song, et al. Self-supervised learning for time series analysis: Taxonomy, progress, and prospects. IEEE transactions on pattern analysis and machine intelligence , 46(10):6775–6794, 2024. [30] Samy Bengio, Oriol Vinyals, Navdeep Jaitly, and Noam Shazeer. Scheduled sampling for sequence prediction with recurrent neural networks. Advances in neural information processing systems , 28, 2015. [31] Arun Venkatraman, Martial Hebert, and J Bagnell. Improving multi-step prediction of learned time series models. In Proceedings of the AAAI Conference on Artificial Intelligence , volume 29, 2015. [32] Yusuke Tashiro, Jiaming Song, Yang Song, and Stefano Ermon. Csdi: Conditional score-based diffusion models for probabilistic time series imputation. Advances in neural information processing systems , 34:24804–24816, 2021. [33] Sharmita Dey and Sarath Ravindran Nair. Cross-modal diffusion for biomechanical dynamical systems through local manifold alignment. arXiv preprint arXiv:2503.12214 , 2025. [34] Jonathan Ho, Ajay Jain, and Pieter Abbeel. Denoising diffusion probabilistic models. Advances in neural information processing systems , 33:6840–6851, 2020. [35] Alexander Quinn Nichol and Prafulla Dhariwal. Improved denoising diffusion probabilistic models. In Interna-tional conference on machine learning , pages 8162–8171. PMLR, 2021. [36] Paweł Skier´ s and Kamil Deja. Joint diffusion models in continual learning. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 4380–4390, 2025. [37] Abhimanyu Das, Matthew Faw, Rajat Sen, and Yichen Zhou. In-context fine-tuning for time-series foundation models. arXiv preprint arXiv:2410.24087 , 2024. 11 Role of Inductive Bias in Time-Series Pretraining A P REPRINT 
+
+[38] Jiecheng Lu, Yan Sun, and Shihao Yang. In-context time series predictor. arXiv preprint arXiv:2405.14982 , 2024. [39] Oriol Vinyals, Charles Blundell, Timothy Lillicrap, Daan Wierstra, et al. Matching networks for one shot learning. 
+
+Advances in neural information processing systems , 29, 2016. [40] Rainer Schmidt, Stefania Montani, Riccardo Bellazzi, Luigi Portinale, and Lothar Gierl. Cased-based reasoning for medical knowledge-based systems. International Journal of Medical Informatics , 64(2-3):355–367, 2001. [41] Sharmita Dey and Sarath Ravindran Nair. Remap: Neural model reprogramming with network inversion and retrieval-augmented mapping for adaptive motion forecasting. Advances in Neural Information Processing Systems , 37:25195–25227, 2024. [42] Sharmita Dey and Arndt F Schilling. A function approximator model for robust online foot angle trajectory prediction using a single imu sensor: Implication for controlling active prosthetic feet. IEEE Transactions on Industrial Informatics , 19(2):1467–1475, 2022. [43] Sharmita Dey, Takashi Yoshida, Robert H Foerster, Michael Ernst, Thomas Schmalz, Rodrigo M Carnier, and Arndt F Schilling. A hybrid approach for dynamically training a torque prediction model for devising a human-machine interface control strategy. arXiv preprint arXiv:2110.03085 , 2021. [44] Sharmita Dey, Mahdy Eslamy, Takashi Yoshida, Michael Ernst, Thomas Schmalz, and ArndtF Schilling. A support vector regression approach for continuous prediction of ankle angle and moment during walking: An implication for developing a control strategy for active ankle prostheses. In 2019 IEEE 16th International Conference on Rehabilitation Robotics (ICORR) , pages 727–733. IEEE, 2019. [45] Sharmita Dey, Takashi Yoshida, Robert H Foerster, Michael Ernst, Thomas Schmalz, and Arndt F Schilling. Continuous prediction of joint angular positions and moments: A potential control strategy for active knee-ankle prostheses. IEEE Transactions on Medical Robotics and Bionics , 2(3):347–355, 2020. [46] Sharmita Dey, Takashi Yoshida, Michael Ernst, Thomas Schmalz, and Arndt F Schilling. A random forest approach for continuous prediction of joint angles and moments during walking: An implication for controlling active knee-ankle prostheses/orthoses. In 2019 IEEE International conference on Cyborg and bionic systems (CBS) , pages 66–71. IEEE, 2019. [47] David Quintero, Dario J Villarreal, Daniel J Lambert, Susan Kapp, and Robert D Gregg. Continuous-phase control of a powered knee–ankle prosthesis: Amputee experiments across speeds and inclines. IEEE Transactions on Robotics , 34(3):686–701, 2018. [48] Qingxiu Dong, Lei Li, Damai Dai, Ce Zheng, Jingyuan Ma, Rui Li, Heming Xia, Jingjing Xu, Zhiyong Wu, Baobao Chang, et al. A survey on in-context learning. In Proceedings of the 2024 conference on empirical methods in natural language processing , pages 1107–1128, 2024. [49] Kelsey R Allen, Hanul Shin, Evan Shelhamer, and Joshua B Tenenbaum. Variadic meta-learning by bayesian nonparametric deep embedding. Advances in Neural Information Processing Systems (NeurIPS) , 2018. [50] Djordje Slijepcevic, Fabian Horst, Sebastian Lapuschkin, Brian Horsak, Anna-Maria Raberger, Andreas Kranzl, Wojciech Samek, Christian Breiteneder, Wolfgang Immanuel Schöllhorn, and Matthias Zeppelzauer. Explaining machine learning models for clinical gait analysis. ACM Transactions on Computing for Healthcare (HEALTH) ,3(2):1–27, 2021. [51] Murad Alaqtash, Thompson Sarkodie-Gyan, Huiying Yu, Olac Fuentes, Richard Brower, and Amr Abdelgawad. Automatic classification of pathological gait patterns using ground reaction forces and machine learning algorithms. In 2011 Annual International Conference of the IEEE Engineering in Medicine and Biology Society , pages 453– 457. IEEE, 2011. [52] Klaus-Dieter Althoff, Ralph Bergmann, Stefan Wess, Michel Manago, Eric Auriol, Oleg I Larichev, Alexander Bolotov, Yurii I Zhuravlev, and Serge I Gurov. Case-based reasoning for medical decision support tasks: The inreca approach. Artificial Intelligence in Medicine , 12(1):25–41, 1998. [53] Dongwei Liu, Ming He, Meijin Hou, and Ye Ma. Deep learning based ground reaction force estimation for stair walking using kinematic data. Measurement , 198:111344, 2022. [54] Zitao Liu and Milos Hauskrecht. Clinical time series prediction: Toward a hierarchical dynamical system framework. Artificial intelligence in medicine , 65(1):5–18, 2015. [55] Ozan Sener and Vladlen Koltun. Multi-task learning as multi-objective optimization. Advances in neural information processing systems , 31, 2018. [56] Amiram Catz, M Itzkovich, E Agranov, H Ring, and A Tamir. Scim–spinal cord independence measure: a new disability scale for patients with spinal cord lesions. Spinal cord , 35(12):850–856, 1997. 12
