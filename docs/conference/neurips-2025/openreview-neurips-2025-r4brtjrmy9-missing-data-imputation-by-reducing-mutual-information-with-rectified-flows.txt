@@ -1,0 +1,1333 @@
+Title: 24289_Missing_Data_Imputation_.pdf
+
+URL Source: https://openreview.net/pdf?id=r4BrtJRmy9
+
+Number of Pages: 29
+
+Markdown Content:
+# Missing Data Imputation by Reducing Mutual Information with Rectified Flows 
+
+Jiahao Yu ∗
+
+University of Cambridge 
+
+Qizhen Ying ∗
+
+University of Oxford 
+
+Leyang Wang ∗
+
+University College London 
+
+Ziyue Jiang 
+
+University of Bristol 
+
+Song Liu †
+
+University of Bristol 
+
+# Abstract 
+
+This paper introduces a novel iterative method for missing data imputation that sequentially reduces the mutual information between data and the corresponding missingness mask. Inspired by GAN-based approaches that train generators to decrease the predictability of missingness patterns, our method explicitly targets this reduction in mutual information. Specifically, our algorithm iteratively min-imizes the KL divergence between the joint distribution of the imputed data and missingness mask, and the product of their marginals from the previous iteration. We show that the optimal imputation under this framework can be achieved by solving an ODE whose velocity field minimizes a rectified flow training objective. We further illustrate that some existing imputation techniques can be interpreted as approximate special cases of our mutual-information-reducing framework. Compre-hensive experiments on synthetic and real-world datasets validate the efficacy of our proposed approach, demonstrating its superior imputation performance. Our imple-mentation is available at https://github.com/yujhml/MIRI-Imputation .
+
+# 1 Introduction 
+
+The problem of missing data, referring to absent components ( NaNs ) in a dataset, can arise in a wide range of scenarios [ 31 , 18 ]. For example, in a survey dataset, respondents might skip some questions accidentally or intentionally, resulting in missing values. In fMRI data, there can be missing voxels due to incomplete brain coverage and spatial variations in images acquired across subjects [36 ]. Simple “one-shot” methods replace missing entries with summary statistics, such as the sample mean or median of the observed data. In contrast, approaches like MICE [ 37 ], MissForest [ 34 ], and HyperImpute [ 12 ] employ an iterative, dimension-wise scheme. In each iteration, they model one feature conditional on all others and sample from that model to replace the feature’s missing entries, cycling through all features repeatedly until the imputations stabilize. Because their updates are sequential and dimension-wise, these methods are difficult to parallelize and scale poorly to high -dimensional data such as images [ 3 ]. Their accuracy is also highly sensitive to the choice of per-variable models [37, 15]. In recent years, research on generative modeling has made huge progress. Since imputation is naturally a data-generating task, generative models have been increasingly applied to impute missing data. [ 30 ] proposes to maximize the likelihood of the imputed data using an EM algorithm, where the likelihood function is modeled using a normalizing flow [ 29 , 6]. GAIN [ 38 ] leverages Generative Adversarial Nets (GANs) [ 8] to impute missing components. It trains a generator (a neural network) so that a binary classifier cannot distinguish whether a given component is imputed or not. However, both GANs and normalizing flows come with their own challenges. GANs rely on unstable adversarial 
+
+> *
+
+Work partially completed at the University of Bristol. 
+
+> †
+
+Correspondence to Song Liu <song.liu@bristol.ac.uk>. 39th Conference on Neural Information Processing Systems (NeurIPS 2025). training and may suffer from mode collapse [ 16 , 40 ], while normalizing flows require specially designed architectures to ensure their invertibility, limiting their applications. Currently, diffusion models and flow-based methods represent the state of the art in generative modeling techniques [ 33 , 17 , 21 ]. They first train a velocity field according to some criteria. Then, they sample from the target distribution by solving an ODE or SDE using the trained velocity field as the drift. The main challenge to adapt these methods for missing value imputation is that most flow-based methods are designed to transport reference samples to match the target distribution. However, it is unclear how to formulate the missing data imputation problem as a distribution transport problem. Nonetheless, progress has been made in this area. For example, MissDiff [ 27 ] learns a score model from partially observed samples, then uses an inpainter [23] to impute missing values. Recently, [ 20 ] observes that GAIN’s criterion encourages the imputed dataset to be independent of the missingness pattern. In this paper, we further explore this idea within a more rigorous framework. Our contributions are summarized as follows: 1. We introduce Mutual Information Reducing Iterations (MIRI) , a novel framework that provably reduces mutual information between imputed data and their missingness mask when using an optimal imputer; 2. We show that an optimal MIRI imputer can be obtained by solving an ODE whose velocity field is trained by a rectified flow objective, naturally integrating generative modeling; 3. We reveal that several existing imputation methods can be viewed as approximate special cases of the MIRI framework; 4. We demonstrate that our proposed approach achieves promising empirical performance on both tabular and image datasets. 
+
+# 2 Background 
+
+We now briefly review the missing data imputation problem, Generative Adversarial Imputation Nets (GAIN) [38], and Rectified Flow [21], which form the foundation of our proposed method. 
+
+Notations. We denote scalars with lowercase letters (e.g., x, y ) and vectors with bold lowercase letters (e.g., x, y). Random variables are denoted by uppercase letters (e.g., X, Y ), and random vectors by bold uppercase letters (e.g., X, Y). The superscript t ∈ { 1, . . . , T } denotes the iteration count of the algorithm. The subscripts 0, 1, and τ denote the continuous time index in an ODE. Given a fixed missingness mask m and a vector x of the same dimension, we write xm as the subvector of 
+
+x whose elements correspond to entries where mi = 1 , and x1−m as the subvector whose elements correspond to entries where mi = 0 . Following convention, we refer to xm as the “non-missing components” of x and x1−m as the “missing components” of x. The notation A d
+
+= B means that the random variables A and B are equal in distribution. 
+
+2.1 Sequential Imputation 
+
+Now, we formally define the missing data imputation problem. The true data vector X∗ =[X∗ 
+
+> 1
+
+, . . . , X ∗ 
+
+> d
+
+] is a random vector taking values on X ⊂ Rd, while the missingness mask M =[M1, . . . , M d] is a random vector in {0, 1}d. In the Missing Completely at Random (MCAR) [31 ]setting, we assume that the true data is independent of the missingness mask, i.e., X∗ ⊥⊥ M
+
+(See Section F for discussions on Missing At Random (MAR) setting). The observed data vector 
+
+˜X = ( ˜X1, . . . , ˜Xd) is defined as ˜Xj := 
+
+X∗ 
+
+> j
+
+Mj = 1 
+
+NaN Mj = 0 . In words, the variable j in the observation 
+
+˜X is missing when Mj = 0 and is observed when Mj = 1 . Equivalently, 
+
+˜X = M ⊙ X∗ + (1 − M) ⊙ NaN , (1) where ⊙ represents element-wise product. In this paper, we want to construct an imputation vector 
+
+X(g) = M ⊙ ˜X + (1 − M) ⊙ g(Z0; ˜X, M), (2) 2where g : Rd × (Rd ∪ NaN ) × { 0, 1}d → Rd is called an imputer . Z0 is a random seed of the imputer. Different random seeds Z0 can lead to different imputations. In many cases, imputation is an iterative process: Instead of computing X in a single step, the imputation is improved through iterative updates. This sequential imputation involves the following procedure: for each iteration t = 1 , . . . , T , we construct the imputation 
+
+X(t)(gt) := M ⊙ X(t−1) + (1 − M) ⊙ gt(Z(t)0 ; X(t−1) , M), (3) where X(t) indicates the imputed data vector at iteration t. The initial vector, X(0) is initialized with any standard imputation technique (e.g., Gaussian noise, mean or median imputation). A schematic of this sequential imputation algorithm is provided in Figure 4 of Appendix A. The central task of this iterative process is to learn the imputer gt at each iteration t. In the following sections, we show how a popular missing data imputation scheme can be formulated within this framework and how gt can be trained using a GAN-type objective. 
+
+2.2 Generative Adversarial Imputation Nets (GAIN) [38] 
+
+GAIN arises from a natural intuition: if an imputation is perfect, the imputed entries should be indistinguishable from the originally observed ones. Thus, GAIN trains a generator so that a classifier cannot predict the missingness mask M accurately. Let f (mj , x, m−j ) ∈ [0 , 1] be a probabilistic classifier modeling the conditional probability 
+
+PMj |X(t−1) ,M−j , which is the probability that the j-th component is observed given the imputed data from the previous step, X(t−1) , and the rest of the missingness mask, M−j .For each iteration t = 1 , . . . , T , GAIN performs the following steps: 1. Classifier ftj := arg min f −E log f  Mj , X(t−1) , M−j
+
+ , for all j = 1 . . . d .2. Imputer gt := arg max g − P 
+
+> j
+
+E log ftj 
+
+ Mj , X(t)(g), M−j
+
+ − λ(reconstruction error ).3. Update X(t) impute 
+
+← X(t)(gt), t ← t + 1 .Here, X(t)(g) is the imputed vector from the imputer g as defined in (3) . At iteration t, we first train classifiers ftj by minimizing the cross-entropy loss. Subsequently, we train the imputer gt,parameterized as a neural network, to reduce the classifiers’ predictive accuracy by maximizing the sum of cross-entropy losses across all j, while simultaneously minimizing the reconstruction error. In practice, the minimization and maximization steps are performed via alternating gradient updates, leading to adversarial training. We observe that GAIN works well in practice. However, the adversarial training is known to be difficult and may suffer from mode collapses [ 16 , 40 ]. Moreover, balancing the reconstruction error and the cross entropy loss requires careful tuning of the hyperparameter λ.Recently, it was observed that the generator training of GAIN can be viewed as a process of breaking the dependency between M and X(t)(g) [ 20 ]. Indeed, if X(t)(g) ⊥⊥ M, meaning X(t)(g) is not predictive of M at all, then the cross-entropy loss is maximized. In this paper, we rigorously explore this idea of imputation by dependency reduction. Guided by this principle, our algorithm explicitly aims to reduce the dependency between M and X(t)(g).
+
+2.3 Flow-based Sampling and Rectified Flow 
+
+As an alternative to GANs, flow-based generative models have attracted significant interest in recent years. These algorithms first train a “velocity field” over time τ ∈ [0 , 1] according to some loss function, and then generate samples by solving the ODE or SDE using the learned velocity field as the drift. In some cases, the loss function is a simple least-squares loss, leading to a training routine simpler and more stable than GAN. Methods in this category include Score-based generative models [32 , 33 ], Rectified Flow [ 21 ], Flow Matching [ 17 ], Diffusion Schrödinger Bridge [ 5] , among others. Rectified flow is one of the simplest flow-based generative models. Given two random vectors X0
+
+(from a reference distribution) and X1 (from a target distribution), the velocity field v∗ is trained by 3Algorithm 1 MIRI with Rectified Flow (Single Imputation) 
+
+Require: Paired, i.i.d. observations and masks {( ˜X, M)}, Maximum Iterations T , Maximum SGD steps N ,Batch Size B, Optimizer SGD_update and an ODE solver ODE_Solver .1: (X(0) , M) ← initial_impute ( ˜X, M).2: for t = 1 to T do 
+
+3: Initialize a neural network model v.4: for n = 1 to N do 
+
+5: Sample batch {(X(j)0 , M(j)0 )}Bj=1 ∼ PX(t−1) ,M0 ,6: Sample batch {X(j)1 }Bj=1 ∼ PX(t−1) , and time indices {τj }Bj=1 ∼ Uniform (0 , 1) 
+
+7: ∀j, X(j) 
+
+> τj
+
+← (1 − τj )X(j)0 + τj X(j)1 , Y(j) ← X(j)1 − X(j)0
+
+8: vt ← SGD_update 
+
+
+
+∇v
+
+P 
+
+> j
+
+Y(j) − v(X(j) 
+
+> τj
+
+, M(j)0 ⊙ X(j)0 , M(j)0 ⊙ X(j)1 , M(j)0 , τ j ) 2
+
+9: end for 
+
+10: X(t) ← M ⊙ X(t−1) + (1 − M) ⊙ ODE_Solver ((1 − M) ⊙ vt, X(t−1) , M)
+
+11: end for 
+
+12: return {X(T )}
+
+minimizing the following objective: 
+
+v∗ = arg min 
+
+> v
+
+Z 10
+
+E ∥X1 − X0 − v(Xτ , τ )∥2 dτ, (4) where Xτ is the linear interpolation between X0 and X1, defined as Xτ = τ X1 + (1 − τ )X0 for 
+
+τ ∈ [0 , 1] . Samples are then generated by solving the ODE: 
+
+dZτ
+
+dτ = v∗(Zτ , τ ). (5) One can prove that, if Z0
+
+> d
+
+= X0, then Zτ
+
+> d
+
+= Xτ for all τ ∈ [0 , 1] . This “marginal-preserving property” guarantees that solving the ODE from τ = 0 to τ = 1 transports samples from the reference distribution to the target distribution. 
+
+# 3 Reducing Dependency with Mutual Information 
+
+In this section, we introduce the MIRI imputation framework, obtain the optimal imputer under this framework using rectified flow, and theoretically justify its validity under the Missing Completely at Random (MCAR) setting. The validity for the Missing at Random (MAR) scenario is in Appendix F. 
+
+3.1 Mutual Information Reducing Iterations (MIRI) 
+
+We study the problem of training an imputer g to reduce the dependency between the imputed sample 
+
+X(g) and missingness mask M. The approach adopted by [ 20 ] is to minimize the mutual information between them, i.e., the optimal g is given as: 
+
+g ∈ arg min  
+
+> g
+
+I( X(g); M) = arg min  
+
+> g
+
+D[ PX(g),M∥PX(g) ⊗ PM], (6) where D[ P∥Q] is the Kullback-Leibler (KL) divergence of probability distributions Q from P.However, the mutual information is not directly computable as we do not have access to the true distribution PX(g),M and PX(g) ⊗ PM. A potential solution is to transform this optimization problem into a bi-level min-max adversarial optimization problem: Fixing g, it is possible to estimate the mutual information using samples from PX(g),M and PX(g) ⊗ PM with Mutual Information Neural Estimation (MINE) [ 1 ], which maximizes the Donsker-Varadhan lower bound [ 7] to approximate the KL divergence. After that, we can minimize the estimated mutual information with respect to g. This process is repeated until convergence. If one solves both optimization problems one gradient step at a time, this algorithm is the classic adversarial training that GAN is known for. 
+
+Contrary to the suggestion in [ 20 ], the mutual information in (6) cannot be minimized simply by directly applying forward or reverse KL Wasserstein Gradient Flow (WGF). While WGF can minimize a KL divergence D[ P∥Q] when the distribution to be optimized is either P or Q, the 4distribution of interest in our setting ( PX(g)) appears simultaneously in both P and Q. As a result, neither the forward nor reverse KL formulation of WGF is directly applicable. Therefore, while the WGF procedure proposed in [ 20 ] is conceptually appealing, it does not correctly minimize the mutual information objective as formulated in (6). Motivated by the limitation of both adversarial training and WGF, we propose a sequential imputation algorithm that reduces the mutual information, called Mutual Information Reducing Iterations (MIRI). Instead of targeting the unknown marginal distribution PX(g), we use the imputed data distribution from the previous iteration, X(t−1) , as a stable target. Let us denote the joint probability of the pair 
+
+(X(t)(g), M) as PX(t)(g),M and the product measure of X(t−1) and M as PX(t−1) ⊗ PM.For each iteration t = 1 . . . T , the algorithm performs the following steps: 1. Find the Optimal Imputer : gt ∈ arg min g D PX(t)(g),M∥PX(t−1) ⊗ PM
+
+.2. Update Data : X(t) impute 
+
+← X(t)(gt), t ← t + 1 .We can confirm that MIRI does indeed reduce the mutual information: 
+
+Proposition 1. The mutual information between X(t) and M is non-increasing after each iteration. 
+
+See Appendix B for the proof. In Section 4.1, we show that the GAIN algorithm can be viewed as an approximate implementation of the above MIRI algorithm. Moreover, we show that minimizing the KL divergence in the first step of MIRI has a sufficient and necessary condition: 
+
+Proposition 2. Let pg(x, m) be the density of (X(t)(gt), M) and q(x) be the density of X(t−1) .
+
+g ∈ arg min g D PX(t)(g),M∥PX(t−1) ⊗ PM
+
+ if and only if 
+
+pg(x1−m|xm, m) = q(x1−m|xm), ∀x, m. (7) The proof can be found in the Appendix E. This result shows that the optimal g should sample from the conditional distribution of the missing components given the non-missing components according to the marginal distribution of X(t−1) , the imputed data in the previous iteration. (7) inspires us to construct a flow-based generative model with a target distribution q(x1−m|xm).As we discuss in Section 4.2 and 4.3, (7) is also the key design principle behind many classic and contemporary data imputation algorithms. 
+
+3.2 Imputation by Rectified Flow 
+
+In this section, we show how to construct an optimal imputer for MIRI using an imputation ODE 
+
+obtained via rectified flow training. The optimality condition of Proposition 2 requires an imputer to sample from target distribution q(x1−m|xm). The standard diffusion models are restrictive, as they are constrained to a fixed Gaussian reference. We therefore use rectified flow to transport samples from the current imputation (reference) to the target distribution. We now zoom in on Step 1 of the MIRI algorithm at iteration t.Let (X1, M1) be a pair of random vectors drawn from the product measure PX(t−1) ⊗ PM and 
+
+(X0, M0) from the joint distribution PX(t−1) ,M. The pairs are drawn such that X1 ⊥⊥ (X0, M0). Xτ
+
+is defined as the linear interpolation of X0 and X1, following the same construction as in Section 2.3. Consider the following rectified flow training objective function: 
+
+v∗ := arg min 
+
+> v
+
+Z 10
+
+E ∥X1 − X0 − v(Xτ, 1−M0 , X0,M0 , X1,M0 , M0, τ )∥2 dτ, (8) where X0,M0 := M0 ⊙ X0 and others are defined similarly. We can define an imputation process by using the optimal velocity field v∗. Given a partially observed vector where the missing entries are padded with zeros, i.e., [0, xm], the imputation process dynamics are governed by the following ODE: 
+
+dZτ
+
+dτ = (1 − m) ⊙ v∗(Zτ , [0, xm], [0, xm], m, τ ), (9) 5with initial condition 
+
+Z0 ∼ PX0,1−m {X0,m=[ 0,xm], M0=m}. (10) We define the imputer g∗ as the solution to the imputation ODE (9) evaluated at terminal time τ = 1 :
+
+g∗(Z0, xm, m) := Z1. (11) We can show that, g∗ is an optimal imputer to the MIRI algorithm that we introduced in Section 3.1. 
+
+Theorem 1. g∗ defined in (11) is an optimal imputer in the sense that 
+
+g∗ ∈ arg min  
+
+> g
+
+D PX(t)(g),M∥PX(t−1) ⊗ PM
+
+ . (12) The main technical challenge of the proof is to show that the ODE (9) can indeed establish a “marginal-preserving” process from PX(t−1) |M to PX(t−1) . This is different from the classic proof since both our training objective and ODE are different from the regular rectified flow. See Appendix C for the proof. With an imputer g∗, we can proceed to the second step of the MIRI algorithm. 
+
+3.3 Initial Condition 
+
+To run the imputation process, we require at least a sample of X0,1−m {X0,m = xm, M = m}.By the definition of X0, this is equivalent to sampling from X(t−1) 1−m |{ X(t−1)  
+
+> m
+
+= xm, M = m}. This poses no difficulty, since at each iteration t, we maintain access to the joint sample (X(t−1) , M),from which we can extract the relevant conditional sample by slicing. However, in the first iteration, we need samples from X(0) 1−m|{ X(0)  
+
+> m
+
+= xm, M = m} to kickstart the MIRI algorithm. One can sample from any distribution for those initial samples and in our experiment, we simply draw independent samples from the normal N (0 , 1) or uniform U (0 , 1) to fill out each missing component. Alternatively, one can use another imputation algorithm to suggest initial samples. 
+
+3.4 Practical Implementation 
+
+Algorithm 1 presents the full MIRI procedure on a finite sample set ( ˜X, M). Note that the superscript 
+
+(t) represents iteration count while (j) is the sample index in a batch. We model vt with a neural network trained via stochastic gradient descent. The function initial_impute replaces NaNs with initial guesses. According to the requirement in Section 3.2, we need to ensure (X0, M0) ⊥⊥ X1. In practice, we propose to sample a batch {X0,j , M0,j }Bi=1 from the paired dataset and sample a batch {X1,j }Bi=1 
+
+from a shuffled set of {X0,j } to weaken their dependency. Although, in this case, X1 is still not independent of X0 and M0, we observe that this strategy works well in practice. 
+
+# 4 MIRI and Other Imputation Algorithms 
+
+In this section, we show how MIRI is related to other existing imputation algorithms. 
+
+4.1 GAIN 
+
+Let q(x, m) be the density function of the joint distribution of (X(t−1) , M). Suppose the discrimi-nator is well-trained in the first step in the GAIN algorithm, i.e., f (mj , x, m−j ) ≈ q(mj |x, m−j ),then the generator training in the second step (without the reconstruction error) is 
+
+gt = arg min  
+
+> g
+
+E
+
+X
+
+> j
+
+log q(Mj |X(t) 
+
+> g
+
+, M−j )
+
+ = arg min  
+
+> g
+
+E
+
+log Y
+
+> j
+
+q(Mj |X(t) 
+
+> g
+
+, M−j ).
+
+ (13) Using the pseudo-likelihood approximation [2], Q 
+
+> j
+
+q(Mj |X(t) 
+
+> g
+
+, M−j ) ≈ q(M|X(t) 
+
+> g
+
+), thus: 
+
+gt ≈ arg min  
+
+> g
+
+E
+
+h
+
+log q(M|X(t) 
+
+> g
+
+)
+
+i
+
+= arg min  
+
+> g
+
+E
+
+"
+
+log q(M, X(t) 
+
+> g
+
+)
+
+q(X(t) 
+
+> g
+
+)p(M)
+
+#
+
+. (14) 6By Gibbs’ inequality, 
+
+E
+
+"
+
+log q(M, X(t) 
+
+> g
+
+)
+
+q(X(t) 
+
+> g
+
+)p(M)
+
+#
+
+≤ E
+
+"
+
+log pg(M, X(t) 
+
+> g
+
+)
+
+q(X(t) 
+
+> g
+
+)p(M)
+
+#
+
+= D PX(t)(g),M∥PX(t−1) ⊗ PM
+
+ , (15) thus, we can see that GAIN learns its imputer gt by approximately minimizing a lower bound of 
+
+D PX(t)(g),M∥PX(t−1) ⊗ PM
+
+.There are two approximations made in the above argument: the pseudo-likelihood approximation and the Gibbs’ inequality. First, since GAIN only performs one gradient step update to the imputer gt at each iteration, the gap between D PX(t)(g),M∥PX(t−1) ⊗ PM
+
+ and its lower bound may not be large. Second, the pseudo-likelihood approximation can be a good approximation, for example, when the correlation among Mj is not too strong. The discriminator training of GAIN resembles a dimension-wise strategy that has been widely used in Ising model estimation [ 28 , 25 ]. Note that the optimization in (14) is fundamentally intractable due to the high-dimensional density q(m|x(t)(g)) . m is a binary variable defined on {0, 1}d, thus, the density does not have a tractable normalizing constant. This further restricts us to the dimension-wise pseudo-likelihood approach in GAIN algorithm. 
+
+4.2 Round-Robin Approaches: MICE, HyperImpute, etc. 
+
+Recall that Proposition 2 states that minimizing the KL divergence D PX(t)(g),M∥PX(t−1) ⊗ PM
+
+
+
+is equivalent to choosing a g such that pg(x1−m|xm, m) = q(x1−m|xm), where pg(x, m) is the density of (X(t)(g), M) and q(x) is the density of X(t−1) . One can simply build an im-puter that samples from q(x1−m|xm) to impute the missing components. Then, by construction, 
+
+pg(x1−m|xm, m) = q(x1−m|xm).
+
+This algorithm has two issues: First, m changes for every sample, so we need to learn a different im-puter for every sample. Second, sampling from the conditional probability distribution q(x1−m|xm)
+
+is not trivial as the dimension of x1−m can still be high. In principle, we can learn the joint probability q then sample from the conditional distributions 
+
+q(x1−m|xm) for any fixed m (see the next section). However, learning a high dimensional joint probability density function q is not trivial. Thus, we adopt the pseudo-likelihood approximation again: factorize q(x) over dimension-wise conditional probabilities and learn q(xj |x−j ) for every j.This dimension-wise conditional probability learning scheme not only makes the learning of the joint distribution easier but also solves the second issue as we can perform Gibbs sampling , one missing component at a time. This pseudo-likelihood approximation + Gibbs sampling strategy gives rise to the round-robin algorithms such as MICE and HyperImpute. Let fj be the density model of q(xj |x−j ), then the “MIRI MICE” performs the following algorithm. For t = 1 , . . . , T :1. ∀j, learn fj to approximate q(xj |x−j ).2. Let gt be a Gibbs sampler for q(x1−m|xm) using {fj }.3. X(t) impute 
+
+← X(t)(gt), t ← t + 1 .In practice, MICE interlaces first step and the later two steps, meaning a Gibbs sampling step and imputation is immediately performed after learning each fj . However, the sequential nature of Gibbs sampling prevent us from parallelizing this procedure for high-dimensional samples. 
+
+4.3 Contemporary Approaches: Learn Jointly, Sample/Inpaint Conditionally 
+
+Traditionally, learning a high-dimensional joint distribution q(x) is intractable due to its normalising constant. Recently, it was realized that one can learn a joint model q(x) without dealing with the normalising constant. [ 35 ] first estimates the joint model q via Score Matching [ 11 ] or Noise Contrastive Estimation [ 10 ] , then sample from q(x1−m|xm) via importance sampling. This method works well when x1−m is in a relatively low-dimensional space. [ 4] noticed that given a joint model q,this conditional sampling problem could be solved using Stein Variational Gradient Descent (SVGD) [ 19 ]. However, SVGD utilizes properties of RKHS function, and require kernel computations. Therefore, does not scale to high-dimensional datasets. 7(a) MIRI (b) HyperImpute (c) KnewImp (d) MMD and MI 
+
+Figure 1: Pairwise density plots of the imputed data and MMD/MI of MIRI. 
+
+Figure 2: MMD on UCI datasets with 60% data missing. The lower the better. In recent years, it is also realized that one can “inpaint” samples given a diffusion model trained on the joint samples [ 23 ]. This idea gives rise to DiffPuter [ 39 ], an imputer that trains a joint diffusion model to sample from q. Then use an inpainter to impute missing values given the observed vector 
+
+xm. However, an inpainter is not a standard backward process of diffusion dynamics, thus in general, it is not guaranteed to generate samples from q(x1−m|xm).
+
+# 5 Experiments 
+
+This section evaluates MIRI’s performance on a variety of imputation tasks. Details on experimental settings and implementations can be found in Appendix G. Additional results can be found in Appendix H. To ensure fair comparisons, we match model architectures across all methods wherever possible. For example, if our method uses CNN, we use the same architectures for other neural-network-based methods as well. Imputation methods aim to either predict the conditional mean E[X1−m|Xm], evaluated by metrics like MAE/RMSE, or learn to sample from the conditional distribution PX1−m|Xm , evaluated by the distributional fidelity. Our method, MIRI, is designed for the latter. Thus, we mostly evaluate the performance by using metrics that measure the distributional fidelity (such as MMD [9]). 
+
+5.1 Toy Example: Assessing Imputation Quality Using MMD and Mutual Information 
+
+In this section, we showcase the performance of the proposed MIRI imputer on a toy example that is a mixture of 2-dimensional Gaussian: X∗ ∼ 0.5N ([ −2, −2] , 0.52I) + 0 .5N ([2 , 2] , 0.52I). The missingness mask is generated as M ∼ Qdj=1 Bernoulli Mj (0 .7) , i.e., 30% of the data is Missing Completely at Random. We draw 6000 i.i.d. samples from PX∗ and PM to create missing obser-vations. The imputed samples are visualized in the pairwise density plots in Figure 1. We choose HyperImpute [ 12 ] and KnewImp [ 4] as comparisons. It can be seen that MIRI not only captures the bimodal structure of the true data but also preserves the proportion of the two modes. On the other hand, HyperImpute and KnewImp fail to recover the correct proportion of the two modes. We also show performance metrics (MAE, RMSE, MMD) with various other imputation algorithms (such as MissDiff, GAIN, TabCSDI [ 42 ]) in Table 5 in the Appendix H.1. Finally, in Figure 1(d), we show that both MIRI’s MMD and MI decrease over iterations, proving that MI between the imputed data and the missingness mask is a good criterion for assessing how well the imputed data recovers PX∗ .8Table 2: Quantitative results on CIFAR-10. Methods are evaluated at three levels of missingness (20%, 40%, 60%) using FID, PSNR, and SSIM. The best results are highlighted in bold. 20% Missingness 40% Missingness 60% Missingness                                                       
+
+> Method FID ( ↓)PSNR ( ↑)SSIM ( ↑)FID ( ↓)PSNR ( ↑)SSIM ( ↑)FID ( ↓)PSNR ( ↑)SSIM ( ↑)GAIN [38] 164.11 21.21 0.7803 281.62 16.20 0.5576 285.53 11.99 0.2933 KnewImp [4] 153.09 18.84 0.6463 193.68 15.81 0.4740 264.40 14.04 0.3317 MissDiff [27] 90.51 22.29 0.7702 129.84 19.65 0.6648 197.91 16.78 0.4989 HyperImpute [12] 8.92 34.09 0.9750 65.01 23.22 0.7931 130.36 20.17 0.6533
+> MIRI (Ours*) 6.01 32.29 0.9736 27.53 27.14 0.9126 68.58 23.22 0.8063
+
+5.2 Real-World Tabular Imputation: UCI Regression Benchmarks 
+
+Table 1: Aggregated MMD rankings for UCI (40% missingness) across 10 datasets. Lower is better.                         
+
+> Method MCAR MAR MNAR
+> TabCSDI [42] 6.4 6.4 6.1 GAIN [38] 6.2 6.2 5.9 TDM [41] 4.5 4.4 4.2 KnewImp [4] 4.1 4.2 3.8 MIWAE [24] 3.0 2.9 2.8 HyperImpute [12] 1.6 1.5 1.6
+> MIRI (Ours*) 1.4 2.0 1.3
+
+We evaluate MIRI on 10 standard UCI regression bench-marks [ 13 ]. We select these datasets for their diversity in sample size and dimensionality (see Table 4 in Appendix G.1). Following [ 26 ], we simulate missingness under MCAR/MAR/MNAR mechanisms. We simulate 20%, 40%, and 60% missingness for MCAR and MNAR, and 40% and 80% for MAR. For the MAR mechanism, the missingness mask is conditioned on a randomly selected 50% of the variables. In the main paper, we compare our method with HyperImpute, KnewImp, TabCSDI, GAIN, MIWAE [24], and TDM [41]. Figure 2 reports the average MMD over 10 trials (error bars denote one standard deviation). As shown, even in the 60% missing data cases, MIRI outperforms or performs comparably to all competitors. We aggregate performance using mean rank across 10 datasets. As shown in Table 1 for the 40% missingness setting, MIRI attains the best mean rank under MCAR and MNAR settings and is highly competitive under MAR setting. Comprehensive results, including performance across all specified missingness levels and comparisons with an extended set of baseline methods, are deferred to Appendix H.2. 
+
+5.3 Real-World Image Imputation: CIFAR-10 and CelebA Benchmarks 
+
+Table 3: Accuracy of 10-class CIFAR-10 classification on imputed data at varying missingness. Higher is better. 
+
+Method 20% 40% 60% 
+
+KnewImp [4] 0.267 0.137 0.106 GAIN [38] 0.337 0.133 0.096 MissDiff [27] 0.486 0.269 0.152 HyperImpute [12] 0.804 0.405 0.212 
+
+MIRI (Ours*) 0.812 0.525 0.364 
+
+We assess MIRI on high-dimensional image datasets. First, on CIFAR-10 [ 14 ] (32 ×32 RGB), we train us-ing only 5 000 samples (<10% of the full set) with 60% of pixels randomly removed (all RGB channels jointly). Figure 3(a) compares MIRI’s 60% missingness reconstructions against generative approaches (GAIN, KnewImp, MissDiff). Table 2 reports FID, PSNR, and SSIM at 20%, 40%, and 60% missingness, showing MIRI strongly outperforms the best generative alterna-tives across this range, even in challenging cases. See Appendix H.3 for additional results, and Table 3 for downstream classification results. Second, we test MIRI on higher-resolution CelebA [ 22 ] (64 ×64 RGB) with 5 000 samples, using a mechanism that masks each RGB channel independently. Figure 3(b) again substantiates MIRI’s strong imputation performance. 
+
+# 6 Limitations and Future Works 
+
+Despite the competitive results, MIRI has several limitations that open avenues for future work. 9(a) 15 uncurated 32 ×32 CIFAR-10 images and their imputations. Pixels are removed from all RGB channels . 
+
+> (b) 15 uncurated 64 ×64 CelebA images and their imputations. Pixels are removed from each RGB channel independently .
+
+Figure 3: Comparison of imputed samples on CIFAR-10 and CelebA with 60% of missingness. A primary limitation is computational intensity. Each MIRI iteration requires running a full rectified flow algorithm, including training a velocity field and solving the corresponding ODE. One interesting future work is to incorporate recent distillation methods to accelerate sample generation. Our Theorem 1 is a population-level result, meaning it assumes the optimal velocity field v∗ is obtained and the imputation ODE is solved exactly. It does not consider errors due to finite sample approximation, optimisation and inaccurate ODE solver. Extending our theoretical results to the finite-sample optimal ˆv and the approximate imputation ODE solver (like the Euler method) is another avenue for future works. A more fundamental limitation is that our objective, which minimizes the mutual information between the data and the mask, is not designed for Missing Not at Random (MNAR) scenarios where the missingness mechanism depends on the true values. This is a common challenge for many modern imputation frameworks, and extending our method to handle such cases is a crucial direction. Finally, MIRI could be extended to a self-supervised framework for time-series. By training on artificially masked, fully-observed sequences, we could learn a general-purpose imputation vector field. The key advantage here is flexibility: because MIRI’s vector fields are agnostic to missingness patterns, this approach could yield a single, pre-trained foundation model for robust, general-purpose time-series imputation and forecasting. 
+
+# 7 Conclusion 
+
+In this work, we introduced Mutual Information Reducing Iterations (MIRI), a framework that reduces data-mask dependency by iteratively minimizing D[ PX(t)(g),M∥PX(t−1) ⊗ PM]. We proved that MIRI decreases mutual information I( X; M). The optimal imputer is constructed by solving an ODE trained with a rectified flow objective. We also showed that existing imputation methods such as GAIN are approximate special cases of this approach. Empirically, MIRI also demonstrated strong distributional fidelity across synthetic, tabular, and image benchmarks. 10 Acknowledgments 
+
+We thank the four anonymous reviewers and the area chair for their insightful comments and suggestions. SL thanks Josh Givens, Sam Power, Katarzyna Reluga and other colleagues at Bristol Mathematics for helpful discussions. Partial funding for this work was provided by the University of Bristol School of Mathematics Summer Research Bursary 2024; JY was funded by the Alumni Foundation, and LW by the Heilbronn Institute for Mathematical Research. JY also acknowledges support from the Scholar Award and the ED Davies Travel Fund, provided by the Neural Information Processing Foundation and the Fitzwilliam College, University of Cambridge, respectively. Partial computational resources were provided by the Advanced Computing Research Centre at the University of Bristol ( https://www.bristol.ac.uk/acrc/ ). 
+
+# References 
+
+[1] M. I. Belghazi, A. Baratin, S. Rajeshwar, S. Ozair, Y. Bengio, A. Courville, and D. Hjelm. Mutual information neural estimation. In Proceedings of International Conference on Machine Learning , 2018. [2] J. Besag. Statistical analysis of non-lattice data. The Statistician , pages 179–195, 1975. [3] A. Brini and E. R. van den Heuvel. Missing data imputation with high-dimensional data. The American Statistician , 78(2):240–252, 2024. [4] Z. Chen, H. Li, F. Wang, O. Zhang, H. Xu, X. Jiang, Z. Song, and H. Wang. Rethinking the diffusion models for missing data imputation: A gradient flow perspective. In Advances in Neural Information Processing Systems , 2024. [5] V. De Bortoli, J. Thornton, J. Heng, and A. Doucet. Diffusion Schrödinger bridge with applications to score-based generative modeling. In Advances in Neural Information Processing Systems , 2021. [6] L. Dinh, D. Krueger, and Y. Bengio. NICE: Non-linear independent components estimation. In 3rd International Conference on Learning Representations, ICLR 2015, Workshop Track Proceedings , 2015. [7] M. D. Donsker and S. R. S. Varadhan. Asymptotic evaluation of certain markov process expectations for large time, i. Communications on Pure and Applied Mathematics , 28(1):1–47, 1975. [8] I. Goodfellow, J. Pouget-Abadie, M. Mirza, B. Xu, D. Warde-Farley, S. Ozair, A. Courville, and Y. Bengio. Generative adversarial nets. In Advances in Neural Information Processing Systems , 2014. [9] A. Gretton, K. M. Borgwardt, M. J. Rasch, B. Schölkopf, and A. Smola. A kernel two-sample test. Journal of Machine Learning Research , 13(1):723–773, 2012. [10] M. Gutmann and A. Hyvärinen. Noise-contrastive estimation: A new estimation principle for unnormalized statistical models. In Proceedings of International Conference on Artificial Intelligence and Statistics ,2010. [11] A. Hyvärinen. Estimation of non-normalized statistical models by score matching. Journal of Machine Learning Research , 6:695–709, 2005. [12] D. Jarrett, B. Cebere, T. Liu, A. Curth, and M. van der Schaar. HyperImpute: Generalized iterative imputation with automatic model selection. In Proceedings of International Conference on Machine Learning , 2022. [13] M. Kelly, R. Longjohn, and K. Nottingham. UCI machine learning repository. Available at: https: //archive.ics.uci.edu/ml , 2017. (Accessed: 16 May 2025). [14] A. Krizhevsky, V. Nair, and G. Hinton. CIFAR-10 and CIFAR-100 datasets. Available at: https: //www.cs.toronto.edu/~kriz/cifar.html , 2009. (Accessed: 16 May 2025). [15] H. S. Laqueur, A. B. Shev, and R. M. C. Kagawa. SuperMICE: An ensemble machine learning approach to multiple imputation by chained equations. American Journal of Epidemiology , 191(3):516–525, Mar. 2022. [16] J. Li, A. Madry, J. Peebles, and L. Schmidt. On the limitations of first-order approximation in GAN dynamics. In Proceedings of International Conference on Machine Learning , 2018. [17] Y. Lipman, R. T. Q. Chen, H. Ben-Hamu, M. Nickel, and M. Le. Flow matching for generative modeling. In International Conference on Learning Representations , 2023. 
+
+11 [18] R. J. A. Little and D. B. Rubin. Statistical analysis with missing data . John Wiley & Sons, 2019. [19] Q. Liu and D. Wang. Stein variational gradient descent: A general purpose bayesian inference algorithm. In Advances in Neural Information Processing Systems , 2016. [20] S. Liu, J. Yu, J. Simons, M. Yi, and M. Beaumont. Minimizing f -divergences by interpolating velocity fields. In Proceedings of International Conference on Machine Learning , 2024. [21] X. Liu, C. Gong, and Q. Liu. Flow straight and fast: Learning to generate and transfer data with rectified flow. In International Conference on Learning Representations , 2023. [22] Z. Liu, P. Luo, X. Wang, and X. Tang. Deep learning face attributes in the wild. In Proceedings of International Conference on Computer Vision (ICCV) , 2015. [23] A. Lugmayr, M. Danelljan, A. Romero, F. Yu, R. Timofte, and L. Van Gool. RePaint: Inpainting using denoising diffusion probabilistic models. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 2022. [24] P.-A. Mattei and J. Frellsen. Miwae: Deep generative modelling and imputation of incomplete data sets. In 
+
+Proceedings of International Conference on Machine Learning , 2019. [25] N. Meinshausen and P. Bühlmann. High-dimensional graphs and variable selection with the Lasso. Annals of Statistics , 34(3):1436–1462, June 2006. [26] B. Muzellec, J. Josse, C. Boyer, and M. Cuturi. Missing data imputation using optimal transport. In 
+
+Proceedings of International Conference on Machine Learning , 2020. [27] Y. Ouyang, L. Xie, C. Li, and G. Cheng. MissDiff: Training diffusion models on tabular data with missing values. In ICML 2023 Workshop on Structured Probabilistic Inference & Generative Modeling , 2023. [28] P. Ravikumar, M. J. Wainwright, and J. D. Lafferty. High-dimensional Ising model selection using 
+
+ℓ1-regularized logistic regression. Annals of Statistics , 38(3):1287–1319, 2010. [29] D. J. Rezende and S. Mohamed. Variational inference with normalizing flows. In Proceedings of International Conference on Machine Learning , 2015. [30] T. W. Richardson, W. Wu, L. Lin, B. Xu, and E. A. Bernal. McFlow: Monte Carlo flow models for data imputation. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 2020. [31] D. B. Rubin. Inference and missing data. Biometrika , 63(3):581–592, 1976. [32] Y. Song and S. Ermon. Generative modeling by estimating gradients of the data distribution. In Advances in Neural Information Processing Systems , 2019. [33] Y. Song, J. Sohl-Dickstein, D. Kingma, K. A., S. Ermon, and B. Poole. Score-based generative modeling through stochastic differential equations. In International Conference on Learning Representations , 2021. [34] D. J. Stekhoven and P. Bühlmann. MissForest—non-parametric missing value imputation for mixed-type data. Bioinformatics , 28(1):112–118, 2012. [35] M. Uehara, T. Matsuda, and J. K. Kim. Imputation estimators for unnormalized models with missing data. In Proceedings of International Conference on Artificial Intelligence and Statistics , 2020. [36] K. I. Vaden, M. Gebregziabher, S. E. Kuchinsky, and M. A. Eckert. Multiple imputation of missing fMRI data in whole brain analysis. Neuroimage , 60(3):1843–1855, 2012. [37] S. van Buuren and K. Groothuis-Oudshoorn. MICE: Multivariate imputation by chained equations in R. 
+
+Journal of Statistical Software , 45(3):1–67, 2011. [38] J. Yoon, J. Jordon, and M. Schaar. GAIN: Missing data imputation using generative adversarial nets. In 
+
+Proceedings of International Conference on Machine Learning , 2018. [39] H. Zhang, L. Fang, Q. Wu, and P. S. Yu. DiffPuter: An EM-driven diffusion model for missing data imputation. In International Conference on Learning Representations , 2025. [40] Z. Zhang, M. Li, and J. Yu. On the convergence and mode collapse of GAN. In SIGGRAPH Asia 2018 Technical Briefs , SA ’18, pages 1–4, New York, NY, USA, 2018. Association for Computing Machinery. [41] H. Zhao, K. Sun, A. Dezfouli, and E. V. Bonilla. Transformed distribution matching for missing value imputation. In Proceedings of International Conference on Machine Learning , 2023. [42] S. Zheng and N. Charoenphakdee. Diffusion models for missing value imputation in tabular data. In 
+
+NeurIPS Table Representation Learning (TRL) Workshop , 2022. 
+
+12 A Illustration of Sequential Imputation 
+
+Figure 4: Schematic of the sequential imputation algorithm. The process begins with an initial imputation, X(0) , and iteratively refines the missing values over T steps. Figure 4 illustrates the sequential imputation framework, where a model is iteratively trained to refine estimates for missing data. 
+
+# B Proof of Proposition 1 
+
+Proof. Consider the difference between the mutual information at iteration t and t − 1:
+
+D
+
+h
+
+P(t)
+
+> X,M
+
+∥P(t) 
+
+> X
+
+⊗ PM
+
+i
+
+− D PX(t−1) ,M∥PX(t−1) ⊗ PM
+
+
+
+= D 
+
+h
+
+P(t)
+
+> X,M
+
+∥P(t) 
+
+> X
+
+⊗ PM
+
+i
+
+− D
+
+h
+
+P(t)
+
+> X,M
+
+∥PX(t−1) ⊗ PM
+
+i| {z }
+
+> A
+
++ D 
+
+h
+
+P(t)
+
+> X,M
+
+∥PX(t−1) ⊗ PM
+
+i
+
+− D PX(t−1) ,M∥PX(t−1) ⊗ PM
+
+| {z }
+
+> B
+
+.
+
+(16) Since D PX(t)(g),M∥PX(t−1) ⊗ PM
+
+ is minimized at gt and X(t) = X(t)(gt) by definition, 
+
+D
+
+h
+
+P(t)
+
+> X,M
+
+∥PX(t−1) ⊗ PM
+
+i
+
+≤ D PX(t)(g),M∥PX(t−1) ⊗ PM
+
+ , ∀g. (17) Moreover, D PX(t−1) ,M∥PX(t−1) ⊗ PM
+
+ = D PX(t)(g),M∥PX(t−1) ⊗ PM
+
+ |g=Identity , so B is non-positive. To show A is non-positive, we write out the KL-divergences in A. Let p(x, m) be the density of (X(t), M) and q(x) be the density of X(t−1) .
+
+D
+
+h
+
+P(t)
+
+> X,M
+
+∥P(t) 
+
+> X
+
+⊗ PM
+
+i
+
+− D
+
+h
+
+P(t)
+
+> X,M
+
+∥PX(t−1) ⊗ PM
+
+i
+
+(18) 
+
+=E
+
+
+
+log p(X(t), M)
+
+p(X(t))p(M)
+
+
+
+− E
+
+
+
+log p(X(t), M)
+
+q(X(t))p(M)
+
+
+
+(19) 
+
+= − E
+
+h
+
+log p(X(t))
+
+i
+
++ E
+
+h
+
+log q(X(t))
+
+i
+
+≤ 0, (20) where the last inequality is due to the Gibbs inequality. Thus, A + B ≤ 0 as desired. 
+
+# C Proof of Theorem 1 
+
+Proof. First, we introduce the following lemma, based on the marginal preserving property of rectified flow. 13 Lemma 1. The imputation ODE with the initial condition given in (10) , i.e., 
+
+Z0
+
+> d
+
+= X0,1−m| { X0,m = xm, M0 = m} (21) 
+
+has a solution at the terminal time τ = 1 , Z1
+
+> d
+
+= X1,1−m| { X1,m = xm} , for every fixed x, m.
+
+See the Appendix D for the proof. Now we derive the main result. Lemma 1 shows that under the initial condition, the solution Z1 is 
+
+Z1
+
+> d
+
+= X1,1−m| { X1,m = xm}
+
+= X(t−1) 1−m |
+
+n
+
+X(t−1)  
+
+> m
+
+= xm
+
+o
+
+(22) Moreover, Z1 is also our imputer gt, so by construction (9), 
+
+Z1
+
+> d
+
+= X(t)
+
+> g∗,m
+
+|
+
+n
+
+X(t−1) 1−m = x1−m, M0 = m
+
+o
+
+. (23) Combining (23) and (22), we obtain the following equality 
+
+PX(t)  
+
+> g∗,1−m|X(t−1)
+> m=xm,M=m
+
+= PX(t−1) 1−m |X(t−1)   
+
+> m=xm
+
+. (24) The imputation ODE does not change observed components where mj = 1 , so X(t−1)  
+
+> m
+
+= X(t) 
+
+> m
+
+. We have 
+
+PX(t)  
+
+> g∗,1−m|X(t−1)
+> m=xm,M=m
+
+= PX(t) 
+
+> g∗,1−m|X(t)
+> m=xm,M=m
+
+. (25) (24) and (25) imply that pg∗ (·| xm, m) = q(·| xm). According to Proposition 2, we have shown that 
+
+g∗ is an optimal imputer that minimizes D PX(t)(g),M∥PX(t−1) ⊗ PM
+
+.
+
+# D Proof of Lemma 1 
+
+Definition 1. For fixed values y, u, v, m, the event Ξ is defined as 
+
+Ξ( u, w, m) = {X0,m = u, X1,m = w, M0 = m}. (26) 
+
+and the optimal solution of (8) is 
+
+v∗
+
+> m
+
+(y, u, w, m, τ ) := E
+
+h ˙Xτ, 1−m Xτ, 1−m = y, Ξ( u, w, m)
+
+i
+
+. (27) 
+
+We denote the density of random variable Xτ, 1−m|Ξ( u, w, m) as pτ (y|u, w, m).
+
+Lemma 2. p0(y|u, w, m) = p0(y|u, m) and p1(y|u, w, m) = p1(y|w).Proof. We can see that due to the independence X1 ⊥⊥ (X0, M0),
+
+X0,1−m|X0,m, X1,m, M0 = X0,1−m|X0,m, M0, (28) hence the first equality holds. What’s more, 
+
+X1,1−m|X0,m, X1,m, M0 = X1,1−m|X1,m, (29) hence the second equality holds. 
+
+Lemma 3. The density function pτ (y|u, w, m) satisfies the continuity equation 
+
+∂τ pτ (y|u, w, m) + ∇y ·
+
+
+
+pτ (y|u, w, m) v∗(y, u, w, m, τ )
+
+
+
+= 0 (30) 14 Proof. Consider the following expectation: 
+
+Eh(Xτ, 1−m)|Ξ( u, w, m) =
+
+Z
+
+> Rd1−m
+
+h(y) pτ (y|u, w, m) d y (31) whose time derivative is 
+
+∂τ Eh(Xτ, 1−m)|Ξ( u, w, m) =
+
+Z
+
+h(y) ∂τ pτ (y|u, w, m) d y. (32) On the other hand, we can see that Xτ is a deterministic function of X0 and X1, thus using the law of unconscious statistician: 
+
+∂τ Eh(Xτ, 1−m)|Ξ( u, w, m) (33) 
+
+=∂τ EX0,X1
+
+h(Xτ, 1−m)|Ξ( u, w, m) (34) 
+
+=EX0,X1
+
+∂τ h(Xτ, 1−m)|Ξ( u, w, m) (35) 
+
+=E∂τ h(Xτ, 1−m)|Ξ( u, w, m). (36) Expanding the previous expression using the chain rule, 
+
+∂τ Eh(Xτ, 1−m)|Ξ( u, w, m) (37) 
+
+=E∂τ h(Xτ, 1−m)|Ξ( u, w, m) (38) 
+
+=E
+
+h
+
+∇h(Xτ, 1−m)⊤ ˙Xτ, 1−m Ξ( u, w, m)
+
+i
+
+(39) 
+
+=E
+
+h
+
+E∇h(Xτ, 1−m)⊤ ˙Xτ, 1−m Xτ, 1−m; Ξ( u, w, m) Ξ( u, w, m)
+
+i
+
+(40) 
+
+=E
+
+h
+
+∇h(Xτ, 1−m)⊤ E ˙Xτ, 1−m Xτ, 1−m; Ξ( u, w, m) Ξ( u, w, m)
+
+i
+
+(41) 
+
+=
+
+Z
+
+∇h(y)⊤ v∗(y, u, w, m, τ ) pτ (y|u, w, m) d y (42) 
+
+= −
+
+Z
+
+h(y) ∇· 
+
+
+
+v∗(y, u, w, m, τ ) pτ (y|u, w, m)
+
+
+
+dy (43) where the last equality by performing integration by parts on the right-hand side (with respect to y). Now we equate the two representations ((32) and (43)) for ∂τ E[h(Xτ, 1−m)|Ξ( u, w, m)] :
+
+Z
+
+h(y) ∂τ pτ (y|u, w, m) d y = −
+
+Z
+
+h(y) ∇· 
+
+
+
+v∗(y, u, w, m, τ ) pτ (y|u, w, m)
+
+
+
+dy. (44) Since this equality holds for every smooth, compactly supported test function h(y), the fundamental lemma of the calculus of variations implies that, 
+
+∂τ pτ (y|u, w, m) + ∇· 
+
+
+
+v∗(y, u, w, m, τ ) pτ (y|u, w, m)
+
+
+
+= 0 . (45) We can see that v∗ satisfies the continuity equation for a time-varying density function pτ .We can see that with the initial condition 
+
+Z0 = X0,1−m|Ξ( u, w, m),
+
+Lemma 3 says 
+
+Z1 = X1,1−m|Ξ( u, w, m).
+
+Using Lemma 2, we simplify Z0 and Z1 as 
+
+Z0 = X0,1−m| { X0,m = u, M0 = m} , Z1 = X1,1−m| { X1,m = w} .
+
+Letting u = w = xm, we obtain the desired results in Lemma 1. 15 E Proof of Proposition 2 
+
+Proof. Since the sequential imputer (3) never changes the observed part X(t) 
+
+> m
+
+nor the missing mask 
+
+M, we have 
+
+pg(x, m) = pg(x1−m|xm, m)p(xm, m), (46) where the marginal density p(xm, m) does not depend on g. Now we show that the KL divergence only depends on g through the KL divergence D[ pg(·| x1−m, m)|q(·| x1−m)] .
+
+D PX(t)(g),M∥PX(t−1) ⊗ PM
+
+ (47) 
+
+=E(x,m)∼(X(t) 
+
+> g,M)
+
+
+
+log pg(x, m)
+
+q(x)p(m)
+
+
+
+(48) 
+
+=E(x,m)∼(X(t) 
+
+> g,M)
+
+
+
+log pg(x1−m, xm, m)
+
+q(x1−m, xm)p(m)
+
+
+
+(49) 
+
+=E(x,m)∼(X(t) 
+
+> g,M)
+
+
+
+log pg(x1−m|xm, m)
+
+q(x1−m|xm)
+
+
+
++ E(x,m)∼(X(t) 
+
+> g,M)
+
+
+
+log p(xm, m)
+
+q(xm)p(m)
+
+
+
+(50) 
+
+= X
+
+> m∈{ 0,1}d
+
+p(m)Ex∼X(t) 
+
+> g|M=m
+
+
+
+log pg(x1−m|xm, m)
+
+q(x1−m|xm)
+
+
+
++ const . (51) 
+
+= X
+
+> m∈{ 0,1}d
+
+p(m)
+
+Z
+
+p(xm|m)D[ pg(x1−m|xm, m)∥q(x1−m|xm)]d xm
+
+| {z }
+
+> Ag
+
++const ., (52) where const . does not depend on g. The constant in (51) is due to the factorization (46): 
+
+E(x,m)∼(X(t) 
+
+> g,M)
+
+
+
+log p(xm, m)
+
+q(xm)p(m)
+
+
+
+= Ep(xm,m)Epg (x1−m|xm,m)
+
+
+
+log p(xm, m)
+
+q(xm)p(m)
+
+
+
+= const .
+
+(53) Assuming p(xm|m) is positive everywhere, Ag is minimized if and only if 
+
+D[ pg(x1−m|xm, m)|q(x1−m|xm)] = 0 . (54) The KL divergence D[ pg(x1−m|xm, m)∥q(x1−m|xm)] is zero if and only if 
+
+pg(x1−m|xm, m) = q(x1−m|xm). (55) Thus, if p(m) is strictly positive, D PX(t)(g),M∥PX(t−1) ⊗ PM
+
+ is minimized if and only if 
+
+pg(x1−m|xm, m) = q(x1−m|xm).
+
+# F Validity of MIRI under MAR Setting 
+
+Recall that we denote the observed components of a vector X as XM and the missing components as 
+
+X1−M. Under the Missing at Random (MAR) assumption, the goal is to minimize the conditional mutual information: 
+
+I[ X1−M(g); M|XM] = E(x,m)∼(X,M)
+
+
+
+log pg(x1−m, m|xm)
+
+pg(x1−m|xm)p(m|xm)
+
+
+
+. (56) Following a similar argument to the proof of Proposition 1, we can define an iterative algorithm to reduce this conditional mutual information. At each iteration t, we find the optimal imputer gt by solving: 
+
+gt ∈ arg min  
+
+> g
+
+E(x,m)∼(X(t) 
+
+> g,M)
+
+
+
+log pg(x1−m, m|xm)
+
+q(x1−m|xm)q(m|xm)
+
+
+
+, (57) where pg is the density corresponding to the distribution of (X(t) 
+
+> g
+
+, M), and q is the density of X(t−1) 
+
+from the previous iteration. 16 We now show that pg(x1−m|m, xm) = q(x1−m|xm) is a sufficient condition for g to be optimal. Analogous to the proof of Proposition 2, we can rewrite the objective function. Since the missingness mechanism is fixed and does not depend on the imputer g, we have p(m|xm) = q(m|xm). The objective then simplifies: 
+
+E(x,m)∼(X(t) 
+
+> g,M)
+
+
+
+log pg(x1−m, m|xm)
+
+q(x1−m|xm)q(m|xm)
+
+
+
+(58) 
+
+=E(x,m)∼(X(t) 
+
+> g,M)
+
+
+
+log pg(x1−m|m, xm)p(m|xm)
+
+q(x1−m|xm)q(m|xm)
+
+
+
+(59) 
+
+=E(x,m)∼(X(t) 
+
+> g,M)
+
+
+
+log pg(x1−m|m, xm)
+
+q(x1−m|xm)
+
+
+
+(60) 
+
+=E(m,xm)∼(M,XM)Ex1−m∼pg (·| m,xm)
+
+
+
+log pg(x1−m|m, xm)
+
+q(x1−m|xm)
+
+
+
+(61) 
+
+=E(m,xm)∼(M,XM)D[ pg(·| m, xm)∥q(·| xm)] . (62) The inner expectation is the KL divergence between the conditional distributions pg(x1−m|m, xm)
+
+and q(x1−m|xm). The KL divergence is non-negative and is minimized (to zero) if and only if the two distributions are equal: 
+
+pg(x1−m|m, xm) = q(x1−m|xm). (63) This demonstrates that the same optimality condition derived for the MCAR setting in Proposition 2 also holds under the MAR assumption. 
+
+# G Experimental Setup 
+
+This appendix provides all information necessary for reproducibility: datasets, evaluation protocol, and computational resources. The hyperparameter settings and its sensitivity studies can be found in our supplemental material. Hyperparameters were selected through a sensitivity analysis. The synthetic datasets used in this sensitivity study consist of 1000 samples and 20 features. A missing rate of 20% was applied to each dataset. The data types include Gaussian, Uniform Correlated, and Mixed (Gaussian and Uniform). The results indicate that MIRI is not sensitive to the hyperparameters selections. See our supplementary material for more details. 
+
+G.1 Datasets Synthetic Data. We generate N = 6 000 samples in R2 by drawing two equally-sized clusters of 
+
+n = 3 000 points each from isotropic Gaussians. One cluster is centered at (−2, −2) and the other at 
+
+(2 , 2) , both with standard deviation σ = 0 .5.
+
+UCI Regression Benchmarks. Table 4 lists the ten UCI datasets used. For each, we report sample size and feature dimensionality. Table 4: UCI datasets used in our study. 
+
+Dataset # Samples # Features 
+
+wine 1 599 11 
+
+energy 768 8
+
+parkinsons 5 875 20 
+
+stock 536 11 
+
+pumadyn32nm 8 192 32 
+
+housing 506 13 
+
+forest 517 12 
+
+bike 17 379 17 
+
+solar 1 066 10 
+
+gas 2 565 128 17 CIFAR-10. We randomly sample 5 000 32 ×32 RGB images and apply pixel-level MCAR masks at varying rates. All three colour channels of each missing pixel are masked. 
+
+CelebA. We randomly sample 5 000 64 ×64 RGB images and apply channel-level MCAR masks at varying rates. All three colour channels of each missing pixel are masked independently. 
+
+G.2 Evaluation Protocol 
+
+For each dataset, we generate ten independent MCAR masks and rerun the full training and imputation pipeline. Reported results are mean ± standard deviation over these runs. 
+
+G.3 Hyperparameter Selection 
+
+Values were chosen via sensitivity analysis. Complete settings and search ranges are provided in our supplemental material. MIRI exhibits low sensitivity to these choices. 
+
+G.4 Computational Resources Tabular Experiments. NVIDIA P100 GPU (16 GB), Intel Xeon E5-2680 v4 CPU (8 cores, 2.4 GHz), 24 GB RAM. 
+
+Image Experiments. NVIDIA RTX 3090 GPU (24 GB), Intel Xeon Gold 6330 CPU (14 cores, 2.0 GHz), 90 GB RAM. 
+
+G.5 Baseline Implementations 
+
+We evaluate HyperImpute , MICE , MIWAE , and Sinkhorn using the official HyperImpute reposi-tory with default settings. *
+
+We adapt the official implementations of KnewImp †, TabCSDI ‡, GAIN §, and TDM ¶ from their respective GitHub repositories. MissDiff is reimplemented based on the algorithm described in the original publication [27]. All baselines use default hyperparameters unless otherwise stated. 
+
+# H Additional Experimental Results 
+
+H.1 Performance on Synthetic Data 
+
+We evaluate each imputation method using three criteria, computed only on entries originally masked under the MCAR mechanism: (1) Root Mean Square Error (RMSE); (2) Mean Absolute Error (MAE); (3) Maximum Mean Discrepancy (MMD). Table 5 reports the mean ± standard deviation over ten independent MCAR masks (30% missing). Overall, HyperImpute is optimal when minimizing per-entry error, achieving roughly 8% lower RMSE and 14% lower MAE than MIRI. In contrast, MIRI reduces MMD by more than 60% relative to HyperImpute, thereby better preserving the underlying data distribution despite a modest increase in point-wise error. MissDiff offers a balanced trade-off, whereas GAIN, TabCSDI, and KnewImp underperform on both fronts. 
+
+H.2 Additional UCI Regression Experiments 
+
+We comprehensively evaluate imputation performance on ten UCI regression benchmarks under MCAR, MAR, and MNAR settings (Figures 5, 6, and 7). In some high-dimensional or high-missingness scenarios, certain baselines failed; for example, HyperImpute produced runtime errors 
+
+> *https://github.com/vanderschaarlab/hyperimpute .
+> †https://github.com/JustusvLiebig/NewImp .
+> ‡https://github.com/pfnet-research/TabCSDI .
+> §https://github.com/jsyoon0823/GAIN .
+> ¶https://github.com/hezgit/TDM .
+
+18 Table 5: Performance metrics at 30% missingness. Metrics computed over 10 runs; values denote mean ± standard deviation. The best values are highlighted in bold. 
+
+Method RMSE ( ↓) MAE ( ↓) MMD ( ↓)
+
+GAIN 1.128 ± 0.004 0.600 ± 0.002 0.342 ± 0.015 
+
+TabCSDI 1.128 ± 0.004 0.600 ± 0.002 0.337 ± 0.010 
+
+KnewImp 1.130 ± 0.004 0.600 ± 0.002 0.335 ± 0.009 
+
+MissDiff 0.951 ± 0.008 0.437 ± 0.004 0.189 ± 0.009 
+
+HyperImpute 0.862 ± 0.020 0.278 ± 0.006 0.094 ± 0.018 
+
+MIRI (Ours*) 0.938 ± 0.022 0.325 ± 0.009 0.036 ± 0.007 
+
+Figure 5: MCAR MMD on 10 UCI datasets (Above: 20% missingness, Middle: 40% missingness, Below: 60 % missingness). The lower the better. and MIWAE encountered out-of-memory (OOM) errors. The results confirm that MIRI consistently delivers strong distributional fidelity, remains robust under high missing rates, and scales effectively to high-dimensional datasets. 
+
+H.3 Additional CIFAR-10 Experiments 
+
+We evaluate the imputation quality of MIRI, GAIN, KnewImp, and HyperImpute on 15 randomly selected CIFAR-10 images corrupted under pixel-level MCAR with missing rates of 20%, 40% and 60% (see Figures 8(a), 8(b) and 8(c)). Across all missing-data regimes, MIRI consistently produces accurate, visually coherent reconstructions, in agreement with the quantitative metrics in Table 2. Although HyperImpute achieves competitive performance at 20% missingness, MIRI outperforms it at both 40% and 60% missingness. 19 Figure 6: MAR MMD on 10 UCI datasets (Above: 40% missingness, Below: 80 % missingness). The lower the better. 
+
+Figure 7: MNAR MMD on 10 UCI datasets (Above: 20% missingness, Middle: 40% missingness, Below: 60 % missingness). The lower the better. 20 (a) 15 uncurated 32 ×32 CIFAR-10 images and their imputations. 20% of pixels randomly removed from all RGB channels .  
+
+> (b) 15 uncurated 32 ×32 CIFAR-10 images and their imputations. 40% of pixels randomly removed from all RGB channels .
+> (c) 15 uncurated 32 ×32 CIFAR-10 images and their imputations. 60% of pixels randomly removed from all RGB channels .
+
+# I Computational Time 
+
+Computational cost matters in high dimensions. MIRI is end-to-end vectorized (“vector in, vector out”) and exploits parallel hardware common in image/tabular pipelines, whereas round-robin methods such as MICE and HyperImpute [ 12 , 37 ] are inherently sequential and scale poorly with dimensionality. 
+
+Wall-clock runtimes. Table 6 reports mean ± std hours to impute 1000 samples across dimension-alities. We include diffusion-style baselines (DiffPuter [ 39 ], TabCSDI [ 42 ]), round-robin (HyperIm-pute), distribution-matching (MOT [ 26 ], TDM [ 41 ]) and VAE (MIWAE [ 24 ]). MIRI is on par with diffusion-based methods and substantially faster than round-robin in high dimensions. On CIFAR-10 (5k images, 60% missing), HyperImpute did not finish within a 24h budget on our PyTorch+CUDA setup, while MIRI finished in ≈3.5h on the same hardware. 
+
+# J Euler ODE Solver 
+
+In this section, we provide the Euler solver used in our experiments. 21 Table 6: Average computation time (hours) for 1000 samples across dimensions (mean ±std). 
+
+Method 50d 200d 500d 1000d 2000d 5000d 
+
+HyperImpute 0.08 ± 0.03 0.23 ± 0.02 1.18 ± 0.51 3.84 ± 0.99 11 .65 ± 3.34 57 .54 ± 0.00 
+
+TabCSDI 0.18 ± 0.00 0.20 ± 0.01 0.26 ± 0.00 0.36 ± 0.00 0.53 ± 0.01 1.10 ± 0.01 
+
+DiffPuter 2.30 ± 0.01 3.22 ± 0.18 5.06 ± 0.01 7.70 ± 0.05 12 .40 ± 0.21 29 .10 ± 0.00 
+
+MIWAE 0.11 ± 0.00 0.30 ± 0.00 0.90 ± 0.03 2.02 ± 0.01 OOM OOM MOT 0.31 ± 0.00 0.33 ± 0.00 0.36 ± 0.00 0.38 ± 0.00 0.49 ± 0.02 0.56 ± 0.00 
+
+TDM 0.32 ± 0.00 0.55 ± 0.00 1.30 ± 0.02 3.30 ± 0.04 13 .90 ± 0.83 OOM 
+
+MIRI (Ours*) 0.17 ± 0.00 0.21 ± 0.00 0.28 ± 0.02 0.37 ± 0.02 0.59 ± 0.02 1.30 ± 0.01 
+
+Algorithm 2 ODE Solver with Euler Method 
+
+Require: Velocity field v, Initial condition {(Xi, Mi)}, Number of Euler steps N .
+
+1: for k = 1 to N do 
+
+2: τ = kN
+
+3: ∀i, Xi ← Xi + 1
+
+N · v(Xi, Mi, τ )
+
+4: end for 
+
+5: return {Xi}
+
+22 NeurIPS Paper Checklist 
+
+1. Claims 
+
+Question: Do the main claims made in the abstract and introduction accurately reflect the paper’s contributions and scope? Answer: [Yes] Justification: The abstract and introduction list concrete contributions (MIRI, rectified-flow imputer, relationships to existing methods, empirical validation) and clearly state scope and assumptions. Guidelines: • The answer NA means that the abstract and introduction do not include the claims made in the paper. • The abstract and/or introduction should clearly state the claims made, including the contributions made in the paper and important assumptions and limitations. A No or NA answer to this question will not be perceived well by the reviewers. • The claims made should match theoretical and experimental results, and reflect how much the results can be expected to generalize to other settings. • It is fine to include aspirational goals as motivation as long as it is clear that these goals are not attained by the paper. 2. Limitations 
+
+Question: Does the paper discuss the limitations of the work performed by the authors? Answer: [Yes] Justification: The “Conclusion and Future Works” section explicitly covers computational cost, population-vs-finite-sample gaps, and challenges under MNAR. Guidelines: • The answer NA means that the paper has no limitation while the answer No means that the paper has limitations, but those are not discussed in the paper. • The authors are encouraged to create a separate "Limitations" section in their paper. • The paper should point out any strong assumptions and how robust the results are to violations of these assumptions (e.g., independence assumptions, noiseless settings, model well-specification, asymptotic approximations only holding locally). The authors should reflect on how these assumptions might be violated in practice and what the implications would be. • The authors should reflect on the scope of the claims made, e.g., if the approach was only tested on a few datasets or with a few runs. In general, empirical results often depend on implicit assumptions, which should be articulated. • The authors should reflect on the factors that influence the performance of the approach. For example, a facial recognition algorithm may perform poorly when image resolution is low or images are taken in low lighting. Or a speech-to-text system might not be used reliably to provide closed captions for online lectures because it fails to handle technical jargon. • The authors should discuss the computational efficiency of the proposed algorithms and how they scale with dataset size. • If applicable, the authors should discuss possible limitations of their approach to address problems of privacy and fairness. • While the authors might fear that complete honesty about limitations might be used by reviewers as grounds for rejection, a worse outcome might be that reviewers discover limitations that aren’t acknowledged in the paper. The authors should use their best judgment and recognize that individual actions in favor of transparency play an impor-tant role in developing norms that preserve the integrity of the community. Reviewers will be specifically instructed to not penalize honesty concerning limitations. 3. Theory assumptions and proofs 
+
+Question: For each theoretical result, does the paper provide the full set of assumptions and a complete (and correct) proof? 23 Answer: [Yes] Justification: Propositions/Theorem are stated with assumptions; full proofs are provided in the appendix. Guidelines: • The answer NA means that the paper does not include theoretical results. • All the theorems, formulas, and proofs in the paper should be numbered and cross-referenced. • All assumptions should be clearly stated or referenced in the statement of any theorems. • The proofs can either appear in the main paper or the supplemental material, but if they appear in the supplemental material, the authors are encouraged to provide a short proof sketch to provide intuition. • Inversely, any informal proof provided in the core of the paper should be complemented by formal proofs provided in appendix or supplemental material. • Theorems and Lemmas that the proof relies upon should be properly referenced. 4. Experimental result reproducibility 
+
+Question: Does the paper fully disclose all the information needed to reproduce the main ex-perimental results of the paper to the extent that it affects the main claims and/or conclusions of the paper (regardless of whether the code and data are provided or not)? Answer: [Yes] Justification: Datasets, masking schemes (MCAR/MAR/MNAR), metrics, protocols (10 runs; mean ±sd), baselines and their sources, and compute details are documented. Code link provided. Guidelines: • The answer NA means that the paper does not include experiments. • If the paper includes experiments, a No answer to this question will not be perceived well by the reviewers: Making the paper reproducible is important, regardless of whether the code and data are provided or not. • If the contribution is a dataset and/or model, the authors should describe the steps taken to make their results reproducible or verifiable. • Depending on the contribution, reproducibility can be accomplished in various ways. For example, if the contribution is a novel architecture, describing the architecture fully might suffice, or if the contribution is a specific model and empirical evaluation, it may be necessary to either make it possible for others to replicate the model with the same dataset, or provide access to the model. In general. releasing code and data is often one good way to accomplish this, but reproducibility can also be provided via detailed instructions for how to replicate the results, access to a hosted model (e.g., in the case of a large language model), releasing of a model checkpoint, or other means that are appropriate to the research performed. • While NeurIPS does not require releasing code, the conference does require all submis-sions to provide some reasonable avenue for reproducibility, which may depend on the nature of the contribution. For example (a) If the contribution is primarily a new algorithm, the paper should make it clear how to reproduce that algorithm. (b) If the contribution is primarily a new model architecture, the paper should describe the architecture clearly and fully. (c) If the contribution is a new model (e.g., a large language model), then there should either be a way to access this model for reproducing the results or a way to reproduce the model (e.g., with an open-source dataset or instructions for how to construct the dataset). (d) We recognize that reproducibility may be tricky in some cases, in which case authors are welcome to describe the particular way they provide for reproducibility. In the case of closed-source models, it may be that access to the model is limited in some way (e.g., to registered users), but it should be possible for other researchers to have some path to reproducing or verifying the results. 24 5. Open access to data and code 
+
+Question: Does the paper provide open access to the data and code, with sufficient instruc-tions to faithfully reproduce the main experimental results, as described in supplemental material? Answer: [Yes] Justification: The repository URL is given in the abstract; appendix outlines datasets and baselines. Guidelines: • The answer NA means that paper does not include experiments requiring code. • Please see the NeurIPS code and data submission guidelines ( https://nips.cc/ public/guides/CodeSubmissionPolicy ) for more details. • While we encourage the release of code and data, we understand that this might not be possible, so “No” is an acceptable answer. Papers cannot be rejected simply for not including code, unless this is central to the contribution (e.g., for a new open-source benchmark). • The instructions should contain the exact command and environment needed to run to reproduce the results. See the NeurIPS code and data submission guidelines ( https: //nips.cc/public/guides/CodeSubmissionPolicy ) for more details. • The authors should provide instructions on data access and preparation, including how to access the raw data, preprocessed data, intermediate data, and generated data, etc. • The authors should provide scripts to reproduce all experimental results for the new proposed method and baselines. If only a subset of experiments are reproducible, they should state which ones are omitted from the script and why. • At submission time, to preserve anonymity, the authors should release anonymized versions (if applicable). • Providing as much information as possible in supplemental material (appended to the paper) is recommended, but including URLs to data and code is permitted. 6. Experimental setting/details 
+
+Question: Does the paper specify all the training and test details (e.g., data splits, hyper-parameters, how they were chosen, type of optimizer, etc.) necessary to understand the results? Answer: [Yes] Justification: Appendix “Experimental Setup” gives dataset sizes, masking rates, protocol, hardware; sensitivity study noted. (Optimizers/learning rates are to be in the repo.) Guidelines: • The answer NA means that the paper does not include experiments. • The experimental setting should be presented in the core of the paper to a level of detail that is necessary to appreciate the results and make sense of them. • The full details can be provided either with the code, in appendix, or as supplemental material. 7. Experiment statistical significance 
+
+Question: Does the paper report error bars suitably and correctly defined or other appropriate information about the statistical significance of the experiments? Answer: [Yes] Justification: Results are reported as mean ±sd over 10 runs; bar plots include error bars; variability sources are the random masks/seeds. Guidelines: • The answer NA means that the paper does not include experiments. • The authors should answer "Yes" if the results are accompanied by error bars, confi-dence intervals, or statistical significance tests, at least for the experiments that support the main claims of the paper. 25 • The factors of variability that the error bars are capturing should be clearly stated (for example, train/test split, initialization, random drawing of some parameter, or overall run with given experimental conditions). • The method for calculating the error bars should be explained (closed form formula, call to a library function, bootstrap, etc.) • The assumptions made should be given (e.g., Normally distributed errors). • It should be clear whether the error bar is the standard deviation or the standard error of the mean. • It is OK to report 1-sigma error bars, but one should state it. The authors should preferably report a 2-sigma error bar than state that they have a 96% CI, if the hypothesis of Normality of errors is not verified. • For asymmetric distributions, the authors should be careful not to show in tables or figures symmetric error bars that would yield results that are out of range (e.g. negative error rates). • If error bars are reported in tables or plots, The authors should explain in the text how they were calculated and reference the corresponding figures or tables in the text. 8. Experiments compute resources 
+
+Question: For each experiment, does the paper provide sufficient information on the com-puter resources (type of compute workers, memory, time of execution) needed to reproduce the experiments? Answer: [Yes] Justification: Dedicated subsection lists GPUs/CPUs/RAM; a runtime table vs. dimensional-ity is included. Guidelines: • The answer NA means that the paper does not include experiments. • The paper should indicate the type of compute workers CPU or GPU, internal cluster, or cloud provider, including relevant memory and storage. • The paper should provide the amount of compute required for each of the individual experimental runs as well as estimate the total compute. • The paper should disclose whether the full research project required more compute than the experiments reported in the paper (e.g., preliminary or failed experiments that didn’t make it into the paper). 9. Code of ethics 
+
+Question: Does the research conducted in the paper conform, in every respect, with the NeurIPS Code of Ethics https://neurips.cc/public/EthicsGuidelines ?Answer: [Yes] Justification: No human subjects; standard public datasets; no foreseeable harmful use beyond typical generative modeling caveats. Guidelines: • The answer NA means that the authors have not reviewed the NeurIPS Code of Ethics. • If the authors answer No, they should explain the special circumstances that require a deviation from the Code of Ethics. • The authors should make sure to preserve anonymity (e.g., if there is a special consid-eration due to laws or regulations in their jurisdiction). 10. Broader impacts 
+
+Question: Does the paper discuss both potential positive societal impacts and negative societal impacts of the work performed? Answer: [Yes] Justification: Broader impacts are discussed in the “Introduction” section. Guidelines: • The answer NA means that there is no societal impact of the work performed. 26 • If the authors answer NA or No, they should explain why their work has no societal impact or why the paper does not address societal impact. • Examples of negative societal impacts include potential malicious or unintended uses (e.g., disinformation, generating fake profiles, surveillance), fairness considerations (e.g., deployment of technologies that could make decisions that unfairly impact specific groups), privacy considerations, and security considerations. • The conference expects that many papers will be foundational research and not tied to particular applications, let alone deployments. However, if there is a direct path to any negative applications, the authors should point it out. For example, it is legitimate to point out that an improvement in the quality of generative models could be used to generate deepfakes for disinformation. On the other hand, it is not needed to point out that a generic algorithm for optimizing neural networks could enable people to train models that generate Deepfakes faster. • The authors should consider possible harms that could arise when the technology is being used as intended and functioning correctly, harms that could arise when the technology is being used as intended but gives incorrect results, and harms following from (intentional or unintentional) misuse of the technology. • If there are negative societal impacts, the authors could also discuss possible mitigation strategies (e.g., gated release of models, providing defenses in addition to attacks, mechanisms for monitoring misuse, mechanisms to monitor how a system learns from feedback over time, improving the efficiency and accessibility of ML). 11. Safeguards 
+
+Question: Does the paper describe safeguards that have been put in place for responsible release of data or models that have a high risk for misuse (e.g., pretrained language models, image generators, or scraped datasets)? Answer: [NA] Justification: No high-risk models or sensitive datasets are released; scope is standard imputation on public benchmarks. Guidelines: • The answer NA means that the paper poses no such risks. • Released models that have a high risk for misuse or dual-use should be released with necessary safeguards to allow for controlled use of the model, for example by requiring that users adhere to usage guidelines or restrictions to access the model or implementing safety filters. • Datasets that have been scraped from the Internet could pose safety risks. The authors should describe how they avoided releasing unsafe images. • We recognize that providing effective safeguards is challenging, and many papers do not require this, but we encourage authors to take this into account and make a best faith effort. 12. Licenses for existing assets 
+
+Question: Are the creators or original owners of assets (e.g., code, data, models), used in the paper, properly credited and are the license and terms of use explicitly mentioned and properly respected? Answer: [Yes] Justification: We use only public datasets (UCI, CIFAR-10, and CelebA), which have appropriate licenses/terms of use; citations are provided in the paper. Guidelines: • The answer NA means that the paper does not use existing assets. • The authors should cite the original paper that produced the code package or dataset. • The authors should state which version of the asset is used and, if possible, include a URL. • The name of the license (e.g., CC-BY 4.0) should be included for each asset. 27 • For scraped data from a particular source (e.g., website), the copyright and terms of service of that source should be provided. • If assets are released, the license, copyright information, and terms of use in the package should be provided. For popular datasets, paperswithcode.com/datasets 
+
+has curated licenses for some datasets. Their licensing guide can help determine the license of a dataset. • For existing datasets that are re-packaged, both the original license and the license of the derived asset (if it has changed) should be provided. • If this information is not available online, the authors are encouraged to reach out to the asset’s creators. 13. New assets 
+
+Question: Are new assets introduced in the paper well documented and is the documentation provided alongside the assets? Answer: [Yes] Justification: The codebase is announced; include a README with environment, commands, and license in the repo. Guidelines: • The answer NA means that the paper does not release new assets. • Researchers should communicate the details of the dataset/code/model as part of their submissions via structured templates. This includes details about training, license, limitations, etc. • The paper should discuss whether and how consent was obtained from people whose asset is used. • At submission time, remember to anonymize your assets (if applicable). You can either create an anonymized URL or include an anonymized zip file. 14. Crowdsourcing and research with human subjects 
+
+Question: For crowdsourcing experiments and research with human subjects, does the paper include the full text of instructions given to participants and screenshots, if applicable, as well as details about compensation (if any)? Answer: [NA] Justification: No human subjects or crowdsourcing were used. Guidelines: • The answer NA means that the paper does not involve crowdsourcing nor research with human subjects. • Including this information in the supplemental material is fine, but if the main contribu-tion of the paper involves human subjects, then as much detail as possible should be included in the main paper. • According to the NeurIPS Code of Ethics, workers involved in data collection, curation, or other labor should be paid at least the minimum wage in the country of the data collector. 15. Institutional review board (IRB) approvals or equivalent for research with human subjects 
+
+Question: Does the paper describe potential risks incurred by study participants, whether such risks were disclosed to the subjects, and whether Institutional Review Board (IRB) approvals (or an equivalent approval/review based on the requirements of your country or institution) were obtained? Answer: [NA] Justification: No human subjects research. Guidelines: • The answer NA means that the paper does not involve crowdsourcing nor research with human subjects. 28 • Depending on the country in which research is conducted, IRB approval (or equivalent) may be required for any human subjects research. If you obtained IRB approval, you should clearly state this in the paper. • We recognize that the procedures for this may vary significantly between institutions and locations, and we expect authors to adhere to the NeurIPS Code of Ethics and the guidelines for their institution. • For initial submissions, do not include any information that would break anonymity (if applicable), such as the institution conducting the review. 16. Declaration of LLM usage 
+
+Question: Does the paper describe the usage of LLMs if it is an important, original, or non-standard component of the core methods in this research? Note that if the LLM is used only for writing, editing, or formatting purposes and does not impact the core methodology, scientific rigorousness, or originality of the research, declaration is not required. Answer: [NA] Justification: The technical contributions do not rely on LLMs. Guidelines: • The answer NA means that the core method development in this research does not involve LLMs as any important, original, or non-standard components. • Please refer to our LLM policy ( https://neurips.cc/Conferences/2025/LLM )for what should or should not be described. 29

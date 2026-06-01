@@ -1,21 +1,21 @@
 ---
 title: "S$^2$M-Former: Spiking Symmetric Mixing Branchformer for Brain Auditory Attention Detection"
-title_zh: S²M-Former：面向脑听觉注意力检测的尖峰对称混合分支变换器
+title_zh: S2M-Former：脉冲对称混合分支变换器用于脑听觉注意力检测
 authors: "Jiaqi Wang, Zhengyu Ma, Xiongri Shen, Chenlin Zhou, Leilei Zhao, Han Zhang, Yi Zhong, Siqi Cai, Zhenxi Song, Zhiguo Zhang"
 date: 2025-09-18
 pdf: "https://openreview.net/pdf?id=WtMuGdHvh6"
 tags: ["query:eeg"]
-score: 8.0
-evidence: 使用EEG进行听觉注意力检测，与基于EEG的BCI相关
-tldr: "S²M-Former提出尖峰驱动对称混合架构，用于EEG听觉注意力检测。模型包含并行空间和频率分支，通过令牌-通道混合器高效融合特征。在多个数据集上达到最高检测准确率，且能耗仅为传统方法的10%。尖峰神经元的生物合理性使其具备能量效率优势，同时保持高精度。该工作为低功耗神经助听设备提供了关键技术。"
+score: 6.0
+evidence: EEG听觉注意力检测
+tldr: 基于EEG的听觉注意力检测在神经导向助听器中至关重要。本文提出S2M-Former，一种脉冲驱动对称混合框架，利用并行空间和频率分支以及生物合理的词元-通道混合器，高效提取EEG特征。实验证明其在能耗约束下实现了先进的检测性能。
 source: NeurIPS-2025-Accepted
 selection_source: conference_retrieval
 figures_json: "[{\"url\": \"assets/figures/openreview/openreview-neurips-2025-wtmugdhvh6/fig-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 661, \"height\": 321, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-wtmugdhvh6/fig-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 1444, \"height\": 1102, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-wtmugdhvh6/fig-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 571, \"height\": 969, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-wtmugdhvh6/fig-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1438, \"height\": 492, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-wtmugdhvh6/fig-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 630, \"height\": 783, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-wtmugdhvh6/fig-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 1451, \"height\": 390, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-wtmugdhvh6/fig-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 584, \"height\": 503, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-wtmugdhvh6/fig-008.webp\", \"caption\": \"\", \"page\": 0, \"index\": 8, \"width\": 635, \"height\": 538, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-wtmugdhvh6/fig-009.webp\", \"caption\": \"\", \"page\": 0, \"index\": 9, \"width\": 698, \"height\": 451, \"label\": \"Figure\"}]"
 tables_json: "[{\"url\": \"assets/tables/openreview/openreview-neurips-2025-wtmugdhvh6/table-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1441, \"height\": 213, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-wtmugdhvh6/table-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 1402, \"height\": 788, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-wtmugdhvh6/table-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1402, \"height\": 781, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-wtmugdhvh6/table-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1441, \"height\": 430, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-wtmugdhvh6/table-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 942, \"height\": 315, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-wtmugdhvh6/table-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 946, \"height\": 263, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-wtmugdhvh6/table-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 1383, \"height\": 570, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-wtmugdhvh6/table-008.webp\", \"caption\": \"\", \"page\": 0, \"index\": 8, \"width\": 1438, \"height\": 413, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-wtmugdhvh6/table-009.webp\", \"caption\": \"\", \"page\": 0, \"index\": 9, \"width\": 1438, \"height\": 422, \"label\": \"Table\"}]"
-motivation: 现有EEG听觉注意力检测缺乏高效融合互补特征的框架。
-method: 设计尖峰驱动对称架构，并行处理空间和频率特征，通过令牌-通道混合器实现。
-result: 在公开数据集上达到最优检测准确率，同时能效显著优于传统方法。
-conclusion: S2M-Former为低功耗神经助听设备提供了可行的方案。
+motivation: 现有EEG听觉注意力检测缺乏能效约束下充分利用互补特征的框架。
+method: 提出脉冲驱动对称架构，包括并行空间和频率分支，使用生物启发式混合器。
+result: 在低能耗条件下实现先进的听觉注意力检测性能。
+conclusion: 生物启发脉冲网络可提升EEG解码的能效与性能。
 ---
 
 ## Abstract

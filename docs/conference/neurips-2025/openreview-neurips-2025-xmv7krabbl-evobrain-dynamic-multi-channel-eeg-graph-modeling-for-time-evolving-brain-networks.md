@@ -1,21 +1,21 @@
 ---
 title: "EvoBrain: Dynamic Multi-Channel EEG Graph Modeling for Time-Evolving Brain Networks"
-title_zh: EvoBrain：用于时变脑网络的动态多通道EEG图建模
+title_zh: EvoBrain：面向时间演化脑网络的动态多通道EEG图建模
 authors: "Rikuto Kotoge, Zheng Chen, Tasuku Kimura, Yasuko Matsubara, Takufumi Yanagisawa, Haruhiko Kishima, Yasushi Sakurai"
 date: 2025-09-18
 pdf: "https://openreview.net/pdf?id=XmV7KRABBl"
 tags: ["query:eeg"]
-score: 6.0
-evidence: 动态多通道EEG图建模用于癫痫检测
-tldr: 现有动态图方法大多采用固定静态图，无法反映癫痫发作过程中的脑连接演变。本文提出EvoBrain，通过构建时变图捕获EEG时空动态，实现更准确的癫痫检测。实验结果表明其性能优于静态图基线，为脑网络分析提供了新工具。
+score: 4.0
+evidence: 动态多通道EEG图建模用于脑网络分析
+tldr: 现有动态图神经网络在处理EEG时通常使用静态图，无法反映癫痫发作过程中脑连接的演化。本文提出EvoBrain，一种动态多通道EEG图建模方法，能同时建模时序信号和图结构的动态交互，在癫痫检测任务上取得一致性提升。
 source: NeurIPS-2025-Accepted
 selection_source: conference_retrieval
 figures_json: "[{\"url\": \"assets/figures/openreview/openreview-neurips-2025-xmv7krabbl/fig-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1424, \"height\": 789, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-xmv7krabbl/fig-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 678, \"height\": 344, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-xmv7krabbl/fig-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 663, \"height\": 480, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-xmv7krabbl/fig-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1426, \"height\": 405, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-xmv7krabbl/fig-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 1349, \"height\": 387, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-xmv7krabbl/fig-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 1420, \"height\": 718, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-xmv7krabbl/fig-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 1445, \"height\": 328, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-xmv7krabbl/fig-008.webp\", \"caption\": \"\", \"page\": 0, \"index\": 8, \"width\": 1141, \"height\": 764, \"label\": \"Figure\"}]"
 tables_json: "[{\"url\": \"assets/tables/openreview/openreview-neurips-2025-xmv7krabbl/table-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1450, \"height\": 449, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-xmv7krabbl/table-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 1456, \"height\": 137, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-xmv7krabbl/table-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1451, \"height\": 299, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-xmv7krabbl/table-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 852, \"height\": 302, \"label\": \"Table\"}]"
-motivation: 静态图无法反映癫痫发作过程中脑连接的演化，现有动态图方法在时空交互建模上不足。
-method: 提出EvoBrain，利用动态图神经网络联合建模EEG时空特征和时变脑网络结构。
-result: 在癫痫检测任务上，EvoBrain相比静态图方法取得显著性能提升。
-conclusion: EvoBrain展示了考虑脑网络动态演化对EEG分析的重要性，为动态脑状态建模提供了有效方法。
+motivation: 现有动态GNN方法无法完全捕捉癫痫发作过程中脑连接随时间演化的动态特性。
+method: 提出动态多通道EEG图建模框架，联合建模时序信号和动态图结构。
+result: 在癫痫检测上表现优于静态图方法，性能一致稳定。
+conclusion: 该方法为EEG时空动态建模提供了有效工具。
 ---
 
 ## Abstract

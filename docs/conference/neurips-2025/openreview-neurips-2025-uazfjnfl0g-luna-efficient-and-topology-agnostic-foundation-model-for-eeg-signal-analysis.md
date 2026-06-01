@@ -1,21 +1,21 @@
 ---
 title: "LUNA: Efficient and Topology-Agnostic Foundation Model for EEG Signal Analysis"
-title_zh: LUNA：高效且拓扑无关的EEG信号分析基础模型
+title_zh: LUNA：高效且拓扑无关的脑电信号分析基础模型
 authors: "Berkay Döner, Thorir Mar Ingolfsson, Luca Benini, Yawei Li"
 date: 2025-09-18
 pdf: "https://openreview.net/pdf?id=uazfjnFL0G"
 tags: ["query:eeg-latent"]
 score: 9.0
-evidence: 提出拓扑无关的EEG潜在空间表示，直接匹配EEG潜在空间表示需求
-tldr: LUNA提出拓扑无关的EEG基础模型，通过可学习查询和交叉注意力将任意通道数的EEG压缩为固定维度潜在空间，计算复杂度线性增长。在五个数据集上验证了跨布局泛化能力，并在分类和回归任务上达到最优性能。自监督预训练使其无需大量标注数据，可快速适配下游任务。该模型为异构EEG数据统一分析提供了高效方案。
+evidence: 通过交叉注意力将多通道EEG压缩为拓扑无关的潜在空间
+tldr: 本文针对EEG数据电极布局异构导致模型泛化难的问题，提出LUNA：一种自监督基础模型，通过可学习查询和交叉注意力将任意电极排布的多通道脑电压缩为固定大小的拓扑无关潜在表示。下游模块仅在该潜在空间上操作，实现了线性计算复杂度。实验表明LUNA在多个跨数据集任务上达到领先性能，为EEG潜在表征和缺失通道重建提供了统一框架。
 source: NeurIPS-2025-Accepted
 selection_source: conference_retrieval
 figures_json: "[{\"url\": \"assets/figures/openreview/openreview-neurips-2025-uazfjnfl0g/fig-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1439, \"height\": 701, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-uazfjnfl0g/fig-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 1443, \"height\": 1159, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-uazfjnfl0g/fig-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1444, \"height\": 618, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-uazfjnfl0g/fig-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1416, \"height\": 373, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-uazfjnfl0g/fig-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 789, \"height\": 590, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-uazfjnfl0g/fig-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 1143, \"height\": 910, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-uazfjnfl0g/fig-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 789, \"height\": 588, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-uazfjnfl0g/fig-008.webp\", \"caption\": \"\", \"page\": 0, \"index\": 8, \"width\": 786, \"height\": 585, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-uazfjnfl0g/fig-009.webp\", \"caption\": \"\", \"page\": 0, \"index\": 9, \"width\": 903, \"height\": 720, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-uazfjnfl0g/fig-010.webp\", \"caption\": \"\", \"page\": 0, \"index\": 10, \"width\": 1443, \"height\": 616, \"label\": \"Figure\"}]"
 tables_json: "[{\"url\": \"assets/tables/openreview/openreview-neurips-2025-uazfjnfl0g/table-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1396, \"height\": 655, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-uazfjnfl0g/table-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 1265, \"height\": 854, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-uazfjnfl0g/table-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1298, \"height\": 602, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-uazfjnfl0g/table-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1433, \"height\": 299, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-uazfjnfl0g/table-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 1289, \"height\": 1257, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-uazfjnfl0g/table-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 951, \"height\": 614, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-uazfjnfl0g/table-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 1388, \"height\": 267, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-uazfjnfl0g/table-008.webp\", \"caption\": \"\", \"page\": 0, \"index\": 8, \"width\": 1279, \"height\": 223, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-uazfjnfl0g/table-009.webp\", \"caption\": \"\", \"page\": 0, \"index\": 9, \"width\": 834, \"height\": 525, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-uazfjnfl0g/table-010.webp\", \"caption\": \"\", \"page\": 0, \"index\": 10, \"width\": 850, \"height\": 526, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-uazfjnfl0g/table-011.webp\", \"caption\": \"\", \"page\": 0, \"index\": 11, \"width\": 1449, \"height\": 260, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-uazfjnfl0g/table-012.webp\", \"caption\": \"\", \"page\": 0, \"index\": 12, \"width\": 852, \"height\": 132, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-uazfjnfl0g/table-013.webp\", \"caption\": \"\", \"page\": 0, \"index\": 13, \"width\": 1444, \"height\": 206, \"label\": \"Table\"}]"
-motivation: 现有EEG模型因电极布局多样而难以推广，亟需统一拓扑的表示。
-method: 使用交叉注意力将任意通道数EEG压缩为固定维度的潜在表示，支持线性复杂度。
-result: 在多个数据集上验证了泛化能力和效率，任务性能达到领先水平。
-conclusion: LUNA为EEG领域提供了一种可扩展、拓扑无关的基础模型框架。
+motivation: 现有EEG模型受限于固定电极布局，难以跨数据集泛化。
+method: 使用可学习查询和交叉注意力将多通道EEG映射到固定大小潜在空间，再通过分块时间自注意力处理。
+result: 在多个公共EEG数据集上，LUNA在下游分类和重建任务中表现优异，且计算复杂度与通道数线性相关。
+conclusion: LUNA是一种可扩展的EEG基础模型，统一了异构电极配置下的表征学习。
 ---
 
 ## Abstract

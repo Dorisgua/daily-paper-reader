@@ -1,21 +1,21 @@
 ---
 title: Neural-Driven Image Editing
-title_zh: 神经驱动图像编辑
+title_zh: 神经驱动的图像编辑
 authors: "Pengfei Zhou, Jie Xia, Xiaopeng Peng, Wangbo Zhao, Zilong Ye, Zekai Li, Suorong Yang, Jiadong Pan, Yuanxiang Chen, Ziqiao Wang, Kai Wang, Qian Zheng, Xiaojun Chang, Gang Pan, Shurong Dong, Kaipeng Zhang, Yang You"
 date: 2025-09-18
 pdf: "https://openreview.net/pdf?id=UAc6RL9Tt4"
-tags: ["query:eeg-latent"]
+tags: ["query:eeg"]
 score: 4.0
-evidence: 使用EEG信号和潜在空间表示进行生成任务
-tldr: "该论文提出LoongX，一种基于EEG等多模态生理信号的无手图像编辑方法。利用扩散模型和跨尺度状态空间模块从EEG信号中提取潜在表示，实现用户意图捕捉。方法涉及EEG信号的深度学习处理和潜在空间编码，但目标为图像编辑而非EEG信号重建或通道补全。在包含EEG的23,928对图像编辑数据集上训练，验证了方法的有效性。"
+evidence: 使用脑电图信号进行脑机接口驱动的图像编辑
+tldr: 针对传统图像编辑依赖手动操作、对运动障碍者不友好的问题，提出LoongX，一种由多模态神经生理信号（包括EEG）驱动的免手操作图像编辑方法。采用扩散模型在23828个图像编辑对上训练，利用跨尺度状态空间模块处理信号异质性。实验表明该方法能有效从EEG等信号中解码用户意图，实现高质量的图像编辑，为人机交互和辅助技术提供了新途径。
 source: NeurIPS-2025-Accepted
 selection_source: conference_retrieval
 figures_json: "[{\"url\": \"assets/figures/openreview/openreview-neurips-2025-uac6rl9tt4/fig-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1241, \"height\": 591, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-uac6rl9tt4/fig-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 1413, \"height\": 743, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-uac6rl9tt4/fig-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1388, \"height\": 712, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-uac6rl9tt4/fig-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 669, \"height\": 597, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-uac6rl9tt4/fig-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 696, \"height\": 666, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-uac6rl9tt4/fig-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 810, \"height\": 789, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-uac6rl9tt4/fig-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 1439, \"height\": 1251, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-uac6rl9tt4/fig-008.webp\", \"caption\": \"\", \"page\": 0, \"index\": 8, \"width\": 1386, \"height\": 544, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-uac6rl9tt4/fig-009.webp\", \"caption\": \"\", \"page\": 0, \"index\": 9, \"width\": 1443, \"height\": 418, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-uac6rl9tt4/fig-010.webp\", \"caption\": \"\", \"page\": 0, \"index\": 10, \"width\": 1434, \"height\": 2103, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-uac6rl9tt4/fig-011.webp\", \"caption\": \"\", \"page\": 0, \"index\": 11, \"width\": 1443, \"height\": 2092, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-uac6rl9tt4/fig-012.webp\", \"caption\": \"\", \"page\": 0, \"index\": 12, \"width\": 1437, \"height\": 1933, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-uac6rl9tt4/fig-013.webp\", \"caption\": \"\", \"page\": 0, \"index\": 13, \"width\": 1447, \"height\": 1058, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-uac6rl9tt4/fig-014.webp\", \"caption\": \"\", \"page\": 0, \"index\": 14, \"width\": 1445, \"height\": 928, \"label\": \"Figure\"}]"
 tables_json: "[{\"url\": \"assets/tables/openreview/openreview-neurips-2025-uac6rl9tt4/table-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1453, \"height\": 308, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-uac6rl9tt4/table-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 1420, \"height\": 337, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-uac6rl9tt4/table-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1470, \"height\": 657, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-uac6rl9tt4/table-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1443, \"height\": 701, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-uac6rl9tt4/table-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 1364, \"height\": 492, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-uac6rl9tt4/table-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 1335, \"height\": 301, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-uac6rl9tt4/table-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 1259, \"height\": 300, \"label\": \"Table\"}]"
-motivation: 传统图像编辑依赖手动提示，对运动障碍者不友好，亟需基于脑信号的交互方式。
-method: 构建LoongX框架，使用扩散模型结合EEG等多模态信号，通过跨尺度状态空间模块提取潜在表示驱动图像编辑。
-result: 在包含EEG的大规模数据集上训练，实现了有效的脑驱动图像编辑，展示了EEG潜在表示的能力。
-conclusion: 该工作开拓了EEG潜在表示在生成任务中的应用，但非直接针对通道补全。
+motivation: 传统图像编辑需要手动操作，对运动受限或语言能力差的个体不友好，因此提出基于BCI的免手编辑方法。
+method: 利用EEG、fNIRS等信号的扩散模型训练，结合跨尺度状态空间模块处理多模态信号异质性。
+result: 在大规模数据集上训练，证明了使用EEG等信号进行图像编辑的有效性。
+conclusion: LoongX展示了EEG在BCI驱动图像编辑中的潜力，提高了可访问性。
 ---
 
 ## Abstract

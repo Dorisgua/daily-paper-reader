@@ -1,21 +1,21 @@
 ---
 title: "REVE: A Foundation Model for EEG - Adapting to Any Setup with Large-Scale Pretraining on 25,000 Subjects"
-title_zh: REVE：面向EEG的基础模型——通过大规模预训练适应任意记录设置
+title_zh: "REVE：一种EEG基础模型——基于25,000名受试者大规模预训练适应任意设备配置"
 authors: "Yassine El Ouahidi, Jonathan Lys, Philipp Thölke, Nicolas Farrugia, Bastien Pasdeloup, Vincent Gripon, Karim Jerbi, Giulia Lioi"
 date: 2025-09-18
 pdf: "https://openreview.net/pdf?id=ZeFMtRBy4Z"
 tags: ["query:eeg-latent"]
 score: 9.0
-evidence: 提出具有通用嵌入和4D位置编码的EEG基础模型，生成潜在表示
-tldr: "REVE提出EEG基础模型，在25,000名受试者上预训练，采用4D位置编码统一异构EEG设备配置。该编码融合电极坐标、时间、频带和受试者信息，使模型可适应任意记录设置。在多个下游任务中，线性探测性能远超以往模型，且微调后达到新的最佳水平。大规模预训练数据覆盖多种协议和脑状态，确保了表示的鲁棒性。该工作为通用EEG表示学习设立了新基线。"
+evidence: EEG基础模型提供通用潜在表示
+tldr: "EEG数据异构性导致现有基础模型泛化能力差。本文提出REVE，一个基于25,000名受试者大规模预训练的EEG基础模型，通过创新的4D位置编码方案适应不同电极配置和采集协议。该模型能生成通用的EEG潜在表示，在下游任务中线性探测性能显著提升。REVE为EEG分析提供了统一的预训练基座。"
 source: NeurIPS-2025-Accepted
 selection_source: conference_retrieval
 figures_json: "[{\"url\": \"assets/figures/openreview/openreview-neurips-2025-zefmtrby4z/fig-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1352, \"height\": 539, \"label\": \"Figure\"}]"
 tables_json: "[{\"url\": \"assets/tables/openreview/openreview-neurips-2025-zefmtrby4z/table-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1419, \"height\": 463, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-zefmtrby4z/table-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 1453, \"height\": 916, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-zefmtrby4z/table-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1198, \"height\": 554, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-zefmtrby4z/table-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1456, \"height\": 441, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-zefmtrby4z/table-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 979, \"height\": 895, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-zefmtrby4z/table-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 905, \"height\": 225, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-zefmtrby4z/table-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 891, \"height\": 751, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-zefmtrby4z/table-008.webp\", \"caption\": \"\", \"page\": 0, \"index\": 8, \"width\": 1259, \"height\": 576, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-zefmtrby4z/table-009.webp\", \"caption\": \"\", \"page\": 0, \"index\": 9, \"width\": 1154, \"height\": 534, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-zefmtrby4z/table-010.webp\", \"caption\": \"\", \"page\": 0, \"index\": 10, \"width\": 1156, \"height\": 533, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-zefmtrby4z/table-011.webp\", \"caption\": \"\", \"page\": 0, \"index\": 11, \"width\": 1453, \"height\": 449, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-zefmtrby4z/table-012.webp\", \"caption\": \"\", \"page\": 0, \"index\": 12, \"width\": 1156, \"height\": 535, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-zefmtrby4z/table-013.webp\", \"caption\": \"\", \"page\": 0, \"index\": 13, \"width\": 1152, \"height\": 630, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-zefmtrby4z/table-014.webp\", \"caption\": \"\", \"page\": 0, \"index\": 14, \"width\": 1147, \"height\": 428, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-zefmtrby4z/table-015.webp\", \"caption\": \"\", \"page\": 0, \"index\": 15, \"width\": 1157, \"height\": 607, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-zefmtrby4z/table-016.webp\", \"caption\": \"\", \"page\": 0, \"index\": 16, \"width\": 1157, \"height\": 606, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-zefmtrby4z/table-017.webp\", \"caption\": \"\", \"page\": 0, \"index\": 17, \"width\": 1276, \"height\": 518, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-zefmtrby4z/table-018.webp\", \"caption\": \"\", \"page\": 0, \"index\": 18, \"width\": 908, \"height\": 282, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-zefmtrby4z/table-019.webp\", \"caption\": \"\", \"page\": 0, \"index\": 19, \"width\": 1329, \"height\": 363, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-zefmtrby4z/table-020.webp\", \"caption\": \"\", \"page\": 0, \"index\": 20, \"width\": 1399, \"height\": 285, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-zefmtrby4z/table-021.webp\", \"caption\": \"\", \"page\": 0, \"index\": 21, \"width\": 774, \"height\": 379, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-zefmtrby4z/table-022.webp\", \"caption\": \"\", \"page\": 0, \"index\": 22, \"width\": 1457, \"height\": 191, \"label\": \"Table\"}]"
-motivation: EEG数据集异构性阻碍基础模型泛化，现有方法局限于单一设置。
-method: 采用4D位置编码统一电极坐标、时间、频带和受试者信息，在大规模数据上预训练。
-result: 在多种任务和设置下实现领先性能，线性探测显著超越以往工作。
-conclusion: REVE为通用EEG表示学习提供了有效且可迁移的方案。
+motivation: 现有EEG基础模型因数据集异构性而泛化不足，限制预训练效果。
+method: 提出4D位置编码方案，在大规模异构EEG数据上预训练通用表示模型。
+result: 在多种EEG设置下线性探测性能显著优于现有方法。
+conclusion: 大规模预训练结合4D编码能有效解决EEG数据集异构性问题。
 ---
 
 ## Abstract

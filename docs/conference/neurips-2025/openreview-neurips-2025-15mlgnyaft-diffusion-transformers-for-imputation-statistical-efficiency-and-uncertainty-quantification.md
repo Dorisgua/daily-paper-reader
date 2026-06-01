@@ -1,21 +1,21 @@
 ---
 title: "Diffusion Transformers for Imputation: Statistical Efficiency and Uncertainty Quantification"
-title_zh: 用于插补的扩散Transformer：统计效率与不确定性量化
+title_zh: 用于插补的扩散变换器：统计效率与不确定性量化
 authors: "Zeqi Ye, Minshuo Chen"
 date: 2025-09-18
 pdf: "https://openreview.net/pdf?id=15mlgnyaFt"
 tags: ["query:eeg-latent"]
-score: 5.0
-evidence: 基于扩散的生成式时间序列插补方法
-tldr: 时间序列缺失值插补中，扩散生成方法已取得经验成功，但缺乏理论理解。本文研究条件扩散Transformer的统计效率，推导样本复杂度，并提供不确定性量化。方法在合成和真实数据上验证，为EEG等时间序列的缺失通道补全提供了可迁移的理论与工具支持。
+score: 7.0
+evidence: 扩散变换器插补方法可应用于EEG通道补全
+tldr: 本文针对时序数据中的缺失值问题，提出基于扩散变换器的插补方法，并从理论上分析其统计效率与不确定性量化能力。虽然实验在通用时序数据上进行，但其条件扩散模型可直接迁移至脑电通道补全任务，为生成式EEG缺失通道重建提供了理论支撑和实用框架。
 source: NeurIPS-2025-Accepted
 selection_source: conference_retrieval
 figures_json: "[{\"url\": \"assets/figures/openreview/openreview-neurips-2025-15mlgnyaft/fig-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1404, \"height\": 557, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-15mlgnyaft/fig-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 606, \"height\": 396, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-15mlgnyaft/fig-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1361, \"height\": 296, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-15mlgnyaft/fig-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1436, \"height\": 583, \"label\": \"Figure\"}]"
 tables_json: "[{\"url\": \"assets/tables/openreview/openreview-neurips-2025-15mlgnyaft/table-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1412, \"height\": 490, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-15mlgnyaft/table-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 791, \"height\": 95, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-15mlgnyaft/table-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 789, \"height\": 257, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-15mlgnyaft/table-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 795, \"height\": 754, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-15mlgnyaft/table-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 599, \"height\": 753, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-15mlgnyaft/table-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 1439, \"height\": 182, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-15mlgnyaft/table-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 1440, \"height\": 200, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-15mlgnyaft/table-008.webp\", \"caption\": \"\", \"page\": 0, \"index\": 8, \"width\": 1444, \"height\": 179, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-15mlgnyaft/table-009.webp\", \"caption\": \"\", \"page\": 0, \"index\": 9, \"width\": 1440, \"height\": 179, \"label\": \"Table\"}]"
-motivation: 扩散生成插补方法缺乏理论理解，尤其是对时空依赖的捕获能力。
-method: 分析条件扩散Transformer的统计效率，并推导样本复杂度。
-result: 理论证明扩散Transformer能有效捕获时空依赖，并在实验中验证。
-conclusion: 为基于扩散的插补提供了理论基础，可推广至EEG信号。
+motivation: 现有扩散模型插补方法缺乏理论理解，本文旨在填补这一空白，并提供可迁移的通用时序插补框架。
+method: 利用条件扩散变换器捕捉时空依赖，并推导样本复杂度与不确定性界。
+result: 理论分析证明了扩散模型在时序插补中的统计效率，实验验证了其优于传统方法。
+conclusion: 扩散变换器是一种有效的通用时序插补方法，可望用于EEG等领域的缺失值恢复。
 ---
 
 ## Abstract

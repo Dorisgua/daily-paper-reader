@@ -1,21 +1,21 @@
 ---
 title: Inference of Whole Brain Electrophysiological Networks Through Multimodal Integration of Simultaneous Scalp and Intracranial EEG
-title_zh: 通过同时头皮和颅内脑电图的多模态整合推断全脑电生理网络
+title_zh: 通过同步头皮和颅内脑电的多模态集成推断全脑电生理网络
 authors: "Shihao Yang, Feng Liu"
 date: 2025-09-18
 pdf: "https://openreview.net/pdf?id=6UAeCPQPwP"
 tags: ["query:eeg"]
 score: 7.0
-evidence: 从头皮和颅内脑电图推断全脑电生理网络
-tldr: 全脑电生理网络（WBEN）的表征对神经科学和临床应用至关重要。本文提出一个状态空间建模框架，结合头皮脑电图和颅内脑电图，通过期望最大化算法推断隐状态和脑连接。该方法能有效整合多模态脑电数据，生成连贯的全脑网络估计，为研究大规模脑动态提供了新工具。
+evidence: 从头皮和颅内EEG联合推断全脑电生理网络
+tldr: 全脑电生理网络的推断对于神经科学和临床重要，但现有方法难以融合头皮与颅内脑电。本文提出基于状态空间模型的框架，利用期望最大化算法联合推断网络状态和脑连通性，实现了更精确的全脑网络估计，为多模态EEG分析提供了新思路。
 source: NeurIPS-2025-Accepted
 selection_source: conference_retrieval
 figures_json: "[{\"url\": \"assets/figures/openreview/openreview-neurips-2025-6uaecpqpwp/fig-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1162, \"height\": 573, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-6uaecpqpwp/fig-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 794, \"height\": 478, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-6uaecpqpwp/fig-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 565, \"height\": 415, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-6uaecpqpwp/fig-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 804, \"height\": 295, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-6uaecpqpwp/fig-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 1230, \"height\": 358, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-6uaecpqpwp/fig-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 1380, \"height\": 1223, \"label\": \"Figure\"}]"
 tables_json: "[{\"url\": \"assets/tables/openreview/openreview-neurips-2025-6uaecpqpwp/table-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1370, \"height\": 122, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-6uaecpqpwp/table-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 1172, \"height\": 638, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-6uaecpqpwp/table-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1173, \"height\": 635, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-6uaecpqpwp/table-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1172, \"height\": 637, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-6uaecpqpwp/table-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 1172, \"height\": 427, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-6uaecpqpwp/table-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 1172, \"height\": 460, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-6uaecpqpwp/table-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 1175, \"height\": 446, \"label\": \"Table\"}]"
-motivation: 现有的脑成像研究需要从多模态脑电图数据中推断全脑电生理网络。
-method: 提出状态空间模型结合期望最大化算法，融合头皮和颅内脑电图进行网络推断。
-result: 在多模态脑电数据上成功估计了全脑电生理网络，验证了方法的有效性。
-conclusion: 为整合不同尺度的脑电图数据以研究脑网络动力学提供了一种统一框架。
+motivation: 需要整合头皮和颅内脑电来更好估计全脑电生理网络。
+method: 提出状态空间建模框架，利用EM算法融合头皮与颅内EEG推断脑网络。
+result: 在合成和真实数据上验证了网络估计的准确性。
+conclusion: 该方法为多模态EEG网络分析提供了有效框架。
 ---
 
 ## Abstract

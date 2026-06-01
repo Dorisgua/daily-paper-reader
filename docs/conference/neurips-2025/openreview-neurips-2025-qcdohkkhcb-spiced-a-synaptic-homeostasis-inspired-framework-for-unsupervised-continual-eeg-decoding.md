@@ -1,21 +1,21 @@
 ---
 title: "SPICED: A Synaptic Homeostasis-Inspired Framework for Unsupervised Continual EEG Decoding"
-title_zh: SPICED：受突触稳态启发的无监督持续脑电信号解码框架
+title_zh: SPICED：一种受突触稳态启发的无监督持续EEG解码框架
 authors: "Yangxuan Zhou, Sha Zhao, Jiquan Wang, Haiteng Jiang, Shijian Li, Tao Li, Gang Pan"
 date: 2025-09-18
 pdf: "https://openreview.net/pdf?id=qcdoHkkHcb"
 tags: ["query:eeg"]
-score: 7.0
-evidence: 受突触稳态启发的无监督持续EEG解码框架
-tldr: 实际场景中EEG解码面临新用户不断出现、个体差异大的挑战。本文受突触稳态机制启发，提出SPICED框架，通过关键记忆激活等生物机制实现动态网络扩展，在持续学习过程中保持稳定性-可塑性平衡。实验证明该方法能在无监督且持续的环境下有效解码EEG，适用于脑机接口。
+score: 6.0
+evidence: 无监督持续EEG解码
+tldr: 持续学习的EEG解码面临灾难性遗忘和个体差异问题。本文受突触稳态机制启发，提出SPICED框架，通过关键记忆重激活、动态网络扩展等生物启发机制，实现无监督的持续EEG解码。实验表明该方法能在持续接纳新受试者时保持良好性能，为自适应BCI提供了新范式。
 source: NeurIPS-2025-Accepted
 selection_source: conference_retrieval
 figures_json: "[{\"url\": \"assets/figures/openreview/openreview-neurips-2025-qcdohkkhcb/fig-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1441, \"height\": 383, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-qcdohkkhcb/fig-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 1452, \"height\": 739, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-qcdohkkhcb/fig-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1434, \"height\": 340, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-qcdohkkhcb/fig-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1451, \"height\": 320, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-qcdohkkhcb/fig-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 1445, \"height\": 721, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-qcdohkkhcb/fig-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 1441, \"height\": 730, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-qcdohkkhcb/fig-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 1439, \"height\": 657, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-qcdohkkhcb/fig-008.webp\", \"caption\": \"\", \"page\": 0, \"index\": 8, \"width\": 1441, \"height\": 657, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-qcdohkkhcb/fig-009.webp\", \"caption\": \"\", \"page\": 0, \"index\": 9, \"width\": 1445, \"height\": 249, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-qcdohkkhcb/fig-010.webp\", \"caption\": \"\", \"page\": 0, \"index\": 10, \"width\": 1435, \"height\": 655, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-qcdohkkhcb/fig-011.webp\", \"caption\": \"\", \"page\": 0, \"index\": 11, \"width\": 1433, \"height\": 658, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-qcdohkkhcb/fig-012.webp\", \"caption\": \"\", \"page\": 0, \"index\": 12, \"width\": 1441, \"height\": 656, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-qcdohkkhcb/fig-013.webp\", \"caption\": \"\", \"page\": 0, \"index\": 13, \"width\": 1447, \"height\": 540, \"label\": \"Figure\"}]"
 tables_json: "[{\"url\": \"assets/tables/openreview/openreview-neurips-2025-qcdohkkhcb/table-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1446, \"height\": 199, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-qcdohkkhcb/table-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 1448, \"height\": 282, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-qcdohkkhcb/table-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1446, \"height\": 400, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-qcdohkkhcb/table-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 876, \"height\": 764, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-qcdohkkhcb/table-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 873, \"height\": 688, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-qcdohkkhcb/table-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 1163, \"height\": 303, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-qcdohkkhcb/table-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 875, \"height\": 162, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-qcdohkkhcb/table-008.webp\", \"caption\": \"\", \"page\": 0, \"index\": 8, \"width\": 1445, \"height\": 334, \"label\": \"Table\"}]"
-motivation: 现有EEG解码方法难以适应持续出现的新用户，存在灾难性遗忘和无法无监督学习的问题。
-method: 提出神经形态框架SPICED，模拟突触稳态机制，通过关键记忆激活和动态网络扩展实现持续无监督学习。
-result: 在持续EEG解码任务中，SPICED在稳定性和可塑性之间取得有效平衡，性能优于现有方法。
-conclusion: SPICED为脑机接口中的持续适应问题提供了生物启发式解决方案，具有实际意义。
+motivation: 持续EEG解码面临灾难性遗忘和个体差异挑战。
+method: 受突触稳态启发，构建包含关键记忆重激活和动态扩展的脉冲网络。
+result: 在持续接纳新受试者时保持解码性能，缓解灾难性遗忘。
+conclusion: 生物启发的持续学习方法可提升EEG解码的自适应能力。
 ---
 
 ## Abstract
