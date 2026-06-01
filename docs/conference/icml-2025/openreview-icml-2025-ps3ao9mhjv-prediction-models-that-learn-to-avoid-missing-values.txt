@@ -1,0 +1,937 @@
+Title: Prediction Models That Learn to Avoid Missing Values
+
+URL Source: https://openreview.net/pdf?id=ps3aO9MHJv
+
+Number of Pages: 21
+
+Markdown Content:
+# Prediction Models That Learn to Avoid Missing Values 
+
+Lena Stempfle 1 * Anton Matsson 1 * Newton Mwai 1 Fredrik D. Johansson 1
+
+## Abstract 
+
+Handling missing values at test time is chal-lenging for machine learning models, especially when aiming for both high accuracy and inter-pretability. Established approaches often add bias through imputation or excessive model com-plexity via missingness indicators. Moreover, ei-ther method can obscure interpretability, making it harder to understand how the model utilizes the observed variables in predictions. We propose 
+
+missingness-avoiding (MA) machine learning, a general framework for training models to rarely require the values of missing (or imputed) fea-tures at test time. We create tailored MA learning algorithms for decision trees, tree ensembles, and sparse linear models by incorporating classifier-specific regularization terms in their learning ob-jectives. The tree-based models leverage contex-tual missingness by reducing reliance on miss-ing values based on the observed context. Exper-iments on real-world datasets demonstrate that 
+
+MA-DT, MA-LASSO, MA-RF , and MA-GBT 
+
+effectively reduce the reliance on features with missing values while maintaining predictive per-formance competitive with their unregularized counterparts. This shows that our framework gives practitioners a powerful tool to maintain in-terpretability in predictions with test-time miss-ing values. 
+
+## 1. Introduction 
+
+Missing values complicate the deployment of prediction models. In applications where humans provide inputs to models and read off their output, such as when using clin-ical risk scores, users must either assign values to un-observed variables or rely on the model to handle this. 
+
+> *
+
+Equal contribution 1Department of Computer Science and Engineering, Chalmers University of Technology and University of Gothenburg, SE-41296 Gothenburg, Sweden. Correspondence to: Lena Stempfle <stempfle@chalmers.se >.
+
+Proceedings of the 42 nd International Conference on Machine Learning , Vancouver, Canada. PMLR 267, 2025. Copyright 2025 by the author(s). F                                   
+
+> Age >65
+> n = 69.4% | ො𝜌 =0.89 n = 10.6% | ෝ𝜌 = 0
+> T
+> 𝑉 hlow
+> n = 80% | ො𝜌 = 0.77
+> Decision Tree MA Decision Tree
+> Pr (CI) = 0.20 Pr (CI) = 0.95
+> AUC = 0.74
+> F
+> n= 31.2% | ො𝜌 = 0
+> T
+> Age >65
+> n = 80% | ො𝜌 = 0
+> TF
+> AUC = 0.73
+> MMSE score low
+> n = 48.8% | ෝ𝜌 = 0
+> 𝑉 hlow
+> n = 9.8% | ෝ𝜌 = 0
+> Pr (CI) = 0. 11
+> n= 39% | ො𝜌 = 0
+> Pr (CI) = 0.33 Pr (CI) = 0.81
+> Pr (CI) = 0. 42
+> ……
+> ……
+
+Figure 1. Two decision trees built to diagnose cognitive impair-ment (CI) in adult patients. The left side illustrates a regu-lar decision tree fit solely for accuracy, while the right shows a missingness-avoiding (MA) tree, which incorporates a regulariza-tion parameter α to reduce reliance on missing values. The regular tree initially splits on a positive MRI scan outcome, determined by hippocampal volume ( Vh). However, this feature is missing for many patients who did not undergo a scan, resulting in high reliance on missing values (indicated by a large ρ). In contrast, the MA tree achieves a comparable AUC while avoiding reliance on missing data entirely ( ρ = 0 ). Orange nodes indicate missing values along the decision path, while blue denotes no missingness reliance. Note that zero imputation is used, resulting in complete observations in the right branch of the regular tree. 
+
+This can introduce bias and undermine the model’s inter-pretability, which may be crucial in safety-critical fields like healthcare. Classically, research on missing values has focused on learning from incomplete data, fitting regression models to imputed values, and applying these to complete cases (Ru-bin, 1976). However, when missing values also occur in deployment (at “test time”), the impute-then-regress strat-egy is needlessly restrictive. When the distribution of observed and missing values remains unchanged, Bayes-optimal predictions can be made without imputation, based on observed values and a missingness mask—indicators for which values are missing. Attempts to achieve the same result using high-capacity imputation models can increase bias (Le Morvan et al., 2021), fail to use informative miss-ingness (Rubin, 1976), and reduce the interpretability of predictions. Fitting flexible prediction models to trivially imputed in-puts (e.g., zero imputation) and the missingness mask 1Prediction Models That Learn to Avoid Missing Values 
+
+is well justified when accuracy is the primary tar-get. Such models often achieve strong predictive perfor-mance (Van Ness et al., 2023) but may inadvertently rely on complex dependencies between the missingness mask, observed features, and imputed values, making their deci-sion process challenging to interpret (Stempfle et al., 2023; van Smeden et al., 2020). A small class of methods avoids both imputation and pre-diction with indicators by handling missing values natively. For example, XGBoost (Chen & Guestrin, 2016) and other tree-based models can learn “default” decision paths for missing values (Chen & Guestrin, 2016; Pedregosa et al., 2011). Probabilistic models, like Bayesian networks (Pearl, 2014), or variational autoencoders (Kingma & Welling, 2013) can marginalize over missing variables rather than imputing them (Ma & Chen, 2018). Currently, however, native handling of missing values is limited to specialized models. What if we could sidestep imputation, indicators, and spe-cialized architectures by learning to avoid using features with missing values in prediction? If a feature is missing but not useful for prediction for a particular input, a good model should not need access to it. Recently, Stempfle & Johansson (2024) made use of a related idea by training dis-junctive generalized linear rule models (GRLMs) to exploit covariate redundancy in datasets and learn rules whose val-ues can be evaluated even if some variables in the input are missing. The approach is promising, but limited to GRLMs and does not extend to ensemble models, which better cap-ture complex, nonlinear interactions. Figure 1 illustrates a scenario where a standard decision tree (left) achieves high accuracy ( AUC = 0 .74 ) in predict-ing cognitive impairment (CI) but relies on frequently miss-ing features, such as MRI results (hippocampal volume 
+
+Vh), that are unavailable for 77 % of patients (indicated by ˆρ = 0 .77 ). Patients without MRI results most likely showed no signs of CI and could be classified well based on a cognitive test score alone, such as the Mini–Mental State Examination (MMSE) score. The tree on the right achieves comparable predictive performance ( AUC = 0 .73 ) with-out ever asking for a feature that is missing ( ˆρ = 0 ): MRI results are only used for patients with low MMSE scores. This work proposes a method for learning such trees by strategically minimizing reliance on missing values, and exploiting informative structure in the data. While avoid-ing missing values at test time completely may not be feasi-ble, our approach reduces dependence on missing features while maintaining predictive performance. 
+
+Contributions. We introduce missingness-avoiding 
+
+(MA) machine learning, reconciling accuracy with min-imal reliance on features with missing values at test time. We (1) implement this idea for decision trees (MA-DT) , sparse linear models (MA-LASSO) , and ensemble methods (MA-RF and MA-GBT ), providing fit-predict implementations for seamless integration; (2) analyze when MA learning is feasible without sacrificing predictive performance; and (3) demonstrate that MA models perform comparably to baselines with low reliance on missing values across real-world datasets: confidence intervals for the AUROC of MA-LASSO , MA-DT , and 
+
+MA-RF and their unregularized counterparts overlap in nearly all cases, while the MA models consistently and substantially reduce missingness reliance, in some cases from 100 % to 0 % .
+
+## 2. Related Work 
+
+As described in the introduction, impute-then-regress pro-cedures, tree-based methods, and missingness indicators 
+
+are common strategies for handling missing values in supervised learning. While missingness indicators can reduce prediction errors when missingness is informa-tive (Van Ness et al., 2023), they may also introduce spuri-ous correlations (Kyono et al., 2021), feedback loops (van Smeden et al., 2020), and reduced interpretability by effec-tively doubling the feature set. To address these challenges, McTavish et al. (2024) proposed M-GAM, a generalized additive model that learns sparse interactions between fea-tures and the missingness mask. Although this approach improves interpretability, it does not explicitly restrict re-liance on missing values—a key objective of our work. Ad-ditionally, neural architectures like NeuMiss (Le Morvan et al., 2020) integrate missing patterns directly into model training, thereby avoiding imputation. However, this comes at the cost of reduced interpretability. Native handling of missing values in tree-based models can be achieved through “Missingness Incorporated in At-tributes” (MIA), which treats missing values as a separate category (Twala et al., 2008; Kapelner & Bleich, 2015; Josse et al., 2024). While effective, this approach is typi-cally restricted to a single model class and is incomparable across models. Some studies instead leverage structured missingness. For example, Fletcher Mercaldo & Blume (2020) proposed fitting separate models per missing pat-tern, so-called pattern submodels, but this can lead to in-efficient use of data. Stempfle et al. (2023) addressed this limitation by introducing sparsity-induced parameter shar-ing, which improves generalization and consistency while preserving interpretability. However, these approaches are limited to linear models and do not extend easily to more complex settings. Branch-exclusive splits trees (BEST), proposed by Beaulac & Rosenthal (2020), allow users to guide the learning al-gorithm during the data partitioning process by specifying 2Prediction Models That Learn to Avoid Missing Values 
+
+gating variables—features that restrict the use of other vari-ables for splitting outside designated regions of the pre-dictor space. BEST is particularly effective when there is strong prior knowledge about the data-generating pro-cess, such as in the ODDC rule setting described in Sec-tion 5.1. However, its performance may suffer when the gating variables have low predictive value, and the use of explicit mask splits can reduce interpretability by causing the tree structure to be dominated by missingness logic. 
+
+## 3. Problem Statement 
+
+Let X = [ X1, ..., X d]⊤ ∈ X be the input to a hypoth-esis h ∈ H , used to predict an outcome Y ∈ Y . The input consists of d tabular (numerical or categorical) vari-ables, which may be missing in some observations, tak-ing the value na . Hence, X ⊆ (R ∪ { na })d. We view 
+
+X as generated by applying a (random) missingness mask 
+
+M ∈ { 0, 1}d to a complete input variable Xc. For each variable j ∈ [d],
+
+Xj =
+
+ Xcj , if Mj = 0 
+
+na , if Mj = 1 .
+
+We assume that the observed variables follow a fixed, un-known distribution p(X, M, Y ), which remains the same during training and test time. Algorithms learn from a dataset D = {(xi, mi, y i)}ni=1 of n samples assumed to be drawn i.i.d., (xi, mi, y i) ∼ p(X, M, Y ), where xi =[xi, 1, ..., x i,d ]⊤.A common strategy to learn h is to first impute the missing values in X, obtaining an imputed dataset XI = {xIi }ni=1 
+
+with imputed observations xIi . The model is then trained on observed or imputed covariates—a strategy known as 
+
+impute-then-regress estimation. If missingness is infor-mative, p(M | Y )̸ = p(M ), incorporating the missing-ness mask m as binary indicators into the model input can reduce prediction error, improving downstream perfor-mance (Van Ness et al., 2023; Rubin, 1976). Our goal is to learn hypotheses h that are missingness avoiding , that is, they are unlikely to require the value of a missing variable at test time. Let ah(x, j ) = 1 denote the event that computing h(x) requires access to the value of xj (imputed or observed) and ah(x, j ) = 0 otherwise. For example, computing the prediction of a linear model with imputed inputs, hθ (xI ) = θ⊤xI , requires access to 
+
+xIj whenever θj̸ = 0 . A decision tree requires access to xIj
+
+if feature j appears on the prediction path from root to leaf for the input x. A rule model requires access to xIj if the truth values of its rules are contingent on xIj . Figure 2 illus-trates how different models may avoid relying on missing values. Stempfle & Johansson (2024) introduced missingness re-na 
+
+C B
+
+Sparsity Redundancy Context 
+
+(A or B or C) 
+
+na True False 𝜃 
+
+𝑥 0 1 na 0 1
+
+0 135 1
+
+A B C D E A    
+
+> 10
+> 10
+> Figure 2. Missing values can be avoided in several ways. Sparse models (left) can be trained to not use features that are frequently missing. Disjunctive rule models (middle) can be fit to include rules that exploit redundancy in the variable set. Trees (right) can be fit so that missing values rarely occur on the decision paths.
+
+liance with the definition (formalized here) that h relies on missing values in an observation x if there is a feature j
+
+such that 1) xj = na and 2) computing h(x) requires eval-uating xj or its imputed value xIj . We use a binary indicator function ρ(h, x) ∈ { 0, 1} to indicate that computing h(x)
+
+relies on at least one missing feature in x,
+
+ρ(h, x) = max  
+
+> j∈[d]
+
+1[ah(x, j ) = 1 ∧ xj = na ] . (1) In principle, we could define missingness reliance for an instance x by aggregating over features using functions φ
+
+other than the max operator, ρφ(h, x) = φ({1[ah(x, j ) = 1 ∧ xj = na ]}dj=1 ). For example, φ could compute the average over the set, φ(·) = 1
+
+> d
+
+Pdi=1 (·)i, and the corre-sponding reliance ρφ(h, x) would represent the fraction of missing values in x relied on by h. In this paper, we restrict ourselves to binary reliance based on max : Does h rely on missing values when predicting for x or not? The expected missingness reliance ρ of a hypothesis h
+
+in a distribution p(X, M, Y ) is then defined as ρ(h) := 
+
+Ep[ρ(h, X )] . The goal of MA learning is to find a suit-able trade-off between expected predictive performance and missingness reliance: minimize  
+
+> h∈H
+
+Ep[L(Y, h (X))] + αρ (h) , (2) controlled by a tradeoff parameter α ≥ 0.
+
+## 4. Missingness-Avoiding Prediction Models 
+
+Next, we introduce missingness-avoiding (MA) learning algorithms for decision trees, sparse linear models, and tree ensembles, showing that classifier-specific regulariza-tion can reduce reliance on missing features across diverse model classes. Decision trees capture nonlinear interac-tions, sparse linear models offer interpretability, and tree ensembles boost generalization and performance. 
+
+4.1. Missingness-Avoiding Decision Trees 
+
+Trees are inherently well suited to avoid missing values as their reliance on input features is contextual: only a sub-3Prediction Models That Learn to Avoid Missing Values 
+
+set of observations will pass through a given node on their decision path, depending on the values of other features. This property naturally extends to the binary decision tree 
+
+h which can be defined recursively by a root node u0 and its two children l0, r 0, their children, grandchildren, and so on. Each internal node u ∈ V in the tree is endowed with a decision stub hu : X → { 0, 1} which partitions X into a “left” and “right” half. Here, we restrict ourselves to the typical univariate threshold stubs, hu(x) = 1[xju > τ u]
+
+for a feature ju and threshold τu.Let L denote the set of leaves of the tree—nodes with no children. Each leaf ℓ ∈ L has a value ˆyℓ ∈ Y used for prediction. The decision path πh(x) = ( u0, ..., u t) for an input x in a tree h is the sequence of nodes traversed from 
+
+u0 to a leaf ut ∈ L such that for all k = 0 , ..., t − 1,
+
+uk+1 =
+
+ luk , xjuk ≤ τu
+
+ruk , xjuk > τ u
+
+.
+
+We say that a feature xj is on the decision path for an input 
+
+x if there exists a node u ∈ πh(x) such that ju = j. Fi-nally, we can define the missingness reliance for the tree in 
+
+x as 
+
+ρ(h, x) := max  
+
+> u∈πh(x)
+
+1[xju = na ] . (3) That is, a tree h relies on a missing value in input x if there is a node on the decision path πh(x) where the decision is made based on a feature j which has a missing value in x.FITTING TREES WITH SMALL MISSINGNESS 
+
+RELIANCE 
+
+To fit trees that minimize prediction error and reliance on missing values, we propose modifications to greedy split-ting algorithms like C4.5 (Quinlan, 2014) or ID3 (Quin-lan, 1986), as these dominate decision tree implementa-tions. Global optimization approaches, such as MIP formu-lations (Verwer & Zhang, 2019) and other solvers (Gurobi Optimization, LLC, 2024; ILOG, IBM, 2010; De Moura & Bjørner, 2008), could also be regularized with missingness reliance. Greedy splitting partitions a dataset D by sequentially split-ting a leaf ℓ in a tree using a feature j and threshold τ , cho-sen by minimizing a splitting criterion C(ℓ, D; j, τ ), such as Gini impurity or information gain (Hastie et al., 2009). Let Sℓ := {i ∈ [n] : ℓ ∈ π(xi)} be the index set of samples in D assigned to leaf ℓ in h. We regularize a given criterion 
+
+C to reduce reliance on missingness values, splitting leaves 
+
+ℓ based on feature-threshold pairs (j, τ ) that solve the fol-lowing optimization problem, where α ≥ 0 controls the regularization strength: minimize  
+
+> j∈[d],τ ∈R
+
+C(ℓ, D; j, τ ) + α X
+
+> i∈Sℓ
+
+σi,j 
+
+|Sℓ| 1[xi,j = na ] . (4) We include a sample-specific feature weight σi,j ∈ { 0, 1}
+
+to enable generalization to tree ensembles, as discussed in Section 4.3. For a single tree, we set σi,j = 1 for all i, j .However, in principle, we could set σi,j = 0 to remove the missingness reliance penalty when feature j is already used in a split along the decision path π(xi), so that further splits on the same feature would not increase the overall missingness reliance. The criterion C may or may not op-erate on imputed data or use default rules like, for example, XGBoost (Chen & Guestrin, 2016). We refer to trees that minimize this regularized criterion as MA decision trees, or MA-DT for short. 
+
+4.2. Missingness-Avoiding Sparse Linear Models 
+
+Our framework extends naturally to sparse linear models. For a linear model h(x) = θ⊤x, we define the missingness reliance as 
+
+ρ(h, x) := max  
+
+> j∈[d]
+
+1 [|θj | > 0] 1 [xj = na ] ,
+
+with ρ(h) := Ep[ρ(h, X )] as stated in Section 3. As is clear from this definition, linear models cannot contextu-ally avoid missing values like trees do. No matter the values of other features, every time a feature j used by the model is missing, it counts toward ρ(h). Nevertheless, we can re-duce reliance on missing values through variable selection by penalizing coefficients θj of variables with a high fre-quency of missingness mj , and solving minimize 
+
+> θ∈Rd
+
+1
+
+n
+
+> n
+
+X
+
+> i=1
+
+L(yi, θ ⊤xIi ) + 
+
+> d
+
+X
+
+> j=1
+
+(λ + αm j )|θj | (5) with parameter λ > 0 and α ≥ 0 controlling the regular-ization strength. Here, mj = 1
+
+> n
+
+Pni=1 mi,j is the empirical missingness rate of feature j. We refer to models that min-imize (5) as MA-LASSO .The standard Lasso (Tibshirani, 1996) encourages sparsi-ties in linear models by applying an L1-penalty propor-tional to the sum of absolute magnitudes of the coefficients, multiplied by a parameter α > 0. In MA-LASSO , we intro-duce a feature-specific penalty λj = λ + αm j , where reg-ularization is adjusted based on the missingness frequency of each feature j. Features with higher missing propor-tions receive larger penalties, making them more likely to be dropped from the model. We can solve (5) by applying standard Lasso with parameter λ′ to a dataset with rescaled features ˜xi,j = λ′ 
+
+> λj
+
+xi,j . This approach can be extended to generalized linear models and generalized additive models. 
+
+Why Lasso? While L1 regularization is widely used to induce sparsity in learned models, it is primarily moti-vated as a convex relaxation of L0 regularization, which explicitly penalizes the cardinality of the selected variable 4Prediction Models That Learn to Avoid Missing Values 
+
+set. Here, we use the L1 penalty due to its compatibility with widely used implementations in packages like scikit-learn (Pedregosa et al., 2011). However, (5) may be anal-ogously defined using the L0 norm and, in future work, it would be interesting to explore solving the resulting prob-lem directly (Liu et al., 2022; Dedieu et al., 2021). 
+
+4.3. Missingness-Avoiding Tree Ensembles 
+
+Tree ensembles, such as random forests and gradient-boosted trees, typically outperform single trees in terms of predictive accuracy (Curth et al., 2024). We can combine several MA trees into an MA tree ensemble, following the same principles used for standard CART ensembles. For an ensemble e = ( h1, ..., h M ) of M estimators, we generalize the definition of missingness reliance for trees applied to an input x as 
+
+ρ(e, x) := max  
+
+> h∈e
+
+max  
+
+> u∈πh(x)
+
+1[xju = na ] , (6) where we recall that πh(x) is the decision path for x in h.Since adding models to an ensemble can only increase the average reliance on a variable, extending the ensemble can only increase the missingness reliance. We implement both an MA random forest ( MA-RF) as well as MA gradient boosted trees ( MA-GBT) . Our implemen-tations are based on the corresponding meta-estimators in the scikit-learn library, with MA trees replacing the default tree estimators for both classification and regression tasks. In MA-RF , the individual trees are fit independently, allow-ing the tree-building process to be parallelized. The param-eter σi,j in the regularized node splitting criterion in (4) is set to 1 for all i, j .
+
+MA-GBT is a gradient-boosting classifier specifically de-signed to minimize missingness reliance. At the core, it follows the structure of standard gradient-boosting, where the model hm(x) added at step m fits the pseudo-residuals of the ensemble em−1(x) learned up to that point using the splitting objective in (4) with a regression criterion (mean squared error) for C. See Algorithm 1 in Appendix B for the pseudo algorithm for MA-GBT . Unlike MA-RF , each model in the boosting process builds on the reliance pat-terns established by previous models: if a feature j has al-ready been used by a prior model and was missing for a given observation xi, subsequent models can continue to rely on that feature without incurring additional penalty for 
+
+xi. We control this by updating the weight σi,j in (4) be-fore fitting the next ensemble model, 
+
+σ′ 
+
+> i,j
+
+= σi,j · (1 − 1[j ∈ πhm (xi)] 1[xi,j = na ]) .
+
+This ensures that subsequent models in the ensemble prefer to include features that have already been used by models from previous iterations, or features that incur low miss-ingness reliance. Consequently, the ensemble can mini-mize prediction error while preventing potential excessive reliance on missing values from independently fit trees. 
+
+## 5. Balancing Missingness Reliance and Predictive Performance 
+
+One motivation for MA learning is that many model classes exhibit large Rashomon sets (Semenova et al., 2022)— collections of near-optimal models with similar predictive performance but differing feature properties. By adding a missingness reliance penalty to the learning objective, we prioritize models within this set that rely less on missing values. Still, important questions remain: When is a favor-able trade-off between accuracy and missingness reliance possible? Are there non-trivial problems where both can be achieved without sacrificing the other? Are there prob-lems where the MA learning objective is unsuitable? Next, we give a class of data generating processes (DGPs) where there exists a model h that achieves both optimal predictive accuracy and zero missingness reliance, ρ(h) = 0 . After that, we study cases where the MA approach may fail to improve over standard solutions for missing values. 
+
+5.1. Can We Achieve Both Zero Missingness Reliance and Minimal Prediction Error? 
+
+As an example where the heading’s question holds, con-sider a system in which a variable is never missing under certain conditions but may be missing otherwise. 
+
+Example 1. Patients listed with a general healthcare provider undergo annual check-ups to assess their overall health. Certain patient data, such as age ( x1), are always collected, while test results may be missing due to clinical recommendations and practitioner decisions. For example, cognitive tests are consistently administered to individuals over 65 years of age ( x1 > 65 ), ensuring cognitive test re-sults ( x2) are available for all patients in this group. Addi-tionally, patients with a positive test result undergo an MRI scan, which records hippocampal volume ( x3) as above or below average. MRI scans may also be ordered for other reasons, such as spine problems or cartilage abnormalities. We refer to such patterns in the data collection process as 
+
+observed deterministic data collection rules (ODDC rules). 
+
+Definition 1. Suppose a distribution p(X, M ) over fea-tures X ∈ Rd and a missingness mask M ∈ { 0, 1}d are given. Let j be a variable, T ⊆ [d] \ { j} a subset of other variables, and A ⊆ X T be a subset of their domain XT .An ODDC rule R = ( T, A, j ) is an implication in p that whenever XT are observed and take values in A, variable j
+
+is observed, 
+
+R : MT = 0, X T ∈ A =⇒p Mj = 0 , (7) 5Prediction Models That Learn to Avoid Missing Values 
+
+or, equivalently, p(Mj = 0 | MT = 0, X T ∈ A) = 1 . 1
+
+When fitting a prediction model to data, the learned struc-ture can exploit ODDC rules to limit missingness reliance. 
+
+Example 1 (Continued). Suppose we want to fit a deci-sion tree to the healthcare data to predict whether a pa-tient suffers from cognitive impairment. Due to the ODDC structure, we can construct an accurate tree with zero miss-ingness reliance by first splitting on the patient’s age ( x1), followed by cognitive test results ( x2) for patients older than 65, as illustrated in Figure 1. For patients with x1 >
+
+65 and x2 = 1 , the MRI scan outcome—the most predic-tive variable—is always available and can be used for pre-diction. We say that a node u in a tree h satisfies a set of ODDC rules R = {R1, ..., R K } if the feature xju used by node 
+
+u is implied to be observed by R. Specifically, the truth values of the splits of u’s ancestors, an (u), must activate (imply the antecedent of) at least one rule R ∈ R that im-plies Mju = 0 according to (7). MA trees prefer node splits that satisfy ODDC rules by design: as α → ∞ , only splits on variables that have no missingness for observations at the current node will be considered. A full tree h satisfies a set of ODDC rules R if all of its internal nodes obey R.Such trees have no reliance on missing values. 
+
+Proposition 1. Let a set of ODDC rules R hold under a distribution p(X, M ). Any tree h that satisfies R will have missingness reliance ρ(h) = 0 under p.
+
+Finally, we say that an outcome Y satisfies a set of ODDC rules R with respect to an input X and the missingness mask M if p(Y | X) is fully determined by variables im-plied to be observed by R. We can conclude the following result. 
+
+Corollary 1. Consider a distribution p(X, M, Y ). Sup-pose the outcome Y satisfies a set of ODDC rules R in p.Then, there exists a prediction model h with minimal risk and zero missingness reliance, ρ(h) = 0 , on p.
+
+Proposition 1 and Corollary 1 are proven in Appendix A. Corollary 1 follows by definition: if the outcome Y can be described by input features known to be observed together, a model that fits p(Y | X, M ) perfectly can be optimally predictive and have zero reliance ρ. Such outcomes are more common in practice than we may first expect, at least approximately. For example, when predicting a medical di-agnosis or mimicking a treatment policy, the ground-truth labels are given by decisions made by doctors based on ob-servations they have made in sequence. Consequently, a tree-based model that matches test ordering patterns will use only information likely to be measured for splitting.       
+
+> 1Note that Tcan be the empty set. Variables jthat are never missing all satisfy ODDC rules on the form (∅,·, j ).
+
+5.2. When Is Low Missingness Reliance Incompatible With Good Predictions? 
+
+The MA framework is designed to exploit structure in the missingness patterns induced by the data-generating pro-cess, as exemplified in the previous section. When there is no structure in M predictable from observed variables X,the use of any feature Xj will incur missingness reliance. 
+
+Proposition 2. Suppose that each feature j is indepen-dently missing completely at random with probability pj ∈
+
+[0 , 1] ,
+
+p(Mj | Xc, Y, M ¬j ) = pj .
+
+Then, for any model h, with ah(x, j ) ∈ { 0, 1} indicating whether the feature xj is used in the prediction h(x),
+
+ρ(h) ≥ max  
+
+> j
+
+E[ah(X, j )] pj .
+
+A proof is given in Appendix A. In words, the missingness reliance is lower-bounded by the frequency by which a fea-ture is used by the model, multiplied by the missingness frequency, no matter the structure of the model. We give two more challenging cases for MA learning below. 
+
+Distribution Shift. If the test-time missingness distri-bution differs from the distribution of training data, de-ployment performance may degrade also for MA models, like prediction with missingness indicators or impute-then-regress strategies. For example, MA trees optimize deci-sion paths based on observed missingness patterns, but if these change, a data-collection rule may no longer hold, and variables that were previously guaranteed to be ob-served may be missing test time. Both features frequently missing during training but available at test time and vice versa can lead to miscalibrated reliance and a suboptimal tradeoff with accuracy. 
+
+MNAR and Informative Missingness. In MNAR (miss-ing not at random) settings, where the missingness mask depends on unobserved features, MA trees cannot strate-gically split to avoid missing values as there may be no discernible pattern in the missingness to influence the sec-ond term in (2). We study this effect empirically in Sec-tion 6.3. Moreover, when missingness is informative, i.e., when P (M | Y )̸ = P (M ), MA learning may underper-form compared to approaches that include missingness in-dicators, as these can become predictive in such cases. In principle, missingness indicators could be used with the MA penalty, but we refrain from exploring this here. 
+
+## 6. Experiments 
+
+We demonstrate the MA framework in a suite of experi-ments, aiming to show that MA models reduce reliance on 6Prediction Models That Learn to Avoid Missing Values 
+
+missing values while preserving predictive performance. We compare MA-DT , MA-LASSO , MA-GBT , and MA-RF 
+
+to standard models as well as to models designed to handle missing values, using different imputation methods. 
+
+Datasets. We study six datasets with varying degrees of missingness. We sample 10,000 samples from the National Health and Nutrition Examination Survey (NHANES) for hypertension prediction with 42 features (Johnson et al., 2013). LIFE (2,864 samples) predicts whether life ex-pectancy is above or below the median using 18 fea-tures (World Health Organization (WHO), 2021). ADNI (1,337 samples) predicts diagnosis changes in patients with suspected dementia using 39 features (Weiner et al., 2010). Breast Cancer (1,756 samples) includes 16 features for cancer prediction (Razavi et al., 2018). Pharyngitis (676 samples) is used for pharyngitis prediction using 18 fea-tures (Miyagi, 2023). Explainable Machine Learning Chal-lenge dataset, referred to as FICO, consists of 10,549 sam-ples and is used for credit risk classification with 23 fea-tures (FICO et al., 2018). Details on dataset preprocessing are in Appendix C. 
+
+Baselines. We compare MA models with baselines rep-resenting a) impute-then-regress learners, b) models using missingness indicators, and c) models that handle miss-ing values natively. For a), we use L1-regularized lo-gistic regression (LR), a decision tree (DT), and a ran-dom forest (RF). For b), we consider M-GAM (McTavish et al., 2024), a sparse additive modeling approach that in-corporates missingness indicators (ind) and their interac-tions with observed data (int). For c), we include XG-Boost (Chen & Guestrin, 2016), NeuMiss (Le Morvan et al., 2020)—a neural network architecture with a non-linearity based on missingness patterns in the input data— and MINTY (Stempfle & Johansson, 2024), a generalized linear rule model fit to minimize reliance on missing val-ues. For models relying on imputation, we impute numeri-cal features with zero imputation ( I0) and MICE (Van Bu-uren, 1999) ( IM ). Categorical features are imputed with the mode. 
+
+Experimental Setup. We divide each dataset into train-ing and testing subsets using an 80/20 split. For hyperpa-rameter selection, including α, we perform 3-fold cross-validation, evaluating candidate models based on a combi-nation of the area under the receiver operating character-istic curve (AUROC) and empirical missingness reliance (ˆρ). Specifically, we select the candidate model with the lowest ˆρ among those achieving at least 95 percent of the maximum AUROC. This procedure is repeated for 5 dif-ferent splits of the dataset, and we report 95 % confidence intervals based on the bootstrap distribution of AUROC and 
+
+ˆρ. Numerical features are standardized to have zero mean and unit variance for all models except MINTY and M-GAM for which we apply discretization. Categorical fea-tures are encoded using one-hot encoding. All models are evaluated on the held-out test set with respect to AUROC and ˆρ. Appendix C.3 provides details on the experimental setup, including hyperparameters. The code is available at 
+
+https://github.com/Healthy-AI/malearn .
+
+6.1. MA Models Match Baselines With Minimal Reliance on Missing Values 
+
+In Table 1, we report AUROC and missingness reliance ( ˆρ)
+
+for each model in ADNI, FICO, LIFE, and NHANES us-ing zero imputation. Results using MICE imputation and for the other datasets, Pharyngitis and Breast Cancer, are included in Appendix D. Comparing MA-LASSO , MA-DT ,and MA-RF to their unregularized counterparts, we find that confidence intervals for AUROC overlap in all cases except for the linear models on FICO. MA models demonstrate su-perior performance in avoiding missingness reliance, with an average decrease of 66.0 ( MA-LASSO vs. LR), 4.4 (MA-DT vs. DT), and 70.2 ( MA-RF vs. RF) across datasets in Table 1. MA-DT stands out by consistently having the lowest missingness reliance while maintaining competi-tive AUROC scores compared to DT. MA-GBT performs slightly worse compared to XGBoost in terms of AUROC but reduces missingness reliance by 64.4 on average. MINTY is a strong baseline, with AUROC and missing-ness reliance comparable to MA-LASSO in most cases. However, its training time ranges from 18 to 292 seconds, whereas MA-LASSO trains in under a second. The M-GAM models exhibit moderate ˆρ, suggesting that their use of the missingness structure leads to increased missingness reliance compared to MA models. NeuMiss achieves high AUROC but also exhibits high missingness reliance due to dense multiplications of input features. The extreme differences observed in NHANES likely stem from its structured missingness patterns. Specifically, the missingness mask depends on the unobserved variable 
+
+year , with different features and feature versions mea-sured in different years. However, some measurements can act as substitutes for others. For example, there are several different features representing blood pressure measured us-ing different equipment. These patterns cause many stan-dard models to over-rely on missing features, whereas MA models effectively mitigate this issue. Interestingly, DT tends to avoid redundancy by selecting only the most in-formative features, whereas LR uses all available features, resulting in a very high missingness reliance. 
+
+6.2. Performance of MA Models in the Limits of α
+
+In addition to selecting α = α∗ based on the AUROC-missingness reliance trade-off, we fit models with α = 0 
+
+7Prediction Models That Learn to Avoid Missing Values 
+
+Table 1. Test-set AUROC and missingness reliance ( ˆρ) across four datasets, using zero imputation. The 95 % confidence intervals are based on the bootstrap distribution of the respective metric. For each dataset and MA estimator, α is selected as part of the overall model selection strategy, with the model minimizing ˆρ chosen among those achieving at least 95 % of the maximum AUROC. 
+
+ADNI FICO LIFE NHANES 
+
+ESTIMATOR AUROC ( ↑) ˆρ (↓) AUROC ( ↑) ˆρ (↓) AUROC ( ↑) ˆρ (↓) AUROC ( ↑) ˆρ (↓)LR 72.0 (69.7, 74.3) 64.1 (62.2, 66.6) 79.1 (78.3, 79.7) 75.4 (74.9, 75.9) 98.7 (97.7, 99.3) 63.4 (60.6, 66.8) 85.1 (84.6, 85.7) 100.0 (100.0, 100.0) 
+
+DT 72.7 (71.4, 74.2) 11.7 (6.3, 18.8) 73.8 (73.0, 74.5) 5.7 (5.4, 6.0) 92.2 (90.1, 93.6) 18.3 (15.8, 19.9) 82.3 (81.5, 83.0) 0.1 (0.0, 0.2) 
+
+RF 75.0 (72.9, 77.0) 66.1 (64.3, 68.3) 77.3 (76.4, 78.1) 65.4 (64.6, 66.6) 97.8 (95.8, 99.0) 82.8 (81.8, 83.9) 81.6 (81.4, 81.9) 100.0 (100.0, 100.0) 
+
+M-GAM ( IND ) 69.7 (66.9, 72.1) 14.7 (0.6, 32.5) 77.9 (77.6, 78.3) 42.4 (28.6, 56.2) 98.2 (96.4, 99.2) 49.4 (42.8, 56.1) 84.0 (83.4, 84.6) 28.2 (9.5, 50.0) 
+
+M-GAM ( INT ) 69.5 (67.0, 72.0) 46.3 (22.5, 61.2) 77.6 (77.3, 77.9) 29.1 (28.1, 30.2) 98.1 (96.3, 99.3) 51.7 (45.3, 60.2) 84.1 (83.6, 84.5) 26.4 (14.8, 48.3) 
+
+XGB OOST 79.0 (75.7, 82.4) 60.9 (57.6, 63.4) 78.4 (77.9, 79.0) 69.3 (58.9, 74.9) 98.2 (96.1, 99.4) 56.1 (52.3, 61.1) 84.8 (84.6, 85.2) 95.7 (87.3, 100.0) 
+
+NEU MISS 76.4 (75.0, 78.2) 67.0 (64.9, 70.1) 79.0 (78.4, 79.5) 75.4 (74.9, 75.9) 98.6 (97.3, 99.4) 84.1 (83.0, 85.2) 85.5 (85.2, 85.7) 100.0 (100.0, 100.0) 
+
+MINTY 70.6 (67.4, 73.8) 1.3 (0.3, 2.5) 76.6 (75.2, 77.9) 22.8 (8.0, 43.6) 96.2 (94.1, 98.3) 21.9 (16.8, 27.2) 81.9 (80.1, 83.8) 0.3 (0.0, 0.8) 
+
+MA-LASSO 68.4 (66.1, 70.6) 11.8 (0.1, 34.7) 75.8 (74.9, 76.6) 5.7 (5.4, 6.0) 97.7 (96.7, 98.6) 21.0 (19.1, 24.1) 84.5 (84.0, 85.0) 0.4 (0.0, 0.9) 
+
+MA-DT 74.1 (71.7, 76.4) 0.1 (0.0, 0.3) 73.8 (73.0, 74.5) 5.7 (5.4, 6.0) 89.7 (87.5, 91.8) 12.3 (10.4, 15.3) 82.4 (81.6, 83.2) 0.0 (0.0, 0.0) 
+
+MA-RF 78.0 (76.2, 80.4) 3.2 (0.7, 7.6) 76.3 (75.6, 76.8) 5.8 (5.5, 6.1) 97.2 (95.7, 98.3) 24.2 (22.0, 26.5) 84.0 (83.3, 84.6) 0.2 (0.0, 0.5) 
+
+MA-GBT 78.5 (76.4, 80.5) 1.6 (0.7, 2.7) 75.6 (74.5, 77.1) 5.9 (5.5, 6.2) 95.9 (92.1, 98.9) 16.5 (11.9, 21.2) 83.2 (82.1, 84.4) 0.3 (0.0, 1.0) 1 2 3 4 5 6 7 8 9Max. tree depth 
+
+0.70 
+
+0.75 
+
+0.80 
+
+0.85 
+
+0.90 
+
+0.95 AUROC     
+
+> α= 0 .0
+> α= 0 .1
+> α= 1 .0
+> α= 10 .0
+
+(a) LIFE: AUROC vs. max. tree depth. 1 2 3 4 5 6 7 8 9Max. tree depth 
+
+0.0
+
+0.1
+
+0.2
+
+0.3
+
+0.4Missingness reliance ( ˆ ρ)
+
+α = 0 .0
+
+α = 0 .1
+
+α = 1 .0
+
+α = 10 .0 (b) LIFE: ˆρ vs. max. tree depth. 0.1 0.2 0.3Missingess reliance ( ˆ ρ)
+
+0.80 
+
+0.85 
+
+0.90 
+
+0.95 AUROC  
+
+> Max. tree depth 2468
+
+(c) LIFE: AUROC vs. ˆρ.
+
+Figure 3. Average test performance across cross-validation folds for MA decision trees fit to LIFE using varying values of α and 
+
+max_depth . A shallow tree of depth 3–4 captures the complexity of the data effectively. Missingness regularization with α ≤ 1.0
+
+does not significantly reduce predictive performance but helps decrease missingness reliance from approximately 30 % to approximately 
+
+10 % .
+
+and α set high enough to ensure ˆρ ≈ 0 while maximiz-ing AUROC (denoted as α = ∞). Following scikit-learn’s convention, a tree with max_depth = 1 is allowed one split if a meaningful feature is available. Consequently, achieving ˆρ ≈ 0 may be impossible when all features con-tain missing values, preventing full elimination of miss-ingness reliance in tree-based models. We report AUROC and ˆρ for each setting and dataset in Table 6 and 7 in Appendix D. Figure 4a and 4b show how AUROC and ˆρ
+
+change when transitioning from α = ∞ to α = 0 for ADNI. Here, all MA models achieve ˆρ ≈ 0 with a large 
+
+α. While setting α = 0 can significantly boost AUROC, it drastically increases missingness reliance, especially for 
+
+MA-LASSO and MA-RF .We further examine the impact of increasing missingness regularization when fitting MA-DT with varying values for the max_depth parameter. Figure 3 and Figure 5 in Ap-pendix D illustrate the trends in AUROC and missingness reliance for LIFE. When α = 0 , MA-DT behaves as a stan-dard decision tree without missingness reliance regulariza-tion. For α ∈ { 0, 0.1, 1}, a depth of 3–4 captures the data’s complexity without overfitting. On the other hand, ˆρ varies from 0.1 ( α = 1 ) to 0.3 ( α = 0 ), demonstrating a clear case where missingness regularization can be applied with-out sacrificing performance. Notably, reducing the tree’s maximum depth is a less effective way to control missing-ness reliance, as it negatively impacts AUROC. In Figure 6 in Appendix D, we show examples of MA trees with α ∈ { 0, α ∗, ∞} at their respective optimal depths for LIFE. When α = ∞, the learning algorithm is forced to split on the always-observed feature Region instead of Adult_mortality , which has around 10 % miss-ingness and is used when α ∈ { 0, α ∗}. With α = α∗,
+
+Region appears in the first split in the right branch of the tree, reducing missingness reliance without sacrificing AU-ROC compared to the unregularized tree, which uses the incomplete feature Under_five_deaths .
+
+6.3. Performance of MA Models Across Missingness Mechanisms 
+
+To assess MA models under different missingness mech-anisms, we introduce 50 % synthetic missingness to ran-domly selected features in the Breast Cancer dataset, the 8Prediction Models That Learn to Avoid Missing Values MA-LASSO MA-DT MA-RF MA-GBT estimator alias 0.00.20.40.60.8AUROC    
+
+> α=∞
+> α= 0
+
+(a) ADNI: AUROC vs. MA estimator. MA-LASSO MA-DT MA-RF MA-GBT estimator alias 0.00.20.40.6Missingness reliance ( ˆ ρ)    
+
+> α=∞
+> α= 0
+
+(b) ADNI: ˆρ vs. MA estimator. 0.0 0.2 0.4 0.6 0.8 1.0Missingness reliance ( ˆ ρ) 
+
+> 0.63
+> 0.65
+> 0.68
+> 0.70
+> 0.73
+> 0.75 AUROC  Proportion 0.2 0.4 0.6 Mechanism MAR MNAR
+
+(c) Breast Cancer: AUROC vs ˆρ.
+
+Figure 4. (a) and (b): Test-set AUROC and missingness reliance ( ˆρ) for MA estimators in ADNI when transitioning from α = ∞ to 
+
+α = 0 . Removing missingness regularization improves predictive performance, but the increase in missingness reliance is much more pronounced, especially for MA-LASSSO and MA-RF . (c): Test-set AUROC versus ˆρ for MA-LASSSO in Breast Cancer, where 50 % 
+
+synthetic missingness is added to an increasing proportion of input features. Missingness not at random (MNAR) is more challenging than missingnes at random (MAR), but MA-LASSSO demonstrates robust performance for large fractions of missingness. 
+
+most complete in our study. We apply MAR using a logistic masking model and MNAR for values below the 0.25 and above the 0.75 quantiles. Figure 4c shows how AUROC varies with missingness reliance for different missingness proportions and mechanisms using MA-LASSO . The per-formance of L1-regularized logistic regression models is included with circles for reference. When MAR missing-ness is introduced in up to 40 % of the features, it is possi-ble to fit MA-LASSO with 25 % missingness reliance with-out sacrificing much predictive performance. Notably, the trends are similar for the more challenging MNAR case, although the curves are slightly shifted toward lower AU-ROCs in all cases. 
+
+## 7. Discussion 
+
+We have proposed a missingness-avoiding (MA) machine learning, a framework for reducing the reliance of mod-els on missing values in prediction, applied to sparse lin-ear models ( MA-LASSO ), decision trees ( MA-DT ), random forests ( MA-RF ), and gradient boosting ( MA-GBT ). Our ex-periments show that MA models effectively learn to gener-ate accurate predictions while minimizing reliance on miss-ing values at test time by applying classifier-specific regu-larization to avoid using unobserved feature values. To apply the MA framework, begin by selecting a model class that suits the interpretability needs of the applica-tion. Linear models and decision trees offer more trans-parency, while ensembles often provide better performance with less interpretability. After choosing a model type, ad-just the regularization parameter α to balance predictive performance, and reliance on missing features. A higher α
+
+discourages reliance on frequently missing features, while a lower α favors performance. The right value depends on the acceptable level of missingness reliance. Practitioners can evaluate their strategy using the missingness reliance metric ρ, which measures the model’s dependence on miss-ing features. As a future direction for tree-based MA models, an alter-native to minimize reliance on missing values could be to enforce ˆρ = 0 at test time by adopting a fallback strategy— halting the decision process and returning the label of the current node whenever a missing value is encountered. Ad-ditionally, pruning strategies and hyperparameter tuning beyond depth constraints could be explored to reduce miss-ingness reliance in these models. In our current implemen-tation of MA-DT , we rely on greedy splitting algorithms, but in theory, global optimization approaches (Gurobi Op-timization, LLC, 2024; ILOG, IBM, 2010) could also be regularized with missingness reliance, producing accurate decision trees with potentially improved interpretability (Rudin et al., 2022). Moreover, further analysis could explore alternative strate-gies for selecting α∗ beyond our current approach and in-vestigate different definitions of ρ, as discussed in Sec-tion 3. Alternative strategies for selecting α∗ should con-sider the specific application needs. For instance, rather than focusing solely on the acceptable trade-off in predic-tive performance for achieving the lowest possible α, we might prioritize limiting the number of missing features per individual. Relying on an average measure across the dataset may not provide sufficient insight. Additionally, domain knowledge can help define an acceptable level of missingness, but quantifying this threshold is often chal-lenging and subjective. Our focus has been on the tradeoff between predictive accuracy and reliance on missing val-ues in prediction tasks that match the training data in dis-tribution. Future work should explore other effects of MA learning, such as robustness to distributional shifts. Lastly, an open question remains: can our method be extended to other model classes? 9Prediction Models That Learn to Avoid Missing Values 
+
+## Acknowledgements 
+
+This work was partially supported by the Wallenberg AI, Autonomous Systems and Software Program (WASP) funded by the Knut and Alice Wallenberg Foundation. The computations and data handling were enabled by re-sources provided by the National Academic Infrastructure for Supercomputing in Sweden (NAISS), partially funded by the Swedish Research Council through grant agreement no. 2022-06725. Data used in the preparation of this article were ob-tained from the Alzheimer’s Disease Neuroimaging Ini-tiative (ADNI) database ( https://adni.loni.usc. edu/ ). The ADNI was launched in 2003 as a public-private partnership, led by Principal Investigator Michael W. Weiner, MD. The primary goal of ADNI has been to test whether serial magnetic resonance imaging (MRI), positron emission tomography (PET), other biological markers, and clinical and neuropsychological assessment can be combined to measure the progression of mild cog-nitive impairment (MCI) and early Alzheimer’s disease (AD). 
+
+## Impact Statement 
+
+Two of our proposed model classes, MA-DT and 
+
+MA-LASSO , prioritize interpretability to ensure robust and practitioner-friendly models. This focus on interpretability is crucial for applying machine learning in high-stakes do-mains like healthcare, where handling missing data poses risks of introducing or reinforcing unfairness (Jeanselme et al., 2022). Through increased transparency, these mod-els aim to support ethical decision-making in complex en-vironments. 
+
+## References 
+
+Beaulac, C. and Rosenthal, J. S. BEST: A decision tree algorithm that handles missing values. Computational Statistics , 35(3):1001–1026, 2020. Chen, T. and Guestrin, C. XGBoost: A scalable tree boost-ing system. In Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining , pp. 785–794, 2016. Curth, A., Jeffares, A., and van der Schaar, M. Why do random forests work? Understanding tree ensembles as self-regularizing adaptive smoothers. arXiv preprint arXiv:2402.01502 , 2024. De Moura, L. and Bjørner, N. Z3: An efficient SMT solver. In Proceedings of the 14th International Conference on Tools and Algorithms for the Construction and Analysis of Systems , pp. 337–340, 2008. Dedieu, A., Hazimeh, H., and Mazumder, R. Learning sparse classifiers: Continuous and mixed integer opti-mization perspectives. Journal of Machine Learning Re-search , 22(135):1–47, 2021. FICO, Google, Imperial College London, MIT, University of Oxford, UC Irvine, and UC Berkeley. Explainable machine learning challenge, 2018. Fletcher Mercaldo, S. and Blume, J. D. Missing data and prediction: The pattern submodel. Biostatistics , 21(2): 236–252, 2020. Gardner, J., Popovic, Z., and Schmidt, L. Benchmarking distribution shift in tabular data with tableshift. In Ad-vances in Neural Information Processing Systems 36 , pp. 53385–53432, 2023. Gurobi Optimization, LLC. Gurobi Optimizer Reference Manual , 2024. Hastie, T., Tibshirani, R., and Friedman, J. The Elements of Statistical Learning: Data Mining, Inference, and Pre-diction . Springer, 2 edition, 2009. ILOG, IBM. User’s Manual for CPLEX , 2010. Jeanselme, V., De-Arteaga, M., Zhang, Z., Barrett, J., and Tom, B. Imputation strategies under clinical presence: Impact on algorithmic fairness. In Proceedings of the 2nd Machine Learning for Health symposium , pp. 12– 34. PMLR, 2022. Johnson, C. L., Paulose-Ram, R., Ogden, C. L., Car-roll, M. D., Kruszon-Moran, D., Dohrmann, S. M., and Curtin, L. R. National health and nutrition examina-tion survey: analytic guidelines, 1999–2010. Vital and Health Statistics , 2(161):1–24, 2013. Josse, J., Chen, J. M., Prost, N., Varoquaux, G., and Scor-net, E. On the consistency of supervised learning with missing values. Statistical Papers , 65(9):5447–5479, 2024. Kapelner, A. and Bleich, J. Prediction with missing data via Bayesian additive regression trees. Canadian Journal of Statistics , 43(2):224–239, 2015. Kingma, D. P. and Welling, M. Auto-encoding variational bayes. arXiv preprint arXiv:1312.6114 , 2013. Kyono, T., Zhang, Y., Bellot, A., and van der Schaar, M. Miracle: Causally-aware imputation via learning miss-ing data mechanisms. In Advances in Neural Informa-tion Processing Systems 34 , pp. 23806–23817, 2021. Le Morvan, M., Josse, J., Moreau, T., Scornet, E., and Varoquaux, G. NeuMiss networks: Differentiable pro-gramming for supervised learning with missing values. 10 Prediction Models That Learn to Avoid Missing Values 
+
+In Advances in Neural Information Processing Systems 33 , pp. 5980–5990, 2020. Le Morvan, M., Josse, J., Scornet, E., and Varoquaux, G. What’s a good imputation to predict with missing val-ues? In Advances in Neural Information Processing Sys-tems 34 , pp. 11530–11540, 2021. Liu, J., Zhong, C., Seltzer, M., and Rudin, C. Fast sparse classification for generalized linear and additive mod-els. In Proceedings of the 25th International Conference on Artificial Intelligence and Statistics , volume 151, pp. 9304–9333. PMLR, 2022. Ma, Z. and Chen, G. Bayesian methods for dealing with missing data problems. Journal of the Korean Statistical Society , 47:297–313, 2018. Mayer, I., Sportisse, A., Tierney, N., Vialaneix, N., and Josse, J. R-miss-tastic: A unified platform for missing values methods and workflows. The R Journal , 14(2): 244–266, 2022. McTavish, H., Donnelly, J., Seltzer, M., and Rudin, C. In-terpretable generalized additive models for datasets with missing values. In Advances in Neural Information Pro-cessing Systems 37 , 2024. Miyagi, Y. Identifying group a streptococcal pharyngitis in children through clinical variables using machine learn-ing. Cureus , 15(4), 2023. Paszke, A., Gross, S., Massa, F., Lerer, A., Bradbury, J., Chanan, G., Killeen, T., Lin, Z., Gimelshein, N., Antiga, L., et al. PyTorch: An imperative style, high-performance deep learning library. In Advances in neu-ral information processing systems 32 , 2019. Pearl, J. Probabilistic reasoning in intelligent systems: Networks of plausible inference . Elsevier, 2014. Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel, O., Blondel, M., Prettenhofer, P., Weiss, R., Dubourg, V., et al. Scikit-learn: Machine learning in Python. Journal of Machine Learning Re-search , 12:2825–2830, 2011. Quinlan, J. R. Induction of decision trees. Machine Learn-ing , 1:81–106, 1986. Quinlan, J. R. C4. 5: Programs for machine learning . El-sevier, 2014. Razavi, P., Chang, M. T., Xu, G., Bandlamudi, C., Ross, D. S., Vasan, N., Cai, Y., Bielski, C. M., Donoghue, M. T., Jonsson, P., et al. The genomic landscape of endocrine-resistant advanced breast cancers. Cancer Cell , 34(3):427–438, 2018. Rubin, D. B. Inference and missing data. Biometrika , 63 (3):581–592, 1976. Rudin, C., Chen, C., Chen, Z., Huang, H., Semenova, L., and Zhong, C. Interpretable machine learning: Funda-mental principles and 10 grand challenges. Statistic Sur-veys , 16:1–85, 2022. Semenova, L., Rudin, C., and Parr, R. On the existence of simpler machine learning models. In Proceedings of the 2022 ACM Conference on Fairness, Accountability, and Transparency , pp. 1827–1858, 2022. Shadbahr, T., Roberts, M., Stanczuk, J., Gilbey, J., Teare, P., Dittmer, S., Thorpe, M., Torn´ e, R. V., Sala, E., Li´ o, P., et al. The impact of imputation quality on machine learn-ing classifiers for datasets with missing values. Commu-nications Medicine , 3(1):139, 2023. Stempfle, L. and Johansson, F. MINTY: Rule-based mod-els that minimize the need for imputing features with missing values. In Proceedings of the 27th International Conference on Artificial Intelligence and Statistics , pp. 964–972. PMLR, 2024. Stempfle, L., Panahi, A., and Johansson, F. D. Sharing pattern submodels for prediction with missing values. In 
+
+Proceedings of the 37th AAAI Conference on Artificial Intelligence , pp. 9882–9890, 2023. Tibshirani, R. Regression shrinkage and selection via the Lasso. Journal of the Royal Statistical Society Series B: Statistical Methodology , 58(1):267–288, 1996. Tietz, M., Fan, T. J., Nouri, D., Bossan, B., and skorch Developers. skorch: A scikit-learn compatible neural network library that wraps PyTorch , 2017. Twala, B. E., Jones, M., and Hand, D. J. Good methods for coping with missing data in decision trees. Pattern Recognition Letters , 29(7):950–956, 2008. Van Buuren, S. Flexible multivariate imputation by MICE. Technical report, TNO Prevention and Health, 1999. Van Ness, M., Bosschieter, T. M., Halpin-Gregorio, R., and Udell, M. The missing indicator method: From low to high dimensions. In Proceedings of the 29th ACM SIGKDD Conference on Knowledge Discovery and Data Mining , pp. 5004–5015, 2023. van Smeden, M., Groenwold, R. H., and Moons, K. G. A cautionary note on the use of the missing indicator method for handling missing data in prediction research. 
+
+Journal of Clinical Epidemiology , 125:188, 2020. Verwer, S. and Zhang, Y. Learning optimal classification trees using a binary linear program formulation. In Pro-ceedings of the 33rd AAAI conference on artificial intel-ligence , pp. 1625–1632, 2019. 11 Prediction Models That Learn to Avoid Missing Values 
+
+Weiner, M. W., Aisen, P. S., Jack Jr, C. R., Jagust, W. J., Trojanowski, J. Q., Shaw, L., Saykin, A. J., Morris, J. C., Cairns, N., Beckett, L. A., et al. The Alzheimer’s dis-ease neuroimaging initiative: Progress report and future plans. Alzheimer’s & Dementia , 6(3):202–211, 2010. World Health Organization (WHO). Global Health Es-timates: Life expectancy and healthy life expectancy, 2021. 12 Prediction Models That Learn to Avoid Missing Values 
+
+## A. Proof of Propositions 1, 2 and Corollary 1 
+
+Proposition 1 (Restated). Let a set of ODDC rules R hold under a distribution p(X, M ). Any tree h that satisfies R will have missingness reliance ρ(h) = 0 under p.
+
+Proof. We will prove the proposition by induction on the size (number of nodes) n of the decision tree h.BASE CASE : T REE SIZE n = 0 (T REE WITH ONLY A ROOT NODE )Let h be a decision tree with size n = 0 that obeys the ODDC rules R. The decision tree h consists solely of a root node and it is also a leaf node. Since there are no splits, no features are used in computing h(x). Therefore, for any observation 
+
+x ∈ X , ρ(h, x) = 0 . Consequently, the expected missingness reliance is: 
+
+ρ(h) = Ep [ρ(h, X )] = Ep[0] = 0 .
+
+Thus, the base case holds. INDUCTION STEP : S IZE n = d + 1 
+
+Assume that for any decision tree h of size d that satisfies the ODDC rules in R, the expected missingness reliance satisfies: 
+
+ρ(h) = 0 .
+
+Now, consider a decision tree h′ of size d + 1 , built from a tree h of size d by adding a single split (j, τ ) to a leaf node 
+
+ℓ ∈ L (h). Assume that h′ also satisfies R. Since h satisfies the ODDC rules, ρ(h) = 0 by the induction assumption. By Equation (3), splitting a leaf ℓ ∈ L (h) using feature and threshold (j, τ ) can only introduce missingness reliance 
+
+ρ(h′) > 0 if the feature xj is missing for some input x such that ℓ ∈ πh(x) (ℓ is on the decision path for x in h). However, if splitting on feature j could lead to xj = na for any such x, the resulting tree h′ would not satisfy R, and we would have a contradiction. Given that h′ satisfies R, it must be that 
+
+∀x : ℓ ∈ πh(x) ; p(Mj = 1 | X = x) = 0 .
+
+Thus, the new tree h′ also has zero missigness reliance, ρ(h′) = 0 . Since the base case holds and the inductive step has been proven, by mathematical induction, by the inductive hypothesis, for trees h of any size n that satisfy the ODDC rules 
+
+R, the missingness reliance is ρ(h) = 0 .
+
+Corollary 1 (Restated). Consider a distribution p(X, M, Y ). Suppose the outcome Y satisfies a set of ODDC rules R in 
+
+p. Then, there exists a prediction model h with minimal risk and zero missingness reliance, ρ(h) = 0 , on p.
+
+Proof. We can prove the corollary constructively by defining a prediction model with minimal risk on p. For any loss function L, there is a (Bayes optimal) classifier h∗ which minimizes the expected risk over p by making point-wise optimal predictions, 
+
+∀x : h∗(x) := arg min 
+
+> y:p(y|x)>0
+
+E[L(y, Y ) | X = x], (8) and therefore, 
+
+arg min 
+
+> h:X →Y
+
+EX
+
+EY |X [L(h(X), Y ) | X] = h∗ .
+
+For the squared loss function L(y, y ′) = ( y − y′)2, h∗ is the conditional expectation, h∗(x) = E[Y | X = x].Since Y satisfies R on p by assumption, the function f (x) = p(Y = y | x) itself has missingness reliance ρ(f ) = 0 on p.Since h∗ can be computed deterministically from p(Y = y | X = x), ρ(h∗) = 0 . Therefore, h∗ has both minimal risk and zero missingness reliance on p.
+
+A Note on the Hypothesis Class. In Corollary 1, the optimal model h∗ = E[Y | X] is implicitly assumed to belong to the hypothesis class H. While this assumption is benign for universal function approximators like decision trees, it becomes more consequential for more restrictive model classes, such as linear models, where h∗ may lie outside H.13 Prediction Models That Learn to Avoid Missing Values 
+
+A Note on Convergence. If an optimal model h∗ exists, can our proposed algorithms recover it given enough data? The answer depends on the model class, the optimization procedure, and the data distribution. For instance, if h∗ is a sparse logistic model, then solving the optimization problem (5) using the L1-based regularization is likely to recover it—similar to how standard Lasso behaves. 
+
+Proposition 2 (Restated). Assume that each feature j is independently missing completely at random with probability pj ,
+
+p(Mj | X, Y, M ¬j ) = pj .
+
+Then, for any model h, with ah(x, j ) ∈ { 0, 1} indicating whether feature xj is used in the prediction h(x),
+
+ρ(h) ≥ max  
+
+> j
+
+E[ah(X, j )] pj .
+
+Proof. By definition, we have that 
+
+ρ(h) = E[max  
+
+> j
+
+ah(X, j )1[Xj = na ]] .
+
+It follows that 
+
+ρ(h) ≥ max  
+
+> j
+
+E[ah(X, j )1[Mj = 1]] = max  
+
+> j
+
+E[ah(X, j )] E[Mj = 1] = max  
+
+> j
+
+E[ah(X, j )] pj ,
+
+where the second row follows due to independence between Mj and X.
+
+## B. Missingness-Avoiding Gradient Boosting 
+
+In Algorithm 1, we present the algorithm used to fit MA-GBT .
+
+Algorithm 1 Missingness-Avoiding Gradient Boosted Trees (MA-GBT)  
+
+> 1:
+
+inputs Data set D = {(xi, y i)}ni=1 , learning rate γ ≥ 0, regularization parameter α, loss function L 
+
+> 2:
+
+inputs Ensemble size M 
+
+> 3:
+
+e0(x) = arg min c
+
+Pni=1 L(yi, c ) 
+
+> 4:
+
+∀i ∈ [n], j ∈ [d] : σi,j = 1  
+
+> 5:
+
+for m = 1 , . . . , M do  
+
+> 6:
+
+Compute pseudo-residuals: 
+
+∀i ∈ [n] : rim = −
+
+h ∂L (yi,e (xi)) 
+
+> ∂e (xi)
+
+i 
+
+> e(x)= em−1(x)
+> 7:
+
+Fit MA regression tree hm to Dr = {(xi, r im )}ni=1 using the splitting objective in (4) with regularization α, 
+
+> 8:
+
+sample multipliers {{ σi,j }dj=1 }ni=1 and mean squared error as the splitting criterion C 
+
+> 9:
+
+Update ensemble:  
+
+> 10:
+
+em(x) = em−1(x) + γh m(x) 
+
+> 11:
+
+Update reliance weights:  
+
+> 12:
+
+∀i ∈ [n], j ∈ [d] : σi,j = σi,j · (1 − 1[j ∈ πhm (xi)] 1[xi,j = na ])  
+
+> 13:
+
+end for 
+
+## C. Experimental Details 
+
+In this section, we provide additional details about our experimental setup. 
+
+C.1. Datasets 
+
+In Table 2, we provide an overview of the datasets used in our experiments. Each dataset is described in more detail below. The Life, Breast Cancer, and Pharyngitis datasets are available under a Creative Commons license. The FICO dataset is 14 Prediction Models That Learn to Avoid Missing Values 
+
+subject to its own licensing terms, which can be accessed at: https://community.fico.com/s/explainable-machine-learning-challenge. The ADNI dataset requires agreement to the data use policy available at: ADNI Data Use Agreement. The NHANES dataset is governed by the data release policy accessible here: NHANES Data Release Policy. For preprocessing the datasets, we followed the structure from Shadbahr et al. (2023). For the synthetic missingness experiment described in Section 6.3, we adopted the approach from Mayer et al. (2022). Additional preprocessing details can be found on our GitHub project page: https://github.com/Healthy-AI/malearn . 
+
+> Table 2. Overview of the datasets used in our experiments. Each dataset corresponds to a binary classification task.
+
+Dataset Samples Features Prediction Task 
+
+NHANES (Johnson et al., 2013) 69,118 42 Hypertension LIFE (World Health Organization (WHO), 2021) 2,864 18 Life expectancy above/below dataset median ADNI (Weiner et al., 2010) 1,337 39 Diagnosis change over two years Breast Cancer (Razavi et al., 2018) 1,756 16 Hormone receptor status Pharyngitis (Miyagi, 2023) 676 18 Outcome of rapid antigen detection test FICO (FICO et al., 2018) 10,549 23 Credit repayment 
+
+NHANES. The National Health and Nutrition Examination Survey (NHANES) (Johnson et al., 2013) is a cross-sectional study designed to assess the health and nutritional status of the U.S. population. It combines interviews, physical exam-inations, and laboratory tests to provide a comprehensive dataset for epidemiological research. While NHANES is not inherently structured for a specific machine learning task, it has been widely used in predictive modeling studies (Gard-ner et al., 2023). In this work, NHANES was utilized to develop models for predicting hypertension, where the outcome variable ( Y ) wa based on clinical blood pressure measurements. The predictor variables ( X) included demographic infor-mation such as age, sex, and ethnicity, examination features like BMI and waist circumference, laboratory values including cholesterol levels and blood glucose, as well as questionnaire-based factors such as smoking status and physical activity. Missingness in NHANES arises due to various factors, including participant refusal, ineligibility, and incomplete examina-tions. Participants may choose not to answer survey questions or refuse to undergo certain medical tests. Some components are only administered to specific demographic groups, such as dietary recalls that apply only to adults, resulting in struc-turally missing values. Additionally, missing data may occur due to technical issues or participant dropout, making certain variables unavailable for some individuals. Notably, missing values due to ineligibility are deterministic, meaning they cannot be reliably imputed as they are structurally absent in specific subgroups. For our experiments, we sampled 10,000 observations with equal distribution of positive and negative cases. 
+
+Life Expectancy (WHO). The Life Expectancy dataset, sourced from the World Health Organization (WHO) (World Health Organization (WHO), 2021) and available at https://www.kaggle.com/datasets/lashagoch/ life-expectancy-who-updated aggregates country-level health indicators spanning from 2000 to 2015. It in-cludes a diverse range of demographic, economic, and health-related variables that are used to predict life expectancy through both regression and classification tasks. This dataset comprises 2864 records across 179 countries and con-tains indicators such as population growth, fertility rates, and median age as demographic variables, GDP per capita and government healthcare expenditure as economic indicators, and immunization coverage, prevalence of diseases, and mortality rates as health system data. In this work, we created a classification task to determine whether a coun-try’s life expectancy is above or below the dataset median. Starting from the complete dataset obtained via the linked Kaggle project, we followed the preprocessing steps described in (Stempfle et al., 2023), introducing 10 % MCAR missingness across features. Observations with missing country information were excluded, as the train-test split was performed with respect to this variable (which was not included in the feature set). Missing values in the Region 
+
+variable were imputed based on the corresponding country. The final dataset is available in our GitHub repository: 
+
+https://github.com/Healthy-AI/malearn .
+
+Alzheimer’s Disease Neuroimaging Initiative (ADNI). The Alzheimer’s Disease Neuroimaging Initiative (ADNI) (Weiner et al., 2010) is a longitudinal study designed to collect and standardize clinical, neuroimaging, and genetic data to support the early diagnosis and monitoring of Alzheimer’s disease progression. The dataset provides detailed pa-tient assessments at multiple time points, making it a valuable resource for predictive modeling. In this work, baseline data from a sample of 1,337 patients was used to construct a classification task: predicting whether a patient’s diagnosis will 15 Prediction Models That Learn to Avoid Missing Values 
+
+change two years after the baseline assessment. The selected dataset includes clinical data (e.g., cognitive test scores and medical history), neuroimaging data from MRI and PET scans (measuring brain atrophy and amyloid-beta accumulation), and genetic information, including APOE genotype, which is strongly associated with Alzheimer’s risk. Missingness in ADNI arises from inconsistent follow-up visits, participant withdrawal, and variability in the availability of imaging or genetic tests. Since not all participants complete every assessment at each time point, missing data can significantly impact longitudinal analyses. 
+
+Breast Cancer. The Breast Cancer dataset, introduced by (Razavi et al., 2018), focuses on predicting hormone receptor (HR) status and survival time using molecular and clinical features. In this work, we focused on a classification task aimed at distinguishing between HR-positive (HR +) and HR-negative (HR −) tumors, as HR status is a key biomarker guiding treatment decisions—particularly the use of endocrine therapies. This task leverages features such as estrogen receptor (ER) and progesterone receptor (PR) status, HER2 expression, and mutation burden. The dataset contains 1,711 samples and 18 features, with a class distribution of 1,415 HR-positive and 296 HR-negative cases. Three variables exhibit missing values: “ER PCT Primary” (185 missing entries), “Fraction Genome Altered” (22), and “Mutation Count” (75). We followed the preprocessing approach described in McTavish et al. (2024), including only a single row per individual patient. 
+
+FICO. The FICO Explainable Machine Learning Challenge dataset (FICO et al., 2018) contains anonymized credit data from Home Equity Line of Credit (HELOC) applications, with the primary objective of predicting whether an individual will repay a line of credit within two years. The dataset includes 10,459 applicants and 23 financial attributes derived from credit reports, such as credit utilization ratios, payment history, and debt-to-income ratios, making it a valuable dataset for credit risk assessment. A unique feature of this dataset is its encoding of missing values through three distinct codes: −7
+
+denotes missing information of a specific type, −8 indicates the complete absence of usable information, and −9 signifies cases where a credit bureau report was either not retrieved or not found. These encodings reflect real-world financial uncertainty and require tailored imputation strategies. The presence of structured missing values poses an additional challenge in developing models that are both interpretable and robust in assessing credit risk. In our preprocessing of the data, we replaced all the different missingness codes with na .
+
+Pharyngitis. The Pharyngitis dataset, introduced by Miyagi (2023), consists of 676 patients with 19 measured features and was used to predict the outcome of a rapid antigen detection test (RADT) in children with pharyngitis. Specifically, the outcome was the presence of group A streptococcus (GAS) on throat culture. The predictor variables include age, sudden onset of sore throat, maximum body temperature (as reported by the accompanying parent), throat pain, cough, rhinorrhea, conjunctivitis, headache, pharyngeal erythema, tonsillar swelling, tonsillar exudate, palatal petechiae, nausea and/or vomiting, abdominal pain, diarrhea, tender cervical lymph nodes, and the presence of a scarlatiniform rash. The number of missing values ranged from 0 % to around 6 % per predictor variable. 
+
+C.2. Hyperparameters 
+
+The hyperparameters we considered are shown in Table 3. We performed an exhaustive search over the hyperpa-rameters for all models except MA-RF , MA-GBT , MINTY, and XGboost, for which we randomly sampled 10 dif-ferent sets of hyperparameters. Note, in our implementation of MA-LASSO λj =
+
+ Pni=1 mi,j +βn
+
+
+
+α, where β =[0 .001 , 0.01 , 0.1, 1, 10 , 100 , 1000] .
+
+C.3. Missingness Reliance Metric for Each Estimator 
+
+The missingness reliance metric quantifies a model’s dependence on missing values during inference, providing an estimator-specific yet comparable measure. We define missingness reliance for all MA models in Section 4. For tree-based baseline models (DT, RF, and XGBoost), this reliance is defined in the same way as for the corresponding MA model. For linear baseline models, such as LR and M-GAM, reliance is determined by the use of missing features with non-zero coefficients, i.e., in the same way as for MA-LASSO . NeuMiss explicitly incorporates missingness through mask non-linearity and specialized blocks, with reliance assessed by the proportion of samples requiring such mechanisms. In MINTY, reliance is defined at the rule level, indicating whether a missing attribute influences a given decision. 16 Prediction Models That Learn to Avoid Missing Values 
+
+Table 3. Hyperparameters and their respective search space for all models. Model Hyperparameter Search space LR regularization strength {0.1, 0.5, 1.0, 2.0, 10 .0}
+
+DT max depth {1, 2, 3, 4, 5, 6, 7, 8, 9}
+
+RF max depth {3, 4, 5, 6, 7, 8, 9}
+
+min samples to split {0.05 , 0.10 , 0.15 , 0.20 , 0.25 }
+
+M-GAM lambda 0 {20 , 10 , 5, 2, 1, 0.5, 0.4, 0.2, 0.1, 0.05 , 0.02 , 0.01 , 0.005 }
+
+XGBoost max depth {3, 4, 5, 6, 7, 8, 9}
+
+learning rate {0.01 , 0.1}
+
+number of estimators {100 , 200 , 300 , 400 , 500 }
+
+NeuMiss learning rate {0.001 , 0.01 , 0.1}
+
+batch size {32 , 64 , 128 }
+
+MINTY optimizer {“beam” }
+
+max rules {10 , 15 }
+
+lambda 0 {1.0 × 10 −6, 1.0 × 10 −5, 0.001 , 0.01 , 0.1, 10 }
+
+lambda 1 {1.0 × 10 −6, 1.0 × 10 −5, 0.001 , 0.01 , 0.1, 10 }
+
+gamma {0, 0.001 , 0.01 , 0.1, 10000 }
+
+MA-LASSO alpha {1, 10 , 100 , 1000 , 10000 }
+
+beta {0.001 , 0.01 , 0.1, 1, 10 , 100 , 1000 }
+
+MA-DT max depth {1, 2, 3, 4, 5, 6, 7, 8, 9}
+
+alpha {0.001 , 0.01 , 0.1, 1, 10 }
+
+MA-RF 
+
+number of estimators {50 }
+
+max depth {1, 2, 3, 4, 5, 6, 7}
+
+alpha {0.001 , 0.01 , 0.1, 1, 10 }
+
+MA-GBT 
+
+number of estimators {10 }
+
+loss {“log loss” }
+
+learning rate {0.01 , 0.1}
+
+max depth {1, 2, 3, 4, 5, 6, 7}
+
+alpha {0.001 , 0.01 , 0.1, 1, 10 }
+
+C.4. Implementations 
+
+For Neumiss we used PyTorch (Paszke et al., 2019) in combination with skorch (Tietz et al., 2017). Model parameters were optimized using the cross-entropy loss and the Adam optimizer with default parameters. Early stopping was applied during training if there was no improvement in performance for 10 consecutive epochs. The logistic regression model, the decision tree classifier and the random forest classifier were implemented using the scikit-learn library (Pedregosa et al., 2011). For XGBoost, we used the XGBoost Python Package (see https://xgboost.readthedocs.io/ en/stable/python/index.html ). For MINTY and M-GAM, we adapted code provided by Stempfle & Johansson (2024) and McTavish et al. (2024). Our code is available at https://github.com/Healthy-AI/malearn .NODE SPLITTING CRITERION FOR TREE -B ASED MODELS 
+
+In our tree-bases models, we performed node splitting based on the Gini criterion, defined as: 
+
+C(ℓ, D; j, τ ) = X
+
+> c
+
+pℓc(1 − pℓc), pℓc = X
+
+> i∈S ℓ
+
+1[yi = c]
+
+|S ℓ| ,
+
+for the general case with c classes. In our case, c = 2 . For definitions of additional notations, please refer to Section 4. 
+
+## D. Additional Results 
+
+In this section, we provide additional results from our experiments. Table 4 presents the same results as Table 1, but using MICE imputation instead of zero imputation. Table 5 shows results using both imputation techniques on two additional datasets: Breast Cancer and Pharyngitis. Table 6 and Table 7 report the performance of MA models under different settings 17 Prediction Models That Learn to Avoid Missing Values 
+
+Table 4. Test-set AUROC and missingness reliance ( ˆρ) across four datasets using MICE imputation. The 95 % confidence intervals are based on the bootstrap distribution of the respective metric. For each dataset and MA estimator, α is selected as part of the overall model selection strategy, with the model minimizing ˆρ chosen among those achieving at least 95 % of the maximum AUROC. 
+
+ADNI FICO LIFE NHANES 
+
+ESTIMATOR AUROC ( ↑) ˆρ (↓) AUROC ( ↑) ˆρ (↓) AUROC ( ↑) ˆρ (↓) AUROC ( ↑) ˆρ (↓)LR 72.9 (70.6, 75.1) 62.9 (60.5, 64.7) 79.1 (78.3, 79.6) 75.4 (74.9, 75.9) 99.0 (98.2, 99.6) 54.9 (52.5, 57.1) 85.1 (84.6, 85.7) 100.0 (100.0, 100.0) 
+
+DT 69.8 (67.6, 72.1) 34.6 (25.0, 44.6) 73.7 (73.0, 74.5) 5.7 (5.4, 6.0) 91.0 (87.9, 94.4) 15.8 (12.0, 19.4) 82.4 (81.7, 83.1) 0.1 (0.0, 0.2) 
+
+RF 76.6 (73.9, 79.8) 65.9 (64.0, 68.1) 77.5 (76.9, 78.1) 71.0 (67.3, 74.3) 97.9 (96.4, 98.7) 83.6 (82.6, 84.7) 82.3 (82.0, 82.5) 100.0 (100.0, 100.0) 
+
+M-GAM ( IND ) 69.7 (66.9, 72.1) 14.7 (0.6, 32.5) 77.9 (77.6, 78.3) 42.4 (28.6, 56.2) 98.2 (96.4, 99.2) 49.4 (42.8, 56.1) 84.0 (83.4, 84.6) 28.2 (9.5, 50.0) 
+
+M-GAM ( INT ) 69.5 (67.0, 72.0) 46.3 (22.5, 61.2) 77.6 (77.3, 77.9) 29.1 (28.1, 30.2) 98.1 (96.3, 99.3) 51.7 (45.3, 60.2) 84.1 (83.6, 84.5) 26.4 (14.8, 48.3) 
+
+XGB OOST 79.0 (75.7, 82.4) 60.9 (57.6, 63.4) 78.4 (77.9, 79.0) 69.3 (58.9, 74.9) 98.2 (96.1, 99.4) 56.1 (52.3, 61.1) 84.8 (84.6, 85.2) 95.7 (87.3, 100.0) 
+
+NEU MISS 76.4 (75.0, 78.2) 67.0 (64.9, 70.1) 79.0 (78.4, 79.5) 75.4 (74.9, 75.9) 98.6 (97.3, 99.4) 84.1 (83.0, 85.2) 85.5 (85.2, 85.7) 100.0 (100.0, 100.0) 
+
+MINTY 70.6 (67.4, 73.8) 1.3 (0.3, 2.5) 76.6 (75.2, 77.9) 22.8 (8.0, 43.6) 96.2 (94.1, 98.3) 21.9 (16.8, 27.2) 81.9 (80.1, 83.8) 0.3 (0.0, 0.8) 
+
+MA-LASSO 67.4 (65.7, 68.8) 0.4 (0.1, 1.0) 75.8 (74.9, 76.6) 5.7 (5.4, 6.0) 98.0 (96.6, 99.0) 19.5 (19.0, 20.0) 84.5 (84.0, 85.0) 0.4 (0.0, 0.9) 
+
+MA-DT 74.0 (71.8, 75.9) 0.3 (0.0, 0.7) 73.7 (73.0, 74.5) 5.7 (5.4, 6.0) 91.2 (86.9, 94.7) 10.5 (10.2, 10.9) 82.4 (81.6, 83.2) 0.0 (0.0, 0.0) 
+
+MA-RF 78.0 (76.2, 80.3) 3.0 (0.6, 7.5) 76.0 (75.4, 76.4) 5.8 (5.5, 6.1) 97.5 (96.7, 98.1) 24.6 (20.9, 28.2) 84.0 (83.3, 84.6) 0.2 (0.0, 0.6) 
+
+MA-GBT 77.0 (74.1, 79.9) 3.1 (0.9, 6.6) 75.7 (74.5, 77.2) 6.1 (5.6, 6.6) 96.7 (94.0, 98.6) 18.0 (13.8, 21.4) 83.1 (82.1, 84.1) 0.4 (0.0, 1.1) 1 2 3 4 5 6 7 8 9Max. tree depth 
+
+0.6
+
+0.7
+
+0.8AUROC  − ˆρ
+
+α = 0 .0
+
+α = 0 .1
+
+α = 1 .0
+
+α = 10 .0
+
+Figure 5. LIFE: AUROC − ˆρ vs. max. tree depth. 
+
+of the missingness reliance parameter α. Figure 5 illustrates the trade-off between AUROC and missingness reliance ( ˆρ)when varying the maximum allowed tree depth in LIFE, across different α values. Finally, Figure 6 shows example LIFE trees under different α settings. 18 Prediction Models That Learn to Avoid Missing Values 
+
+Table 5. Test-set AUROC and missingness reliance ( ˆρ) across two datasets, Breast Cancer and Pharyngitis, using zero ( IM ) and MICE (IM ) imputation. The 95 % confidence intervals are based on the bootstrap distribution of the respective metric. For each dataset and MA estimator, α is selected as part of the overall model selection strategy, with the model minimizing ˆρ chosen among those achieving at least 95 % of the maximum AUROC. 
+
+BREAST CANCER PHARYNGITIS 
+
+ESTIMATOR AUROC ( ↑) ˆρ (↓) AUROC ( ↑) ˆρ (↓)LR ( I0 ) 75.0 (73.4, 76.6) 29.5 (17.8, 41.3) 70.5 (68.1, 72.4) 15.9 (12.8, 20.0) LR ( IM ) 75.8 (74.2, 77.4) 40.2 (39.0, 41.9) 70.5 (68.2, 72.4) 15.9 (12.8, 20.0) DT ( I0 ) 70.6 (68.5, 72.8) 0.0 (0.0, 0.0) 65.5 (63.0, 67.8) 7.9 (4.7, 10.9) DT ( IM ) 70.0 (67.5, 72.5) 0.0 (0.0, 0.0) 65.6 (63.0, 68.1) 7.8 (4.6, 10.9) RF ( I0 ) 74.3 (72.1, 76.3) 42.6 (41.8, 43.8) 73.7 (72.1, 75.0) 25.0 (22.5, 27.2) RF ( IM ) 74.5 (72.5, 76.4) 42.6 (41.8, 43.8) 73.6 (72.2, 74.7) 25.3 (22.6, 27.8) M-GAM ( IND ) 71.7 (69.3, 74.0) 8.6 (0.3, 24.4) 71.7 (70.2, 72.9) 15.6 (12.9, 19.0) M-GAM ( INT ) 72.5 (69.4, 75.7) 9.7 (0.5, 26.1) 71.3 (70.2, 71.9) 13.7 (12.8, 15.0) XGB OOST 74.7 (73.1, 76.5) 42.4 (41.6, 43.6) 72.4 (69.8, 75.3) 19.9 (15.9, 24.1) NEU MISS 75.5 (73.5, 77.4) 42.6 (41.8, 43.8) 73.4 (71.2, 75.5) 25.7 (22.8, 28.2) MINTY 70.9 (68.8, 73.9) 32.6 (31.1, 34.5) 69.7 (68.2, 70.9) 11.8 (9.1, 13.8) MA-LASSO ( I0 ) 71.6 (69.7, 74.2) 0.0 (0.0, 0.0) 70.2 (67.7, 72.1) 18.8 (16.6, 20.4) MA-LASSO ( IM ) 71.0 (68.5, 74.1) 8.4 (0.0, 25.2) 70.2 (67.7, 72.1) 18.8 (16.6, 20.4) MA-DT ( I0 ) 70.6 (68.6, 72.6) 0.0 (0.0, 0.0) 66.6 (63.2, 69.4) 4.3 (2.4, 6.2) MA-DT ( IM ) 70.6 (68.6, 72.6) 0.0 (0.0, 0.0) 66.9 (63.2, 69.6) 4.3 (2.4, 6.2) MA-RF ( I0 ) 72.2 (69.7, 74.7) 0.6 (0.1, 1.5) 71.7 (69.9, 74.0) 14.1 (12.6, 15.7) MA-RF ( IM ) 72.2 (69.7, 74.7) 0.6 (0.1, 1.5) 71.4 (69.5, 73.9) 14.1 (12.6, 15.7) MA-GBT ( I0 ) 70.8 (69.1, 72.1) 0.6 (0.0, 1.2) 68.2 (65.8, 71.0) 6.8 (4.7, 8.8) MA-GBT ( IM ) 71.2 (69.3, 72.7) 0.7 (0.0, 1.5) 68.2 (65.8, 71.0) 6.8 (4.7, 8.8) 
+
+Table 6. Test-set AUROC and missingness reliance ( ˆρ) across four datasets using zero imputation. The 95 % confidence intervals are based on the bootstrap distribution of the respective metric. For each dataset and MA estimator, we consider three different values for the missingness regularization parameter α, where α = ∞ and α = α∗ are selected as part of the overall model selection strategy. For 
+
+α = ∞, we select an α that is large enough to result in near-zero missingness reliance ( ˆρ ≈ 0) while maximizing AUROC. For α = α∗,we select the model minimizing ˆρ chosen among those achieving at least 95 % of the maximum AUROC. Finally, α = 0 effectively means no missingness regularization. 
+
+ADNI FICO LIFE NHANES 
+
+ESTIMATOR AUROC ( ↑) ˆρ (↓) AUROC ( ↑) ˆρ (↓) AUROC ( ↑) ˆρ (↓) AUROC ( ↑) ˆρ (↓)MA-LASSO ( α = ∞) 50.3 (49.1, 51.5) 0.7 (0.3, 1.2) 50.0 (50.0, 50.0) 0.0 (0.0, 0.0) 57.1 (50.0, 71.3) 0.1 (0.0, 0.2) 63.7 (50.0, 77.4) 0.2 (0.0, 0.7) 
+
+MA-LASSO ( α = α∗ ) 68.4 (66.1, 70.6) 11.8 (0.1, 34.7) 75.8 (74.9, 76.6) 5.7 (5.4, 6.0) 97.7 (96.7, 98.6) 21.0 (19.1, 24.1) 84.5 (84.0, 85.0) 0.4 (0.0, 0.9) 
+
+MA-LASSO ( α = 0 ) 69.0 (66.3, 72.1) 66.5 (64.7, 68.6) 76.4 (75.6, 77.4) 75.4 (74.9, 75.9) 98.7 (97.7, 99.4) 84.1 (83.0, 85.2) 77.5 (76.7, 78.2) 100.0 (100.0, 100.0) 
+
+MA-DT ( α = ∞) 70.2 (65.3, 75.3) 0.1 (0.0, 0.3) 75.7 (74.9, 76.4) 5.7 (5.4, 6.0) 71.8 (67.1, 76.8) 0.2 (0.0, 0.3) 83.9 (83.5, 84.3) 0.0 (0.0, 0.0) 
+
+MA-DT ( α = α∗ ) 74.1 (71.7, 76.4) 0.1 (0.0, 0.3) 73.8 (73.0, 74.5) 5.7 (5.4, 6.0) 89.7 (87.5, 91.8) 12.3 (10.4, 15.3) 82.4 (81.6, 83.2) 0.0 (0.0, 0.0) 
+
+MA-DT ( α = 0 ) 72.7 (71.4, 74.2) 11.7 (6.3, 18.8) 73.8 (73.0, 74.5) 5.7 (5.4, 6.0) 92.2 (90.1, 93.6) 18.3 (15.8, 19.9) 82.3 (81.5, 83.0) 0.1 (0.0, 0.2) 
+
+MA-RF ( α = ∞) 71.7 (68.6, 75.8) 0.9 (0.3, 1.5) 75.3 (73.3, 76.7) 5.7 (5.4, 6.0) 75.5 (67.1, 87.9) 5.7 (0.0, 16.8) 82.5 (80.4, 84.2) 0.0 (0.0, 0.1) 
+
+MA-RF ( α = α∗ ) 78.0 (76.2, 80.4) 3.2 (0.7, 7.6) 76.3 (75.6, 76.8) 5.8 (5.5, 6.1) 97.2 (95.7, 98.3) 24.2 (22.0, 26.5) 84.0 (83.3, 84.6) 0.2 (0.0, 0.5) 
+
+MA-RF ( α = 0 ) 78.4 (76.6, 80.5) 57.5 (52.1, 62.9) 75.7 (74.8, 76.5) 12.2 (8.6, 15.8) 95.2 (93.6, 96.4) 20.8 (18.9, 23.8) 84.2 (83.5, 84.9) 0.4 (0.2, 0.6) 
+
+MA-GBT ( α = ∞) 68.5 (64.7, 72.3) 0.4 (0.1, 0.6) 73.0 (71.4, 74.6) 5.7 (5.4, 6.0) 93.5 (91.1, 96.1) 13.8 (9.7, 18.4) 81.1 (79.2, 82.7) 0.0 (0.0, 0.0) 
+
+MA-GBT ( α = α∗ ) 78.5 (76.4, 80.5) 1.6 (0.7, 2.7) 75.6 (74.5, 77.1) 5.9 (5.5, 6.2) 95.9 (92.1, 98.9) 16.5 (11.9, 21.2) 83.2 (82.1, 84.4) 0.3 (0.0, 1.0) 
+
+MA-GBT ( α = 0 ) 73.8 (71.8, 76.1) 26.6 (10.9, 43.4) 74.8 (73.8, 76.0) 7.6 (5.4, 11.3) 92.6 (90.3, 94.3) 19.4 (18.8, 19.9) 82.7 (81.9, 83.4) 0.0 (0.0, 0.1) 
+
+19 Prediction Models That Learn to Avoid Missing Values 
+
+Table 7. Test-set AUROC and missingness reliance ( ˆρ) across two datasets, Breast Cancer and Pharyngitis, using zero imputation. The 
+
+95 % confidence intervals are based on the bootstrap distribution of the respective metric. For each dataset and MA estimator, we consider three different values for the missingness regularization parameter α, where α = ∞ and α = α∗ are selected as part of the overall model selection strategy. For α = ∞, we select an α that is large enough to result in near-zero missingness reliance ( ˆρ ≈ 0)while maximizing AUROC. For α = α∗, we select the model minimizing ˆρ chosen among those achieving at least 95 % of the maximum AUROC. Finally, α = 0 effectively means no missingness regularization. 
+
+BREAST CANCER PHARYNGITIS 
+
+ESTIMATOR AUROC ( ↑) ˆρ (↓) AUROC ( ↑) ˆρ (↓)MA-LASSO ( α = ∞) 71.9 (70.3, 74.3) 0.0 (0.0, 0.0) 54.9 (51.5, 58.2) 0.0 (0.0, 0.0) MA-LASSO ( α = α∗ ) 71.6 (69.7, 74.2) 0.0 (0.0, 0.0) 70.2 (67.7, 72.1) 18.8 (16.6, 20.4) MA-LASSO ( α = 0 ) 76.0 (74.5, 77.5) 42.6 (41.8, 43.8) 70.4 (68.2, 73.1) 25.7 (22.8, 28.2) MA-DT ( α = ∞) 70.6 (68.6, 72.6) 0.0 (0.0, 0.0) 54.6 (50.8, 58.9) 0.0 (0.0, 0.0) MA-DT ( α = α∗ ) 70.6 (68.6, 72.6) 0.0 (0.0, 0.0) 66.6 (63.2, 69.4) 4.3 (2.4, 6.2) MA-DT ( α = 0 ) 70.6 (68.6, 72.6) 0.0 (0.0, 0.0) 65.6 (63.0, 68.1) 7.8 (4.6, 10.9) MA-RF ( α = ∞) 69.6 (67.5, 71.8) 0.1 (0.0, 0.3) 60.2 (55.3, 65.0) 1.6 (0.3, 3.1) MA-RF ( α = α∗ ) 72.2 (69.7, 74.7) 0.6 (0.1, 1.5) 71.7 (69.9, 74.0) 14.1 (12.6, 15.7) MA-RF ( α = 0 ) 73.9 (72.7, 75.1) 6.4 (2.6, 10.1) 69.0 (66.0, 71.2) 12.1 (9.6, 14.1) MA-GBT ( α = ∞) 69.6 (67.5, 71.6) 0.0 (0.0, 0.0) 57.6 (51.8, 65.2) 1.2 (0.0, 2.6) MA-GBT ( α = α∗ ) 70.8 (69.1, 72.1) 0.6 (0.0, 1.2) 68.2 (65.8, 71.0) 6.8 (4.7, 8.8) MA-GBT ( α = 0 ) 71.4 (69.2, 73.3) 1.0 (0.0, 2.1) 68.6 (66.5, 70.5) 9.3 (7.8, 11.2) 
+
+20 Prediction Models That Learn to Avoid Missing Values True False 
+
+MA-DT with α = 0 (AUC = 0.90, ρ = 0 .18)                   
+
+> (...) (...) (...) (...) Infant deaths ≤28.79 Samples: 49.0% Pr(LE >median) = 0.90 ˆρ= 0.09 Under five deaths ≤19.70 Samples: 51.0% Pr(LE >median) = 0.17 ˆρ= 0.28 Adult mortality ≤167.32 Samples: 100.0% Pr(LE >median) = 0.53 ˆρ= 0.10
+
+(a) α = 0 True False 
+
+MA-DT with α = α∗ (AUC = 0.90, ρ = 0 .12)                  
+
+> (...) (...) (...) (...) Adult mortality ≤130.50 Samples: 49.0% Pr(LE >median) = 0.90 ˆρ= 0.00 Region = European Union Samples: 51.0% Pr(LE >median) = 0.17 ˆρ= 0.20 Adult mortality ≤167.32 Samples: 100.0% Pr(LE >median) = 0.53 ˆρ= 0.10
+
+(b) α = α∗True False 
+
+MA-DT with α = ∞ (AUC = 0.67, ρ = 0 .00) 
+
+Samples: 73.4% Pr(LE > median) = 0.67 ˆρ = 0.00 Samples: 26.6% Pr(LE > median) = 0.12 ˆρ = 0.00 Region 6 = Africa Samples: 100.0% Pr(LE > median) = 0.53 ˆρ = 0.00 
+
+(c) α = ∞
+
+Figure 6. Example decision trees for α = 0 , α = α∗, and α = ∞ fit to LIFE. The nodes are colored based on the missingness reliance 
+
+ρ. The goal is to predict whether a country’s life expectancy (LE) is above or below the median life expectancy. (a): MA-DT with 
+
+α = 0 behaves as a regular decision tree, splitting on highly predictive features such as Adult_mortality (probability of dying between 15 and 60 years per 1000 population) and Infant_deaths (number of infant deaths per 1000 population) (b): MA-DT with 
+
+α selected to balance the trade-off between predictive performance and AUROC. Similar to the standard decision tree, MA-DT first splits on Adult_mortality at the root node, but then splits by the region corresponding to the European Union, reducing the missingness reliance for the overall tree. (c): With a large α, the tree is built with no missingness reliance, only splitting by the region “Africa”. While this tree achieves zero missingness reliance, it performs significantly worse than the others in terms of predictive accuracy. 
+
+21

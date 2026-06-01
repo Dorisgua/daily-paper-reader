@@ -1,0 +1,2754 @@
+Title: Optimal Transfer Learning for Missing Not-at-Random Matrix Completion
+
+URL Source: https://openreview.net/pdf?id=KpWmOJAjr7
+
+Number of Pages: 33
+
+Markdown Content:
+# Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+Akhil Jalan 1 Yassir Jedra 2 Arya Mazumdar 3 Soumendu Sundar Mukherjee 4 Purnamrita Sarkar 5
+
+## Abstract 
+
+We study transfer learning for matrix completion in a Missing Not-at-Random (MNAR) setting that is motivated by biological problems. The target matrix Q has entire rows and columns missing, making estimation impossible without side information. To address this, we use a noisy and incomplete source matrix P , which relates to 
+
+Q via a feature shift in latent space. We consider both the active and passive sampling of rows and columns. We establish minimax lower bounds for entrywise estimation error in each setting. Our computationally efficient estimation framework achieves this lower bound for the active setting, which leverages the source data to query the most informative rows and columns of Q. This avoids the need for incoherence assumptions required for rate optimality in the passive sampling setting. We demonstrate the effectiveness of our approach through comparisons with existing algorithms on real-world biological datasets. 
+
+## 1. Introduction 
+
+We study transfer learning in the context of matrix comple-tion, a fundamental problem motivated by theory (Cand `es and Recht, 2009; Cand `es and Tao, 2010) and practice (Fern ´andez-Val et al., 2021; Einav and Cleary, 2022; Gao et al., 2022). A major body of work studies matrix completion in the Missing Completely-at-Random (MCAR) setting (Jain et al., 2013; Chatterjee, 2015; Chen et al., 2020), where each entry is observed i.i.d. with probability p. A more general missing-ness pattern, known as Missing Not-at-Random (MNAR), considers an underlying propensity matrix pij so that the 
+
+(i, j )th entry is observed independently with probability               
+
+> 1Department of Computer Science, UT Austin, USA
+> 2Laboratory for Information & Decision Systems (LIDS), MIT, USA 3Halıcıo ˘glu Data Science Institute & Department of Computer Science and Engineering, UC San Diego, USA 4Statistics and Mathematics Unit (SMU), Indian Statistical Institute, Kolkata, India 5Department of Statistics and Data Sciences, UT Austin, USA. Correspondence to: Akhil Jalan <akhiljalan@utexas.edu >.
+> Proceedings of the 42 nd International Conference on Machine Learning , Vancouver, Canada. PMLR 267, 2025. Copyright 2025 by the author(s).
+
+pij (Ma and Chen, 2019; Bhattacharya and Chatterjee, 2022). Various MNAR models have been formulated based on missingness structures in panel data (Agarwal et al., 2023b), recommender systems (Jedra et al., 2023), and electronic health records (Zhou et al., 2023). Motivated by biological problems, we consider a challenging MNAR structure where most rows and columns of eQ (a noisy version of Q) are entirely missing. Specifically, we consider both the active sampling and passive sampling 
+
+settings for eQ. In active sampling, a practitioner can choose rows R and columns C so that entries in R ×C are observed. This follows experimental design constraints in metabolite balancing experiments (Christensen and Nielsen, 2000a), marker selection for single-cell RNA sequencing (Vargo and Gilbert, 2020), patient selection for companion diagnostics (Huber et al., 2022), and gene expression microarrays (Hu et al., 2021). The requirement that entire rows and columns must be observed is due to real-world constraints, such as the use of certain assays or experimental protocols. For example, 
+
+metabolite balancing is a method for measuring pairwise metabolic interactions in cells, but requires choosing a set of metabolites (rows & columns) beforehand (Christensen and Nielsen, 2000b). Another example comes from gene expres-sion microarray measurements, which require a choice of pa-tients (rows) and genes (columns) to measure beforehand (Hu et al., 2021). We study both of these settings in Section 3. In the passive sampling setting, the practitioner cannot choose the experiments. We model this by sampling each row (column) with probability pRow (pCol ). For example, microar-ray analysis detects RNA segments corresponding to known genes by using chemical hybridization. However, rows may be missing because of a patient sample failing to hybridize, and columns may be missing because of gene probe failure (Hu et al., 2021). For an illustration, see Figure 1. This setting is inherently difficult because there are many entries (i,j ) for which row i and column j are both missing in 
+
+eQ. Clearly, even when Q is low-rank and incoherent, estima-tion is impossible without side information (Proposition 2.1). Transfer learning is necessary to achieve vanishing estima-tion error since no information about Qij is known. Hence, we consider transfer learning in a setting where one has a noisy and masked eP corresponding to a source matrix P . P
+
+1Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+and Q are related by a distribution shift in their latent singular subspaces (Definition 1.2), which is a common model in e.g. Genome-Wide Association Studies (McGrath et al., 2024) and Electronic Health Records (Zhou et al., 2023). 
+
+Contributions. Below, we list our contributions: (i) We obtain minimax lower bounds for entrywise estimation error for both the active (Theorem 2.2) and passive sampling settings (Theorem 2.12). (ii) We give a computationally efficient estimation framework for both sampling settings. Our procedure is 
+
+minimax optimal for the active setting (Theorem 2.6). We also establish minimax optimality for the passive setting under incoherence assumptions (Theorem 2.9). (iii) We compare the performance of our algorithm with existing algorithms on real-world datasets for gene expression microarrays and metabolic modeling (Section 3). 0
+
+> 9
+> 18
+> 27
+> 36
+> 45
+> 54
+> 63
+> 72
+> 81
+> 90
+> 99
+> 108
+> 117
+> 126
+> 135
+> 144
+> 153
+> 162
+> 171
+> 180
+> 189
+> 198
+> 036912 15 18 21 24 27 30 33 36 39 42 45 48 51
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+
+Figure 1. The missingness matrix for gene expression levels on Day 2 of a sepsis study (Parnell et al., 2013) shows entire rows (patients) and columns (genes) as missing, due to e.g. probe-target hybridization failure of the Illumina HT-12 gene expression microarray (Hu et al., 2021). We mark missing entries as 0 (white) and present entries as 1 (blue). This motivates our missingness model (Eq. (1) and Eq. (2)). 
+
+Setup. P,Q ∈ Rm×n are the underlying source and target matrices, related by a distributional shift in their latent singular subspaces (Definition 1.2). We observe a noisy and possibly masked eP . The observation model of eQ depends on which setting below we consider. We will introduce both observation models here, and discuss the estimation framework used for both models in Section 2.2. 
+
+(i) Active Sampling Setting. We have a budget of Trow 
+
+rows and Tcol columns. We select rows i1,...,i Trow and columns j1,...,j Tcol , possibly at random, and with re-peats allowed. Let nij ≥ 0 be the number of times both 
+
+row i and column j are chosen. Then, we have nij in-dependent noisy observations eQ(1)  
+
+> i,j
+
+,..., eQ(nij ) 
+
+> i,j
+
+such that: 
+
+˜Q(t) 
+
+> i,j
+
+=
+
+(
+
+Qij +ζ(t) 
+
+> i,j
+
+if nij > 0,⋆ otherwise , (1) For ζ(t)
+
+> i,j i.i.d
+
+∼ N (0 ,σ 2
+
+> Q
+
+).
+
+(ii) Passive Sampling Setting. Instead of row and column budgets, there are probabilities 
+
+pRow , p Col ∈ [0 , 1] corresponding to the random row mask η1,...,η mi.i.d. 
+
+∼ Ber( prow ) and column mask 
+
+ν1, ... , ν ni.i.d 
+
+∼ Ber( pcol ). Entry (i, j ) of Q is noisily observed if ηi = νj = 1 , and missing otherwise. 
+
+˜Qij =
+
+(
+
+Qij +ζi,j if ηi = νj = 1 ,⋆ otherwise , (2) where ζi,j i.i.d 
+
+∼ N (0 ,σ 2
+
+> Q
+
+).
+
+1.1. Organization of the Paper 
+
+We give our main theoretical findings, including lower and upper bounds for the active and passive sampling settings, in Section 2. Next, we compare our methods against existing algorithms on real-world and synthetic datasets in Section 3. Finally, we discuss related work in Section 4 and conclusions in Section 5. 
+
+1.2. Notation and Problem Setup 
+
+We use lowercase letters a, b, c to denote (real) scalars, boldface x,y,z to denote vectors, and uppercase A,B,C 
+
+to denote matrices. For n ≥ 1, let [n] := {1,...,n }, In be the identity matrix and (ei)ni=1 the canonical basis vectors. Let 
+
+a∨b := max {a,b } and a∧b := min {a,b }. For multisets S,T 
+
+and A ∈ Rm×n, let A[S,T ] ∈ R|S|×| T | be the submatrix with row and column indices in S,T respectively, possibly with repeated entries from A. Let ⊗ denote the tensor (Kronecker) product: for A ∈ Rm×n,B ∈ Rs×t, (A⊗B) ∈ Rms ×nt with 
+
+(A⊗B)i(r−1)+ v,j (s−1)+ w = Aij Bvw . We denote the Frobe-nius norm as ∥A∥F , max norm as ∥A∥max := max i,j |Aij |,and 2 → ∞ norm as ∥A∥2→∞ := max i ∥AT ei∥2. Asymp-totics O(·),o (·),Ω( ·),ω (·) are with respect to m ∧ n unless specified otherwise. Recall that, for integer n,d such that 
+
+d ≤ n, the Stiefel manifold On×d (Hatcher, 2002) consists of all U ∈ Rn×d such that U T U = Id.We now define matrix incoherence, which measures how concentrated the entries of the singular vectors are. 
+
+Definition 1.1 (Incoherence) . Let M be an m × n matrix of rank d, and write its SVD as M = U ΣV ⊤. The left (resp. right) incoherence parameter of M is defined as μU =
+
+m∥U ∥22→∞ /d (resp. μV = n∥V ∥22→∞ /d ). The incoherence parameter of M is defined as μ(M ) := max {μU ,μ V }.2Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+We now formally define the distribution shift from P to Q,which generalizes the latent space rotation model (Xu et al., 2013; McGrath et al., 2024). 
+
+Definition 1.2 (Matrix Transfer Model) . In the matrix trans-fer model, we have source and target matrices P,Q ∈ Rm×n
+
+such that: 
+
+(i) (Low-Rank) Let P = UP ΣP V ⊤ 
+
+> P
+
+for some d ≤ m∧n where 
+
+UP ∈ O m×d,V P ∈ O n×d, and ΣP ⪰ 0 is diagonal d×d.
+
+(ii) (Distribution shift) There exist T1,T 2,R ∈ Rd×d such that 
+
+Q = UP T1RT T 
+
+> 2
+
+V TP , and ∥Ti∥2 = O(1) for i = 1 ,2.We will define the parameter space as: 
+
+Fm,n,d =
+
+
+
+(P,Q ) ∈ Rm×n ×Rm×n : P = U ΣP V T ,Q = U T 1RT T 
+
+> 2
+
+V T ,U ∈ O m×d,V ∈ O n×d,T1,T 2,R ∈ Rd×d,ΣP ⪰ 0
+
+
+
+(3) Definition 1.2 requires that the d-dimensional features of rows and columns lie in a shared subspace for P, Q .Consider the matrix of associations between m genetic variants (e.g. the MC1R gene) and n phenotypes (e.g. dark hair) for different populations P,Q (e.g. England and Spain) (McGrath et al., 2024). The above model ensures that the latent feature vector for a genotype (resp. phenotype) in Q is a linear combination of those in P .Note that T1,T 2 are not necessarily rotations and can even be singular. We set ∥Ti∥2 = O(1) to simplify theorem statements, but it is not required. 
+
+## 2. Main Findings 
+
+We first show that without transfer – side information from the source data P – completing the target matrix Q
+
+is impossible. To this end, we present a minimax lower bound on the expected prediction error. First, we define the parameter space of matrices with bounded incoherence: 
+
+T (d) 
+
+> mn
+
+=
+
+
+
+Q ∈ Rm×n : rank (Q) ≤ d, μ(Q) ≤ O log( m∨n)
+
+. (4) 
+
+Proposition 2.1 (Minimax Error of MNAR Matrix Com-pletion Without Transfer) . Let m, n ≥ 1 and d ≤ m ∧ n.Let Ψ = ( Q, σ, p Row , p Col ) where Q ∈ T (d) 
+
+> mn
+
+, σ2 > 0, and 
+
+pRow ,p Col ∈ [0 ,1] . Let PΨ denote the law of the random matrix 
+
+eQ defined as in Eq. (2) with σQ = σ, and denote the expecta-tion under this law as EΨ. The minimax rate of estimation is: 
+
+inf 
+
+> ˆQ
+
+sup  
+
+> Q∈T (d)
+> mn
+
+inf 
+
+> pRow ≤.99
+> pCol ≤.99
+
+E
+
+> Ψ
+
+ 1
+
+mn ∥Q− ˆQ∥2
+
+> F
+
+
+
+≥ Ω( dσ 2).
+
+An immediate consequence of the above proposition is that the minimax rate for max squared error ∥ ˆQ−Q∥2 
+
+> max
+
+is also Ω( dσ 2). We see that in both error metrics, vanishing estimation error is impossible without transfer learning. 
+
+2.1. Lower Bound for Active Sampling Setting 
+
+We now give a minimax lower bound for Q estimation in the active sampling setting. 
+
+Theorem 2.2 (Minimax Lower Bound for Q-estimation with Active Sampling) . Fix m,n and 2 ≤ d ≤ m∧n. Fix σ2 > 0
+
+and let |Ω| = Trow ·Tcol .Let PP,Q,σ 2 be the distribution of ( eP , eQ) where eP := P and 
+
+eQ := Q+G where Gij i.i.d 
+
+∼ N (0 ,σ 2).Let Q be the class of estimators which observe eP , and choose row and column samples according to the budgets 
+
+Trow , T col as in Eq. (1) , and then return some estimator 
+
+ˆQ ∈ Rm×n. Then, there exists absolute constant C > 0 such that minimax rate of estimation is: 
+
+inf 
+
+> ˆQ∈Q
+
+sup 
+
+> (P,Q )∈F m,n,d
+
+EPP,Q,σ 2 [∥ ˆQ−Q∥2max ] ≥ Cd 2σ2
+
+|Ω| .
+
+We prove Theorem 2.2 using a generalization of Fano’s method (Verd ´u et al., 1994). We construct a family of dis-tributions indexed by d2 source/target pairs (P (s),Q (s))d2
+
+> s=1
+
+.The source P is the same for all s, while each pair of target matrices Q(s),Q (s′) differs in at most 2 entries. For example, say entries (5 ,6) and (8 ,7) are different between Q(1) and 
+
+Q(2) . Regardless of the choice of row/column samples, the 
+
+average KL divergence of a pair of targets is small. If e.g. the entries (5 ,6) ,(8 ,7) are heavily sampled, then the estimator can distinguish Q(1) , Q (2) well, but cannot distinguish 
+
+Q(t),Q (t′) for all t,t ′ pairs that are equal on (5 ,6) and (8 ,7) .
+
+2.2. Estimation Framework 
+
+Next, we describe our estimation framework. Given eP
+
+and eQ[R,C ], where R,C can come from either the active (Eq. (1) ) or passive sampling (Eq. (2) ) setting, we estimate 
+
+ˆQ via the least-squares estimator. 
+
+Least Squares Estimator. 
+
+1. Extract features via SVD from ˜P = bUP bΣP bV TP .2. Let Ω be the multiset of observed entries. Then solve 
+
+ˆΘQ := arg min 
+
+> Θ∈Rd×d
+
+X
+
+> (i,j )∈Ω
+
+| eQij − ˆu⊤ 
+
+> i
+
+Θˆ vj |2, (5) where ˆui := ˆU TP ei,ˆvj := ˆV TP ej .3Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+3. Estimate ˆQ:
+
+ˆQij = ˆ u⊤ 
+
+> i
+
+ˆΘQ ˆvj . (6) This fully specifies ˆQ in the passive sampling setting (Eq. (2) ). For the active sampling setting, we must also specify how rows and columns are chosen. Active sampling poses two main challenges. First, it is not clear how to leverage eP for sampling eQ because samples are chosen before observing eQ, so the distribution shift from P
+
+to Q is unknown. Second, the best design depends on the choice of estimator and vice versa. Surprisingly, we show that for the right choice of experimen-tal design, the optimal estimator is precisely the least-squares estimator ˆQ as in Eq. (6) . We use the classical G-optimal design (Pukelsheim, 2006), which has been used in reinforce-ment learning to achieve minimax optimal exploration (Latti-more and Szepesv ´ari, 2020b) and optimal policies for linear Markov Decision Processes (Taupin et al., 2023). 
+
+Definition 2.3 (ϵ-approximate G-optimal design) . Let 
+
+A ⊂ Rd be a finite set. For a distribution π : A → [0 ,1] , its 
+
+G-value is defined as 
+
+g(π) := max 
+
+> a∈A
+
+
+
+aT
+
+ X
+
+> a∈A
+
+π(a)aa T
+
+−1
+
+a
+
+
+
+.
+
+For ϵ > 0, we say ˆπ is ϵ-approximately G-optimal if 
+
+g(ˆ π) ≤ (1+ ϵ)inf  
+
+> π
+
+g(π).
+
+If ϵ = 0 , we say ˆπ is simply G-optimal. Notice that in Eq. (5) , the covariates are tensor products 
+
+(ˆ vj ⊗ ˆui) of column and row features. The G-optimal design is useful because it respects the tensor structure of the least-squares estimator. We prove this via the Kiefer-Wolfowitz Theorem (Lattimore and Szepesv´ ari, 2020b). 
+
+Proposition 2.4 (Tensorization of G-optimal design) . Let 
+
+U ∈ Rm×d1 , V ∈ Rn×d2 . Let ρ be a G-optimal design for {U T ei : i ∈ [m]} and ζ be a G-optimal design for 
+
+{V T ej : j ∈ [n]}. Let π(i, j ) = ρ(i)ζ(j) be a distri-bution on [m] × [n]. Then π is a G-optimal design on 
+
+{V T ej ⊗U T ei : i ∈ [m],j ∈ [n]}.
+
+Consider a maximally coherent P that is nonzero at entry 
+
+(3 ,5) and zero elsewhere. Then Q is also zero outside (3 ,5) .By the Kiefer-Wolfowitz Theorem, the G-optimal design for rows (resp. columns) samples row 3 (resp. column 5) with probability 1. So, if eP is not too noisy, then the G-optimal design samples precisely the useful rows/columns .In light of Proposition 2.4, we leverage the tensorization property to sample rows and columns as follows. 
+
+Active Sampling. Given ˆU , ˆV , and budget Trow ,T col ,1. Compute ϵ-approximate G-optimal designs ˆρ, ˆζ for 
+
+{ ˆU TP ei : i ∈ [m]} and { ˆV TP ej : j ∈ [n]} respectively, with the Frank-Wolfe algorithm (Lattimore and Szepesv´ ari, 2020b). 2. Sample i1,...i Trow 
+
+> i.i.d
+
+∼ ˆρ and j1,...j Tcol 
+
+> i.i.d
+
+∼ ˆζ.Finally, we specify the assumption we need on the source data eP , called Singular Subspace Recovery (SSR). 
+
+Assumption 2.5 (ϵ-SSR) . Given eP ∈ (R ∪ { ⋆})m×n, we have access to a method that outputs estimates bUP ∈ O m×d
+
+and bVP ∈ O n×d, such that: 
+
+inf  
+
+> WU∈O d×d
+
+∥ ˆU −U W U ∥2→∞ ≤ ϵSSR ,
+
+and inf  
+
+> WV∈O d×d
+
+∥ ˆV −V W V ∥2→∞ ≤ ϵSSR 
+
+(7) for some ϵSSR > 0.This assumption holds for a number of models. For instance, recent works in both MCAR (Chen et al., 2020) and MNAR (Agarwal et al., 2023b; Jedra et al., 2023) settings give estimation methods for ˆP with entry-wise error bounds. In Appendix A.2, we prove that these entry-wise guarantees, combined with standard theoretical assumptions such as incoherence, imply Assumption 2.5. We now give our main upper bound, stated in terms of max squared error. Note that our upper bound for max error immediately implies upper bounds for commonly used metrics including mean squared (Frobenius) error, root mean squared error, and mean absolute error. 
+
+Theorem 2.6 (Generic error bound for active sam-pling) . Let ˆQ be the active sampling estimator with 
+
+Trow ,T col ≥ 20 dlog( m + n). Then, for absolute constants 
+
+C,C ′ > 0, and all ϵ < 110 ,
+
+P 
+
+> eP , eQ
+
+
+
+∥ ˆQ−Q∥2 
+
+> max
+
+≤ C(1+ ϵ)
+
+ d2σ2
+
+> Q
+
+log( m+n)
+
+|Tcol || Trow |
+
++d2ϵ2
+
+> SSR
+
+∥Q∥22
+
+ 
+
+≥ 1−C′(m+n)−2.
+
+We will discuss implications of Theorem 2.6 in Remark 2.7. First, we give some intuition. Notice that Theorem 2.6 (and Theorem 2.9) gives an error bound as a sum of two terms, which depend on the sample size and ϵSSR respectively. To see why, let Ω be the set of observed entries, either in a pas-sive or active sampling setting. Let ˆui,ˆvj be the covariates 4Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+as in Eq. (5). The observation eQij can be decomposed: 
+
+eQij = Qij +( eQij −Qij )= bu⊤ 
+
+> i
+
+ΘQ bvj + ϵij 
+
+|{z}  
+
+> misspecification eP
+
++( eQij −Qij )
+
+| {z }
+
+> noise
+
+(8) The population estimand ΘQ ∈ Rd×d, which is estimated in Eq. (5), is: 
+
+ΘQ := W TU T1RT T 
+
+> 2
+
+WV ,
+
+where T1, T 2 are the distribution shift matrices as in Definition 1.2, and WU ,W V ∈ O d×d are some rotations. The misspecification error is due to the estimation error of the singular subspaces of P and depends on ϵSSR as follows: 
+
+ϵij := eTi ( ˆU −U W U )Θ Q ˆV ej
+
++eTi ˆU ΘQ( ˆV −V W V )ej
+
++eTi ( ˆU −U W U )Θ Q( ˆV −V W V )ej
+
+Therefore ϵ2 
+
+> ij
+
+= O(ϵ2
+
+> SSR
+
+∥Q∥22) for all i, j .1 Notice the misspecification error is independent of the estimator bΘQ,so it will not depend on sample size. This explains the appearance of the two summands in our upper bounds. The first term depends on estimation error ΘQ − ˆΘQ, which is unique to the sampling method. The second depends on misspecification, which is common to both. 
+
+Remark 2.7 (Minimax Optimality for MNAR and MCAR Source Data) . The rate of Theorem 2.6 is minimax-optimal in the usual transfer learning regime when target data is noisy (σQ large) and limited ( |Ω| := |Trow || Tcol | small). Suppose P is rank d, μ-incoherent, with singular values 
+
+σ1 ≥ ··· ≥ σd, condition number κ and m = n. For the MNAR eP setting, suppose each ePij has i.i.d. additive noise 
+
+N (0 ,σ 2 
+
+> P
+
+) with sampling sparsity factor n−β for β ∈ [0 ,1] and 
+
+σP = O(1) . By (Jedra et al., 2023), ˆQ is minimax-optimal if 
+
+4μ3d3κ2∥Q∥22
+
+n1+ 2−βd
+
+≲ σ2
+
+> Q
+
+|Ω| ,
+
+where ≲ ignores log( m + n)O(1) factors. For the MCAR 
+
+eP setting, suppose eP has additive noise N (0 , σ 2 
+
+> P
+
+) and observed entries i.i.d. with probability p ≳ κ4μ2d2 
+
+> n
+
+, with 
+
+σP
+
+q np ≲ σd(P )
+
+√κ4μd . Letting |Ω| = n2pRow pCol , by (Chen et al., 2020), ˆQ is minimax-optimal if 
+
+μ6d4∥Q∥22
+
+n2 ≲ σ2
+
+> Q
+
+|Ω| .
+
+> 1
+
+In fact ϵ2 
+
+> ij
+
+= O(ϵ2
+
+> SSR
+
+∥R∥22), but we report bounds with the weaker O(ϵ2
+
+> SSR
+
+∥Q∥22) for ease of reading. 
+
+While the results of (Jedra et al., 2023; Chen et al., 2020) used in Remark 2.7 require incoherence, recent work also gives guarantees on ϵSSR without incoherence assumptions, although in limited settings. 
+
+Remark 2.8 (Incoherence-free minimax optimality) . Let 
+
+P ∈ Rn×n be rank-1 and Hermitian, and eP = P +W where 
+
+W is Hermitian with i.i.d. N (0 , σ 2 
+
+> P
+
+) noise on the upper triangle. Under the assumptions of (Yan and Levin, 2024), for constant C > 0, ˆQ is minimax optimal if 
+
+Cσ 2 
+
+> P
+
+(log n)O(1) ∥Q∥22
+
+∥P ∥22
+
+≤ σ2
+
+> Q
+
+|Ω| .
+
+Taking |Ω| = O(log n) since d = 1 , and ∥Q∥2 = O(∥P ∥2),we require 
+
+Cσ 2 
+
+> P
+
+(log n)O(1) ≤ σ2
+
+> Q
+
+.
+
+2.3. Passive Sampling 
+
+We next give the estimation error for the passive sampling setting. The rate almost exactly matches Theorem 2.6, but we pay an extra factor due to incoherence. This is because unlike the active sampling setting, if ℓ2 mass of the features is highly concentrated in a few rows and columns, then the passive sample will simply miss these with constant probability. To give a high probability guarantee, we require that features cannot be too highly concentrated. 
+
+Theorem 2.9 (Generic Error Bound for ˆQ). Let ˆQ be as in Eq. (6) and C > 0 an absolute constant. Suppose P has left/right incoherence μU ,μ V respectively, and pRow ,p Col are such that pRow mCd log m ≥ μU + ϵ2 
+
+> SSR md
+
+, pCol nCd log n ≥ μV + ϵ2 
+
+> SSR nd
+
+.Let μ = μU μV . Then 
+
+P
+
+
+
+∥ ˆQ−Q∥2 
+
+> max
+
+≤ Cμ 
+
+ d2σ2
+
+> Q
+
+log( m+n)
+
+pRow pCol mn 
+
++d2ϵ2
+
+> SSR
+
+∥Q∥22
+
+ 
+
+≥ 1−O(( m∧n)−2).
+
+If P is coherent, the sample complexity |Ω| ≈ pRow pCol mn 
+
+needed to achieve vanishing estimation error in Theorem 2.9 may be large. By contrast, our active sampling with G-optimal design requires only |Ω| ≳ d2σ2 
+
+> Q
+
+(Theorem 2.6). This shows the advantage of active sampling, which can query the most informative rows/columns when P is coherent. 
+
+2.4. Lower Bound for Passive Sampling 
+
+We give a lower bound for the passive sampling setting in terms of a fixed, arbitrary mask. To exclude degenerate cases such as all entries being observed, we require the following definition. 5Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+Definition 2.10 (Nondegeneracy) . Let p > 0 and 
+
+η1,...,η mi.i.d 
+
+∼ Ber( p). Let D ∈ { 0,1}m×m be diagonal with 
+
+Dii = ηi. We say (ηi)mi=1 is p-nondegenerate for U ∈ O n×d
+
+if ∥DU ∥2 −√p ≤ √p 
+
+> 10
+
+.The Matrix Bernstein inequality (Chen et al., 2021) implies that masks are nondegenerate with high probability. 
+
+Proposition 2.11. Under the conditions of Theorem 2.9, the event that both (ηi)mi=1 is pRow -nondegenerate for ˆUP
+
+and that (νj )nj=1 is pCol -nondegenerate for ˆVP holds with probability ≥ 1−2( m∧n)−10 .
+
+We can now state our lower bound, proved via Fano’s method. 
+
+Theorem 2.12 (Minimax Lower Bound for Passive Sam-pling) . Let Fm,n,d be the parameter space of Theorem 2.2. Let 
+
+Gm,n,d := 
+
+
+
+(P,Q ) ∈ F m,n,d : P,Q are O(1) −incoherent 
+
+
+
+Suppose (ηi)mi=1 , (νj )nj=1 are nondegenerate with respect to U, V respectively. Let PQ,σ 2,p Row ,p Col be the law of the random matrix eQ generated as in Eq. (2) with σ = σQ.There exists absolute constant C > 0 such that minimax rate of estimation is: 
+
+inf 
+
+> ˆQ
+
+sup 
+
+> (P,Q )∈G m,n,d
+
+E
+
+> P(Q,σ 2,p Row ,p Col )
+
+ 1
+
+mn ∥ ˆQ−Q∥2 
+
+> F
+
+(ηi)mi=1 ,
+
+(νj )nj=1 
+
+
+
+≥ Cd 2σ2
+
+> Q
+
+pRow pCol mn 
+
+We immediately obtain the same lower bound for max squared error. 
+
+We see that our error rate for passive sampling in Theorem 2.9 is minimax-optimal when μ = O(1) , modulo bounds on ϵSSR 
+
+as in Remark 2.7. Unlike the lower bound for max squared error in active sampling (Theorem 2.2), Theorem 2.12 gives a lower bound for the mean-squared error, which is strictly stronger. An interesting question is whether Theorem 2.12 can be generalized to incoherence greater than a constant. We leave this for future work. 
+
+## 3. Experiments 
+
+In this section, we compare both our active and passive sampling estimators against existing methods on real-world and simulated datasets. 
+
+Experimental setup. We compare against two baselines from the matrix completion literature. First, we use the MNAR matrix completion method of (Bhattacharya and                               
+
+> Table 1. Summary of real-world datasets. The 2→ ∞ norms are for
+> UP,V P,U Q,V Qrespectively. Notice these are within [0 ,1] always, and 2→ ∞ norm of 1implies maximal coherence. DATASET SHAPE RANK 2→ ∞ NORMS
+> GENE EXPR .31 ×300 40.55, 0.30, 0.64, 0.38 METABOLIC 251 ×251 80.99, 0.99, 0.99, 0.99
+
+Chatterjee, 2022). We tune the method by passing in the true rank of Q as well as the rank of the mask matrix. Sec-ond, we use the transfer learning method of (Levin et al., 2022b). This method is designed for matrix completion, but in a missingness structure different from our MNAR setting. For shorthand, we will refer to these as BC22 and LLL22 
+
+respectively. See Appendix B for precise details of our imple-mentations. Additionally, see Appendix B.1 for comparison to a VAE baseline from (Ipsen et al., 2021). The input to each of these, as well as our passive sampling method, is the pair eP , eQ. The method of (Bhattacharya and Chatterjee, 2022) requires input matrices to have entries in [−1, 1] so we normalize all eP , eQ by their maximum entry in absolute value, for all methods. We also com-pute the active sampling estimator by fixing the budgets 
+
+Trow = m·pRow ,T col = n·pCol throughout. 
+
+3.1. Real World Experiments 
+
+In this section we study real-world datasets on gene expres-sion microarrays in a whole-blood sepsis study (Parnell et al., 2013), and weighted metabolic networks of gram-negative bacteria (King et al., 2016). Table 1 summarizes the datasets, and Appendix B gives more details on our data preparation. 
+
+Patient Gene Expression Matrices. The matrices P, Q 
+
+represent the gene expression for patients in a sepsis study (Parnell et al., 2013). Here P,Q ∈ R31 ×300 where Pij 
+
+measures the expression level of gene j in patient i on day 
+
+1 of the study, and Q corresponds to day 2 of the study. Figure 2 displays the maximum squared error for a range of masking probabilities on eQ. We see that both active and passive sampling perform well even at small sample sizes, while the transfer baseline method (Levin et al., 2022b) achieves a worse but nontrivial maximum error. Notably, active sampling is no better than passive sampling here. This makes sense because P,Q are relatively incoherent (Table 1), so our theoretical guarantees are the same. In fact, active sampling displays higher variation in error, due to the variability in random sampling from the G-optimal design. It is known that the G-optimal design for any A ⊂ Rd
+
+has support size O(d2) (Lattimore and Szepesv ´ari, 2020a), so the sampled set of rows and columns will vary somewhat 6Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+from one experiment to the next.                   
+
+> Figure 2. Max-squared error of ˆQ−Q. Here, eQhas pRow =pCol
+> varying along the x-axis, which displays p2
+> Row . We set σQ= 0 .1, and
+> Pis fully observed. For each method, we show the median of the errors across 50 independent runs, as well as the [10 ,90] percentile.
+
+Weighted Metabolic Network Adjacency Matrices. 
+
+We collect weighted metabolic networks from the BiGG Genome Scale Metabolic Models repository (King et al., 2016), consistent with recent work on transfer learning for network estimation (Jalan et al., 2024). Specifically, 
+
+P, Q ∈ R251 ×251 where Pij ≥ 0 counts the number of co-occurrences of metabolites i and j in a reaction for organism P . Qij represents the same quantity in a different organism Q. We use the gram-negative bacteria E. coli W and P. putida for P,Q respectively. Unlike (Jalan et al., 2024), we do not need to truncate the adjacency matrices to {0,1}, allowing us to handle edge weights. This makes a difference, because without truncation the edge weights distribution is highly skewed for both P,Q (see Appendix B). Figure 3 shows max squared error for a range of masking probabilities on eQ. We see that active sampling does well, while passive sampling is very poor (note however, that pas-sive sampling does relatively well for mean-squared error -Figure 12). This is because P,Q are almost maximally coher-ent (Table 1), so the assumptions of our guarantee for passive sampling (Theorem 2.9) do not hold. By contrast, active sampling performs well even in this highly coherent setting. 
+
+3.2. Simulations 
+
+In this section, we further probe the effects of incoherence by testing on two highly coherent synthetic datasets (described below). Table 2 displays our results, with 
+
+pRow = pCol = 0 .1,σ Q = 0 .1, and P fully observed. Note that 
+
+0.1 ≈ 2dlog nn here, so pRow ,p Col are near the theoretical limit   
+
+> Figure 3. Max-squared error of ˆQ−Q, with the same experimental parameters as Figure 2.
+
+of our guarantees even for incoherent matrices. Each table entry shows ˆμ±2ˆ σ for mean-squared error across 
+
+50 independent trials. We find that for a stylized example of maximally coherent P,Q , active sampling is much better than all other methods. However, for less stylized P,Q that are still not incoherent, active and passive sampling are comparable, and outperform both baselines. 
+
+Stylized Coherent Model. For n = 200 ,d = 5 we generate 
+
+UP ,V P ∈ { 0,1}n×d via (UP )ii = 1 , (VP )(n−i),i = 1 .0 and the other entries zero. We sample the diagonal entries of 
+
+ΣP ,ΣQ ∈ Rd×d iid uniformly at random from [0 .5,1] . Then 
+
+P = UP ΣP V TP and Q = UP ΣQV TP . We call this class “Coherent.” 
+
+Matrix Partition Model. For a less stylized class, let 
+
+m = 300 ,n = 200 ,d = 5 ,a = 0 .1,b = 0 .8. We generate parti-tions UP ∈ { 0,1}m×d,V P ∈ { 0,1}n×d where each row is uni-formly at random from {e1,..., ed}. Then, BP ∈ [0 ,1] d×d is generated by sampling C ∈ [0 ,1] d×d with Cij i.i.d 
+
+∼ Unif([0 ,b ]) 
+
+and (BP )ij = Cij +1i=j a. Finally, we sample permutations 
+
+Π1,Π2 ∈ { 0,1}d×d uniformly at random from all such per-mutations. Then, P = UP BP V TP and Q = UP Π1BP ΠT 
+
+> 2
+
+V TP .We call this class “Matrix Partition Model” in analogy with the Planted Partition Model (Abbe, 2017). Spectral argu-ments show that such matrices are somewhat coherent (Lee et al., 2014), although not maximally so. 
+
+3.3. Ablation Studies 
+
+Our main focus is to understand how sample budgets 
+
+Trow ,T col , or probabilities pRow ,p Col affects the estimation error for transfer learning. We also perform ablation studies 7Optimal Transfer Learning for Missing Not-at-Random Matrix Completion                                       
+
+> Table 2. Comparison of the errors of different approaches on synthetic data. COHERENT PARTITION
+> PASSIVE (O URS )0.084 ±0.039 ×10 −30.040 ±0.090
+> ACTIVE (O URS )0.009 ±0.015 ×10 −30.046 ±0.074 LLL22 0.061 ±0.037 ×10 −30.134 ±0.011 BC22 0.789 ±0.644 ×10 −30.305 ±0.002
+> Figure 4. Ablation study for the effect of additive target noise in the Matrix Partition Model. For each method, we display the median max-squared error across 10 independent runs, as well as the [10 ,90] percentile.
+
+to test the effect of other model parameters, such as rank, dimension, noise variance, etc. Figure 4 shows the effect of target noise variance on maximum error in the Matrix Partition Model with m = 300 ,n = 200 ,d = 5 ,a = 0 .1,b =0.8,p Row = 0 .5,p Col = 0 .5. Due to space constraints, we defer our additional ablation studies to Appendix B. 
+
+## 4. Related Work 
+
+We review the most relevant literature here. For additional discussion, we refer to the surveys (De Handschutter et al., 2021; Jafarov, 2022) for matrix completion and (Zhuang et al., 2019; Kim et al., 2022) for transfer learning. 
+
+Matrix Completion. Most matrix completion algorithms require a Missing Completely at Random (MCAR) assump-tion (Cand `es and Recht, 2009; Chatterjee, 2015; Davenport et al., 2014; Zhong et al., 2019), where each Qij is observed with probability p independently of all others. The Miss-ing Not-at-Random setting allows the masking probability of Qij to depend on the value of Qij itself (Ma and Chen, 2019; Bhattacharya and Chatterjee, 2022; Jedra et al., 2023), but still assumes that entries are masked independently of one another. If masking variables are dependent, then au-thors assume identifiability of the matrix conditioned on the masking (Agarwal et al., 2023b), or that entries in every row and column are observed (Simchowitz et al., 2023). By con-trast, we study one of the simplest possible MNAR models in which entries of eQ are not independent and entire rows and columns can be missing. This MNAR model is motivated by biological problems (Christensen and Nielsen, 2000a; Hu et al., 2021; Einav and Cleary, 2022). 
+
+Transfer learning. Transfer learning has been well-studied in learning theory (Ben-David et al., 2006; Cortes et al., 2008; Crammer et al., 2008). Recent works address various super-vised learning (Reeve et al., 2021; Cai and Wei, 2021b; Ma et al., 2023; Cai and Pu, 2024) and unsupervised learning set-tings (Gu et al., 2024; Ding and Ma, 2024). Statistical works consider minimax rates of estimation, and computationally efficient estimators to achieve such rates (Tripuraneni et al., 2020; Agarwal et al., 2023a; Cai and Wei, 2021a; Ma et al., 2023; Cody and Beling, 2023; Cai and Pu, 2024). In applica-tions, transfer learning from data-rich to data-poor domains has applications in biostatistics (Kshirsagar, 2015; Datta et al., 2021), epidemiology (Apostolopoulos and Bessiana, 2020), computer vision (Tzeng et al., 2017; Neyshabur et al., 2020), language models (Han et al., 2021), and other areas. Transfer learning for matrix completion typically assumes the source P and target Q are observed in an MCAR fashion, and are related through a rotation in latent space (Xu et al., 2013; McGrath et al., 2024; He et al., 2024). Rotational shift is a special case of our distribution shift model (Def-inition 1.2), which allows for any linear shift in latent space. On the other hand, works that study transfer learning for specific classes of matrices typically assume distributional shifts that are unique to those structures, such as in latent variable networks (Jalan et al., 2024) or the log-linear word production model (Zhou et al., 2023). 
+
+Optimal experimental design. Choosing a set of maxi-mally informative experiments is a classical problem in statis-tics (Smith, 1918; Pukelsheim, 2006) with connections to active learning (Dasgupta, 2011), bandits (Abbasi-Yadkori et al., 2011), and reinforcement learning (Lattimore et al., 2020). Optimal designs have been studied for domain adap-tation (Rai et al., 2010; Xie et al., 2022), misspecified regres-sion (Lattimore et al., 2020), and linear Markov Decision Processes (Jedra et al., 2023). In our active sampling setting, we jointly query rows and columns to observe the corre-sponding submatrix of eQ, rather than one entry at a time (Chakraborty et al., 2013; Ruchansky et al., 2015; Bhargava et al., 2017). But, the optimal row queries depend on column queries (and vice versa) – so we use the tensorization prop-erty of G-optimal designs (Proposition 2.4) to prove global optimality with respect to joint row/column samplers. 8Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+## 5. Conclusion and Future Work 
+
+We study transfer learning for a challenging MNAR model of matrix completion. We obtain minimax lower bounds for entrywise estimation of Q in both the active (Theorem 2.2) and passive sampling settings (Theorem 2.12). We give a computationally efficient minimax-optimal estimator that uses tensorization of G-optimal designs in the active setting (Theorem 2.6). Further, in the passive setting, we give a rate-optimal estimator under incoherence assumptions (Theorem 2.9). Finally, we experimentally validate our findings on data from gene expression micoarrays and metabolic modeling. Future work could consider even more difficult missingness structures, such as when the masks (ηi)mi=1 , (νj )nj=1 are dependent. If the mask can be partitioned into subsets whose mutual dependencies are small, an Efron-Stein argument (Paulin et al., 2016) may work. Is bounded dependence necessary? Moreover, one can consider other kinds of side information, such as gene-level features in Genome-Wide Association Studies (McGrath et al., 2024). Finally, there can be other interesting nonlinear models for transfer between source and target matrices. 
+
+## Impact Statement 
+
+This paper presents work whose goal is to advance the field of Machine Learning. There are many potential societal consequences of our work, none which we feel must be specifically highlighted here. 
+
+## Acknowledgments 
+
+AJ and PS gratefully acknowledge NSF grants 2217069, 2019844, and DMS 2109155. YJ is supported by the Knut and Alice Wallenberg Foundation Postdoctoral Scholarship Program under grant KAW 2022.0366. AM was supported by NSF awards 2217058 and 2133484. SSM was partially supported by an INSPIRE research grant (DST/INSPIRE/04/2018/002193) from the Dept. of Science and Technology, Govt. of India, a Start-Up Grant from Indian Statistical Institute, and a Prime Minister Early Career Research Grant (ANRF/ECRG/2024/006704/PMS) from the Anusandhan National Research Foundation, Govt. of India. 
+
+## References 
+
+Yasin Abbasi-Yadkori, D ´avid P ´al, and Csaba Szepesv ´ari. Im-proved algorithms for linear stochastic bandits. Advances in neural information processing systems , 24, 2011. Emmanuel Abbe. Community detection and stochastic block models. arXiv preprint arXiv:1703.10146 , 2017. Alekh Agarwal, Yuda Song, Wen Sun, Kaiwen Wang, Mengdi Wang, and Xuezhou Zhang. Provable benefits of representational transfer in reinforcement learning. In Gergely Neu and Lorenzo Rosasco, editors, Proceedings of Thirty Sixth Conference on Learning Theory , volume 195 of Proceedings of Machine Learning Research ,pages 2114–2187. PMLR, 12–15 Jul 2023a. URL 
+
+https://proceedings.mlr.press/v195/ agarwal23b.html .Anish Agarwal, Munther Dahleh, Devavrat Shah, and Dennis Shen. Causal matrix completion. In The thirty sixth annual conference on learning theory , pages 3821–3826. PMLR, 2023b. Ioannis D. Apostolopoulos and Tzani Bessiana. Covid-19: automatic detection from x-ray images utilizing transfer learning with convolutional neural networks. Physical and Engineering Sciences in Medicine , 43:635 – 640, 2020. URL https://api.semanticscholar. org/CorpusID:214667149 .Shai Ben-David, John Blitzer, Koby Crammer, and Fernando Pereira. Analysis of representations for domain adaptation. 
+
+Advances in neural information processing systems , 19, 2006. Aniruddha Bhargava, Ravi Ganti, and Rob Nowak. Active positive semidefinite matrix completion: Algorithms, theory and applications. In Artificial Intelligence and Statistics , pages 1349–1357. PMLR, 2017. Sohom Bhattacharya and Sourav Chatterjee. Matrix comple-tion with data-dependent missingness probabilities. IEEE Transactions on Information Theory , 68(10):6762–6773, 2022. T Tony Cai and Hongming Pu. Transfer learning for non-parametric regression: Non-asymptotic minimax analysis and adaptive procedure. arXiv preprint arXiv:2401.12272 ,2024. T Tony Cai and Hongji Wei. Transfer learning for nonpara-metric classification: Minimax rate and adaptive classifier. 
+
+The Annals of Statistics , 49(1), 2021a. T Tony Cai and Hongji Wei. Transfer learning for nonpara-metric classification: Minimax rate and adaptive classifier. 
+
+The Annals of Statistics , 49(1), 2021b. Emmanuel J Cand `es and Benjamin Recht. Exact matrix completion via convex optimization. Found Comput Math ,9:717–772, 2009. Emmanuel J Cand `es and Terence Tao. The power of convex relaxation: Near-optimal matrix completion. IEEE trans-actions on information theory , 56(5):2053–2080, 2010. 9Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+Shayok Chakraborty, Jiayu Zhou, Vineeth Balasubramanian, Sethuraman Panchanathan, Ian Davidson, and Jieping Ye. Active matrix completion. In 2013 IEEE 13th international conference on data mining , pages 81–90. IEEE, 2013. Sourav Chatterjee. Matrix estimation by universal singular value thresholding. The Annals of Statistics , pages 177–214, 2015. Yuxin Chen, Yuejie Chi, Jianqing Fan, Cong Ma, and Yuling Yan. Noisy matrix completion: Understanding statistical guarantees for convex relaxation via nonconvex optimization. SIAM journal on optimization , 30(4): 3098–3121, 2020. Yuxin Chen, Yuejie Chi, Jianqing Fan, Cong Ma, et al. Spec-tral methods for data science: A statistical perspective. 
+
+Foundations and Trends® in Machine Learning , 14(5): 566–806, 2021. Bjarke Christensen and Jens Nielsen. Metabolic Network Analysis , pages 209–231. Springer Berlin Heidelberg, Berlin, Heidelberg, 2000a. ISBN 978-3-540-48773-9. doi: 10.1007/3-540-48773-5 7. URL https: //doi.org/10.1007/3-540-48773-5_7 .Bjarke Christensen and Jens Nielsen. Metabolic network analysis: a powerful tool in metabolic engineering. 
+
+Bioanalysis and Biosensors for Bioprocess Monitoring ,pages 209–231, 2000b. Tyler Cody and Peter A. Beling. A systems theory of transfer learning. IEEE Systems Journal , 17(1):26–37, 2023. doi: 10.1109/JSYST.2022.3224650. Corinna Cortes, Mehryar Mohri, Michael Riley, and Afshin Rostamizadeh. Sample selection bias correction theory. In International conference on algorithmic learning theory , pages 38–53. Springer, 2008. Koby Crammer, Michael Kearns, and Jennifer Wortman. Learning from multiple sources. Journal of Machine Learning Research , 9(8), 2008. Sanjoy Dasgupta. Two faces of active learning. Theoretical computer science , 412(19):1767–1781, 2011. Abhirup Datta, Jacob Fiksel, Agbessi Amouzou, and Scott L Zeger. Regularized bayesian transfer learning for population-level etiological distributions. Biostatistics ,22(4):836–857, 2021. Mark A Davenport, Yaniv Plan, Ewout Van Den Berg, and Mary Wootters. 1-bit matrix completion. Information and Inference: A Journal of the IMA , 3(3):189–223, 2014. Pierre De Handschutter, Nicolas Gillis, and Xavier Siebert. A survey on deep matrix factorizations. Computer Science Review , 42:100423, 2021. Xiucai Ding and Rong Ma. Kernel spectral joint embeddings for high-dimensional noisy datasets using duo-landmark integral operators. arXiv preprint arXiv:2405.12317 ,2024. Tal Einav and Brian Cleary. Extrapolating missing antibody-virus measurements across serological studies. 
+
+Cell Systems , 13(7):561–573, 2022. Iv ´an Fern ´andez-Val, Hugo Freeman, and Martin Weidner. Low-rank approximations of nonseparable panel models. 
+
+The Econometrics Journal , 24(2):C40–C77, 2021. Yuan Gao, Laurence T Yang, Jing Yang, Dehua Zheng, and Yaliang Zhao. Jointly low-rank tensor completion for estimating missing spatiotemporal values in logistics systems. IEEE Transactions on Industrial Informatics ,19(2):1814–1822, 2022. Yuqi Gu, Zhongyuan Lyu, and Kaizheng Wang. Adaptive transfer clustering: A unified framework. arXiv preprint arXiv:2410.21263 , 2024. Venkatesan Guruswami, Atri Rudra, and Madhu Sudan. Essential coding theory. 2019. Wenjuan Han, Bo Pang, and Ying Nian Wu. Robust trans-fer learning with pretrained language models through adapters. In Proceedings of the 59th Annual Meeting of the Association for Computational Linguistics and the 11th International Joint Conference on Natural Language Pro-cessing (Volume 2: Short Papers) , pages 854–861, 2021. Allen Hatcher. Algebraic Topology . Cambridge University Press, 2002. Yong He, Zeyu Li, Dong Liu, Kangxiang Qin, and Jiahui Xie. Representational transfer learning for matrix completion. 
+
+arXiv preprint arXiv:2412.06233 , 2024. Roger A Horn and Charles R Johnson. Matrix analysis .Cambridge university press, 2012. Taishan Hu, Nilesh Chitnis, Dimitri Monos, and Anh Dinh. Next-generation sequencing technologies: An overview. 
+
+Human Immunology , 82(11):801–811, 2021. Cynthia Huber, Tim Friede, Julia Stingl, and Norbert Benda. Classification of companion diagnostics: a new frame-work for biomarker-driven patient selection. Therapeutic Innovation & Regulatory Science , pages 1–11, 2022. Niels Bruun Ipsen, Pierre-Alexandre Mattei, and Jes Frellsen. not-miwae: Deep generative modelling with missing not at random data. In ICLR 2021-International Conference on Learning Representations , 2021. 10 Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+Jafar Jafarov. Survey of matrix completion algorithms. 
+
+arXiv preprint arXiv:2204.01532 , 2022. Prateek Jain, Praneeth Netrapalli, and Sujay Sanghavi. Low-rank matrix completion using alternating minimization. In Proceedings of the forty-fifth annual ACM symposium on Theory of computing , pages 665–674, 2013. Akhil Jalan, Arya Mazumdar, Soumendu Sundar Mukherjee, and Purnamrita Sarkar. Transfer learning for latent variable network models. In The Thirty-Eighth Annual Conference on Neural Information Processing Systems , 2024. Yassir Jedra, Sean Mann, Charlotte Park, and Devavrat Shah. Exploiting observation bias to improve matrix completion. 
+
+arXiv preprint arXiv:2306.04775 , 2023. Jack Kiefer and Jacob Wolfowitz. The equivalence of two extremum problems. Canadian Journal of Mathematics ,12:363–366, 1960. H.E. Kim, A. Cosa-Linan, N. Santhanam, and et al. Transfer learning for medical image classification: aliterature review. BMC Medical Imaging , 22(1):69, 2022. doi: 10.1186/s12880-022-00793-7. URL https: //doi.org/10.1186/s12880-022-00793-7 .Zachary A King, Justin Lu, Andreas Dr ¨ager, Philip Miller, Stephen Federowicz, Joshua A Lerman, Ali Ebrahim, Bernhard O Palsson, and Nathan E Lewis. Bigg models: A platform for integrating, standardizing and sharing genome-scale models. Nucleic acids research , 44(D1): D515–D522, 2016. Meghana Kshirsagar. Combine and conquer: methods for multitask learning in biology and language . PhD thesis, Carnegie Mellon University, 2015. Tor Lattimore and Csaba Szepesv ´ari. Bandit algorithms .Cambridge University Press, 2020a. Tor Lattimore and Csaba Szepesv ´ari. Bandit algorithms .Cambridge University Press, 2020b. Tor Lattimore, Csaba Szepesvari, and Gellert Weisz. Learning with good feature representations in bandits and in rl with a generative model. In International conference on machine learning , pages 5662–5670. PMLR, 2020. James R Lee, Shayan Oveis Gharan, and Luca Trevisan. Mul-tiway spectral partitioning and higher-order cheeger in-equalities. Journal of the ACM (JACM) , 61(6):1–30, 2014. Keith Levin, Asad Lodhia, and Elizaveta Levina. Recovering shared structure from multiple networks with unknown edge distributions. The Journal of Machine Learning Research , 23(1):86–133, 2022a. Keith Levin, Asad Lodhia, and Elizaveta Levina. Recovering shared structure from multiple networks with unknown edge distributions. Journal of machine learning research ,23(3):1–48, 2022b. Cong Ma, Reese Pathak, and Martin J Wainwright. Opti-mally tackling covariate shift in rkhs-based nonparametric regression. The Annals of Statistics , 51(2):738–761, 2023. Wei Ma and George H Chen. Missing not at random in matrix completion: The effectiveness of estimating missingness probabilities under a low nuclear norm assumption. Ad-vances in neural information processing systems , 32, 2019. Sean McGrath, Cenhao Zhu, Min Guo, and Rui Duan. Learner: A transfer learning method for low-rank matrix estimation. arXiv preprint arXiv:2412.20605 , 2024. Behnam Neyshabur, Hanie Sedghi, and Chiyuan Zhang. What is being transferred in transfer learning? In H. Larochelle, M. Ranzato, R. Hadsell, M.F. Balcan, and H. Lin, editors, Advances in Neural Information Processing Systems , volume 33, pages 512–523. Curran Associates, Inc., 2020. Grant P Parnell, Benjamin M Tang, Marek Nalos, Nicola J Armstrong, Stephen J Huang, David R Booth, and Anthony S McLean. Identifying key regulatory genes in the whole blood of septic patients to monitor underlying immune dysfunctions. Shock , 40(3):166–174, 2013. Daniel Paulin, Lester Mackey, and Joel A Tropp. Efron–stein inequalities for random matrices. 2016. Yury Polyanskiy and Yihong Wu. Information theory: From coding to learning . Cambridge university press, 2024. Friedrich Pukelsheim. Optimal design of experiments .SIAM, 2006. Piyush Rai, Avishek Saha, Hal Daum ´e III, and Suresh Venkatasubramanian. Domain adaptation meets active learning. In Proceedings of the NAACL HLT 2010 Workshop on Active Learning for Natural Language Processing , pages 27–32, 2010. Henry WJ Reeve, Timothy I Cannings, and Richard J Samworth. Adaptive transfer learning. The Annals of Statistics , 49(6):3618–3649, 2021. Natali Ruchansky, Mark Crovella, and Evimaria Terzi. Ma-trix completion with queries. In Proceedings of the 21th ACM SIGKDD international conference on knowledge discovery and data mining , pages 1025–1034, 2015. Mark Rudelson and Roman Vershynin. Hanson-Wright inequality and sub-gaussian concentration. Elec-tronic Communications in Probability , 18(none): 11 Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+1 – 9, 2013. doi: 10.1214/ECP.v18-2865. URL 
+
+https://doi.org/10.1214/ECP.v18-2865 .Max Simchowitz, Abhishek Gupta, and Kaiqing Zhang. Tackling combinatorial distribution shift: A matrix com-pletion perspective. In The Thirty Sixth Annual Conference on Learning Theory , pages 3356–3468. PMLR, 2023. Kirstine Smith. On the standard deviations of adjusted and interpolated values of an observed polynomial function and its constants and the guidance they give towards a proper choice of the distribution of observations. 
+
+Biometrika , 12(1/2):1–85, 1918. Jerome Taupin, Yassir Jedra, and Alexandre Proutiere. Best policy identification in linear mdps. In 2023 59th Annual Allerton Conference on Communication, Control, and Computing (Allerton) , pages 1–8. IEEE, 2023. Nilesh Tripuraneni, Michael I. Jordan, and Chi Jin. On the theory of transfer learning: the importance of task diversity. In Proceedings of the 34th International Conference on Neural Information Processing Systems ,NIPS ’20, Red Hook, NY, USA, 2020. Curran Associates Inc. ISBN 9781713829546. Eric Tzeng, Judy Hoffman, Kate Saenko, and Trevor Darrell. Adversarial discriminative domain adaptation. 2017 IEEE Conference on Computer Vision and Pattern Recognition (CVPR) , pages 2962–2971, 2017. URL https://api. semanticscholar.org/CorpusID:4357800 .Alexander HS Vargo and Anna C Gilbert. A rank-based marker selection method for high throughput scrna-seq data. BMC bioinformatics , 21:1–51, 2020. Sergio Verd ´u et al. Generalizing the fano inequality. IEEE Transactions on Information Theory , 40(4):1247–1251, 1994. Roman Vershynin. High-dimensional probability: An introduction with applications in data science , volume 47. Cambridge university press, 2018. Binhui Xie, Longhui Yuan, Shuang Li, Chi Harold Liu, Xinjing Cheng, and Guoren Wang. Active learning for domain adaptation: An energy-based approach. In Proceedings of the AAAI conference on artificial intelligence , volume 36, pages 8708–8716, 2022. Miao Xu, Rong Jin, and Zhi-Hua Zhou. Speedup matrix completion with side information: Application to multi-label learning. Advances in neural information processing systems , 26, 2013. Hao Yan and Keith Levin. Coherence-free entrywise estimation of eigenvectors in low-rank signal-plus-noise matrix models. In The Thirty-eighth Annual Conference on Neural Information Processing Systems , 2024. Bin Yu. Assouad, fano, and le cam. In Festschrift for Lucien Le Cam: research papers in probability and statistics ,pages 423–435. Springer, 1997. Kai Zhong, Zhao Song, Prateek Jain, and Inderjit S Dhillon. Provable non-linear inductive matrix completion. 
+
+Advances in Neural Information Processing Systems , 32, 2019. Doudou Zhou, Tianxi Cai, and Junwei Lu. Multi-source learning via completion of block-wise overlapping noisy matrices. Journal of Machine Learning Research , 24 (221):1–43, 2023. Fuzhen Zhuang, Zhiyuan Qi, Keyu Duan, Dongbo Xi, Yongchun Zhu, Hengshu Zhu, Hui Xiong, and Qing He. A comprehensive survey on transfer learn-ing. Proceedings of the IEEE , 109:43–76, 2019. URL https://api.semanticscholar.org/ CorpusID:207847753 .12 Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+## A. Proofs and Additional Results 
+
+A.1. Preliminaries 
+
+We will repeatedly make use of the vectorization operator. 
+
+Definition A.1 (Vectorization) . For X ∈ Rn×d, the vectorization vec (X) ∈ Rnd is the vector whose first n entries correspond to the first column of X, and next n entries correspond to the second column of X, and so on. We can vectorize matrix products as follows. 
+
+Lemma A.2 ((Horn and Johnson, 2012)) . Let A,B,X be matrices of shapes such that AXB is well-defined. Then: vec (AXB ) = ( BT ⊗A)vec (X).
+
+A.2. From Entrywise Guarantees to SSR 
+
+We prove that Assumption 2.5 follows from entrywise estimation guarantees on the source. 
+
+Proposition A.3. Let P an m×n matrix of rank r. Let ϵ > 0, and bP be a rank-r estimate of P , satisfying 
+
+∥ bP −P ∥max ≤ ϵ∥P ∥max . (9) 
+
+Consider the SVDs P = U ΣV ⊤, and bP = bU bΣ bV ⊤. Then, it holds that 
+
+min   
+
+> W∈O r×r
+
+∥U − bU R ∥2→∞ 
+
+≤ (2 √n+(2+ √2) √mn ∥U U ⊤∥2→∞ )∥P − bP ∥max 
+
+σr (P )min  
+
+> W∈O r×r
+
+∥V − bV W ∥2→∞ ≤≤ (2 √m+(2+ √2) √mn ∥V V ⊤∥2→∞ )∥P − bP ∥max 
+
+σr (P )
+
+provided that √mnϵ ∥P ∥max ≤ σr (P )2 .
+
+Below, we give a result showing that entry-wise guarantees imply subspace recovery in the two-to-infinity guarantee. 
+
+Proof. We will only prove the result concerning the left subspaces U and bU . Our first step is to relate the errors bU R − U
+
+and U U ⊤ bU −U . We will introduce in our computations the sign matrix 2 of U ⊤ bU , namely sgn( U ⊤ bU ) which is a rotation matrix. We have 
+
+min  
+
+> W∈O r×r
+
+∥U W − bU ∥2→∞ ≤ ∥ U sgn (U ⊤ bU )− bU ∥2→∞ 
+
+≤ ∥ U (U ⊤ bU )− bU U ∥2→∞ +∥U ∥2→∞ ∥U ⊤ bU −sgn (U ⊤ bU )∥op .
+
+Moreover, we also know (e.g., see Lemma 4.15 (Chen et al., 2021)) that 
+
+∥ bU ⊤U −sgn ( bU ⊤U )∥op ≤ ∥ sin(Θ) ∥op ,
+
+and using the Theorem Davis-Kahan we obtain 
+
+∥ bU ⊤U −sgn ( bU ⊤U )∥op ≤ ∥ sin(Θ) ∥op ≤√2∥M − cM ∥op 
+
+σr (M ) .
+
+Thus, we conclude that 
+
+min   
+
+> W∈O r×r
+
+∥U W − bU ∥2→∞ ≤ ∥ U (U ⊤ bU )− bU U ∥2→∞ +
+
+√2∥U ∥2→∞ ∥M − cM ∥op 
+
+σr (M ) . (10) 
+
+> 2
+
+The sign matrix of an n×n matrix Z with SVD UZ ΣZ V ⊤ 
+
+> Z
+
+is given by sgn( Z) = UZ V ⊤ 
+
+> Z
+
+∈ O n×n .
+
+13 Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+Next, we show that min W ∈O r×r ∥U W − bU ∥2→∞ can be well controlled by the error M − cM . On the one hand, we have triangular inequality, and noting that U U ⊤M = M and bU bU ⊤ cM = cM that 
+
+∥(U U ⊤ − bU bU ⊤) cM ∥2→∞ ≤ ∥ U U ⊤M − bU bU ⊤ cM ∥2→∞ +∥U U ⊤(M − cM )∥2→∞ 
+
+≤ ∥ M − cM ∥2→∞ +∥U U ⊤∥2→∞ ∥M − cM ∥op 
+
+On the other hand, we have 
+
+∥(U U ⊤ − bU bU ⊤) cM ∥2→∞ = ∥(U (U ⊤ bU )− bU )bΣ bV ⊤∥2→∞ 
+
+= ∥(U (U ⊤ bU )− bU )bΣ∥2→∞ 
+
+≥ ∥ U (U ⊤ bU )− bU ∥2→∞ σr ( cM )
+
+≥ ∥ U (U ⊤ bU )− bU ∥2→∞ σr (M )−∥ U (U ⊤ bU )− bU ∥2→∞ ∥M − cM ∥op ,
+
+where in the last inequality we used Weyl’s inequality: |σr (M )−σr ( cM )| ≤ ∥ M − cM ∥op . We combine the above inequalities to obtain 
+
+∥U (U ⊤ bU )− bU ∥2→∞ ≤ ∥M − cM ∥2→∞ +∥U U ⊤∥2→∞ ∥M − cM ∥op +∥U (U ⊤ bU )− bU ∥2→∞ ∥ cM −M ∥op 
+
+σr (M )
+
+If the following condition holds 
+
+∥M − cM ∥op ≤ √mn ∥M − cM ∥max ≤ σr (M )2 ,
+
+then 
+
+∥U (U ⊤ bU )− bU ∥2→∞ ≤ ∥M − cM ∥2→∞ +∥U U ⊤∥2→∞ ∥M − cM ∥op 
+
+σr (M ) + 12 ∥U (U ⊤ bU )− bU ∥2→∞ 
+
+which in turn gives 
+
+∥U (U ⊤ bU )− bU ∥2→∞ ≤ 2∥M − cM ∥2→∞ +2 ∥U U ⊤∥2→∞ ∥M − cM ∥op 
+
+σr (M ) (11) In summary we conclude that 
+
+min  
+
+> W∈O r×r
+
+∥U W − bU ∥2→∞ ≤ 2∥M − cM ∥2→∞ +(2+ √2) ∥U U ⊤∥2→∞ ∥M − cM ∥op 
+
+σr (M ) (12) Using the inequalities 
+
+∥M − cM ∥2→∞ ≤ √n∥M − cM ∥max and ∥M − cM ∥op ≤ √mn ∥M − cM ∥max ,
+
+we can express our bounds as 
+
+min   
+
+> W∈O r×r
+
+∥U W − bU ∥2→∞ ≤ (2 √n+(2+ √2) √mn ∥U U ⊤∥2→∞ )∥M − cM ∥max 
+
+σr (M ) . (13) A simple calculation also gives the following. 
+
+Proposition A.4. Suppose ˆU ∈ O m×r satisfies Assumption 2.5 with bound ϵSSR , and the population incoherence is 
+
+μU := m∥U ∥22→∞  
+
+> d
+
+. Then ˆU is γ-incoherent for γ ≤ 2μU + 2ϵ2 
+
+> SSR md
+
+.
+
+14 Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+A.3. Proof of Proposition 2.1 
+
+We require the following special case of Hoeffding’s inequality. 
+
+Lemma A.5. Let X1,...,X ni.i.d 
+
+∼ Bernoulli (p). Then: 
+
+P
+
+ 1
+
+n
+
+X
+
+> i
+
+Xi −p ≥
+
+r log nn
+
+
+
+≤ 2n−2
+
+The following concentration is standard. 
+
+Lemma A.6. Let x ∼ Sn−1. Then: 
+
+P[∥x∥∞ ≥ C
+
+r log nn ] ≤ 1−O(n−1/2)
+
+Proof. By Hoeffding’s inequality, 
+
+P
+
+ X
+
+> i
+
+Xi −np ≥ t
+
+
+
+≤ 2exp 
+
+
+
+− 2t2
+
+n
+
+
+
+Let t = √nlog n. The conclusion follows. Finally, we require the following version of the Hanson-Wright inequality. 
+
+Theorem A.7 ((Rudelson and Vershynin, 2013) Theorem 2.1) . Let A ∈ Rm×n be fixed and x ∈ Rn a random vector with i.i.d. mean zero entries with variance 1 and ∥xi∥ψ2 ≤ K for all i. Then there exists constant c > 0 such that for any t > 0,
+
+P
+
+
+
+|∥ Ax∥2 −∥ A∥F | > t 
+
+
+
+≤ 2exp 
+
+
+
+− ct 2
+
+K4∥A∥2
+
+
+
+We are ready to state our lower bound. 
+
+Proof of Proposition 2.1. Let u1,..., ud ∈ Rm be generated with iid N (0 , 1 
+
+> m
+
+) entries and v1,..., vd ∈ Rm be generated with iid N (0 , 1 
+
+> n
+
+) entries. Let Q = Pdi=1 uivTi .We first analyze the incoherence of Q. We analyze the left-incoherence. Fix i ∈ [m] and let y = ( U T ei). Then we apply Theorem A.7 with x = √my and A = V , to obtain that ∥Ax∥ = ∥√mV U T ei∥ ≤ ∥ V ∥F +C′K2∥V ∥2
+
+√log n with probability 
+
+≥ 1−n−10 for absolute constant C′ > 0. Since x has iid N (0 ,1) entries, the Orlicz norm constant is at most K ≤ 2. Taking a union bound over all i, it follows that: 
+
+P
+
+
+
+∥√mV U T ∥2→∞ ≤ ∥ V ∥F +4 C′∥V ∥2
+
+plog n
+
+
+
+≥ 1−O(n−9)
+
+It follows that the left incoherence is at most O(log n) with high probability. An identical application of Theorem A.7 with 
+
+A = U implies that the right-incoherence is at most O(log m). Let E′ be the event that Q is O(log( n∨m)) incoherent. Let 
+
+Q be the random matrix generated as above, conditioned on E′. Note that P[E′] ≥ 1−o(1) .Next, let I ⊂ [m],J ⊂ [n] be the rows and columns of Q that are seen in eQ. Then by Lemma A.5, |I| ≤ 0.99 m+√mlog mand 
+
+|J| ≤ 0.99 n+√nlog n with probability ≥ 1−2n−2 −2m−2. Let E be the event that the bounds on I and J both hold. Consider k ∈ [m]\I,ℓ ∈ [n]\J. None of the entries of Q in the kth row or ℓth column are seen. Therefore, since m−| I| ≥ Ω( m)
+
+and n − | J| ≥ Ω( n), and since P[E′] ≥ 1 − o(1) , there exists a constant C such that for all i ∈ [d], V ar (ui;kvi;ℓ| eQ) ≥ C.Therefore, since u1,..., ud,v1,..., vd are independent, for any ˆQ, we have: 
+
+E[( ˆQkℓ −Qkℓ )2| eQ] ≥ V ar (Qkℓ | eQ)
+
+≥
+
+> d
+
+X
+
+> i=1
+
+V ar (ui;kvi;ℓ| eQ)
+
+≥ Cd 
+
+15 Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+Therefore, if we condition on E, then |[m]\I| ≥ Ω( m) and |[n]\J| ≥ Ω( n), so E[ 1 
+
+> mn
+
+∥ ˆQ−Q∥2 
+
+> F
+
+| eQ] ≥ cd for a constant c > 0.Since 1−2n−2 −2m−2 ≥ 12 , we conclude that: 
+
+E[ 1
+
+mn ∥ ˆQ−Q∥2 
+
+> F
+
+| eQ] ≥ 12 E[ 1
+
+mn ∥ ˆQ−Q∥2 
+
+> F
+
+| eQ, E]
+
+≥ cd 
+
+2
+
+A.4. Proof of Theorem 2.2 
+
+We require a version of Fano’s theorem given in Theorem 7 of (Verd´ u et al., 1994). 
+
+Theorem A.8 (Generalized Fano) . Let P be a family of probability measures, (D,d ) a metric space, and θ : P → D a map that extracts the parameters of interest. Let H ⊂ P be a finite subset of size M . Suppose α > 0 is such that for any distinct Hi,H j ∈ H ,
+
+d(θ(Hi),θ (Hj )) ≥ α. 
+
+And, suppose that β > 0 is such that: 
+
+log2+ 1
+
+M 2
+
+> M
+
+X
+
+> i=1
+> M
+
+X
+
+> j=1
+
+KL (Hi,H j ) ≤ βlog M. 
+
+Then, 
+
+inf 
+
+> ˆθ
+
+sup  
+
+> P∈P
+
+E[d(θ(P ),ˆθ)] ≥ α(1 −β).
+
+We also require a standard expression for the KL divergence of a pair of multivariate Gaussians. 
+
+Lemma A.9. Let μ,μ′ ∈ Rd be distinct and Σ ≻ 0. The KL divergence of two multivariate Gaussians sharing the same covariance is given as: 
+
+KL (N (μ,Σ) ,N (μ′,Σ)) = ( μ−μ′)T Σ−1(μ−μ′)
+
+We now prove our lower bound. 
+
+Proof of Theorem 2.2. Let U ∈ Rm×d,V ∈ Rn×d be such that Uii = 1 and Vii = 1 for i ∈ [d], and all other entries are zero. Let P = U V T . We construct a hypothesis space H = {(P (ij ),Q (ij ) : i,j ∈ [d]} of size d2 where P (ij ),Q (ij ) ∈ Rm×n as follows. For all members ij , we set P (ij ) = P . Next, let R(ij ) = γeieTj for γ > 0 to be specified later. We set Q(ij ) = U R (ij )V T .First, notice for any (r,s )̸ = ( i,j ) that: 
+
+∥Q(ij ) −Q(rs )∥2 
+
+> max
+
+= γ2
+
+Next, consider the KL divergences between a pair of hypotheses. Let ( eP (ij ), eQ(ij )) be the distribution of the data under hypothesis (P (ij ),Q (ij )). Since eP (ij ) = P (ij ) = P for all (i,j ), we must simply bound KL ( eQ(ij ), eQ(rs )) for each pair 
+
+(ij,rs ). Now, let π(ij ) 
+
+> R
+
+,π (ij ) 
+
+> C
+
+be the row and column sampling distributions (possibly deterministic) respectively, based on the source data eP (ij ). Since eP (ij ) = P (ij ) = P for all (i,j ) we know that there is a pair of distributions πR,π C such that 
+
+π(ij ) 
+
+> R
+
+= πR,π (ij ) 
+
+> C
+
+= πC for all (i,j ). In other words the sampling cannot depend on the hypothesis index (i,j ).Next, we analyze KL ( eQ(ij ), eQ(rs )). Each distribution depends on the randomness of πR,π C as well as the Gaussian noise. Let R,C be the random multisets of rows and columns generated by πR,π C according to the prescribed row/column budgets. By the chain rule for KL divergences (Theorem 2.15 of (Polyanskiy and Wu, 2024)), we have: 
+
+KL ( eQ(ij ), eQ(rs )) = E
+
+> R,C
+
+
+
+KL 
+
+  eQ(ij )|R,C ),  eQ(rs )|R,C )
+
+ 
+
+16 Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+Note that the marginal term involving π(ij ) 
+
+> R
+
+,π (ij ) 
+
+> C
+
+versus π(rs ) 
+
+> R
+
+,π (rs ) 
+
+> C
+
+is zero, because the distributions are equal for all ij,rs .Next, for u ∈ [m], v ∈ [n], let nuv (R, C ) be the number of times that (u, v ) is sampled in R, C . Notice that 
+
+ER,C [nuv (R,C )] = |Ω|πR(u)πC (v). So, by Lemma A.9, 
+
+E
+
+> R,C
+
+
+
+KL 
+
+  eQ(ij )|R,C ),  eQ(rs )|R,C )
+
+ 
+
+= E
+
+> R,C
+
+ X
+
+> u∈[m],v ∈[n]
+
+nuv (R,C )
+
+σ2
+
+> Q
+
+(Q(ij ) 
+
+> uv
+
+−Q(rs ) 
+
+> uv
+
+)2
+
+
+
+= E
+
+> R,C
+
+ γ2
+
+σ2
+
+> Q
+
+(nij (R,C )+ nrs (R,C )) 
+
+
+
+= γ2|Ω|
+
+σ2
+
+> Q
+
+(πR(i)πC (j)+ πR(r)πC (s)) 
+
+Hence, the average KL divergence for all pairs is: 
+
+1
+
+d4
+
+X
+
+> (i,j )∈[d]2
+
+X
+
+> (r,s )∈[d]2
+
+KL ( eQ(ij ), eQ(rs )) = γ2|Ω|
+
+σ2
+
+> Q
+
+d4
+
+X
+
+> (i,j )∈[d]2
+
+X
+
+> (r,s )∈[d]2
+
+(πR(i)πC (j)+ πR(r)πC (s)) 
+
+≤ γ2|Ω|
+
+σ2
+
+> Q
+
+d4
+
+X
+
+> (i,j )∈[d]2
+
+(1+ d2πR(i)πC (j)) 
+
+≤ γ2|Ω|
+
+σ2
+
+> Q
+
+d4 ·2d2
+
+= 2γ2|Ω|
+
+σ2
+
+> Q
+
+d2
+
+Let γ2 = 110  
+
+> σ2
+> Qd2
+> |Ω|
+
+. By Theorem A.8, we conclude that for d ≥ 2, the minimax rate of estimation is at least 110 γ2 = 1100 
+
+> σ2
+> Qd2
+> |Ω|
+
+A.5. Proof of Proposition 2.4 
+
+We use the classical characterization of G-optimal designs due to Kiefer and Wolfowitz. 
+
+Theorem A.10 ((Kiefer and Wolfowitz, 1960)) . Let π be a distribution on a finite space A ⊂ Rd. The following are equivalent: 
+
+• π is G-optimal. 
+
+• g(π) = d.
+
+• For V (π) := P
+
+> a∈A
+
+π(a)aa T , π maximizes logdet V (π).
+
+We now prove the tensorization of G-optimal designs. 
+
+Proposition A.11 (Restatement of Proposition 2.4) . Let ρ be a G-optimal design for { ˆU TP ei : i ∈ [m]} and ζ be a G-optimal design for { ˆV TP ej : j ∈ [n]}. Let π(i, j ) = ρ(i)ζ(j) be a distribution on [m] × [n]. Then π is a G-optimal design on 
+
+{ˆˆV TP ej ⊗U TP ei : i ∈ [m]}.
+
+17 Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+Proof. Let i ∈ [m],j ∈ [n]. Then by the Kiefer-Wolfowitz theorem, 
+
+g(π) = max 
+
+> i,j
+
+
+
+( ˆV TP ej ⊗ ˆU TP ei)T
+
+X
+
+> i,j
+
+π(i,j )( ˆV TP ej ⊗ ˆU TP ei)( ˆV TP ej ⊗ ˆU TP ei)T
+
+−1
+
+( ˆV TP ej ⊗ ˆU TP ei)
+
+
+
+= max 
+
+> i,j
+
+
+
+( ˆV TP ej ⊗ ˆU TP ei)T
+
+ X
+
+> j
+
+ζ(j) ˆV TP ej eTj ˆV TP
+
+
+
+⊗
+
+X
+
+> i
+
+ρ(i) ˆU TP eieTi ˆU TP
+
+ −1
+
+( ˆV TP ej ⊗ ˆU TP ei)
+
+
+
+= max 
+
+> i,j
+
+
+
+( ˆV TP ej ⊗ ˆU TP ei)T
+
+ X
+
+> j
+
+ζ(j) ˆV TP ej eTj ˆV TP
+
+−1
+
+⊗
+
+X
+
+> i
+
+ρ(i) ˆU TP eieTi ˆU TP
+
+−1
+
+( ˆV TP ej ⊗ ˆU TP ei)T
+
+
+
+= max 
+
+> i,j
+
+
+
+( ˆV TP ej )T
+
+X
+
+> j
+
+ζ(j) ˆV TP ej eTj ˆV TP
+
+−1
+
+( ˆV TP ej )( ˆU TP ei)T
+
+X
+
+> i
+
+ρ(i) ˆU TP eieTi ˆU TP
+
+−1
+
+( ˆU TP ei)
+
+
+
+= g(ρ)g(ζ)= d2
+
+Where the last step follows from G-optimality of ρ and ζ. By Theorem A.10, π is G-optimal. 
+
+A.6. Proof of Theorem 2.6 
+
+We first prove a useful error decomposition. 
+
+Proposition A.12 (Decomposition) . Let ˆUP ∈ O m×d, ˆVP On×d be the estimates of the left/right singular vectors of P .Then there exist matrices WU ,W V ∈ O(d, R) such that if T1,T 2 are the distribution shift matrices as in Definition 1.2, and if 
+
+M = ( W TU T1)R(T T 
+
+> 2
+
+WV ), then: 
+
+Q = ˆUP (W TU T1)R(T T 
+
+> 2
+
+WV ) ˆV TP +E
+
+Where the E-error depends on the estimator error of ˆP .
+
+E := ( ˆUP −UP WU )M ˆV TP + ˆUP M ( ˆVP −VP WV )T +( ˆUP −UP WU )M ( ˆVP −VP WV )T
+
+Proof. Let T1,T 2 ∈ Rd×d be the distributional shift matrices from Definition 1.2 such that UQ = UP T1,V Q = VP T2.Let WU be the solution to the Procrustes problem: 
+
+WU := arg inf  
+
+> W∈O d×d
+
+∥UP W − ˆUP ∥2→∞ 
+
+And similarly, 
+
+WV := arg inf  
+
+> W∈O d×d
+
+∥VP W − ˆVP ∥2→∞ 
+
+Next, let Z = T1RT T 
+
+> 2
+
+and M = W TU ZW V . Further, let ∆U = ˆUP − ˆUP WU and ∆V = ˆVP − ˆVP WV . Then, we can write Q as: 
+
+Q = UP T1R(VP T2)T
+
+= UP ZV TP
+
+= UP WU W TU ZW V W TV V TP
+
+= ( ˆUP +∆ U )W TU ZW V ( ˆVP +∆ V )T
+
+= ˆUP M ˆV TP +E
+
+Where E contains the cross-terms: 
+
+E = ∆ U M ˆV TP + ˆUP M ∆TV +∆ U M ∆TV
+
+So we are done. 18 Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+We require a strong form of matrix concentration due to (Taupin et al., 2023). 
+
+Lemma A.13 (Design Matrix Concentration) . Let ˆπ be an ϵ-approximate G-optimal design on a finite set A ⊂ Rd. Let 
+
+ρ,δ > 0 and t ≥ 2(1 + ϵ)( 1 
+
+> ρ2
+
++ 13ρ )dlog( 2dδ ). Suppose Ω = {a1,..., at} is the multiset of t samples drawn i.i.d. from ˆπ, and let Wt = 1
+
+> t
+
+Pti=1 aiaTi . Then: 
+
+P
+
+
+
+(1 −ρ)X
+
+> a∈A
+
+ˆπ(a)aa T ⪯ Wt ⪯ (1+ ρ)X
+
+> a∈A
+
+ˆπ(a)aa T
+
+
+
+≥ 1−δ
+
+In particular, since ˆπ is ϵ-approximately G-optimal, 
+
+P
+
+ d
+
+(1+ ρ) ≤ max  
+
+> a∈A
+
+∥a∥2 
+
+> W−1
+> t
+
+≤ (1+ ϵ)d
+
+(1 −ρ)
+
+
+
+≥ 1−δ
+
+We also require the following standard bound on the maximum of Gaussians. 
+
+Lemma A.14 ((Vershynin, 2018) 2.5.10) . Let X1,...,X ni.i.d 
+
+∼ N (0 ,σ 2). Then for all u > 0,
+
+P[max  
+
+> i
+
+X2 
+
+> i
+
+≥ 4σ2log( n)+2 u2] ≤ exp( − u2
+
+2σ2 ).
+
+Proof of Theorem 2.6. We first introduce some notation. Let Sr ,S c be the multisets of rows/columns sampled and Ω = Sr ×Sc.Let ψj = ˆV TP ej and φi = ˆU TP ei. Then, let ˆϕij = ˆV TP ej ⊗ ˆU TP ei = ψj ⊗φk, and W = P 
+
+> ij ∈Ω
+
+ˆϕij ˆϕTij . Notice that: 
+
+W =
+
+ X
+
+> j∈Sc
+
+ψj ψTj
+
+
+
+⊗
+
+ X
+
+> i∈Sr
+
+φiφTi
+
+
+
+Therefore, let W1 = P 
+
+> j∈Sc
+
+ψiψTj and W2 = P 
+
+> i∈Sr
+
+φiφTi for shorthand. Then W −1 exists iff W −11 , W −12 exist. By Lemma A.13, both W −11 ,W −12 exist with probability at least 1−(m+n)−2, since Sr ,S c are both large enough by assumption. Therefore, conditioning on the inverses existing, if we solve the least-squares system, we obtain ˆM ∈ Rd×d such that: vec ( ˆM ) = ( X
+
+> ij ∈Ω
+
+ˆϕij ˆϕTij )−1 X
+
+> ij ∈Ω
+
+ˆϕij eQij 
+
+Recall from Proposition A.12 that Q = ˆUP M ˆV TP +E, where Eij = ϵij is the misspecification error. Therefore, we can bound the error of ˆQ = ˆUP ˆM ˆV TP as: 
+
+ˆQij −Qij = eTi ˆUP ( ˆM −M ) ˆV TP ej −ϵij 
+
+= ˆϕTij vec ( ˆM −M )+ ϵij 
+
+=: E1; ij +E2; ij 
+
+E1; ij := ˆϕTij vec ( ˆM −M )
+
+E2; ij := ϵij 
+
+19 Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+Let Gij i.i.d 
+
+∼ N (0 ,σ 2
+
+> Q
+
+) be the additive noise for eQij . Then, eQij = ˆϕTij vec (M )+ ϵij +Gij . Hence we can write E1 as: 
+
+E1; kℓ =
+
+
+
+ˆϕTkℓ ( X
+
+> ij ∈Ω
+
+ˆϕij ˆϕTij )−1 X
+
+> ij ∈Ω
+
+ˆϕij eQij 
+
+
+
+− ˆϕTkℓ vec (M )= ˆϕTkℓ 
+
+
+
+( X
+
+> ij ∈Ω
+
+ˆϕij ˆϕTij )−1 X
+
+> ij ∈Ω
+
+ˆϕij 
+
+  ˆϕTij vec (M )+ ϵij +Gij 
+
+
+
+− ˆϕTkℓ vec (M )= ˆϕTkℓ 
+
+
+
+( X
+
+> ij ∈Ω
+
+ˆϕij ˆϕTij )−1 X
+
+> ij ∈Ω
+
+ˆϕij 
+
+ ϵij +Gij 
+
+
+
+= ˆϕTkℓ 
+
+
+
+( X
+
+> ij ∈Ω
+
+ˆϕij ˆϕTij )−1 X
+
+> ij ∈Ω
+
+ˆϕij ϵij 
+
+
+
++ ˆϕTkℓ 
+
+
+
+( X
+
+> ij ∈Ω
+
+ˆϕij ˆϕTij )−1 X
+
+> ij ∈Ω
+
+ˆϕij Gij 
+
+
+
+=: E3; kℓ +E4; kℓ 
+
+We analyze E4 first. Let x = W −1 P 
+
+> ij ∈Ω
+
+ˆϕij Gij . For any k,ℓ , we wish to bound ˆϕTkℓ x. Notice that x is a multivariate Gaussian with mean 0. Its covariance is therefore: 
+
+E[xx T ] = X
+
+> ij ∈Ω
+
+X
+
+> i′j′∈Ω
+
+W −1 ˆϕij ˆϕTi′j′ W −1E[Gij Gi′j′ ] = σ2
+
+> Q
+
+W −1  X 
+
+> ij ∈Ω
+
+ˆϕij ϕTij 
+
+W −1 = σ2
+
+> Q
+
+W −1
+
+Hence ˆϕTkℓ x is a scalar Gaussian with mean zero and variance ˆϕTkℓ σ2
+
+> Q
+
+W −1 ˆϕkℓ . We next bound this quadratic form. Notice that we can tensorize the quadratic form as: 
+
+ϕTkℓ W −1ϕkℓ = ( ψℓ ⊗φk)T (W1 ⊗W2)−1(ψℓ ⊗φk)= ( ψℓW −11 ψℓ)( φkW −12 φk)
+
+We apply Lemma A.13 to each term in the product. With probability 1 − 2( m + n)−2, for Sr , S c both of size at least 
+
+20 dlog( 2dm+n ),
+
+∥ψℓ∥2 
+
+> W−11
+
+∥φk∥2 
+
+> W−12
+
+≤ (2+2 ϵ)d2
+
+|Sr || Sc|
+
+Conditioning on this event, the variance of ˆϕTkℓ x is at most (1+ ϵ)d2σ2 
+
+> Q
+> |Ω|(1 −ρ)
+
+, for |Ω| = |Sr || Sc|. Therefore, by Lemma A.14, 
+
+P
+
+
+
+max 
+
+> k∈[m],ℓ ∈[n]
+
+ˆϕTkℓ x 2
+
+≤ 20log( mn ) (2+2 ϵ)σ2
+
+> Q
+
+d2
+
+|Ω|
+
+
+
+≤ δ+( mn )−2
+
+Finally, we analyze the error term E3; kℓ . By the Cauchy-Schwarz inequality, 
+
+|E3; kℓ | ≤   X 
+
+> ij ∈Ω
+
+a2 
+
+> ij
+
+)1/2  X 
+
+> ij ∈Ω
+
+ϵ2 
+
+> ij
+
+)1/2
+
+20 Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+First, 
+
+X
+
+> ij ∈Ω
+
+a2 
+
+> ij
+
+= X
+
+> ij ∈Ω
+
+ˆϕTij W −1 ˆϕkℓ ˆϕTkℓ W −1 ˆϕij 
+
+= X
+
+> ij ∈Ω
+
+tr 
+
+
+
+ˆϕij ˆϕTij W −1 ˆϕkℓ ˆϕTkℓ W −1
+
+
+
+= tr 
+
+ X
+
+> ij ∈Ω
+
+ˆϕij ˆϕTij W −1 ˆϕkℓ ˆϕTkℓ W −1
+
+
+
+= tr 
+
+
+
+ˆϕkℓ ˆϕTkℓ W −1
+
+
+
+= ˆϕTkℓ W −1 ˆϕkℓ 
+
+≤ (2+2 ϵ)d2
+
+|Ω|
+
+For the other term, 
+
+  X 
+
+> ij ∈Ω
+
+ϵ2
+
+> ij
+
+1/2 ≤ | Ω|1/2max 
+
+> ij ∈Ω
+
+|ϵij |
+
+It follows that max k,ℓ |E3; kℓ | ≤ √2+2 ϵ·dmax i,j ∈Ω|ϵij |. The conclusion follows. 
+
+A.7. Proof of Theorem 2.9 
+
+We require the following concentration result to control the sizes of masks. 
+
+Lemma A.15 (Bernoulli Concentration) . Let X1,...,X ni.i.d 
+
+∼ Bernoulli (p) for p ∈ (0 ,1) . Then if p ≥ 10log n,
+
+P[ X
+
+> i
+
+(Xi −p) ≥ np 
+
+2 ] ≤ n−ω(1) 
+
+Proof. By the scalar Bernstein inequality (Lemma A.16), we have for B = 1 and ζ = np that: 
+
+P[ X
+
+> i
+
+(Xi −p) ≥ τ ] ≤ 2exp( − τ 2/2
+
+ζ +( Bτ / 3) )
+
+Let τ = np/ 2. Then 
+
+P[ X
+
+> i
+
+(Xi −p) ≥ τ ] ≤ 2exp( −10 8 log n)
+
+≤ 2n−(log n)1/4
+
+We are ready to prove the estimation error for passive sampling. 
+
+Proof of Theorem 2.9. Following the notation of the proof of Theorem 2.6, we want to bound E3; kℓ and E4; kℓ . However, rather than using G-optimality to bound quadratic forms of the type ˆϕkℓ W −1 ˆϕij , we will apply spectral concentration via Proposition A.17. 21 Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+To this end, we condition on the events that ˆV TP ΠR ˆVP ⪰ pRow  
+
+> 2
+
+and ˆU TP ΠC ˆUP ⪰ pCol  
+
+> 2
+
+. By Proposition A.4 and Proposition A.17, the two events occur simultaneously with probability ≥ 1−2( m∧n)−10 . Then W −1 exists and W −1 ⪯ 4 
+
+> pRow pCol
+
+I. Therefore, for all i,j,k,ℓ , by incoherence, 
+
+ˆϕTkℓ W −1 ˆϕij ≤ 4
+
+pRow pCol 
+
+∥ ˆϕkℓ ∥∥ ˆϕij ∥
+
+= 4
+
+pRow pCol 
+
+∥φk∥∥ φi∥∥ ψℓ∥∥ ψj ∥≤ 4
+
+pRow pCol 
+
+ r μ2 
+
+> U
+
+μ2 
+
+> V
+
+d4
+
+m2n2
+
+
+
+= 4
+
+pRow pCol 
+
+μd 2
+
+mn 
+
+Hence, by Lemma A.14, 
+
+P
+
+
+
+max 
+
+> k∈[m],ℓ ∈[n]
+
+|E4; kℓ |2 ≤ 20log( mn )σ2
+
+> Q
+
+4
+
+pRow pCol 
+
+μd 2
+
+mn 
+
+
+
+≤ 2( m∧n)−10 +( mn )−2.
+
+Next, we analyze E3. Let aij = ˆϕTkℓ W −1 ˆϕij . Let p = q = 2 . By the Cauchy-Schwarz inequality, 
+
+|E3; kℓ | ≤   X 
+
+> ij ∈Ω
+
+apij )1/p   X 
+
+> ij ∈Ω
+
+ϵqij )1/q 
+
+First, we have: 
+
+X
+
+> ij ∈Ω
+
+a2 
+
+> ij
+
+= X
+
+> ij ∈Ω
+
+ˆϕTij W −1 ˆϕkℓ ˆϕTkℓ W −1 ˆϕij 
+
+= X
+
+> ij ∈Ω
+
+tr 
+
+
+
+ˆϕij ˆϕTij W −1 ˆϕkℓ ˆϕTkℓ W −1
+
+
+
+= tr 
+
+ X
+
+> ij ∈Ω
+
+ˆϕij ˆϕTij W −1 ˆϕkℓ ˆϕTkℓ W −1
+
+
+
+= tr 
+
+
+
+ˆϕkℓ ˆϕTkℓ W −1
+
+
+
+= ˆϕTkℓ W −1 ˆϕkℓ 
+
+≤ 4μd 2
+
+pRow pCol mn 
+
+On the other hand, 
+
+  X 
+
+> ij ∈Ω
+
+ϵqij 
+
+1/2 ≤ | Ω|1/2max 
+
+> ij ∈Ω
+
+|ϵij |
+
+Notice E[|Ω|] = mnp Row pCol . By Lemma A.15, with probability ≥ 1−4( m∧n)−ω(1) ,
+
+|Ω| ≤ 94 pRow pCol mn 
+
+Therefore, with probability ≥ 1−4( m∧n)−2,
+
+p|Ω|
+
+pRow pCol mn ≤ 321
+
+√pRow pCol mn 
+
+The conclusion follows. 22 Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+A.8. Proof of Proposition 2.11 
+
+We require the following version of the Matrix Bernstein Inequality (Chen et al., 2021). 
+
+Lemma A.16 (Matrix Bernstein Inequality) . Suppose that {Yi : i = 1 ,...,n } are independent mean-zero random matrices of size d1 ×d2, such that ∥Yi∥2 ≤ B almost surely for all i, and ζ ≥ max {∥ E[P
+
+> i
+
+YiY Ti ]∥2,∥E[P
+
+> i
+
+Y Ti Yi]∥2}. Then, 
+
+P
+
+ nX
+
+> i=1
+
+Yi
+
+> 2
+
+≥ τ
+
+
+
+≤ (d1 +d2)exp 
+
+
+
+− τ 2/2
+
+ζ +Bτ / 3
+
+
+
+We now prove nondegeneracy of masks with high probability. 
+
+Proposition A.17 (Spectral Concentration) . Suppose that ˆVP and ˆUP are μV ,μ U -incoherent respectively. Let ΠC ∈ { 0,1}n×n
+
+be the random matrix with diagonal entries ν1,...,ν n and similarly let ΠR ∈ { 0,1}m×m have diagonal entries η1,...,η m. Then, assuming that μV ≤ pCol n 
+
+> 400 dlog n
+
+and μU ≤ pRow n 
+
+> 400 dlog n
+
+, we have: 
+
+P[ ˆU TP ΠR ˆUP ⪰ pRow /2] ≥ 1−m−10 
+
+P[ ˆV TP ΠC ˆVP ⪰ pCol /2] ≥ 1−n−10 
+
+Proof. Suppose that ˆVP has rows y1,..., yn ∈ Rd. Then, 
+
+ˆV TP ΠC ˆVP =
+
+> n
+
+X
+
+> i=1
+
+νiyiyTi .
+
+Let vi = √nyi. Let pCol = E[νi]. We use p = pCol for shorthand. Notice E[ ˆV TP ΠC ˆVP ] = P
+
+> i
+
+pyiyTi = pI d, since ˆV TP ˆVP = Id.Therefore, 
+
+X
+
+> i
+
+νivivTi −pnI d
+
+> 2
+
+= X
+
+> i
+
+(νi −p)vivTi
+
+> 2
+
+Let Yi = ( νi −p)vivTi . Note that E[Yi] = 0 . Next, let μ := μV . By incoherence, ∥Yi∥2 ≤ ∥ vi∥22 ≤ μd for all i. Further, 
+
+max {∥ E[X
+
+> i
+
+YiY Ti ]∥2,∥E[X
+
+> i
+
+Y Ti Yi]∥2} = ∥E[X
+
+> i
+
+Y 2 
+
+> i
+
+]∥2
+
+= p(1 −p)∥X
+
+> i
+
+∥vi∥22vivTi ∥2
+
+≤ p(1 −p)nμd ∥X
+
+> i
+
+yiyTi ∥2
+
+= p(1 −p)nμd 
+
+Thus, by Lemma A.16, for B = μd and ζ = p(1 −p)nμd , we have: 
+
+P
+
+ nX
+
+> i=1
+
+Yi
+
+> 2
+
+≥ τ
+
+
+
+≤ 2nexp 
+
+
+
+− τ 2/2
+
+ζ +Bτ / 3
+
+
+
+Setting τ = 10 pp(1 −p)nμd log n∨10 μd √log n implies that: 
+
+P
+
+X
+
+> i
+
+νivivTi ⪰ pn −τ
+
+
+
+≥ 1−n−10 
+
+If μ ≤ pn  
+
+> 400 dlog n
+
+, then τ ≤ pn/ 2 = pCol ·n/ 2. We conclude that P[ ˆV TP ΠC ˆVP ⪰ pCol /2] ≥ 1−n−10 . An identical argument gives 
+
+P[ ˆU TP ΠR ˆUP ⪰ pRow /2] ≥ 1−m−10 .23 Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+Corollary A.18. Under the assumptions of Proposition A.17, the design matrix for passive sampling has rank d2 with probability at least 1−2( m∧n)−10 .Proof. Let Ω ⊂ [m] × [n] be the set of indices corresponding to the observed entries of eQ. Let PΩ ∈ { 0,1}|Ω|× mn be the coordinate projection. The design matrix is precisely PΩ( ˆVP ⊗ ˆUP ). Then, notice that: 
+
+ PΩ( ˆVP ⊗ ˆUP )) T  PΩ( ˆVP ⊗ ˆUP )) = ( ˆVP ⊗ ˆUP )T P T 
+
+> Ω
+
+PΩ( ˆVP ⊗ ˆUP )= ( ˆVP ⊗ ˆUP )T (Π C ⊗ΠR)( ˆVP ⊗ ˆUP )= ˆV TP ΠC ˆVP ⊗ ˆU TP ΠR ˆUP
+
+By Proposition A.17, this matrix has rank at least d2 with probability ≥ 1−2( m∧n)−10 .
+
+A.9. Proof of Theorem 2.12 
+
+We require the the Gilbert-Varshamov code (Guruswami et al., 2019). 
+
+Theorem A.19 (Gilbert-Varshamov) . Let q ≥ 2 be a prime power. For 0 < ϵ < q−1 
+
+> q
+
+there exists an ϵ-balanced code C ⊂ Fnq
+
+with rate Ω( ϵ2n).
+
+We will use the following version of Fano’s inequality. 
+
+Theorem A.20 (Generalized Fano Method, (Yu, 1997)) . Let P be a family of probability measures, (D,d ) a pseudo-metric space, and θ : P → D a map that extracts the parameters of interest. For a distinguished P ∈ P , let X ∼ P be the data and 
+
+ˆθ := ˆθ(X) be an estimator for θ(P ).Let r ≥ 2 and Pr ⊂ P be a finite hypothesis class of size r. Let αr ,β r > 0 be such that for all i̸ = j, and all Pi,P j ∈ P r ,
+
+d(θ(Pi),θ (Pj )) ≥ αr ;
+
+KL (Pi,P j ) ≤ βr .
+
+Then 
+
+max 
+
+> j∈[r]
+
+EPj [d(ˆθ(X),θ (Pj ))] ≥ αr
+
+2
+
+
+
+1− βr +log2 log r
+
+
+
+.
+
+We can now prove Theorem 2.12. 
+
+Proof of Theorem 2.12. Let C ⊂ { 0,1}d2
+
+be the 0.1-balanced Gilbert-Varshmaov code as in Theorem A.19. Let U,V ∈ Rn×d
+
+be Stiefel matrices with incoherence parameter μ = O(1) . Let P = U ΣP V T for a diagonal ΣP ≻ 0 to be specified later. Let 
+
+δQ > 0 be a positive real to be specified later. We will construct a family of source/target pairs indexed by C similar to (Jalan et al., 2024). For w ∈ C, let Bw ∈ Rd×d be defined as: 
+
+Bw;ij := 
+
+( √mn  
+
+> 2d
+
+wij = 0 √mn d ( 12 +δQ) wij = 1 
+
+Then define (Pw,Q w) = ( P,U B wV T ).For a fixed w ∈ C, the distribution of the data (AP , eQ) depends on the random noise and masking of both AP , eQ. Let 
+
+DR ∈ { 0,1}m×m and DC ∈ { 0,1}n×n be the diagonal matrices corresponding to the row/column masks for Q, and let 
+
+G ∈ Rm×n have iid N (0 ,σ 2
+
+> Q
+
+) entries. Then eQ = DR(Q+G)DC .Now, we will apply Theorem A.20 to lower bound E
+
+ 
+
+> 1
+> mn
+
+∥ ˆQ − Qw∥2 
+
+> F
+
+DR,D C
+
+
+
+. Fix any DR ∈ supp (E1),D C ∈ supp (E2.Let ePw, eQw denote the distribution of the data when the population matrices are Pw,Q w and we condition on the Q-mask matrices DR,D C .24 Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+By Theorem A.19, the hypothesis space indexed by C is such that log( |C|) ≥ C1d2 for absolute constant C1 > 0. Next, for distinct w,w ′ ∈ C,
+
+KL (( ePw, eQw),( ePw′ , eQw′ )) = KL ( ePw′ , ePw)+ KL ( eQw, eQw′ )
+
+≤ KL ( eQw, eQw′ )= KL (( DC ⊗DR)vec (Qw +G),(DC ⊗DR)vec (Qw′ +G)) 
+
+Notice that we do not use any properties of ePw, ePw′ , and in particular allow for deterministic ePw = Pw = P .Since DC ,D R are fixed, this is simply the KL divergence of two multiariate Gaussians with the same covariance but different means. Therefore, by Lemma A.9, we have that: 
+
+KL (( ePw, eQw),( ePw′ , eQw′ )) ≤ 1
+
+σ2
+
+> Q
+
+vec (Qw −Qw′ )T (DC ⊗DR)T (DC ⊗DR)−1(DC ⊗DR)vec (Qw −Qw′ )= 1
+
+σ2
+
+> Q
+
+∥DR(Qw −Qw′ )DC ∥2
+
+> F
+
+= 1
+
+σ2
+
+> Q
+
+∥DRU (Bw −Bw′ )V T DC ∥2
+
+> F
+
+≤ 1
+
+σ2
+
+> Q
+
+∥DRU ∥22∥DC V ∥22∥Bw −Bw′ ∥2
+
+> F
+
+≤ 5pRow pCol 
+
+σ2
+
+> Q
+
+ δ2
+
+> Q
+
+mn d2 )d2
+
+= 5pRow pCol mnδ 2
+
+> Q
+
+σ2
+
+> Q
+
+.
+
+In the penultimate step, we used the fact that DR ∈ supp (E1),D C ∈ supp (E2).Next, for any distinct w,w ′ ∈ C, by Theorem A.19 we have that Pi,j ∈[d][wij ̸ = w′ 
+
+> ij
+
+] ≥ 0.1. Therefore, 
+
+∥Qw −Qw′ ∥F = ∥U (Bw −Bw′ )V T ∥F
+
+= ∥(Bw −Bw′ )∥F
+
+=
+
+ X 
+
+> i,j ∈[d]: wij ̸=w′
+> ij
+
+δ2
+
+> Q
+
+mn d2
+
+1/2
+
+≥ 110 δQ
+
+√mn 
+
+In the notation of Theorem A.20, we have: 
+
+αr := 110 δQ
+
+√mn βr = 5pRow pCol mnδ 2
+
+> Q
+
+σ2
+
+> Q
+
+Since log( |C|) ≥ C1d2, we set δQ =
+
+q C1d2σ2 
+
+> Q
+> 10 pRow pCol mn
+
+so that that βr = C1d2 
+
+> 2
+
+. Therefore, by Theorem A.20, for absolute constants C2,C 3,C 4 > 0,
+
+min  
+
+> DR∈supp (E1),D C∈supp (E2)
+
+E
+
+ 1
+
+mn ∥ ˆQ−Qw∥2 
+
+> F
+
+DR,D C
+
+
+
+≥ C2α2
+
+> r
+
+mn 
+
+≥ C3δ2
+
+> Q
+
+≥ C4d2σ2
+
+> Q
+
+pRow pCol mn 
+
+The conclusion follows. 25 Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+## B. Additional Experiments and Details 
+
+Compute environment. We run all experiments on a Linux machine with 378GB of CPU/RAM. The total compute time across all results in the paper was less than 4 hours. 
+
+Dataset details. For the gene expression experiments, we gather whole-blood sepsis gene expression data sampled by (Par-nell et al., 2013), available at https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=gse54514 . We take the intersection of rows and columns present on days 1 and 2 of the study, and then filter by the 300 most expressed columns (genes) on day 1, to obtain P,Q ∈ R31 ×300 . Here Pij is the expression level of gene j for patient i on day 1, and 
+
+Qij is the same on day 2.For the metabolic networks experiments, we access the BiGG genome-scale metabolic models datasets (King et al., 2016) at 
+
+http://bigg.ucsd.edu . We use the same set of shared metabolites for iWFL1372 (the source species P ) and IJN1463 (the target species Q) as (Jalan et al., 2024). The resulting networks are weighted undirected graphs with adjacency matrices 
+
+P,Q ∈ R251 ×251 where Pij counts the number of co-occurrences of metabolites i,j in iWFL1372, and Qij does the same for IJN1463. 
+
+Details of the baselines. For the method of (Bhattacharya and Chatterjee, 2022), we use the estimator from their Section 2.2, but modify step (3) to truncate to the true rank d, and in step (6) truncate to the true rank of the propensity matrix whose 
+
+(i,j ) entry is ηiνj . The propensity rank is always 1 in our case. This is the estimator ˆQBC22 ∈ Rm×n.For the method of (Levin et al., 2022b), we use the estimator from their Section 3.3, with weights wP ,w Q based on estimated sub-gamma parameters of the noise for eP , eQ. Then, let Q′ ∈ Rm×n be: 
+
+Q′ 
+
+> ij
+
+:= 
+
+( wP 
+
+> wP+wQ
+
+ePij + wQ 
+
+> wP+wQ
+
+eQij eQij ̸ = ⋆
+
+ePij otherwise We return the rank-d SVD truncation of Q′ as ˆQLLL22 ∈ Rm×n.We will discuss additional ablation experiments in Section B.2, and experiments on the real-world data in Section B.3. 
+
+B.1. Comparison to the not-MIWAE Method 
+
+In this section, we present additional experiments to compare our methods against the not-MIWAE method of (Ipsen et al., 2021). Specifically, we compare our active and passive sampling methods on Max Squared Error, Mean Squared Error (MSE), Mean Absolute Error (MAE), and Root Mean Squared Error (RMSE). For ease of comparison, we report the results of Figure 2 (gene expression transfer) and Figure 3 (metabolic transfer) again in the tables below. The MAE/RMSE numbers, and the results of the not-MIWAE method, are new. For the gene expression transfer problem (Figure 2), our methods out-perform not-MIWAE with pRow = pCol = 0 .5. We train 
+
+not-MIWAE until convergence, with the latent dimension equal to the true matrix rank of Q, and a batch size of 32. For gene expression data, the errors are reported in in Table 3 below. Method MSE Max Squared Error MAE RMSE Passive (Ours) 0.004385 0.300035 0.044493 0.055198 Active (Ours) 0.018225 0.372105 0.103285 0.114654 LLL22 0.151792 0.626293 0.343497 0.389449 BC22 0.570254 1.000000 0.678862 0.754897 not-MIWAE 0.207850 1.000000 0.415913 0.455765      
+
+> Table 3. Performance comparison of different methods in the setting of Figure 2, with pRow =pCol = 0 .5.
+
+Next, we perform the same experiment for the metabolic transfer problem (Figure 3) in Table 4. Note that our methods may perform better because not-MIWAE is a non-transfer baseline. This further emphasizes the significance of the transfer setting, which our methods capture, as well as the method of (Levin et al., 2022a). 26 Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+Method MSE Max Squared Error MAE RMSE Passive (Ours) 0.000217 1.292995 0.000934 0.014638 Active (Ours) 0.000024 0.294249 0.000669 0.004883 LLL22 0.000360 0.651176 0.006931 0.018147 BC22 0.003790 1.000000 0.021086 0.055543 not-MIWAE 0.006666 1.000000 0.030307 0.076831      
+
+> Table 4. Performance comparison of different methods in the setting of Figure 3, with pRow =pCol = 0 .5.
+
+B.2. Ablation Studies 
+
+Throughout this section we use the Partitioned Matrix Model with a = 0 .1,b = 0 .8 from Section 3. For each setting, we hold all parameters fixed and vary one parameter pto observe the effect of all algorithms on both Max Sqaured Error and Mean Squared Error. The default settings are: • Matrices P,Q ∈ Rm×n with m = 300 ,n = 200 .• The parameters a = 0 .8,b = 0 .1 in the Partitioned Matrix Model. • Additive noise for eQ is iid N (0 ,σ 2
+
+> Q
+
+) with σQ = 0 .1.• The rank is d = 5 .• pRow = pCol = 0 .5, so the probability of seeing any entry of Q is 0.25 .For all experiments, we test for 10 independent trials at each parameter setting and display the median error of each method, along with the [10 ,90] percentile. Figure 9 shows that all methods do poorly in max error when P is masked. Our methods are best in mean-squared error. This is because the Matrix Partition Model is highly coherent, as can be shown from spectral partitioning arguments (Lee et al., 2014). Therefore, the max-squared error is high, as we would expect from Remark 2.7 and the results of (Chen et al., 2020).   
+
+> Figure 5. We test the effect of growing the target additive noise parameter σQ.
+
+27 Optimal Transfer Learning for Missing Not-at-Random Matrix Completion               
+
+> Figure 6. We test the effect of growing the target additive noise parameter σP. Each entry of Pis observed with i.i.d. additive noise N(0 ,σ 2
+> P).
+> Figure 7. We test the effect of growing nfor P,Q ∈R300 ×n.
+
+B.3. Additional Real-World Experiments 
+
+We first display the weighted adjacency matrices for P, Q for the metabolic networks setting of Section 3 as Figure 10 and Figure 11. It is evident that the edge weights show significant skew. Note that the colorbar for both visualizations is logarithmically scaled. Next, we report mean-squared error for the same experimental settings discussed in Section 3. Figure 13 shows the results for gene expression. Figure 12 shows the results for metabolic data; notably, despite poor performance in max-squared error, the passive sampling estimator is reasonably good in mean-squared error, although not as good as the active sampling estimator. 28 Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+Figure 8. We test the effect of rank. 
+
+Figure 9. We test the effect of masking entries of P in a Missing Completely-at-Random setup with probability p. Note that the errors for active and passive sampling are almost identical, so we use different markers (circle and triangle resp.) to distinguish them. We see that our methods do better in mean-squared error (left) while max error is poor for all methods (right). 
+
+29 Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+Figure 10. The source matrix P in the setting of Figure 3. 
+
+30 Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+Figure 11. The target matrix Q in the setting of Figure 3. 
+
+31 Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+Figure 12. The mean-squared error of each ˆQ−Q in the setting of Figure 3. 
+
+32 Optimal Transfer Learning for Missing Not-at-Random Matrix Completion 
+
+Figure 13. The mean-squared error of each ˆQ−Q in the setting of Figure 2. 
+
+33

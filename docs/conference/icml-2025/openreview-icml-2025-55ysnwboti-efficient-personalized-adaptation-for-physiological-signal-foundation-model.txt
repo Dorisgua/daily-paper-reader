@@ -1,0 +1,760 @@
+Title: Efficient Personalized Adaptation for Physiological Signal Foundation Model
+
+URL Source: https://openreview.net/pdf?id=55ysNwbOTI
+
+Number of Pages: 19
+
+Markdown Content:
+# Efficient Personalized Adaptation for Physiological Signal Foundation Model 
+
+Chenrui Wu 1 2 Haishuai Wang ∗ 1 Xiang Zhang 3 Chengqi Zhang 4 Jiajun Bu 1
+
+## Abstract 
+
+Time series analysis is crucial across various fields like energy, environment, transportation, finance and health. Deep learning has significantly ad-vanced this field, particularly, the Time Series Foundation Model (TSFM) excels in multiple do-mains due to extensive pre-training. In this work, we focus on TSFM’s challenges in medical prac-tice: limited computing resources and medical data privacy. TSFM variants include fine-tuned models and those pre-trained for rapid deploy-ment on diverse data. There may not be enough computing resources to train physiological signals locally in hospitals, and generalized TSFM is still inferior to task-specific methods on private, im-balanced local data. To address this, we propose PhysioPFM, a framework for efficiently person-alizing TSFM. Our approach involves low-rank pre-training on public datasets, generator training by trained LoRA weights, and efficient weight generation via local data. Experimental results demonstrate that integrating generated models with TSFM enhances performance, and transfer-ability, and reduces the need for additional sensi-tive data training. 
+
+## 1. Introduction 
+
+The recent trend of integrating deep learning algorithms on advanced wearable sensors and fixed medical equip-ment has catalyzed massive amounts of valuable medical data (Spathis et al., 2020; Che et al., 2017). These recorded medical time series data are continuous observations related to human health, usually including electroencephalogram 
+
+> 1
+
+Zhejiang Key Laboratory of Accessible Perception and In-telligent Systems, College of Computer Science and Technology, Zhejiang University. 2School of Computing Science, Simon Fraser University. 3Department of Computer Science, The University of North Carolina at Charlotte. 4Department of Data Science and Artificial Intelligence, Hong Kong Polytechnic University. Corre-spondence to: Haishuai Wang <haishuai.wang@zju.edu.cn >.
+
+Proceedings of the 42 nd International Conference on Machine Learning , Vancouver, Canada. PMLR 267, 2025. Copyright 2025 by the author(s). Pretrained LM  Pretrained LM  Unified Model       
+
+> Fine-tuning & Testing Pre-training Testing
+> (a) TSFM for Local Adaption (b) TSFM for Generic Pretraining
+> Target data Target task Foreign domain data Foreign domain task
+
+Figure 1. Illustration of existing two categories of time series foundation model. (a) represents the methods applying pre-trained LLM to train target data, and conducting tests on target data. (b) demonstrate the methods that pre-train on a large and multi-domain dataset, then test on the target data for the zero-shot prediction. 
+
+(EEG), cardiotocography (CTG), electrooculogram (EOG), galvanic skin response (GSR), electrocardiogram (ECG), electromyogram (EMG), and others (Thapa et al., 2024; Wang et al., 2024b; Zhang et al., 2024; Al-Saegh et al., 2021). These physiological signals are usually quantitatively measured by medical devices and then analyzed by doctors or specialists to evaluate the patient’s current state and make data-driven decisions, which shows great significance for health monitoring, disease diagnosis, and treatment (Liu et al., 2023). Specifically, we focus on various medical time series classification (TSC) tasks based on the physi-ological signals, including emotion recognition (Li et al., 2024a), sleep stage detection (Supratak et al., 2017; Dong et al., 2017), neurological disorder classification (Yang et al., 2022b; Zhang et al., 2022), etc. However, while the community has benefited greatly from the large amount of new data collected by professional med-ical devices or ubiquitous wearable devices, analyzing phys-iological signals with existing deep-learning methods still faces inherent challenges in practice. First, the amount of data available for each signal is unbalanced. Most existing studies focus on EEG and ECG data. In contrast, other physiological signals have minor data available, making it challenging to establish unified and generic models for all signals. Furthermore, the sampling frequency and duration of different signals may also vary, further causing the diver-1Efficient Personalized Adaptation for Physiological Signal Foundation Model 
+
+gence of data features and labels. Therefore, compared with time series in conventional domains, medical time series also have unique challenges in imbalanced distributions. To effectively capture the complex trends of time series, the foundation model has recently attracted the attention of researchers. With pre-training and success of the language model, diverse time series foundation models (TSFM) have been proposed (Zhou et al., 2023; Jin et al., 2024; Rasul et al., 2023; Liu et al., 2024b; Goswami et al., 2024; Ansari et al., 2024; Garza & Mergenthaler-Canseco, 2023a). TSFM mainly includes two categories as shown in Figure 1. The first category adopts language model parameters as pre-training parameters and performs fine-tuning and testing on target data locally (Zhou et al., 2023; Jin et al., 2024; Rasul et al., 2023; Ansari et al., 2024). Another category pursues generalization performance, is pre-trained with large-scale time series data in various fields, and achieves universal per-formance of train once for all (Liu et al., 2024b; Goswami et al., 2024; Garza & Mergenthaler-Canseco, 2023a). Yet, several challenges are aroused by implementing the existing two types of TSFM, shown in Figure 2. For physi-ological signals, patients’ sensitive data is prevented from being uploaded to foundation model service providers for pre-training due to recent laws like EU GDPR for patients’ privacy. To adapt local physiological signals, for the first category, in the face of clinical diagnosis scenarios with lim-ited computing capacity, local fine-tuning will cause huge computing overhead, which is quite impractical. If applying the generic pre-trained model, although various foundation models have been proven to perform well in multiple fields and have general feature extraction capabilities, some stud-ies have shown that they perform poorly on specific tasks, such as in fields where publicly available healthcare data is scarce and imbalanced (Glocker et al., 2023; Gupta et al., 2024; Wang et al., 2018a). While several task-specific TSFMs have been crafted for particular domains, such as Brant-X (Zhang et al., 2024), SleepFM (Thapa et al., 2024) and ECG-FM (McKeen et al., 2024). They aim to fit one task with massive public and private data pre-training. These approaches also face the issue of access to private data for training and the challenge of transferring to unseen physiological signal tasks. In this work, we propose PhysioPFM, a P ersonalized Foundation M odel approach for Physio logical signal to effi-ciently and lightweight produce a customer model for clin-ical practice with privacy guarantee. Inspired by the con-cept Train-Once-for-All Personalization (Chen et al., 2023; Li et al., 2024c), our overall goal is to adapt a TSFM to personalized clinical tasks without extra training during de-ployment. Based on pre-trained and generalized TSFM, we aim to synthesize customized Low-Rank adapter parameters locally with lightweight cost and privacy guarantee. Privacy preservation  Limited comp. resources  Insufficient specialization   
+
+> Acc.
+> Figure 2. The challenges of implementing two types of TSFM to clinical practice. The first shows that private data cannot be uploaded for pre-training. Local fine-tuning on private data may cause huge computational overhead and be impractical in some conditions. Applying a foundation model pre-trained by multi-domain time series may not fit well with the features and distribution of local physiological signals without adaptation.
+
+Specifically, in the data preparation phase, we first train the TSFM with massive public physiological signal data by Low-Rank Adapter (LoRA) (Hu et al., 2021; Zhou et al., 2024) and store the map of adapters and data sources. To effectively learn diverse features, we adopt the neural col-lapse (Papyan et al., 2020) to tackle the imbalanced data distribution. In the generator training phase, we use a dif-fusion transformer (DiT) (Peebles et al., 2022) as a robust generator to synthesize LoRA weights. To bridge the gap between time series and adapter parameters, we capture the representative subsequence of time series shapelets (Wang et al., 2018b; Li et al., 2021; Le et al., 2022; 2024) as the input conditions for DiT training. In the local personal-ized inference phase, given the local data’s shapelets, DiT could generate customized LoRA weights to combine with generic TSFM. A personalized TSFM is obtained for the lo-cal medical expert. Only limited computing resources of the generator and TSFM inference are required. We summarize our contributions as follows: • We novelly propose a personalized approach to transfer the time series foundation model to clinical physiologi-cal signal tasks with lower computing costs and privacy guarantees. • We propose a specialized LoRA generator of DiT, bridging the time series and model by discriminant subsequences shapelets. • Extensive experiments demonstrate the robustness and efficiency of our PhysioPFM. 
+
+## 2. Related Work 
+
+2.1. Time Series Foundation Model 
+
+Recently, the development of large language models (LLMs) has revolutionized the field of natural language process-2Efficient Personalized Adaptation for Physiological Signal Foundation Model 
+
+ing (NLP) (Chang et al., 2024), demonstrating multimodal adaptability beyond text (Qin et al., 2024; Zeng et al., 2023; Jiang et al., 2024b). Time series have practical value com-parable to natural languages, and in essence, they exhibit similar sequentiality in generative modelling (Gruver et al., 2024). This unique feature has prompted much research to adapt LLM to time series (Li et al., 2024b). Current time series foundation models (TSFM) can be divided into two types. The first type utilizes language model parameters to fine-tune target data. llm4ts (Chang et al., 2023) uses fine-tuned transformer modules and positional encodings in GPT-2 to align pre-trained LLMs with time series data for forecasting tasks. One-Fits-All (GPT4TS) (Zhou et al., 2023) freezes the multi-head attention and FFN layers, fine-tunes input, positional embeddings and layer norm blocks, based on GPT-2 parameters. Time-LLM (Jin et al., 2024) introduces a reprogramming architecture, aligning LLM’s word embedding with time series embedding, with frozen LLama backbone (Touvron et al., 2023a;b). Another type targets generalization with large-scale data pretraining for few-shot or zero-shot tasks. LLMTime (Gru-ver et al., 2024) investigates inputting time series as text with different preprocessing to LLM for zero-shot forecast-ing. TimeGPT-1 (Garza & Mergenthaler-Canseco, 2023b) is a commercial time series LLM based on the transformer architecture and pre-trained with more than 100 billion data points for zero-shot prediction. Timer (Liu et al., 2024b) proposes a pre-training dataset (UTSD) including multiple domains with 1 billion time points and trains a GPT-style (decoder-only) model to predict. MOMENT (Goswami et al., 2024) also collects a large public dataset: Time Series Pile, then proposes learnable masked patches to train a trans-former. These pre-trained TSFMs focus on generalization with a wide domain of time series, where their special-ized abilities in medical time series may not be satisfactory. Therefore, we propose a lightweight TSFM personalization scheme to tackle the specialization ability. 
+
+2.2. Time Series Classification 
+
+In general, time series analysis involves four fundamental downstream tasks: forecasting, imputation, classification and anomaly detection. Current TSFMs mostly emphasize forecasting ability or general ability. However, time se-ries classification (TSC) has some unique challenges like heterogeneous timestamp length (Chen et al., 2024), noisy labelling (Liu et al., 2024c), and domain gap from different sensors (He et al., 2023; Wu et al., 2024), aside from only training a robust feature-extracting ability or replacing a prediction head. Therefore, more studies have focused on TSC, especially the applications of physiological signals. For emotion detection, TNAS (Li et al., 2022) combines the Transformer model with NAS and searches through a multi-objective evolutionary algorithm (MOEA) to obtain the optimal network architecture for EEG-based emotion recognition; OMHGL (Pan et al., 2023) proposes an online multimodal hypergraph learning method for emotion recog-nition based on multimodal hypergraph fusion and online hypergraph learning. For sleep stage detection, in (Kong et al., 2023), a bilevel optimization approximation for EEG-based sleep stage classification is proposed with a neural architecture search framework; NeuroNet (Lee et al., 2024) proposes a self-supervised learning framework for sleep state detection by integrating contrastive learning tasks and masked prediction tasks. To uniformly solve the physiologi-cal signal classification, Bran-X (Zhang et al., 2024) utilizes a pre-trained brain signal foundation model, Brant-2 (Yuan et al., 2024) with 2 TB private data, then aligns other signals to brain signals in two-level patching. In this work, we aim to efficiently transfer the general knowledge of TSFM to physiological signals with public datasets. Our focus is to achieve specialization through openness and protect privacy without exposing patients’ private data. We also consider the classification challenges of noisy and imbalanced time series in physiological signal data. 
+
+## 3. Preliminaries 
+
+3.1. Problem Setup 
+
+We consider multi-class time series classification tasks un-der a train-once-for-all personalization scenario (Chen et al., 2023; Li et al., 2024c). There is a primitive time series foundation model W0 pre-trained by large-scale public datasets D. Each local clinical expert/user k holds a pri-vate dataset Dk = {(xki , y ki )}nk
+
+> i=1
+
+, where xki is the input of the training sample, corresponding yki denotes the given label, and the sum of local data does not belong to pre-training datasets Ski=1 Di ∩ D = ∅. For each physiological signal x ∈ RM ×L includes M channels with a length of 
+
+L timestamps. The optimization objective is to obtain a best personalized model W ′ 
+
+> k
+
+for each user based on private dataset Dk, formulated as: 
+
+min L(W ′
+
+> k
+
+) = L(fϕ(W0, Dk)) , (1) where fϕ denote the personalization operation function based on the generative network Gϕ.
+
+3.2. Low-Rank Adaptation 
+
+The size of the parameters of existing LLM usually starts from billions. Many works (Li et al., 2018) have proved that matrices for deep learning are often over-parameterized. Low-Rank Adaptation (LoRA) (Hu et al., 2021) allows in-direct training of some dense layers in a neural network by optimizing the rank factorization matrix of the dense layers that change during the adaptation process while keep-ing the pre-trained weights unchanged. Hence, LoRA im-proves efficiency for fine-tuning large pre-trained language 3Efficient Personalized Adaptation for Physiological Signal Foundation Model 
+
+models. In detail, LoRA first fixes the pre-trained LLM 
+
+W0 ∈ Rd×k and introduces two trainable low-rank ma-trices: dimensionality-reducing matrices A ∈ Rr×k and dimension-raising matrix B ∈ Rd×r , where r ≪ min( d, k ).The LoRA’s forward pass equation is denoted as: 
+
+W0x + ∆ W x = W0 + BAx, (2) where ∆W = BA is the parameter needing to be updated, 
+
+x is the same input for W0 and ∆W . The more concen-trated and stable parameter distribution in LoRA helps im-prove generalization by reducing the risk of overfitting. Dur-ing the inference process, LoRA also introduces almost no additional inference latency. Only the calculation of 
+
+W = W0 + ∆ W is required. In this work, we aim to synthesize LoRA parameters to directly obtain customized LLMs based on target data in a local private diagnosis. 
+
+3.3. Neural Collapse 
+
+Neural collapse is a phenomenon in which the feature pro-totypes and weights vectors of the classifier will gradually converge to a Simplex Equiangular Tight Frame (ETF) struc-ture at the terminal phase of balanced data training (Papyan et al., 2020; Li et al., 2023; Yang et al., 2023; 2022a). We note the definition of the ETF and Neural Collapse as fol-lows: 
+
+Definition 3.1 (Simplex Equiangular Tight Frame) . A set of C-dimensional vectors wi ∈ Rd, where i ∈ [C] and 
+
+d ≥ C − 1, forms a simplex equiangular tight frame (ETF) if it satisfies the condition: 
+
+W =
+
+r CC − 1 U
+
+
+
+IC − 1
+
+C 1C 1TC
+
+
+
+, (3) where W = [ w1, · · · , wC ] ∈ Rd×C , U ∈ Rd×C , (d ≥
+
+C) is a partial orthogonal matrix satisfying UT U = IC .
+
+IC ∈ RC×C is a identity matrix and 1C is a vector of ones. Any column vectors in W has the same ℓ2 norm, and the pair-wise angles between any pair of vectors are maximized by the simplex ETF, denoted as: 
+
+wTi wj = CC − 1 δi,j − 1
+
+C − 1 , ∀i, j ∈ [C], (4) where it takes the value of 1 if the indices i and j are equal, while yielding 0 in all other cases. The optimal condition could be obtained when ∀i̸ = j, the maximal equiangular separation is wTi wj = − 1 
+
+> C−1
+
+.The phenomenon of Neural Collapse encompasses four dis-tinct properties, which we highlight as key manifestations: • NC1 (Within-Class Variability Collapse): All the last-layer features will collapse to the class prototypes (within-class feature means). Formally, the covariance 
+
+Σcθ → 0, and Σcθ := 1
+
+> nc
+
+Pnc
+
+> i=1
+
+(hc,i − hc)( hc,i − hc)T ,where nc is the index of samples in c-th class, hc,i =
+
+F(θ; xi) is the feature of the i-th sample of c-th class, and hc = 1
+
+> nc
+
+Pnc 
+
+> i=1
+
+hc,i is the within-class mean of class c features, that is the prototype. • NC2 (Convergence to Simplex ETF): The class proto-types will collapse to a simplex ETF and be maximally separated. ˆhc = ( hc − hG)/|| hc − hG|| , ∀c ∈ [C] sat-isfies Eq. (4), where hG refers to the global mean of all the features. • NC3 (Convergence to Self-Duality): The classifier weights will collapse to the same simplex ETF of the corresponding class. ˆhc = wc/|| wc|| , where wc is the classifier weight vector of class c.• NC4 (Simple Decision Rule): Under the conditions of (NC1)-(NC3) , the classifier’s prediction can be simplified to the nearest class centers based on Eu-clidean distances, denoted as: argmax k ⟨h, wc⟩ =arg min k || h − wc|| , where h represents the last-layer feature of a sample used for classification. 
+
+## 4. Proposed Method 
+
+4.1. Overview 
+
+As shown in Figure 3, we describe the detailed process of the proposed physiological signal foundation model per-sonalization method: PhysioPFM. We consider three main processes: debiased alignment as data preparation, shapelet-to-LoRA model training, and lightweight custom model generation. First, we adopt public physiological signals to fine-tune the original time series foundation model in a LoRA way. Then we use the map of the low-rank adapter and the corresponding data to train the generative model. Fi-nally, the user could apply the generative model to produce a customer low-rank adapter with private data. Combined with the time series foundation model, a customized physi-ological signal foundation model is obtained with only the extra computing costs of generation. 
+
+4.2. Data Preparation 
+
+Specifically, with the wide success of Low-Rank Adapter (LoRA) fine-tuning in foundation models (Hu et al., 2021; Zhou et al., 2024), we first pre-train the time series foun-dation model with plenty of public physiological signal datasets in a LoRA way and store the map of adapters and data sources. To synthesize learnable LoRA parameters, we consider building a map between LoRA and input time series by training the generative model. We adopt multiple public physiological signal datasets Dpub and decompose 4Efficient Personalized Adaptation for Physiological Signal Foundation Model EEG 
+
+> ECG
+> GSR
+
+① Data Preparation 
+
+> Pre-trained TSFM
+> Head
+> LoRA
+> CE Loss
+> AC Loss
+> Public Signals
+
+② Generator Training                
+
+> Flatten Add Noise
+> LoRA weights 1-D vector Noised model
+> ETF Classifier
+> Tokenizing
+> Padding
+> Diffusion Transformer
+> Decoding
+> Predicted LoRA
+> Corresponding Task Signal
+> Shapelet Discovery
+> Encoder
+> Padding
+> Task 1Data
+> Task 2Data
+> Task 𝑛𝑛 Data
+> Task 1LoRA
+> Task 2LoRA
+> Task 𝑛𝑛 LoRA
+> …
+
+③ Personalized Inference  
+
+> Random Noise Diffusion Transformer
+> Shapelet Discovery
+> Pre-trained TSFM
+> Prediction
+> Customized LoRA
+> Augmentation
+> Sampling
+> Augmentation
+
+… Private Data 
+
+> …
+> …
+
+Figure 3. The framework of the proposed PhysioPFM. The training procedure follows: ① In the data preparation phase, we pre-train a time series foundation model by public physiology signals in the cloud, to obtain the map of data and LoRA weights. ② In the generator training phase, we train a robust weights generator by the data as a condition and LoRA weights as output. ③ In the personalized inference phase, we adopt local data and the trained generator to synthesize customer LoRA weights for the TSFM. 
+
+them into more sub-tasks Dpub k to expand the amount of training tasks. For each task, we can obtain a personalized LoRA. Given the forward pass of LoRA in Eq. 2, we adopt two classification losses to update the original TSFM and get a customized LoRA for every task tk.
+
+Cross-Entropy Loss. The vanilla cross-entropy loss Lce is used to minimise empirical risks in a classification task: 
+
+Lce = − 1
+
+|D pub k | 
+
+> |D pub k|
+
+X
+
+> i=1
+
+yi log( f (W0; xi)) , (5) where Dpub k is the subset of the public physiological signal dataset Dpub . To enrich the training data size, each individ-ual dataset and its subset of spatial classes can be Dpub k . The specific public physiological signal datasets we collected are provided in Appendix A.6. 
+
+Anchored Classifier Loss. Due to the class-level distribu-tion imbalance and length heterogeneity of the collected physiological signal dataset, the number and series length may differ across classes and samples. We aim to update the TSFM in a debiased way. We first define the prototype pi as the mean of embedding of the class i ∈ { 1, 2, · · · , C } (Snell et al., 2017). According to Definition 1, we can derive an optimal condition of class prototypes: 
+
+Proposition 4.1. In a multi-class classification problem, if prototypes p1 · · · pC ∈ Rd are fixed and satisfy pTi pj =
+
+− 1 
+
+> C−1
+
+, ∀i̸ = j, i, j ∈ [C], the maximum of angular between any two class prototypes will be reached, where the decision bound among classes is optimal. 
+
+This proposition provides the optimality condition of vectors to maximize the minimal sample margin. Thus, we initialize a random synthesis of a simplex equiangular tight frame ˆp ∈
+
+Rd×C . Any pair of prototypes vectors pi, pj in ˆP satisfy a maximal pair-wise separation pTi pj = − 1 
+
+> C−1
+
+, ∀i̸ = j,
+
+i, j ∈ [C]. Therefore, we add the classifier-anchored loss to regularize the training, defined as: 
+
+Lac = − log nyi exp (xi · pyi /τ )
+
+P  
+
+> yj∈{ [C]\yi}
+
+nyj exp (xi · pyj /τ ) , (6) where nyi is the number of samples for class yi, τ is a temper-ate hyper-parameter, we set τ = 1 generally. Through these losses, the TSFM could be adapted to various physiological signal sub-tasks with a debiased classifier. The overall loss function to align the generic TSFM to physiological signals by low-rank adaptation is formulated as: 
+
+L = Lce + Lac . (7) After LoRA training on each sub-task of public datasets, we define the sub-task of Dpub k as tk. The overall demonstration of the obtained data sample map can be expressed as T =
+
+{(∆ Wk, t k)}Kk=1 , T k ∈ T , where ∆Wk = BkAk.
+
+4.3. Generator Training 
+
+To train the parameter generator, model generation with advances in diffusion process (Peebles et al., 2022; Jiang et al., 2024a) recently stands out from traditional techniques like network architecture search (Annavajjala et al., 2024; Cai et al., 2018) and neural network compression (Han et al., 2015; Wang et al., 2022), beyond image, video and other multimodal tasks. Different from generating a whole backbone model like a CNN and an MLP (Peebles et al., 2022; Li et al., 2024c), LoRA’s size of parameters shows a 5Efficient Personalized Adaptation for Physiological Signal Foundation Model 
+
+minor feature space and is easier to compress and predict by controlling the rank of the adapter r. As a more efficient paradigm for generating weights, we present the details of DiT training. 
+
+Input learnable parameters. Through the data preparation in Section 4.2, we could obtain the pairs Tk = (∆ Wk, t k).We set LoRA weights ∆Wk as input, flatten all parameters into a one-dimensional vector and chunk/tokenize the pa-rameters in each layer. We add augmentation and random noise while inputting. 
+
+Input conditions. Existing works (Chen et al., 2023; Li et al., 2024c) build the connection between model weights and textual prompts for image classification tasks by pow-erful pre-trained CLIP (Radford et al., 2021). However, physiological signals are chronological data points and no such existing encoder bridges the text-to-time relationships as CLIP. To compress the input space and bridge the time se-ries with LoRA weights, we propose shapelet prototypes as a substitute. Shapelet is a set of discriminative subsequences of a time series (Ye & Keogh, 2009), each of which is ex-pected to represent a class best. Therefore, shapelet can help to better understand the meaning of the time series and is widely used in the field of time series classification (Li et al., 2021; Zhang & Sun, 2022; Liu et al., 2024d). Following the existing works (Le et al., 2022; 2024), we slice the time series by the Offline shapelet Discovery (OSD) method to get the shapelets Si(ti), presented in Appendix A.1. For each class, we set a uniform amount of shapelets. 
+
+Diffusion training. We adopt DiT as the generator to train. We present the basic training process of the DiT model as: 
+
+Diffusion forward pass. The forward process is adding noise to the initial sample from xt−1 to xt, by condition c.The probability of transitioning is modeled as a Gaussian distribution: 
+
+q(xt|xt−1, c) = N (xt; p1 − βtxt−1, β tI) (8) where βt are the timestep-dependent noise levels, and I rep-resents the identity matrix. The complete forward process is denoted as: 
+
+q(x1: T |x0, c) = 
+
+> T
+
+Y
+
+> t=1
+
+q(xt|xt−1, c) (9) 
+
+Diffusion reverse process. The reverse process reconstructs the original sample from the noisiest state xT with condition 
+
+c:
+
+pϕ(xt−1|xt, c) = N (xt−1; μϕ(xt, t, c), Σϕ(xt, t, c)) 
+
+(10) 
+
+Diffusion training objective. The training objective to predict corresponding LoRA weights is to minimize the simplified variational lower bound, denoted as: 
+
+min  
+
+> ϕ
+
+L(ϕ) X
+
+> k∈K
+
+X
+
+> j∈J
+
+|| ∆Wk − Gϕ(S(tk), ∆W jk )|| 22, (11) where Gϕ is the generator model, S(tk)is the shapelets of task tk inputted as conditions, noised LoRA weights is 
+
+∆W jk . j ∈ [J] denotes the timestep in the diffusion forward noising process. The learning objective of diffusion is to minimize the simplified variational lower bound, which reduces to predicting the denoised model parameters. 
+
+4.4. Personalized Inference 
+
+Given the trained generator network Gϕ, we could deploy on local medical users. The user provides raw data to the encoder to obtain shapelets as conditions. With the input conditions, the generator Gϕ could synthesize suitable low-rank adapter weights ∆W ′. Combined with the original TSFM, the expert could conduct a diagnosis of disease by updated TSFM, which only requires the cost of the gen-erator and foundation model inference. The advantage of our personalized inference lies in these aspects: 1) Lower computing overhead, compared with other works, in local deployment, we only add the cost of the generating pro-cess instead of costly computation of foundation model fine-tuning. 2) Privacy preservation, our method does not need to upload sensitive data to the server for pre-training, and the training for the DiT is also based on public physi-ological signals. DiT’s powerful generalization capability enables the entire personalized model generation process to be performed locally. 3) The best of two worlds with public and private data. Our data preparation and generator training depend on public data, but our method can adapt to private data. The full utilization of both data boosts the overall performance. 
+
+## 5. Experiments 
+
+5.1. Experimental Setup Datasets and tasks To fully evaluate performance, we con-sider four typical physiological signals classification tasks, covering different signals. We randomly sample 60% of the data for training, 20% for validation, and 20% for testing, following the existing work (Zhang et al., 2024), for all evaluation tasks. The specific datasets are as follows, and the introduction of each task is shown in Appendix A.2. 
+
+Sleep-state detection. Sleep-EDF dataset (Kemp et al., 2000) is a public dataset containing multiple sleep records. These records are collected through multi-channel physiological signals including EEG, EOG, and EMG. For Sleep-EDF, we consider five class sleep stages: Wake, N1 (Light sleep stage 1), N2 (Light sleep stage 2), N3 (Deep sleep stage), and REM (Rapid Eye Movement) sleep. Parts of previous work 6Efficient Personalized Adaptation for Physiological Signal Foundation Model 
+
+Table 1. Results in terms of test accuracy (%) performance on Sleep-state detection. Blue/ bold fonts highlight the best baseline/our method. We evaluate classification accuracy, macro F1 score and kappa value. 
+
+Method Overall Metrics Perclass F1 Score Metrics Acc. MF1 κ Wake N1 N2 N3 REM Informer 2022 71.91 ±1.82 69.93 ±1.17 55.28 ±2.25 65.63 ±1.77 52.85 ±3.01 52.37 ±2.08 68.76 ±1.89 53.82 ±2.30 
+
+FEDformer 2022 56.58 ±2.39 50.35 ±2.12 51.78 ±1.02 60.50 ±3.25 40.89 ±1.74 55.53 ±3.34 49.13 ±2.63 46.52 ±2.15 
+
+SimMTM 2023 65.39 ±1.40 55.53 ±1.92 52.47 ±2.84 63.90 ±2.22 38.44 ±1.67 50.73 ±2.19 58.48 ±3.53 66.89 ±2.30 
+
+TimesNet 2023 77.95 ±2.67 70.28 ±2.42 68.36 ±1.83 80.48 ±2.91 57.24 ±2.78 70.45 ±1.65 68.39 ±3.10 75.73 ±3.28 
+
+PatchTST 2023 74.51 ±1.30 68.19 ±2.53 66.87 ±2.47 77.24 ±2.39 56.04 ±2.85 66.30 ±4.10 70.35 ±2.34 71.24 ±2.97 
+
+iTranformer 2024 76.43 ±2.47 63.49 ±1.77 68.20 ±2.91 79.38 ±2.68 53.05 ±2.43 65.32 ±2.73 60.45 ±1.59 58.06 ±3.61 
+
+OneFitsAll 2023 71.86 ±3.16 65.04 ±1.51 63.28 ±2.33 80.24 ±3.09 49.17 ±2.54 68.49 ±2.02 62.47 ±2.35 66.98 ±3.49 
+
+Time-LLM 2023 80.95 ±2.68 71.22 ±2.34 72.63 ±1.52 82.56 ±2.45 59.38 ±2.23 65.82 ±3.52 73.40 ±2.31 76.38 ±2.90 
+
+MOMENT 2024 81.90 ±1.42 72.72 ±2.82 73.12 ±1.17 78.62 ±2.88 54.69 ±2.56 77.07 ±1.89 76.34 ±2.72 75.05 ±4.11 
+
+SleepDG 2024 79.48 ±3.16 71.95 ±2.30 73.43 ±2.44 81.29 ±2.72 64.52 ±1.03 72.30 ±2.45 69.24 ±2.93 69.75 ±3.42 
+
+SleepFM 2024 81.65 ±2.05 74.26 ±3.40 72.03 ±3.97 82.55 ±2.93 61.24 ±2.56 76.52 ±3.15 74.38 ±2.27 76.93 ±2.04 
+
+Our PhysioPFM 86.39 ±2.54 76.27 ±2.98 77.36 ±3.14 83.04 ±2.75 66.71 ±2.81 76.43 ±1.94 77.29 ±2.90 78.38 ±2.31 
+
+adopt 30-minute data before and after in-bed, for fairness, we do not adopt this additional cropping, just raw data. 
+
+Emotion detection. DREAMER (Katsigiannis & Ramzan, 2017) is a multimodal physiological signal library consisting of EEG and ECG signals recorded during emotional arousal via audiovisual stimulation. Signals were recorded from 23 participants, along with the participants’ self-assessment of their affective state after each stimulation, including valence, arousal, and dominance. 
+
+Arrhythmia diagnosis. The MIT-BIH arrhythmia dataset (Moody & Mark, 2001) includes more than 4,000 24-hour periodic dynamic ECG signals of 47 test individual units, 48 recording files with a duration of approximately 30 minutes, and a total of 109,500 heartbeats, of which abnormal heartbeats account for approximately 30%. 
+
+Freezing of Gaits Detection. The FOG dataset (Li, 2021) collects multimodal data including EEG, EMG, ECG, skin conductivity (SC), and acceleration (ACC) during walking tasks using a high-quality hardware system that integrates commercially available and self-designed sensors. A total of 12 PD patients completed standard hospital experiments. 
+
+Baselines. We take three groups of methods as base-lines. (1) vanilla deep learning technique for time series: SimMTM (Dong et al., 2023), TimesNet (Wu et al., 2023), iTtransformer (Liu et al., 2024a), PatchTST (Nie et al., 2023), FEDformer (Zhou et al., 2022), Informer (Zhou et al., 2021). (2) time series foundation model: OneFit-sAll (Zhou et al., 2023), Time-LLM (Jin et al., 2024), MO-MENT (Goswami et al., 2024). (3) for each downstream task, we adopt specialized methods: SleepFM (Thapa et al., 2024) and SleepDG (Wang et al., 2024a) for sleep state de-tection, LSTM-MLP (Wang et al., 2023) and OMHGL (Pan et al., 2023) for emotion detection, DeepArr (Midani et al., 2023) for arrhythmia detection, Extra Tree Classifier (Goel et al., 2023) for FoG task. 
+
+Implement details. For generative model architecture, we adopt GPT-2 (Radford et al., 2019) as the diffusion trans-former with 12 layers. During training, we use AdamW with a batch size of 64, a learning rate of 4e-4, 1000 diffusion steps, and a linear noise scheduler ranging from 0.0001 to 0.012. we divide the LoRA weights into chunks by layer, and the size of each chunk is 576. We set the rank of the adapter as 4. For the pre-trained time series foundation model, we adopt the 6-layer GPT2-based backbone (Rad-ford et al., 2019; Liu et al., 2024b), pre-trained by UTSD datasets (Liu et al., 2024b). We collect public physiological signal datasets for training in the data preparation process, shown in Table 6. The target task’s data will be removed from generator training. We further prepare subsets and sub-classes of datasets to expand the number of tasks. We adopt the average result of 3 times. 
+
+5.2. Main Results 
+
+In Table 1-4, we evaluate the performance of our proposed method against diverse baseline methods including the gen-eral deep learning time series model, time series foundation model with local training, pre-trained time series model for zero-shot deployment and specialized methods for down-stream tasks. The results show that PhysioPFM consis-tently outperforms all baseline methods on all four tasks, demonstrating the remarkable personalization ability of the proposed method. Specifically, for sleep state detection in Table 1, PhysioPFM achieves 4.49% surpassing the best baselines MOMENT. PhysioPFM also leads with the best performance in the F1 score and is stable in the classifica-tion ability for each class, even in the tough class N1 light sleep stage, with a 2.2% advantage. For the evaluation of DREAMER datasets in Table 2, our PhysioPFM method achieves the best results in emotion recognition with the averaged accuracy of 73.97%, 82.19% 7Efficient Personalized Adaptation for Physiological Signal Foundation Model 
+
+Table 2. Results in terms of test accuracy (%) performance on emotion detection. Blue/ bold fonts highlight the best baseline/our method. We evaluate the accuracy, F1 score and AUC. 
+
+Dataset Valence Arousal Dominance Metrics Acc. F1 AUC Acc. F1 AUC Acc. F1 AUC Informer 2022 62.93 ±2.85 70.38 ±4.08 65.53 ±2.18 75.20 ±3.12 80.87 ±2.78 77.39 ±4.77 76.30 ±2.30 85.42 ±2.83 83.25 ±3.29 
+
+FEDformer 2022 55.30 ±3.78 63.29 ±2.85 60.53 ±2.93 70.34 ±4.34 75.85 ±2.91 72.56 ±3.66 72.26 ±2.78 81.19 ±3.34 80.04 ±3.96 
+
+SimMTM 2023 60.89 ±2.54 75.53 ±3.40 67.20 ±3.92 76.64 ±2.89 83.49 ±3.73 77.24 ±3.51 76.44 ±2.07 86.56 ±3.87 82.17 ±2.88 
+
+TimesNet 2023 70.32 ±2.87 78.98 ±3.38 75.35 ±4.23 78.95 ±3.15 85.67 ±3.59 78.19 ±2.84 81.26 ±2.54 85.07 ±3.27 84.72 ±3.98 
+
+PatchTST 2023 62.35 ±3.14 72.80 ±4.05 66.73 ±2.27 71.29 ±3.63 82.24 ±2.70 75.54 ±3.32 75.47 ±2.85 82.54 ±3.61 79.93 ±4.41 
+
+iTranformer 2024 67.93 ±4.27 77.42 ±2.38 75.60 ±3.88 80.59 ±2.72 84.05 ±5.45 80.82 ±3.76 80.20 ±4.17 83.91 ±2.10 82.94 ±3.98 
+
+OneFitsAll 2023 64.04 ±2.32 73.43 ±3.03 64.23 ±2.22 75.03 ±4.28 81.29 ±5.14 72.39 ±2.05 77.46 ±3.88 85.09 ±4.29 83.40 ±3.46 
+
+Time-LLM 2023 67.49 ±2.93 70.35 ±3.89 76.29 ±3.02 77.32 ±4.66 84.05 ±3.85 74.21 ±3.39 80.49 ±2.03 83.35 ±3.49 84.31 ±4.76 
+
+MOMENT 2024 69.20 ±3.85 77.34 ±4.40 74.22 ±2.68 80.51 ±2.87 83.46 ±2.56 75.32 ±4.39 79.39 ±5.30 86.56 ±3.02 86.90 ±2.45 
+
+LSTM-MLP 2023 67.60 ±3.62 78.36 ±4.61 62.21 ±2.06 77.78 ±3.37 84.90 ±3.92 78.24 ±4.74 79.11 ±2.69 89.63 ±5.53 82.55 ±3.10 
+
+OMHGL 2023 71.29 ±3.13 66.20 ±2.95 70.09 ±2.29 79.53 ±2.62 79.21 ±3.41 78.83 ±4.74 79.41 ±2.35 83.52 ±4.30 80.69 ±1.36 
+
+Our PhysioPFM 73.97 ±2.36 79.25 ±2.56 79.41 ±1.94 82.19 ±2.73 86.65 ±4.05 80.84 ±3.16 84.45 ±4.35 91.53 ±2.82 89.61 ±3.15 
+
+Table 3. Results in terms of model performance on arrhythmia diagnosis. We evaluate accuracy, precision, recall and F1. Methods/Metrics Acc. Prec. Rec. F1 Informer 77.54 ±2.30 74.20 ±2.79 78.34 ±3.42 76.21 ±2.39 
+
+FEDformer 60.35 ±1.95 55.46 ±3.44 60.92 ±2.18 58.06 ±2.57 
+
+SimMTM 80.27 ±3.49 82.37 ±2.35 79.50 ±3.52 80.90 ±2.19 
+
+TimesNet 81.33 ±2.18 78.93 ±2.67 82.45 ±1.72 80.65 ±2.06 
+
+PatchTST 70.53 ±3.41 73.65 ±2.78 67.45 ±4.26 70.41 ±2.85 
+
+iTranformer 75.56 ±2.96 78.95 ±2.67 74.41 ±3.68 76.61 ±2.94 
+
+OneFitsAll 75.63 ±3.04 71.90 ±2.34 74.45 ±3.81 73.15 ±2.79 
+
+Time-LLM 82.91 ±1.71 84.22 ±3.45 81.02 ±2.51 82.58 ±2.90 
+
+MOMENT 83.25 ±2.09 86.92 ±2.31 83.57 ±2.82 85.21 ±2.69 
+
+DeepArr 86.55 ±2.62 83.34 ±2.75 85.95 ±3.18 84.62 ±2.71 
+
+Ours PhysioPFM 89.94 ±1.53 88.42 ±3.19 90.72 ±2.81 89.55 ±2.40 
+
+and 72.3% of valence, arousal and dominance recognition tasks, respectively. Our method benefits from the quick adaptation ability to different sub-tasks with pre-trained knowledge. In some conditions, baselines relying on large language model parameters like OneFitsAll and Time-LLM possess less knowledge of specialized downstream tasks. So, with an LLM weight as a starting point, they are inferior to other transformer-based methods such as iTtransformer. We further investigate the performance of arrhythmia diag-nosis and FoG detection on Table 3,4. For arrhythmia diag-nosis, PhysioPFM leads with an average score of 89.94%, which is a notable increase over the second-best performing method by 3.39%. For FoG detection, PhysioPFM achieves SOTA performance compared to all the baselines. It shows that PhysioPFM could adapt to different downstream tasks without heavy local training. 
+
+5.3. Ablation Study 
+
+To further show the effectiveness of each proposed com-ponent, we conduct a comprehensive ablation study on PhysioPFM. The results shown in Table 5 demonstrate that all components contribute to the overall performance. For 
+
+Table 4. Results of model performance on Freezing of Gaits Detection. We evaluate accuracy, precision, recall and F1. Methods/Metrics Acc. Prec. Rec. F1 Informer 64.25 ±1.85 66.34 ±2.56 74.21 ±2.96 70.05 ±2.32 
+
+FEDformer 59.80 ±3.44 57.67 ±2.85 68.15 ±4.09 62.47 ±3.48 
+
+SimMTM 70.61 ±2.20 69.25 ±3.71 72.47 ±5.23 70.82 ±3.72 
+
+TimesNet 72.19 ±2.26 70.88 ±3.56 73.79 ±2.74 72.30 ±3.47 
+
+PatchTST 66.90 ±4.42 67.23 ±5.71 64.75 ±3.82 65.96 ±2.52 
+
+iTranformer 74.14 ±3.58 75.76 ±2.40 75.60 ±2.94 75.67 ±3.38 
+
+OneFitsAll 62.52 ±3.27 60.94 ±4.43 71.30 ±2.71 65.71 ±3.51 
+
+Time-LLM 71.62 ±1.65 72.56 ±3.46 71.11 ±4.23 71.82 ±3.21 
+
+MOMENT 73.03 ±2.63 74.55 ±3.97 76.36 ±2.85 75.44 ± 4.68 
+
+Extra Tree Classifier 73.95 ±2.44 74.09 ±2.96 75.35 ±2.64 74.71 ±2.03 
+
+Ours PhysioPFM 81.32 ±2.65 80.77 ±3.40 78.24 ±2.71 79.48 ±3.01 
+
+the setting of ablation, we first test the validation of the anchored-classifier loss. Then we use public data with the same task as Shapelet (if we have the same domain task, else an average with 5 random ones), instead of the local data’s shapelets. We also evaluate the raw TSFM without generating customized LoRA weights. The results show that ETF classifier has a great impact on model performance. A suitable temperature for contrastive learning also contributes with 1.87% to 4.63% advantages. We can also find that if the training is allowed, pre-trained TSFM could show great power in most cases after fine-tuning. Considering the vari-ant without LoRA, we could acknowledge that the generated LoRA weights could provide a comparable improvement with direct training. The improvement from the generated LoRA enhances the pre-trained TSFM and distinguishes ours from the generic TSFM. Although shapelet has minor impacts compared with other modules, it still illustrates the importance of personalization. 
+
+Impact of Rank. We evaluate the impact of LoRA rank on two downstream tasks in Figure 4(a). The results show that increasing r from 1 to 4 brings significant performance improvements while increasing r from 8 to 16 provides no further enhancement. It shows that a larger r is not neces-8Efficient Personalized Adaptation for Physiological Signal Foundation Model Sleep-EDF MIT-BIH 
+
+> 0.80
+> 0.85
+> 0.90
+> 0.95
+> 1.00
+> Acc.
+> rank=1
+> rank=4
+> rank=8
+> rank=16
+
+(a) Impact of LoRA rank Sleep-EDF MIT-BIH  
+
+> 0.80
+> 0.85
+> 0.90
+> 0.95
+> 1.00
+> Acc.
+> 50
+> 100
+> 200
+> 1000
+
+(b) Impact of DiT training sample size 5 10 25 50 100  
+
+> size of input prompts/conditions
+> 0.70
+> 0.75
+> 0.80
+> 0.85
+> 0.90
+> Acc.
+> Shapelet
+> Entire Series
+> Text
+
+(c) Different prompts and sizes. 
+
+Figure 4. PhyisoPFM capability analysis. Experiments of (a) and (b) are conducted on sleep state detection and arrhythmia diagnosis. (c) is conducted on sleep state detection. 1000  2000  3000  5000 
+
+> Memory Consumption (MB)
+
+Figure 5. Model performance on efficiency comparison. The adaptation time represents the sum of training time (if needed) and inference time. We test on the FoG task. 
+
+Table 5. Ablation study of PhysioPFM’s modules in terms of accuracy.                               
+
+> Methods/Dataset Sleep-EDF MIT-BIH FoG TSFM with local training 87.15 ±1.55 88.59 ±1.34 83.71 ±2.25
+> Ours w/o Lac 82.47 ±2.01 84.30 ±1.52 78.56 ±3.78
+> Ours Lac , τ = 0 .184.64 ±1.92 86.10 ±2.16 79.45 ±3.96
+> Ours Lac , τ = 10 81.76 ±2.31 85.52 ±2.84 78.37 ±1.60
+> Ours w/o local shapelets 85.94 ±2.05 87.43 ±1.65 79.96 ±3.21
+> Ours w/o local LoRA 82.08 ±2.37 84.17 ±2.42 76.45 ±3.04
+> Our PhysioPFM 86.39 ±2.54 89.94 ±1.35 81.32 ±2.65
+
+sarily better, and the size and difficulty of the dataset matter. Smaller r can also achieve acceptable performance. While a larger r represents the increase in the size of parameters that LoRA needs to train and generate. A rank that balances computational overhead and performance is better. 
+
+Impact of training samples. We consider different sizes of samples for the generator training. Here, the training samples denote the sub-task number, i.e., the number of the map of the task and LoRA weights. The result in Table 4(b) shows that as the number of training samples increases, the performance of the model also improves. More training on bringing the link between conditions and weights con-tributes to the ability of the diffusion transformation. How-ever, the number of map items relies on collecting public physiological signals. 
+
+Training text and series as prompts. In the original design of PhysioPFM, the shapelets are used for the prompts. We investigate the different prompts as input in Table 4(c). In a lower prompt size, shapelets have comparable performance with the whole time series sequence. While the whole time series representation may be more complex, and inputting more prompts could have a negative impact on learning the mapping relationship between time series and LoRA weights. For texts, without robust pre-trained language encoders for time series like CLIP, the difficulty of learning is greater for textual prompts. 
+
+5.4. Adaptation Efficiency 
+
+As a critical issue for medical practice, we conduct a com-puting consumption study for baselines in the FoG task. In Figure 5, we observe three-dimensional performance: accu-racy, adaptation time, and memory costs. Here, we define the adaptation time. For local training-based methods, the training time and inference time are counted for adapta-tion time. For other methods, it only counts the inference cost. We can find that FEDformer has the most time and computation costs. Although OneFitsAll achieves notable accuracy, training local data on the GPT-2 backbone is also time-consuming. Some lightweight models could train and predict quickly, but lose accuracy. Our PhysioPFM conducts generator training on the server, which requires about 20GB of GPU memory, which is feasible for servers with suffi-cient computing power. In local adaptation, DiT inference only occupies 3 GB of GPU memory, reaching a remarkable balance between accuracy, speed, and Consumption. 
+
+## 6. Conclusion 
+
+In this work, we introduce PhysioPFM, a physiological sig-nal foundation model for train-once-for-all personalization. PhysioPFM obtains powerful neural network diffusion per-formance by pre-training on public medical time series. By simply inputting local private sensitive medical time series, customized LoRA weights can be generated without train-ing, supporting the efficient personalization of time series foundation models. With the advantages of low overhead, privacy protection and efficient performance, PhysioPFM proposes a new framework for clinical diagnosis of medical physiological signals. 9Efficient Personalized Adaptation for Physiological Signal Foundation Model 
+
+## Acknowledgments 
+
+This work was supported by the National Key R&D Program of China (2022ZD0160703), the National Natural Science Foundation of China (62202422 and 62372408). 
+
+## Impact Statement 
+
+This paper presents work whose goal is to advance the field of Machine Learning. There are many potential societal consequences of our work, none of which we feel must be specifically highlighted here 
+
+## References 
+
+Al-Saegh, A., Dawwd, S. A., and Abdul-Jabbar, J. M. Cut-cat: An augmentation method for eeg classification. Neu-ral Networks , 141:433–443, 2021. Alvarez-Estevez, D. and Rijsman, R. M. Inter-database validation of a deep learning approach for automatic sleep scoring. PloS one , 16(8):e0256111, 2021. Annavajjala, A., Khare, A., Agrawal, A., Fedorov, I., Lat-apie, H., Lee, M., and Tumanov, A. Dϵps: Delayed 
+
+ϵ-shrinking for faster once-for-all training. In European Conference on Computer Vision , pp. 315–331. Springer, 2024. Ansari, A. F., Stella, L., Turkmen, C., Zhang, X., Mercado, P., Shen, H., Shchur, O., Rangapuram, S. S., Arango, S. P., Kapoor, S., et al. Chronos: Learning the language of time series. arXiv preprint arXiv:2403.07815 , 2024. Ayata, D., Yaslan, Y., and Kamasak, M. E. Emotion recog-nition from multimodal physiological signals for emotion aware healthcare systems. Journal of Medical and Bio-logical Engineering , 40:149–157, 2020. Blankertz, B., Muller, K.-R., Krusienski, D. J., Schalk, G., Wolpaw, J. R., Schlogl, A., Pfurtscheller, G., Millan, J. R., Schroder, M., and Birbaumer, N. The bci competition iii: Validating alternative approaches to actual bci problems. 
+
+IEEE transactions on neural systems and rehabilitation engineering , 14(2):153–159, 2006. Cai, H., Chen, T., Zhang, W., Yu, Y., and Wang, J. Efficient architecture search by network transformation. In Pro-ceedings of the AAAI conference on artificial intelligence ,volume 32, 2018. Chang, C., Peng, W.-C., and Chen, T.-F. Llm4ts: Two-stage fine-tuning for time-series forecasting with pre-trained llms. arXiv preprint arXiv:2308.08469 , 2023. Chang, Y., Wang, X., Wang, J., Wu, Y., Yang, L., Zhu, K., Chen, H., Yi, X., Wang, C., Wang, Y., et al. A survey on evaluation of large language models. ACM Transactions on Intelligent Systems and Technology , 15(3):1–45, 2024. Che, Z., Cheng, Y., Zhai, S., Sun, Z., and Liu, Y. Boosting deep learning risk prediction with generative adversarial networks for electronic health records. In 2017 IEEE International Conference on Data Mining (ICDM) , pp. 787–792. IEEE, 2017. Chen, H.-Y., Li, Y., Cui, Y., Zhang, M., Chao, W.-L., and Zhang, L. Train-once-for-all personalization. In Proceed-ings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pp. 11818–11827, 2023. Chen, J., Cao, T., Xu, J., Li, J., Chen, Z., Xiao, T., and Yang, Y. Con4m: Context-aware consistency learning framework for segmented time series classification. arXiv preprint arXiv:2408.00041 , 2024. Clifford, G. D., Liu, C., Moody, B., Li-wei, H. L., Silva, I., Li, Q., Johnson, A., and Mark, R. G. Af classifica-tion from a short single lead ecg recording: The phys-ionet/computing in cardiology challenge 2017. In 2017 Computing in Cardiology (CinC) , pp. 1–4. IEEE, 2017. Dong, H., Supratak, A., Pan, W., Wu, C., Matthews, P. M., and Guo, Y. Mixed neural network approach for temporal sleep stage classification. IEEE Transactions on Neural Systems and Rehabilitation Engineering , 26(2):324–333, 2017. Dong, J., Wu, H., Zhang, H., Zhang, L., Wang, J., and Long, M. Simmtm: A simple pre-training framework for masked time-series modeling. Advances in Neural Information Processing Systems , 36, 2023. Garza, A. and Mergenthaler-Canseco, M. Timegpt-1. arXiv preprint arXiv:2310.03589 , 2023a. Garza, A. and Mergenthaler-Canseco, M. Timegpt-1. arXiv preprint arXiv:2310.03589 , 2023b. Glocker, B., Jones, C., Roschewitz, M., and Winzeck, S. Risk of bias in chest radiography deep learning foun-dation models. Radiology: Artificial Intelligence , 5(6): e230060, 2023. Goel, K., Sood, N., and Saini, I. Ensemble technique based parkison’s disease detection from fog and eeg signals. In 
+
+2023 World Conference on Communication & Computing (WCONF) , pp. 1–5. IEEE, 2023. Goldberger, A., Amaral, L., Glass, L., Hausdorff, J., Ivanov, P. C., Mark, R., Mietus, J., Moody, G., Peng, C., Stanley, H., et al. Physionet: Components of a new research resource for complex physiologic signals. circ. 101 (23): e215-e220//circulation electronic pages. 2000. june 13. 10 Efficient Personalized Adaptation for Physiological Signal Foundation Model 
+
+Goldberger, A. L., Amaral, L. A., Glass, L., Hausdorff, J. M., Ivanov, P. C., Mark, R. G., Mietus, J. E., Moody, G. B., Peng, C.-K., and Stanley, H. E. Physiobank, physiotoolkit, and physionet: components of a new research resource for complex physiologic signals. circulation , 101(23): e215–e220, 2000. Goswami, M., Szafer, K., Choudhry, A., Cai, Y., Li, S., and Dubrawski, A. Moment: A family of open time-series foundation models. In Forty-first International Conference on Machine Learning , 2024. Gruver, N., Finzi, M., Qiu, S., and Wilson, A. G. Large language models are zero-shot time series forecasters. 
+
+Advances in Neural Information Processing Systems , 36, 2024. Gupta, D., Bhatti, A., Parmar, S., Dan, C., Liu, Y., Shen, B., and Lee, S. Low-rank adaptation of time series foun-dational models for out-of-domain modality forecasting. 
+
+arXiv preprint arXiv:2405.10216 , 2024. Han, S., Mao, H., and Dally, W. J. Deep compres-sion: Compressing deep neural networks with pruning, trained quantization and huffman coding. arXiv preprint arXiv:1510.00149 , 2015. He, H., Queen, O., Koker, T., Cuevas, C., Tsiligkaridis, T., and Zitnik, M. Domain adaptation for time series under feature and label shifts. In International Conference on Machine Learning , pp. 12746–12774. PMLR, 2023. Hu, E. J., Wallis, P., Allen-Zhu, Z., Li, Y., Wang, S., Wang, L., Chen, W., et al. Lora: Low-rank adaptation of large language models. In International Conference on Learn-ing Representations , 2021. Ichimaru, Y. and Moody, G. Development of the polysomno-graphic database on cd-rom. Psychiatry and clinical neu-rosciences , 53(2):175–177, 1999. Jiang, Y., Xia, L., Wei, W., Luo, D., Lin, K., and Huang, C. Diffmm: Multi-modal diffusion model for recommen-dation. In Proceedings of the 32nd ACM International Conference on Multimedia , pp. 7591–7599, 2024a. Jiang, Y., Yang, Y., Xia, L., Luo, D., Lin, K., and Huang, C. Reclm: Recommendation instruction tuning. arXiv preprint arXiv:2412.19302 , 2024b. Jin, M., Wang, S., Ma, L., Chu, Z., Zhang, J. Y., Shi, X., Chen, P.-Y., Liang, Y., Li, Y.-F., Pan, S., et al. Time-llm: Time series forecasting by reprogramming large lan-guage models. In The Twelfth International Conference on Learning Representations , 2024. Katsigiannis, S. and Ramzan, N. Dreamer: A database for emotion recognition through eeg and ecg signals from wireless low-cost off-the-shelf devices. IEEE journal of biomedical and health informatics , 22(1):98–107, 2017. Kemp, B., Zwinderman, A. H., Tuk, B., Kamphuisen, H. A., and Oberye, J. J. Analysis of a sleep-dependent neuronal feedback loop: the slow-wave microcontinuity of the eeg. 
+
+IEEE Transactions on Biomedical Engineering , 47(9): 1185–1194, 2000. Khalighi, S., Sousa, T., Santos, J. M., and Nunes, U. Isruc-sleep: A comprehensive public dataset for sleep researchers. Computer methods and programs in biomedicine , 124:180–192, 2016. Koldijk, S., Sappelli, M., Verberne, S., Neerincx, M. A., and Kraaij, W. The swell knowledge work dataset for stress and user modeling research. In Proceedings of the 16th international conference on multimodal interaction , pp. 291–298, 2014. Kong, G., Li, C., Peng, H., Han, Z., and Qiao, H. Eeg-based sleep stage classification via neural architecture search. 
+
+IEEE Transactions on Neural Systems and Rehabilitation Engineering , 31:1075–1085, 2023. Le, X.-M., Tran, M.-T., and Huynh, V.-N. Learning percep-tual position-aware shapelets for time series classification. In Joint European Conference on Machine Learning and Knowledge Discovery in Databases , pp. 53–69. Springer, 2022. Le, X.-M., Luo, L., Aickelin, U., and Tran, M.-T. Shape-former: Shapelet transformer for multivariate time series classification. In Proceedings of the 30th ACM SIGKDD Conference on Knowledge Discovery and Data Mining ,pp. 1484–1494, 2024. Lee, C.-H., Kim, H., Han, H.-j., Jung, M.-K., Yoon, B. C., and Kim, D.-J. Neuronet: A novel hybrid self-supervised learning framework for sleep stage classification using single-channel eeg. arXiv preprint arXiv:2404.17585 ,2024. Li, C., Farkhoor, H., Liu, R., and Yosinski, J. Measuring the intrinsic dimension of objective landscapes. arXiv preprint arXiv:1804.08838 , 2018. Li, C., Zhang, Z., Zhang, X., Huang, G., Liu, Y., and Chen, X. Eeg-based emotion recognition via transformer neural architecture search. IEEE Transactions on Industrial Informatics , 19(4):6016–6025, 2022. Li, C., Wang, F., Zhao, Z., Wang, H., and Schuller, B. W. Attention-based temporal graph representation learning for eeg-based emotion recognition. IEEE Journal of Biomedical and Health Informatics , 2024a. 11 Efficient Personalized Adaptation for Physiological Signal Foundation Model 
+
+Li, G., Choi, B., Xu, J., Bhowmick, S. S., Chun, K.-P., and Wong, G. L.-H. Shapenet: A shapelet-neural network approach for multivariate time series classification. In 
+
+Proceedings of the AAAI conference on artificial intelli-gence , volume 35, pp. 8375–8383, 2021. Li, H. Multimodal dataset of freezing of gait in parkinson’s disease. Mendeley Data , 3:2021, 2021. Li, M., Liu, K., Chen, H., Bu, J., Wang, H., and Wang, H. Tsinr: Capturing temporal continuity via implicit neural representations for time series anomaly detection. arXiv preprint arXiv:2411.11641 , 2024b. Li, Z., Shang, X., He, R., Lin, T., and Wu, C. No fear of classifier biases: Neural collapse inspired federated learn-ing with synthetic and fixed classifier. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pp. 5319–5329, 2023. Li, Z., Gao, L., and Wu, C. Text-to-model: Text-conditioned neural network diffusion for train-once-for-all personal-ization. arXiv preprint arXiv:2405.14132 , 2024c. Liu, F., Liu, C., Zhao, L., Zhang, X., Wu, X., Xu, X., Liu, Y., Ma, C., Wei, S., He, Z., et al. An open access database for evaluating the algorithms of electrocardiogram rhythm and morphology abnormality detection. Journal of Med-ical Imaging and Health Informatics , 8(7):1368–1373, 2018. Liu, Y., Hu, T., Zhang, H., Wu, H., Wang, S., Ma, L., and Long, M. itransformer: Inverted transformers are effec-tive for time series forecasting. In The Twelfth Interna-tional Conference on Learning Representations , 2024a. Liu, Y., Zhang, H., Li, C., Huang, X., Wang, J., and Long, M. Timer: Generative pre-trained transformers are large time series models. In Forty-first International Conference on Machine Learning , 2024b. Liu, Z., Alavi, A., Li, M., and Zhang, X. Self-supervised contrastive learning for medical time series: A systematic review. Sensors , 23(9):4221, 2023. Liu, Z., Chen, D., Pei, W., Ma, Q., et al. Scale-teaching: ro-bust multi-scale training for time series classification with noisy labels. Advances in Neural Information Processing Systems , 36, 2024c. Liu, Z., Pei, W., Lan, D., and Ma, Q. Diffusion language-shapelets for semi-supervised time-series classification. In Proceedings of the AAAI Conference on Artificial In-telligence , volume 38, pp. 14079–14087, 2024d. Markova, V. Database for cognitive load affect and stress recognition, 2020. URL https://dx.doi.org/10. 21227/ybsw-yr53 .McKeen, K., Oliva, L., Masood, S., Toma, A., Rubin, B., and Wang, B. Ecg-fm: An open electrocardiogram foun-dation model. arXiv preprint arXiv:2408.05178 , 2024. Midani, W., Ouarda, W., and Ayed, M. B. Deeparr: An investigative tool for arrhythmia detection using a contex-tual deep neural network from electrocardiograms (ecg) signals. Biomedical Signal Processing and Control , 85: 104954, 2023. Moody, G. B. and Mark, R. G. Development and evalu-ation of a 2-lead ecg analysis program. Computers in cardiology , 9(1982):39–44, 1982. Moody, G. B. and Mark, R. G. The impact of the mit-bih arrhythmia database. IEEE engineering in medicine and biology magazine , 20(3):45–50, 2001. Moody, G. B., Muldrow, W., and Mark, R. G. A noise stress test for arrhythmia detectors. Computers in cardiology ,11(3):381–384, 1984. Nie, Y., Nguyen, N. H., Sinthong, P., and Kalagnanam, J. A time series is worth 64 words: Long-term forecasting with transformers. In The Eleventh International Conference on Learning Representations , 2023. Obeid, I. and Picone, J. The temple university hospital eeg data corpus. Frontiers in neuroscience , 10:196, 2016. Pan, T., Ye, Y., Cai, H., Huang, S., Yang, Y., and Wang, G. Multimodal physiological signals fusion for online emotion recognition. In Proceedings of the 31st ACM International Conference on Multimedia , pp. 5879–5888, 2023. Papyan, V., Han, X., and Donoho, D. L. Prevalence of neural collapse during the terminal phase of deep learn-ing training. Proceedings of the National Academy of Sciences , 117(40):24652–24663, 2020. Peebles, W., Radosavovic, I., Brooks, T., Efros, A. A., and Malik, J. Learning to learn with generative mod-els of neural network checkpoints. arXiv preprint arXiv:2209.12892 , 2022. Pham, T. T., Moore, S. T., Lewis, S. J. G., Nguyen, D. N., Dutkiewicz, E., Fuglevand, A. J., McEwan, A. L., and Leong, P. H. Freezing of gait detection in parkinson’s disease: A subject-independent detector using anomaly scores. IEEE Transactions on Biomedical Engineering ,64(11):2719–2728, 2017. doi: 10.1109/TBME.2017. 2665438. Qin, J., Wu, J., Chen, W., Ren, Y., Li, H., Wu, H., Xiao, X., Wang, R., and Wen, S. Diffusiongpt: Llm-driven text-to-image generation system. arXiv preprint arXiv:2401.10061 , 2024. 12 Efficient Personalized Adaptation for Physiological Signal Foundation Model 
+
+Qiu, Y., Lin, F., Chen, W., and Xu, M. Pre-training in medical data: A survey. Machine Intelligence Research ,20(2):147–179, 2023. Radford, A., Wu, J., Child, R., Luan, D., Amodei, D., Sutskever, I., et al. Language models are unsupervised multitask learners. OpenAI blog , 1(8):9, 2019. Radford, A., Kim, J. W., Hallacy, C., Ramesh, A., Goh, G., Agarwal, S., Sastry, G., Askell, A., Mishkin, P., Clark, J., et al. Learning transferable visual models from natural language supervision. In International conference on machine learning , pp. 8748–8763. PMLR, 2021. Rasul, K., Ashok, A., Williams, A. R., Khorasani, A., Adamopoulos, G., Bhagwatkar, R., Bilo ˇs, M., Ghonia, H., Hassen, N., Schneider, A., et al. Lag-llama: Towards foundation models for time series forecasting. In R0-FoMo: Robustness of Few-shot and Zero-shot Learning in Large Foundation Models , 2023. Schalk, G., McFarland, D. J., Hinterberger, T., Birbaumer, N., and Wolpaw, J. R. Bci2000: a general-purpose brain-computer interface (bci) system. IEEE Transactions on biomedical engineering , 51(6):1034–1043, 2004. Schmidt, P., Reiss, A., Duerichen, R., Marberger, C., and Van Laerhoven, K. Introducing wesad, a multimodal dataset for wearable stress and affect detection. In Pro-ceedings of the 20th ACM international conference on multimodal interaction , pp. 400–408, 2018. Snell, J., Swersky, K., and Zemel, R. Prototypical networks for few-shot learning. Advances in neural information processing systems , 30, 2017. Spathis, D., Perez-Pozuelo, I., Brage, S., Wareham, N. J., and Mascolo, C. Learning generalizable physiological representations from large-scale wearable data. arXiv preprint arXiv:2011.04601 , 2020. Subramanian, R., Wache, J., Abadi, M. K., Vieriu, R. L., Winkler, S., and Sebe, N. Ascertain: Emotion and person-ality recognition using commercial sensors. IEEE Trans-actions on Affective Computing , 9(2):147–160, 2016. Supratak, A., Dong, H., Wu, C., and Guo, Y. Deepsleepnet: A model for automatic sleep stage scoring based on raw single-channel eeg. IEEE transactions on neural systems and rehabilitation engineering , 25(11):1998–2008, 2017. Taddei, A., Distante, G., Emdin, M., Pisani, P., Moody, G., Zeelenberg, C., and Marchesi, C. The european st-t database: standard for evaluating systems for the anal-ysis of st-t changes in ambulatory electrocardiography. 
+
+European heart journal , 13(9):1164–1172, 1992. Terzano, M. G., Parrino, L., Sherieri, A., Chervin, R., Chokroverty, S., Guilleminault, C., Hirshkowitz, M., Ma-howald, M., Moldofsky, H., Rosa, A., et al. Atlas, rules, and recording techniques for the scoring of cyclic alter-nating pattern (cap) in human sleep. Sleep medicine , 2 (6):537–554, 2001. Thapa, R., He, B., Kjaer, M. R., Moore IV, H., Ganjoo, G., Mignot, E., and Zou, J. Sleepfm: Multi-modal repre-sentation learning for sleep across brain activity, ecg and respiratory signals. In Forty-first International Confer-ence on Machine Learning , 2024. Touvron, H., Lavril, T., Izacard, G., Martinet, X., Lachaux, M.-A., Lacroix, T., Rozi `ere, B., Goyal, N., Hambro, E., Azhar, F., et al. Llama: Open and efficient foundation lan-guage models. arXiv preprint arXiv:2302.13971 , 2023a. Touvron, H., Martin, L., Stone, K., Albert, P., Almahairi, A., Babaei, Y., Bashlykov, N., Batra, S., Bhargava, P., Bhosale, S., et al. Llama 2: Open foundation and fine-tuned chat models. arXiv preprint arXiv:2307.09288 ,2023b. T ˘au t¸an, A.-M., Andrei, A.-G., and Ionescu, B. Freezing of gait detection for parkinson’s disease patients using accelerometer data: Case study. In 2020 International Conference on e-Health and Bioengineering (EHB) , pp. 1–4, 2020. doi: 10.1109/EHB50910.2020.9280223. Wagner, P., Strodthoff, N., Bousseljot, R.-D., Kreiseler, D., Lunze, F. I., Samek, W., and Schaeffter, T. Ptb-xl, a large publicly available electrocardiography dataset. Scientific data , 7(1):1–15, 2020. Wang, H., Cui, Z., Chen, Y., Avidan, M., Abdallah, A. B., and Kronzer, A. Predicting hospital readmission via cost-sensitive deep learning. IEEE/ACM transactions on computational biology and bioinformatics , 15(6):1968– 1978, 2018a. Wang, H., Wu, J., Zhang, P., and Chen, Y. Learning shapelet patterns from network-based time series. IEEE transac-tions on industrial informatics , 15(7):3864–3876, 2018b. Wang, J., Zhao, S., Jiang, H., Li, S., Li, T., and Pan, G. Gen-eralizable sleep staging via multi-level domain alignment. In Proceedings of the AAAI Conference on Artificial In-telligence , volume 38, pp. 265–273, 2024a. Wang, L., Dong, X., Wang, Y., Liu, L., An, W., and Guo, Y. Learnable lookup table for neural network quantization. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pp. 12423–12433, 2022. Wang, X., Zhang, J., He, C., Wu, H., and Cheng, L. Anovel emotion recognition method based on the feature fusion of single-lead eeg and ecg signals. IEEE Internet of Things Journal , 2023. 13 Efficient Personalized Adaptation for Physiological Signal Foundation Model 
+
+Wang, Y., Han, Y., Wang, H., and Zhang, X. Contrast every-thing: A hierarchical contrastive framework for medical time-series. Advances in Neural Information Processing Systems , 36, 2024b. Wu, C., Wang, H., Zhang, X., Fang, Z., and Bu, J. Spatio-temporal heterogeneous federated learning for time series classification with multi-view orthogonal training. In 
+
+ACM Multimedia 2024 , 2024. Wu, H., Hu, T., Liu, Y., Zhou, H., Wang, J., and Long, M. Timesnet: Temporal 2d-variation modeling for gen-eral time series analysis. In The Eleventh International Conference on Learning Representations , 2023. Yang, Y., Chen, S., Li, X., Xie, L., Lin, Z., and Tao, D. Inducing neural collapse in imbalanced learning: Do we really need a learnable classifier at the end of deep neural network? Advances in neural information processing systems , 35:37991–38002, 2022a. Yang, Y., Truong, N. D., Eshraghian, J. K., Nikpour, A., and Kavehei, O. Weak self-supervised learning for seizure forecasting: a feasibility study. Royal Society Open Sci-ence , 9(8):220374, 2022b. Yang, Y., Yuan, H., Li, X., Lin, Z., Torr, P., and Tao, D. Neural collapse inspired feature-classifier alignment for few-shot class-incremental learning. In The Eleventh International Conference on Learning Representations ,2023. Ye, L. and Keogh, E. Time series shapelets: a new prim-itive for data mining. In Proceedings of the 15th ACM SIGKDD international conference on Knowledge discov-ery and data mining , pp. 947–956, 2009. Yuan, Z., Zhang, D., Chen, J., Gu, G., and Yang, Y. Brant-2: Foundation model for brain signals. arXiv preprint arXiv:2402.10251 , 2024. Zeng, Y., Zhang, X., Li, H., Wang, J., Zhang, J., and Zhou, W. X 2-vlm: All-in-one pre-trained model for vision-language tasks. IEEE Transactions on Pattern Analysis and Machine Intelligence , 2023. Zhang, D., Yuan, Z., Chen, J., Chen, K., and Yang, Y. Brant-x: A unified physiological signal alignment framework. In Proceedings of the 30th ACM SIGKDD Conference on Knowledge Discovery and Data Mining , pp. 4155–4166, 2024. Zhang, G.-Q., Cui, L., Mueller, R., Tao, S., Kim, M., Rueschman, M., Mariani, S., Mobley, D., and Redline, S. The national sleep research resource: towards a sleep data commons. Journal of the American Medical Informatics Association , 25(10):1351–1358, 2018. Zhang, J. and Wu, Y. A new method for automatic sleep stage classification. IEEE transactions on biomedical circuits and systems , 11(5):1097–1110, 2017. Zhang, L., Walter, S., Ma, X., Werner, P., Al-Hamadi, A., Traue, H. C., and Gruss, S. “biovid emo db”: A multi-modal database for emotion analyses validated by subjec-tive ratings. In 2016 IEEE Symposium Series on Compu-tational Intelligence (SSCI) , pp. 1–6. IEEE, 2016. Zhang, N. and Sun, S. Multiview unsupervised shapelet learning for multivariate time series clustering. IEEE Transactions on Pattern Analysis and Machine Intelli-gence , 45(4):4981–4996, 2022. Zhang, W., Yang, Z., Li, H., Huang, D., Wang, L., Wei, Y., Zhang, L., Ma, L., Feng, H., Pan, J., et al. Multimodal data for the detection of freezing of gait in parkinson’s disease. Scientific data , 9(1):606, 2022. Zhou, H., Zhang, S., Peng, J., Zhang, S., Li, J., Xiong, H., and Zhang, W. Informer: Beyond efficient transformer for long sequence time-series forecasting. In Proceedings of the AAAI conference on artificial intelligence , volume 35, pp. 11106–11115, 2021. Zhou, T., Ma, Z., Wen, Q., Wang, X., Sun, L., and Jin, R. Fedformer: Frequency enhanced decomposed trans-former for long-term series forecasting. In Interna-tional conference on machine learning , pp. 27268–27286. PMLR, 2022. Zhou, T., Niu, P., Sun, L., Jin, R., et al. One fits all: Power general time series analysis by pretrained lm. Advances in neural information processing systems , 36:43322–43355, 2023. Zhou, Y., Li, H., Du, S., Yao, J., Zhang, Y., and Wang, Y. Low-rank knowledge decomposition for medical founda-tion models. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pp. 11611– 11620, 2024. 14 Efficient Personalized Adaptation for Physiological Signal Foundation Model 
+
+## A. Appendix 
+
+A.1. Offline Shapelet Discovery 
+
+Considering that most existing shapelets mining methods require online training, that is, training the classification model while improving the mining quality, and our method does not need to directly use shapelets as a training feature but only as an input condition for the generator, we adopted an existing Offline Shapelet Discovery (Le et al., 2022; 2024) In the shapelet extraction stage, OSD identifies shapelet candidates using Perceptually Important Points (PIPs). It starts by including the first and last points of the time series in the PIPs set. Then, it repeatedly adds the point with the highest reconstruction distance to the set. Each time a new PIP is added, new shapelet candidates are created using three consecutive PIPs. The number of PIPs determines the size of candidates. In the shapelet selection stage, OSD selects shapelets by ensuring an equal number is chosen for each class. For each shapelet candidate, we calculate its Pairwise Shapelet Distance (PSD), denoted as: 
+
+P SD (X, S i) = T −l+1 
+
+min  
+
+> j=1
+
+(CID (T [j : j + l − 1] , S i)) (12) where X is the given series of length T , a subsequence Si = s1, ..., s l of length l, with l ≤ T , CID is the complexity-invariant distance. This distance is used to compute the ”information gain,” which measures how well a shapelet separates classes. The shapelets with the highest information gain are selected and added to the final shapelet pool. To compress the input dimension, we set a fixed number n for all classes {Sci }ni=1 ∀c ∈ [C] as shapelet prototypes. 
+
+A.2. Downstream Tasks Sleep-state detection. Sleep is crucial for human health. It accounts for one-third of a human lifetime. Effective diagnosis and treatment of patients with sleep-related disorders is currently a pressing and intensively researched topic in the healthcare community (Zhang & Wu, 2017; Dong et al., 2017). 
+
+Emotion detection. Emotion detection is the process of identifying human emotions and has been applied in many fields such as healthcare, safe driving, and the metaverse (Ayata et al., 2020). With the rapid development of portable wearable physiological signals have been conveniently monitored and analyzed online throughout the day (Pan et al., 2023). 
+
+Arrhythmia diagnosis. Cardiovascular disease has become the leading cause of death from non-communicable diseases worldwide, with more people dying from cardiovascular disease each year than from any other cause of death. Arrhythmia is a common cardiovascular syndrome. Abnormal origin of cardiac electrical stimulation, abnormal conduction sequence, and frequency changes can all cause arrhythmia, which is a major challenge currently faced by the clinical treatment of cardiovascular disease. Different types of abnormal heart rhythms will show different states in the electrocardiogram waveform and frequency. Studying electrocardiogram signals can diagnose a variety of arrhythmia symptoms. 
+
+Freezing of Gaits Detection. Freezing of gait (FoG) is a common symptom of Parkinson’s disease (PD) and usually involves an inability to cope with concurrent cognitive, limbic, and motor inputs, resulting in movement disruption (T ˘au t¸an et al., 2020). Current clinical FoG assessments are self-report diaries by patients and manual video analysis by experts (Pham et al., 2017). 
+
+A.3. Detailed Algorithm 
+
+We describe the detailed algorithm of the diffusion transformer training process, as followed Algorithm 1: 
+
+A.4. Details of Baselines 
+
+We introduce the baselines for comparison: 
+
+SimMTM (Dong et al., 2023), a pre-trained framework on time series for recovering masked time points via weighted aggregation of multiple neighbours outside the manifold. 
+
+TimesNet (Wu et al., 2023), analyzes time series changes from a multi-periodicity perspective, expands one-dimensional time series data to two-dimensional space, and uses advanced visual backbone networks for feature extraction. 
+
+iTtransformer (Liu et al., 2024a), this method embeds the entire time series of each variable into tokens independently. 15 Efficient Personalized Adaptation for Physiological Signal Foundation Model 
+
+Algorithm 1 LoRA generator training                                                                
+
+> 1: Input: Number of training runs N, training sample map T={(∆ Wk, t k)}Kk=1 , diffusion process length J, diffusion cumulative variance schedule ¯α.2: Initialize: Learnable parameters ϕfor G
+> 3: for i= 1 ,2, ..., N do
+> 4: # Sample a mini-batch of data from data map 5: (∆ Wk, t k)∼ T
+> 6: # Noise LoRA parameters 7: j∼U({1, ..., J })
+> 8: ˜∆Wjk∼ N (√¯αj∆Wk,(1 −¯αj)I)
+> 9: # Compute the predictions 10: ˆ∆Wk←Gϕ(S(tk),∆Wjk, j )
+> 11: # Compute the loss 12: loss ← || ˆ∆Wk−∆Wk|| 22
+> 13: # Update DiT’s parameters 14: ϕi+1 ←update (loss ;ϕ)
+> 15: end for
+
+PatchTST (Nie et al., 2023), processes each dimension of the multivariate time series separately, that is, inputs each dimension into the Transformer Backbone separately, and then splices the obtained prediction results along the dimension direction. 
+
+FEDformer (Zhou et al., 2022), reduces the distribution shifts between input and output through seasonal-trend decomposi-tion; and proposes a model structure that applies an attention mechanism in the frequency domain to increase robustness to noise. 
+
+Informer (Zhou et al., 2021), proposes ProbSpare Self-Attention effectively replaces the traditional Self-Attention. 
+
+OneFitsAll (Zhou et al., 2023), trains time series data on the pre-trained GPT-2 weights. 
+
+Time-LLM (Jin et al., 2024), freezes the LLM backbone, and then uses two learnable modules (Patch Reprogramming and Output Projection) to reprogram the input and output respectively. 
+
+MOMENT (Goswami et al., 2024). collects a large and diverse collection of public time series, Time-series Pile. Then it uses a lightweight reconstruction head to reconstruct the embedding of the input time series for pre-training. 
+
+SleepFM (Thapa et al., 2024), curates a large polysomnography dataset of multi-modal sleep recordings and trains the model by contrastive learning. 
+
+SleepDG (Wang et al., 2024a), designs an epoch-level feature alignment to align the feature distribution of each single sleep epoch between different domains and designs a sequence-level feature alignment to minimize the difference in sequence features between different domains. 
+
+LSTM-MLP (Wang et al., 2023), proposes an emotion recognition method based on feature fusion of single-lead EEG and ECG signals using various time domain, frequency domain and nonlinear features. 
+
+OMHGL (Pan et al., 2023), includes multimodal hypergraph fusion and online hypergraph learning. Multimodal hypergraph fusion can fuse multimodal physiological signals and effectively obtain emotion-related information. Online hypergraph learning aims to learn new information from online data by updating hypergraph projection. 
+
+DeepArr (Midani et al., 2023), combines feed-forward and recurrent deep neural networks using a sequential fusion approach to exploit relevant feature representations of arrhythmias in electrocardiogram (ECG) signals. 
+
+Extra Tree Classifier (Goel et al., 2023), combines the integration technology of multiple prediction methods to improve the performance of the EEG signal gait freezing detection model 
+
+A.5. Evaluation Metrics 
+
+In this section, we describe the evaluation metrics we adopted in the experiments for classification tasks. We first introduce the concept of a confusion matrix. TP (True Positive): a correctly predicted positive example. That is, the true value of the 16 Efficient Personalized Adaptation for Physiological Signal Foundation Model 
+
+data is a positive example, and the predicted value is also a positive example; TN (True Negative): a correctly predicted negative example. That is, the true value of the data is a negative example, and the predicted value is also a negative example; FP (False Positive): a wrongly predicted positive example. That is, the true value of the data is a negative example, but it is wrongly predicted as a positive example; FN (False Negative): a wrongly predicted negative example. That is, the true value of the data is a positive example, but it is wrongly predicted as a negative example. 
+
+Accuracy. Accuracy refers to the ratio of correctly classified samples to the total number of samples. 
+
+Accuracy = T P + T N T P + F P + T N + F N . (13) 
+
+Precision. Precision refers to the proportion of samples that are positive among the samples predicted to be positive. 
+
+P recision = T P T P + F P . (14) 
+
+Recall. Recall refers to the ratio of the actual number of positive samples in the predicted positive samples to the total number of positive samples in the samples. 
+
+Recall = T P T P + F N . (15) 
+
+F1. The F1 score is a weighted average of precision and recall. 
+
+F 1 = 2 P recision × Recall P recision + Recall . (16) 
+
+Macro F1. The Macro F1 score refers to the average of each class’s F1 score. 
+
+M acro − F 1 = 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+F 1i (17) 
+
+Kappa coefficient . κ is a method used to evaluate the consistency of classification models. 
+
+P0 = T P + T N T P + F P + T N + F N = Accuracy Pe = (T P + F P ) × (T P + F N ) + ( F N + T N ) × (F P + T N )(T P + T N + F P + F N )2
+
+κ = P0 − Pe
+
+1 − Pe
+
+(18) 
+
+AUC. AUC (Area Under the Curve) is an indicator for evaluating the performance of binary classification models, usually used as the area under the ROC curve (Receiver Operating Characteristic curve). AUC represents the ability of the classifier to rank positive examples before negative examples. AUC =
+
+Z 10
+
+Precision (Recall −1(u)) du (19) 
+
+A.6. Public Datasets 
+
+In Table 6, we provide statistical information on collected public physiological signals, mainly from (Zhang et al., 2024; Qiu et al., 2023) and PyhsioNet (Goldberger et al.). We exclude the datasets for experiment evaluations from pre-training. 
+
+## B. Theoretical analysis 
+
+The proof for Proposition 3.1 is given as: 17 Efficient Personalized Adaptation for Physiological Signal Foundation Model 
+
+Table 6. Statistics of the physiological benchmark datasets. 
+
+Task Name Modalities # of subjects Sampling rate Arrhythmia Diagnosis MIT-BIH arrhythmia dataset (Moody & Mark, 2001) ECG 1 360Hz PTB-XL (Wagner et al., 2020) ECG 71 500Hz European ST-T database (Taddei et al., 1992) ECG 2 250Hz AF classification challenge 2017 (Clifford et al., 2017) ECG 4 300Hz PTB diagnostic ECG (Wagner et al., 2020) ECG 9 N/A AHA (Moody & Mark, 1982) ECG 8 250Hz CPSC2018 (Liu et al., 2018) ECG 8 500Hz Denoise MIT-BIH noise stress test (Moody et al., 1984) ECG 1 360Hz Emotion Detection CLAS (Markova, 2020) ECG,BVP,EMG,GSR 60 256HZ SWELL (Koldijk et al., 2014) ECG,SC 25 2048HZ ASCERTAIN (Subramanian et al., 2016) EEG, ECG, EDA 58 N/A BIO-VID-EMO DB (Zhang et al., 2016) ECG, EMG, SC 86 N/A DREAMER (Katsigiannis & Ramzan, 2017) EEG, ECG 23 256Hz Seizure Detection Hospital (TUH) (Obeid & Picone, 2016) EEG 315 200Hz Sleep-state Detection Sleep-EDF (Kemp et al., 2000) EEG, EOG, EMG 22 100Hz SHHS (Zhang et al., 2018) EEG, EOG, EMG 5804 12550Hz ISRUC (Khalighi et al., 2016) EEG, ECG, EOG, EMG 118 200Hz HMC (Alvarez-Estevez & Rijsman, 2021) EEG, ECG, EOG, EMG 151 256Hz Motor Imagery BCI Competition IV (Blankertz et al., 2006) EEG, EOG 9 250Hz EEG Motor Movement/Imagery Dataset (Schalk et al., 2004) EEG, EOG 109 160Hz Freezing of Gaits Li et. al (Li, 2021) EEG, EMG, ECG, SC, ACC 12 1000Hz Cyclic Alternating Pattern CAP (Terzano et al., 2001) EEG, ECG, EOG, EMG 108 512Hz Sleep Apnea MIT-BIH PSG (Ichimaru & Moody, 1999) EEG, ECG, EOG, EMG 18 250Hz UCDDB (Goldberger et al., 2000) EEG, ECG, EOG, EMG 25 128Hz Stress and Affect Detection WESAD (Schmidt et al., 2018) ECG, EMG 15 700Hz 
+
+Proof. Suppose C class prototype vectors p1, p 2, . . . , p C ∈ Rd satisfy: Unitization: |pi| = 1 , symmetric inner product constraint: pTi pj = − 1 
+
+> C−1
+
+, ∀i̸ = j. Define the Gram matrix G ∈ RC×C , where: 
+
+Gij = pTi pj =
+
+(
+
+1 if i = j, 
+
+− 1 
+
+> C−1
+
+if i̸ = j. 
+
+The matrix has the following properties: the diagonal elements are 1 and the off-diagonal elements are − 1 
+
+> C−1
+
+. The matrix rank is d, and it is a symmetric semi-positive matrix (because the vector is in d-dimensional space). The above Gram matrix corresponds to the Simplex Equiangular Tight Frame. Its core features are: all off-diagonal elements are equal, that is, the angles between vectors are consistent, the vectors are evenly distributed in the feature space, and the minimum interval between classes is maximized. This structure is the only configuration that satisfies symmetry and minimizes the similarity between classes. The angle between any two vectors θ satisfies: 
+
+cos θ = pTi pj = − 1
+
+C − 1 .
+
+In classification problems, the decision boundary is determined by the geometric relationship of the prototype vectors. For a linear classifier, the decision boundary for two categories i and j is: 
+
+
+
+x ∈ Rd | (pi − pj )T x + ∥pj ∥2 − ∥ pi∥2
+
+2 = 0 
+
+
+
+.
+
+Since ∥pi∥ = ∥pj ∥ = 1 , the boundary is simplified to: 
+
+(pi − pj )T x = 0 .
+
+The margin between the two boundaries is: Margin = 2
+
+∥pi − pj ∥ .
+
+18 Efficient Personalized Adaptation for Physiological Signal Foundation Model 
+
+Calculate ∥pi − pj ∥2 = 2(1 − pTi pj ) = 2 
+
+
+
+1 + 1
+
+> C−1
+
+
+
+, so: Margin = 2
+
+r
+
+2
+
+
+
+1 + 1
+
+> C−1
+
+ =
+
+r 2( C − 1) 
+
+C .
+
+When all class prototypes meet the symmetry condition, the intervals between all classes are consistent and reach the maximum possible value, so the decision boundary is optimal. 19

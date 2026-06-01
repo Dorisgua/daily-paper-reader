@@ -1,0 +1,3555 @@
+Title: LSCD: Lomb–Scargle Conditioned Diffusionfor Time series Imputation
+
+URL Source: https://openreview.net/pdf?id=GdYg0Ohx0k
+
+Number of Pages: 26
+
+Markdown Content:
+## LSCD: Lomb–Scargle Conditioned Diffusion for Time series Imputation 
+
+Elizabeth Fons * 1 Alejandro Sztrajman * 2 Yousef El-Laham 1 Luciana Ferrer 3 4 Svitlana Vyetrenko 1
+
+Manuela Veloso 1
+
+Abstract 
+
+Time series with missing or irregularly sampled data are a persistent challenge in machine learn-ing. Many methods operate on the frequency-domain, relying on the Fast Fourier Transform (FFT) which assumes uniform sampling, therefore requiring prior interpolation that can distort the spectra. To address this limitation, we introduce a differentiable Lomb–Scargle layer that enables a reliable computation of the power spectrum of irregularly sampled data. We integrate this layer into a novel score-based diffusion model (LSCD) for time series imputation conditioned on the en-tire signal spectrum . Experiments on synthetic and real-world benchmarks demonstrate that our method recovers missing data more accurately than purely time-domain baselines, while simulta-neously producing consistent frequency estimates. Crucially, our method can be easily integrated into learning frameworks, enabling broader adop-tion of spectral guidance in machine learning ap-proaches involving incomplete or irregular data. 
+
+1. Introduction 
+
+Time series data often exhibit missing observations or ir-regular sampling intervals, creating challenges for machine learning tasks such as imputation, forecasting, classification, and anomaly detection (Yang et al., 2024b). Many methods operate in the frequency domain (Alaa et al., 2021; Yang et al., 2024a; Wu et al., 2023; Crabb ´e et al., 2024) using the Fast Fourier Transform (FFT), which requires data to be uniformly sampled on a regular grid. To address this requirement, these methods typically handle missing val-ues by interpolating or zero-filling the gaps prior to FFT         
+
+> *Equal contribution 1J.P. Morgan AI Research 2University of Cambridge 3University of Buenos Aires 4CONICET. Correspon-dence to: Elizabeth Fons <elizabeth.fons@jpmorgan.com >.
+> Proceedings of the 42 nd International Conference on Machine Learning , Vancouver, Canada. PMLR 267, 2025. Copyright 2025 by the author(s).
+
+computation. However, such pre-processing can distort the underlying data distribution, leading to spurious or attenu-ated frequency estimates. By contrast, the Lomb–Scargle periodogram (Lomb, 1976; Scargle, 1982) can estimate power spectra without assuming uniform sampling. It does not require an imputation step to compute frequency components, making it far more reliable in the presence of irregular or missing data. Despite its advantages, Lomb–Scargle remains under-explored in the broader machine learning community. In this paper, we introduce a Lomb–Scargle Conditioned Dif-fusion (LSCD) approach for time series imputation. Inspired by score-based diffusion methods (Song & Ermon, 2019), we develop a diffusion model that operates in the time do-main , but is conditioned on a Lomb–Scargle-based spectral representation. By leveraging the full Lomb–Scargle peri-odogram as an additional input, our model effectively cap-tures underlying frequency structures and imposes greater consistency between the final time-domain imputation and the original spectral content. We evaluate our approach on both synthetic and real datasets, introducing varying degrees of missingness (up to 90%). We show that our conditioning on the Lomb–Scargle spectrum consistently improves time-series imputation metrics such as MAE and CRPS compared to purely time-domain baselines. Crucially, the method produces PSD estimates closer to the ground truth, demonstrating improved consistency of frequency recovery. Our main contributions are: 1. We introduce a diffusion-based time-series impu-tation framework that directly conditions on the Lomb–Scargle spectrum, thereby eliminating the need for interpolation or zero-filling in the frequency do-main. To further enhance performance with high rates of missing data, we propose a consistency loss that refines the alignment between the time-domain signal and its Lomb–Scargle representation. 2. We provide a differentiable implementation of Lomb– Scargle and show how it can be seamlessly integrated 1LSCD: Lomb–Scargle Conditioned Diffusion for Time series Imputation 
+
+into learning methods to handle missing or irregularly sampled data. 3. We provide comprehensive empirical results showing improved imputation performance and accurate fre-quency recovery on both synthetic and real datasets. Beyond time series imputation, we hope our work encour-ages broader use of Lomb–Scargle-based techniques for irregular data within machine learning pipelines. 
+
+2. Related Work 
+
+Time series imputation has been extensively studied across statistical, deep learning, and spectral approaches. Early statistical methods often rely on assumptions of local con-tinuity or cross-variable dependencies. Simple heuristics, such as mean or median imputation (Fung, 2006; Batista & Monard, 2002), are straightforward but fail to capture complex temporal dynamics. More advanced techniques, including Expectation-Maximization (EM) (Ghahramani & Jordan, 1993; Nelwamondo et al., 2007), auto-regressive models, and state-space approaches (Durbin & Koopman, 2012; Walter.O et al., 2013), incorporate structured depen-dencies but can struggle with high rates of missingness and irregular sampling. Gaussian Processes (GPs) (Fortuin et al., 2020) provide uncertainty-aware imputation yet face scala-bility hurdles and often assume smooth temporal trends. Deep learning methods have significantly advanced time series imputation by learning long-range dependencies and complex temporal patterns. RNN-based models such as BRITS (Cao et al., 2018) and GRU-D (Che et al., 2016) incorporate explicit modeling of missingness, while Transformer-based methods like SAITS (Du et al., 2023) can better capture long-range interactions. Generative archi-tectures, including GANs (Miao et al., 2021) and VAEs (For-tuin et al., 2020), allow sampling-based imputation under high uncertainty. More recently, diffusion models (Tashiro et al., 2021) have shown promising results by iteratively refining noisy samples, but they remain confined to time-domain representations and typically overlook the spectral properties of irregularly sampled series (Yang et al., 2024b). Several approaches have been developed to handle irreg-ular time-series data without requiring pre-defined fixed-length windows. MADS (Bamford et al., 2023) proposes an auto-decoding framework built upon implicit neural repre-sentations. Latent ODEs (Rubanova et al., 2019) define a neural ODE in latent space, solved using numerical methods like the Euler method, naturally accommodating irregularly sampled observations for standard time-series tasks such as imputation and generation. Extensions of latent ODEs, such as the GRU-ODE-Bayes model (Brouwer et al., 2019), handle sporadic observations with jumps, while the neural continuous-discrete state space model (NCDSSM) (Ansari et al., 2023) introduces optimizable auxiliary variables in the dynamics for improved accuracy. Another approach considers a diffusion process over function space to handle irregularity in time-series (Bilo ˇs et al., 2023), connected with neural processes (Garnelo et al., 2018). Naturally, ex-tensions based on neural SDEs have also been proposed, which incorporate a diffusion term in the latent dynam-ics (Kidger et al., 2020; El-Laham et al., 2025; Oh et al., 2024). Given that most neural ODE and SDE models re-quire computationally expensive numerical solvers at both training and inference time, efforts have focused on develop-ing efficient alternatives. Continuous recurrent units (CRUs) (Schirmer et al., 2022) model hidden states using linear SDEs solvable analytically with a Kalman filter, offering efficient compute times. Neural flows (Bilo ˇs et al., 2021) learn the solution path of the ODE directly, bypassing the need for a solver. Attention-based methods like multi-time attention networks (MANs) (Shukla & Marlin, 2021) use specialized embedding modules to map irregular and sparse observations to continuous-time representations. Graph-based methods such as GraFITi (Yalavarthi et al., 2024) convert irregularly sampled time series into sparse structure graphs, reformulating forecasting as edge weight prediction using graph neural networks (GNNs). Transformable patch-ing graph neural networks (T-PATCHGNN) (Zhang et al., 2024) transform each univariate irregular time series into transformable patches with uniform temporal resolution. Spectral methods have been explored to capture periodic be-haviors in time series. TimesNet (Wu et al., 2023) and other Fourier-based models (Alaa et al., 2021; Crabb ´e et al., 2024) leverage the Discrete Fourier Transform (DFT) to extract frequency components, improving long-term forecasting and imputation. Additionally, Fons et al. (2022; 2024) intro-duced a Fourier loss to better preserve frequency structure in learning, aligning time-domain reconstructions with their spectral representations. However, like other FFT-based methods, these approaches still require uniform sampling or pre-interpolation and thus can distort frequency estimates under high missingness or irregular sampling (VanderPlas, 2018). By contrast, the Lomb–Scargle periodogram (Lomb, 1976; Scargle, 1982) computes frequency spectra directly from unevenly sampled data, sidestepping the need for in-terpolation. Despite its advantages, Lomb–Scargle remains underutilized in machine learning, with most of its applica-tions still confined to astronomy and signal processing. While prior work has explored both time-domain diffusion-based imputation (Tashiro et al., 2021) and frequency-based representations (Wu et al., 2023; Yang et al., 2024a), our ap-proach is the first to integrate a differentiable Lomb–Scargle estimator into the diffusion process. By conditioning time-domain diffusion on Lomb–Scargle-derived spectral infor-mation, we avoid spectral distortions introduced by uniform resampling. This enables more faithful recovery of underly-2LSCD: Lomb–Scargle Conditioned Diffusion for Time series Imputation 
+
+ing frequency structures, ensuring that imputed time-series data align with their true spectral content. 
+
+3. Background and Motivation 
+
+In this section, we present the mathematical foundations of Lomb–Scargle (Lomb, 1976; Scargle, 1982) and demon-strate its effectiveness as a robust alternative to traditional FFT-based frequency analysis when handling missing data. Additionally, in Sec. 3.3, we summarize the conditional diffusion framework for time series imputation introduced by Tashiro et al. (2021). 
+
+3.1. FFT vs Lomb–Scargle 
+
+Time series data are frequently subject to missing or irregularly spaced observations, caused by sensor fail-ures, asynchronous measurements, or domain-specific con-straints (Yang et al., 2024b). Although the Fast Fourier Transform (FFT) is a powerful tool for frequency analysis, it implicitly assumes uniform sampling . When data points are missing, common approaches include using interpola-tion or zero-filling to address the missing observations. Both strategies can distort the true frequency content, leading to spurious or attenuated peaks (VanderPlas, 2018). This is especially problematic at high missingness levels, where interpolation becomes highly unreliable. 0 1 2 3   
+
+> Frequency
+> 0.0
+> 0.5
+> 1.0
+> 1.5
+> Density
+> Fully observed TS
+> GT
+> LS
+> FFT
+> 0123
+> Frequency
+> TS with missing data
+> GT
+> LS
+> FFT
+
+Figure 1: Density of leading frequencies for FFT and Lomb-Scargle (LS) on a synthetic sine dataset. (Left) Fully ob-served time series. (Right) Time series with 75% missing data. The interpolation required by FFT significantly dis-torts the spectral distribution, whereas LS better preserves the original frequency structure. This is illustrated in Figure 1, where we show a comparison of FFT vs Lomb–Scargle applied to a synthetic dataset of sine waves with known frequencies . Under fully observed 
+
+conditions, both FFT and Lomb–Scargle reliably recover the ground-truth leading frequencies. However, once we artifi-cially remove data (75% missing at random), the FFT with linear interpolation yields shifted or spurious peaks, whereas Lomb–Scargle remains well-aligned with the ground truth frequencies. 
+
+3.2. Lomb–Scargle Periodogram 
+
+Let S = {s1, . . . , s L} denote a set of time indices and 
+
+x = [ xs1 , . . . , x sL ]⊺ ∈ RL denote the observed values defining a potentially irregular time series. We define a frequency grid ω = [ ω1, . . . , ω J ] of interest, where each 
+
+ωj = 2 πf j denotes the corresponding angular frequency (in radians) of the jth frequency component fj . For each frequency component ω, Lomb–Scargle approximates the 
+
+power spectral density (PSD) P (ω) by fitting sinusoids directly to the observed data, circumventing the need to fill in missing points: 
+
+P (ω) = (P
+
+> i
+
+[xsi −¯x] cos[ ωϕ i])2  
+
+> P
+> icos 2[ωϕ i]
+
++ (P
+
+> i
+
+[xsi −¯x] sin[ ωϕ i])2  
+
+> P
+> isin 2[ωϕ i]
+
+,
+
+with ¯x = 1
+
+> L
+
+PLi=1 xsi denotes the sample mean of the ob-served values, and ϕi = si − τ , where τ is a time shift introduced to ensure the periodogram is invariant to time translations defined as: 
+
+τ = 12ω tan −1
+
+ P  
+
+> i
+
+sin(2 ωs i)
+
+P 
+
+> i
+
+cos(2 ωs i)
+
+
+
+.
+
+This shift aligns the cosine and sine terms optimally with the observed data, ensuring robust spectral estimates. Unlike the FFT, no uniform grid or zero-filling is required, making Lomb–Scargle particularly effective for irregularly sampled time series. We provide a basic review on the derivation of the Lomb–Scargle periodogram in Appendix A. 
+
+False Alarm Probability. It can be shown that under the assumption of additive standard Gaussian noise, P (ω) fol-lows a χ2 distribution with 2 degrees of freedom. This fact can be exploited to approximate the false alarm probabil-ity (FAP) for each frequency component ωk, denoted by 
+
+PF A (ωk), using the following expression: 
+
+PF A (ω) = 1 − [1 − exp ( −Pf (ω))] Jeff , (1) where Jeff denotes an effective number of independent fre-quencies, which can be estimated using heuristics in practice. The FAP can be used to detect and filter out spurious fre-quency components in the periodogram. Using the FAP, we can define the weighting function as: 
+
+w(ωk) = 1
+
+PF A (ωk) + ϵ , (2) where ϵ is a small constant to prevent division by zero. This weighting scheme ensures that frequencies with lower FAP (i.e., more significant frequencies) have a greater impact on the loss. 
+
+3.3. Conditional Diffusion for Time Series Imputation 
+
+We summarize the conditional diffusion framework for time series imputation (Tashiro et al., 2021). Let us consider 3LSCD: Lomb–Scargle Conditioned Diffusion for Time series Imputation 
+
+Figure 2: Diagram of our Lomb–Scargle Conditioned Diffusion (LSCD) approach for time series imputation. 
+
+N multivariate time series, each denoted by X, M, S ,where X ∈ RK×L corresponds to the time series values with K features over L time steps, and s = {s1, . . . , s L}
+
+contains the timestamps. We assume that some entries of 
+
+X are missing, as defined by the observation mask M ∈{0, 1}K×L. Our goal is to model and then sample from the conditional distribution pθ (xta  
+
+> 0
+
+| xco  
+
+> 0
+
+), where xco  
+
+> 0
+
+=
+
+M ⊙ X corresponds to the conditional observations, and 
+
+xta  
+
+> 0
+
+= (1 − M) ⊙ X to the imputation targets, i.e., the missing entries that need to be imputed, with ⊙ denoting element-wise multiplication. 
+
+Forward Process. To learn this conditional distribution using a score-based diffusion model , we adopt a forward process that gradually adds noise to the target portion xta  
+
+> 0
+
+.Specifically, for diffusion steps t = 1 , 2, . . . , T ,
+
+q(xta t | xta t−1) = N
+
+p 1 − βtxta t−1, β tI
+
+
+
+,
+
+where {βt} is a noise schedule. Under suitable definitions of αt := Qti=1 (1 − βi), we have the closed-form 
+
+xta t = √αt xta  
+
+> 0
+
++ √1 − αt ϵ, ϵ ∼ N (0, I).
+
+Reverse Process. The reverse process , parameterized by 
+
+θ, attempts to denoise xta T step by step back to xta  
+
+> 0
+
+, while being conditioned on xco  
+
+> 0
+
+. Hence we define 
+
+pθ (xta  
+
+> 0
+
+, . . . , xta T | xco  
+
+> 0
+
+) = p(xta T )
+
+> T
+
+Y
+
+> t=1
+
+pθ (xta t−1 | xta t , xco  
+
+> 0
+
+),
+
+where 
+
+pθ (xta t−1 | xta t , xco  
+
+> 0
+
+) = N
+
+
+
+xta t−1; μθ (xta t , t | xco  
+
+> 0
+
+), σ 2(t)I
+
+
+
+.
+
+In practice (Ho et al., 2020; Song et al., 2021), μθ is param-eterized via a denoising network ϵθ (xta t , t | xco  
+
+> 0
+
+):
+
+μθ (xta t , t | xco t ) = 1
+
+αt
+
+
+
+xta t − βt
+
+√1 − αt
+
+ϵθ (xta t , t | xco t )
+
+
+
+σ2(t) = 
+
+( 1−αt−1 
+
+> 1−αt
+
+βt t > 1
+
+β1 t = 1 
+
+Training. The parameters θ are learned by matching the predicted noise ϵθ to the true noise ϵ. We minimize 
+
+L(θ) = E∥ϵ − ϵθ (xta t , t | xco  
+
+> 0
+
+)∥2,
+
+where xta t is sampled from the forward process. In prac-tice, during training a conditional mask mco ∈ { 0, 1}K×L
+
+is introduced to artificially split the observed values into 
+
+xco  
+
+> 0
+
+= mco ⊙ X and xta  
+
+> 0
+
+= ( M − mco ) ⊙ X, in order to train the conditional denoising function. At inference time (imputation), we generate samples of xta  
+
+> 0
+
+by initializing 
+
+xta T with random Gaussian noise and iteratively applying the learned reverse transitions, while conditioning on the observed data xco  
+
+> 0
+
+.
+
+4. Methodology: Spectrum-Conditioned Diffusion 
+
+We now present our Lomb–Scargle Conditioned Diffusion 
+
+(LSCD) framework for time series imputation, illustrated in Fig. 2. Building on the conditional diffusion approach in Sec. 3.3, we introduce a Lomb–Scargle layer that supplies two crucial forms of frequency-domain supervision. At each denoising step, a Lomb–Scargle-based spectral repre-sentation is learned and provided as conditional information. Furthermore, after the main diffusion training, we incor-porate a spectral alignment term that encourages the final imputed time series to match the Lomb–Scargle spectrum extracted from the observed data. 4LSCD: Lomb–Scargle Conditioned Diffusion for Time series Imputation 
+
+4.1. Time-Domain Diffusion with Lomb–Scargle Conditioning 
+
+Given a partially observed time series x0 defined by 
+
+{X, M, S}, we divide the observed values in two parts, according to a randomly generated conditional mask mco :
+
+xco  
+
+> 0
+
+:= mco ⊙ X xta  
+
+> 0
+
+:= ( M − mco ) ⊙ X
+
+thus defining an imputation target xta  
+
+> 0
+
+(i.e. artificially gener-ated missing entries) and an observation condition xco  
+
+> 0
+
+of ob-served values. Following Sec. 3.2, we define LS (xco  
+
+> 0
+
+) ∈ RJ
+
+as the Lomb-Scargle periodogram of xco  
+
+> 0
+
+, evaluated over a frequency grid ω = {ω1, . . . , ω J }. The spectrum is filtered via False Alarm Probability (FAP), as detailed in Eq. 1, and we additionally apply a log transform and normalization. 
+
+Forward Process. We follow the usual diffusion setup, wherein at each diffusion step t = 1 , . . . , T the imputation target xta t−1 is perturbed according to 
+
+xta t = √αt xta t−1 + √1 − αt ϵt, ϵt ∼ N  0, I,
+
+with {αt} a noise schedule. 
+
+Backward (Denoising) Process. A denoising network 
+
+ϵθ
+
+ xta t , t | xco  
+
+> 0
+
+, LS (xco  
+
+> 0
+
+) is trained to invert the forward noising, predicting the noise ϵt given both the noisy time-domain data xta t and the fixed spectral representation 
+
+LS (xco  
+
+> 0
+
+). The final sampling procedure iterates the re-verse transitions xta t 7 −→ xta t−1, conditioned on xco  
+
+> 0
+
+and 
+
+LS (xco  
+
+> 0
+
+), until an imputed xta  
+
+> 0
+
+is obtained. 
+
+4.2. Attention-Based Spectrum Encoder 
+
+Our approach leverages all frequency components from the spectrum as a conditioning signal for diffusion. To that end, we incorporate a spectral encoder :
+
+zS = Espec 
+
+ LS (xco  
+
+> 0
+
+),
+
+composed of two multi-head self-attention layers, designed to encode inter-frequency and inter-feature dependencies. The resulting embedded representation of the spectrum zS
+
+is then incorporated into each step of the denoising process. This allows the network to exploit rich frequency-domain cues while reconstructing the time-domain signal. We refer the reader to Appendix E.2 for additional details on the encoder and denoising network architectures. 
+
+4.3. Spectral Consistency Loss 
+
+To reinforce alignment between the final imputed time series and the observed spectrum, we perform a final refinement phase during training, incorporating a spectral consistency loss :
+
+LSCons = ∥LS  xco 
+
+> 0
+
+ − LS  bxco 
+
+> 0
+
+∥22,
+
+Figure 3: Visualization of the three missingness mechanisms used in our study. with bxco  
+
+> 0
+
+= bx0 ⊙ mco , where bx0 is the fully reconstructed time series (i.e. observed plus imputed parts), obtained by following the backward denoising process from t = T to 
+
+t = 0 . The pipeline to compute LSCons is illustrated in dashed lines in Fig. 2. This term penalizes discrepancies in the Lomb–Scargle periodograms, ensuring that the learned reconstruction not only fits the observed data in the time domain, but also preserves the essential frequency structure. 
+
+5. Experiments 
+
+In this section, we evaluate LSCD on both synthetic and real-world datasets. We focus on time series imputation under varying degrees of missingness (e.g., 10%, 50%, 90% missing data). We also include ablation studies to isolate the impact of key components such as Lomb–Scargle condition-ing, the spectral encoder Espec , and the spectral consistency loss LSCons . We outline the datasets, baselines, metrics, and ablation protocols below. 
+
+5.1. Experimental Setup 
+
+5.1.1. D ATASETS 
+
+Synthetic Sine Waves. We create a controlled dataset of sine waves with known frequencies (f1, f 2, . . . ) and various amplitudes. To make the setting more realistic, the dataset is initially generated with 10% missing data. We evaluate our method using three missingness mechanisms: MCAR ,
+
+sequence missing , and block missing . MCAR introduces missing values randomly, independent of the data itself, serving as a baseline. Sequence missing creates contiguous gaps in time, simulating sensor downtimes or transmission failures. Block missing removes entire sections of data, mimicking large-scale outages. These mechanisms test the model’s ability to handle both short-term and long-term dependencies. Each missingness mechanism is applied at three levels (10%, 50%, and 100%) on top of the initial missing data to assess the robustness of our method under increasing data loss. Figure 3 visualizes these missingness patterns, illustrating their real-world relevance, from random noise to structured data loss. Additional details on dataset generation and missingness parameters can be found in Appendix D. 5LSCD: Lomb–Scargle Conditioned Diffusion for Time series Imputation 
+
+Real datasets We conduct experiments on two real-world datasets with missing data. The first dataset, Phy-sioNet (Silva et al., 2012), comprises 4,000 health measure-ments from ICU patients, covering 35 features. Following the standard pre-processing procedure (Cao et al., 2018; Tashiro et al., 2021), each measurement is processed hourly, resulting in time series with 48 time steps. The prepro-cessed dataset contains approximately 80% missing values. As there is no ground truth for missing data, we randomly select 10%, 50%, and 90% of the observed values to serve as ground truth for the test set. The second dataset consists of PM2.5 air quality measurements collected from 36 sta-tions in Beijing over a 12-month period (Yi et al., 2016). Following previous work (Cao et al., 2018; Tashiro et al., 2021), we construct time series with 36 consecutive time steps. This dataset exhibits approximately 13% missing data, with non-random missingness patterns and an artificial ground truth containing structured missingness. 5.1.2. B ASELINES 
+
+We compare our model against different imputation meth-ods, including classical statistic-based methods Mean and Lerp, deep learning based BRITS (Cao et al., 2018), GP-VAE (Fortuin et al., 2020), US-GAN (Miao et al., 2021), TimesNet (Wu et al., 2023), SAITS (Du et al., 2023), CSDI (Tashiro et al., 2021) and a foundation model for time series, ModernTCN (Donghao & Xue, 2024). 
+
+5.2. Evaluation Metrics 
+
+We evaluate the performance of our models using a com-bination of time-domain and frequency-domain metrics to comprehensively assess both the accuracy of imputed val-ues and the preservation of the underlying spectrum. In the time domain, we utilize Mean Absolute Error (MAE )and Root Mean Squared Error (RMSE ) to quantify the ac-curacy of the imputed values, providing measures of both average absolute deviation and squared error sensitivity to larger discrepancies. To assess the fidelity of our models in capturing the spectral properties of the time series, we calculate the Spectral Mean Absolute Error (S-MAE ) be-tween the estimated Power Spectral Density (PSD) of the imputed signal and the ground-truth PSD. The spectrum is computed using both observed (conditional) and imputed values, while missing values in the original time series are masked to ensure a fair comparison. To focus on relative differences in spectral shape, we normalize both PSDs so their total power sums to one before computing S-MAE 
+
+as the mean absolute difference between them. This met-ric quantifies how well the model preserves the frequency characteristics of the time series. 
+
+5.3. Results on Synthetic Sine Dataset 
+
+Table 1 presents the imputation performance of various methods on the Sines dataset, across different missingness mechanisms and levels. Our proposed method consistently achieves the best overall performance, particularly excelling in spectral reconstruction (S-MAE). For MCAR data, our method significantly outperforms CSDI for all levels of missingness, showcasing the effectiveness of our approach in handling random data loss. Notably, CSDI consistently generates results that have good agreement in S-MAE, par-ticularly in sequence and block missing cases, indicating that its probabilistic modeling helps retain spectral proper-ties. SAITS demonstrates competitive performance in time-domain imputation (MAE) for some cases (e.g., sequence missing at 10%), but consistently exhibits poor spectral re-construction (S-MAE). This highlights that SAITS, while effective in the time domain, fails to capture the underlying frequency structure of the data. Figure 4 evaluates the spectral consistency of different mod-els on the Sines dataset with 50% missing data at random. The top row compares the distribution of leading frequen-cies between the ground truth (GT) and predicted (Pred) time series. Our model closely follows the GT distribu-tion, while SAITS and TimesNet exhibit broader spreads, and TimesNet shows more pronounced deviations, partic-ularly around peaks at higher frequencies. This suggests that our model better preserves the dominant spectral char-acteristics. The bottom row presents the PSD difference 
+
+P SD (GT ) − P SD (P red ), where the black line represents the mean difference, and the shaded area indicates one stan-dard deviation across samples. We observe that our model maintains a difference centered around zero with minimal variance, indicating accurate spectral reconstruction. In con-trast, SAITS and CSDI exhibit larger variability, suggesting inconsistent frequency estimation, while TimesNet shows a systematic bias, particularly in higher frequency ranges. These results further exhibit the effectiveness of our method in preserving the spectral properties of time series, ensuring more stable and reliable frequency reconstruction. 
+
+5.4. Results on Real Data 
+
+To assess the performance of our spectrum-conditioned diffusion approach, we conduct experiments on two diverse real-world time-series datasets—Physionet and PM2.5—under multiple missing-data scenarios. Table 2 summarizes the results, where we compare against a wide range of baselines. We repeat experiments five times and report the averaged result. We first consider Physionet with three different missing rates: 10%, 50%, and 90%. Across all these scenarios, our method consistently achieves the best or near-best time-domain results (MAE and RMSE) while also exhibiting competitive S-MAE scores. Notably, 6LSCD: Lomb–Scargle Conditioned Diffusion for Time series Imputation 
+
+Table 1: Imputation performance of time series reconstruction and frequency spectrum over sines datasets. TYPE % METRIC MEAN LERP BRITS GPVAE US-GAN TIMES NET CSDI SAITS MODERN TCN OURS POINT 0.1 MAE 1.380 1.305 0.943 1.399 0.933 1.220 1.336 0.885 0.973 0.765 
+
+RMSE 1.947 1.991 1.657 1.986 1.636 1.803 1.889 1.569 1.727 1.453 
+
+S-MAE 0.081 0.081 0.052 0.082 0.053 0.069 0.008 0.043 0.049 0.003 
+
+0.5 MAE 1.373 1.449 1.095 1.383 1.152 1.481 1.359 1.041 1.129 0.975 
+
+RMSE 1.930 2.070 1.759 1.950 1.845 2.017 1.922 1.699 1.817 1.658 
+
+S-MAE 0.264 0.324 0.170 0.266 0.191 0.239 0.027 0.159 0.173 0.014 
+
+0.9 MAE 1.375 1.586 1.320 1.377 1.369 1.579 1.361 1.292 1.360 1.271 
+
+RMSE 1.935 2.142 1.899 1.938 1.970 2.143 1.925 1.878 1.963 1.870 
+
+S-MAE 0.439 0.572 0.383 0.439 0.407 0.462 0.044 0.375 0.406 0.036 
+
+SEQ 0.1 MAE 1.353 1.542 1.330 1.355 1.384 1.391 1.413 1.323 1.329 1.359 RMSE 1.905 2.092 1.915 1.908 1.995 1.959 1.988 1.890 1.931 1.962 S-MAE 0.055 0.075 0.056 0.054 0.061 0.062 0.006 0.055 0.056 0.005 
+
+0.5 MAE 1.374 1.564 1.347 1.376 1.393 1.467 1.378 1.342 1.354 1.316 
+
+RMSE 1.934 2.115 1.928 1.936 1.999 2.038 1.943 1.917 1.960 1.913 
+
+S-MAE 0.271 0.369 0.269 0.271 0.297 0.321 0.028 0.268 0.277 0.026 
+
+0.9 MAE 1.386 1.573 1.362 1.388 1.403 1.489 1.372 1.352 1.375 1.313 
+
+RMSE 1.946 2.127 1.941 1.949 2.007 2.062 1.943 1.929 1.982 1.913 
+
+S-MAE 0.288 0.389 0.286 0.288 0.305 0.338 0.029 0.283 0.292 0.027 
+
+BLOCK 0.1 MAE 1.306 1.507 1.255 1.309 1.334 1.379 1.304 1.268 1.275 1.259 
+
+RMSE 1.807 2.014 1.786 1.811 1.885 1.898 1.804 1.785 1.825 1.774 
+
+S-MAE 0.105 0.146 0.100 0.104 0.116 0.124 0.011 0.103 0.106 0.010 
+
+0.5 MAE 1.306 1.505 1.279 1.308 1.333 1.451 1.314 1.285 1.309 1.269 
+
+RMSE 1.815 2.014 1.806 1.817 1.881 1.978 1.835 1.804 1.852 1.810 S-MAE 0.287 0.383 0.278 0.286 0.306 0.344 0.029 0.285 0.296 0.027 
+
+0.9 MAE 1.339 1.523 1.319 1.340 1.359 1.506 1.329 1.320 1.356 1.320 
+
+RMSE 1.868 2.052 1.862 1.869 1.927 2.054 1.874 1.859 1.916 1.870 S-MAE 0.359 0.473 0.351 0.358 0.376 0.439 0.036 0.358 0.374 0.035 0.0                          
+
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> Density
+> GT
+> Pred
+> 012345
+> Lead Frequency
+> 0
+> 5
+> Count  ×10 10.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> Density
+> GT
+> Pred
+> 012345
+> Lead Frequency
+> 0
+> 5
+> Count  ×10 10.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> Density
+> GT
+> Pred
+> 012345
+> Lead Frequency
+> 0
+> 1
+> Count  ×10 20.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> Density
+> GT
+> Pred
+> 012345
+> Lead Frequency
+> 0
+> 1
+> Count  ×10 2012345
+> Frequency
+> 1.00
+> 0.75
+> 0.50
+> 0.25
+> 0.00
+> 0.25
+> 0.50
+> 0.75
+> 1.00
+> PSD(GT) - PSD(Pred)
+> PSD(GT) - PSD(Pred)
+
+(a) Ours 0 1 2 3 4 5 
+
+> Frequency
+> 1.00
+> 0.75
+> 0.50
+> 0.25
+> 0.00
+> 0.25
+> 0.50
+> 0.75
+> 1.00
+> PSD(GT) - PSD(Pred)
+> PSD(GT) - PSD(Pred)
+
+(b) SAITS 0 1 2 3 4 5 
+
+> Frequency
+> 1.00
+> 0.75
+> 0.50
+> 0.25
+> 0.00
+> 0.25
+> 0.50
+> 0.75
+> 1.00
+> PSD(GT) - PSD(Pred)
+> PSD(GT) - PSD(Pred)
+
+(c) ModertTCN 0 1 2 3 4 5 
+
+> Frequency
+> 1.00
+> 0.75
+> 0.50
+> 0.25
+> 0.00
+> 0.25
+> 0.50
+> 0.75
+> 1.00
+> PSD(GT) - PSD(Pred)
+> PSD(GT) - PSD(Pred)
+
+(d) TimesNet 
+
+Figure 4: (Top) Distribution of leading frequency on the Sines dataset (Missing Point 50%). (Bottom) Difference between the power spectral densities (PSD) of the ground truth and predictions, with the black line representing the mean difference and the shaded area indicating one standard deviation. Our approach shows the best performance. at the lower 10% missing rate, our approach yields the low-est MAE and RMSE, improving upon the already strong baseline CSDI. For the spectral metric (S-MAE), we again outperform all alternatives, demonstrating more accurate frequency-domain reconstruction. At 50% and 90% miss-ing rates, our approach maintains the lowest scores in all metrics, with S-MAE sometimes on par with CSDI. These results suggest that explicit conditioning on frequency com-ponents helps maintain signal characteristics even under high data sparsity. In the PM2.5 pollution dataset, our model reports significant gains in MAE and RMSE compared to the baselines. Additionally, we also observe a lower S-MAE 7LSCD: Lomb–Scargle Conditioned Diffusion for Time series Imputation 
+
+Table 2: Imputation performance of time series reconstruction and frequency spectrum over real datasets. DATASET MISS METRIC MEAN LERP BRITS GPVAE US-GAN TIMES NET CSDI SAITS MODERN TCN OURS 
+
+PHYSIONET 10% MAE 0.714 0.372 0.278 0.469 0.323 0.375 0.219 0.232 0.351 0.211 
+
+RMSE 1.035 0.708 0.693 0.783 0.662 0.690 0.545 0.583 0.697 0.494 
+
+S-MAE 0.032 0.020 0.016 0.026 0.020 0.022 0.013 0.014 0.020 0.012 
+
+50% MAE 0.711 0.417 0.385 0.521 0.449 0.453 0.307 0.315 0.440 0.303 
+
+RMSE 1.091 0.840 0.833 0.907 0.852 0.840 0.672 0.735 0.803 0.664 
+
+S-MAE 0.111 0.087 0.064 0.083 0.076 0.076 0.052 0.055 0.071 0.052 
+
+90% MAE 0.710 0.565 0.560 0.642 0.670 0.642 0.481 0.565 0.647 0.479 
+
+RMSE 1.097 0.993 0.975 1.038 1.060 1.031 0.834 0.971 1.026 0.832 
+
+S-MAE 0.148 0.189 0.104 0.124 0.125 0.131 0.093 0.108 0.137 0.093 
+
+PM25 10% MAE 50.685 15.363 16.519 23.941 32.999 22.685 9.670 15.424 24.089 9.069 
+
+RMSE 66.558 27.658 26.775 40.586 48.951 39.336 19.093 30.558 40.052 17.914 
+
+S-MAE 0.135 0.039 0.039 0.060 0.080 0.056 0.023 0.034 0.059 0.022 2 1 0 1 2                
+
+> Data value
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> 1.2
+> 1.4
+> Count
+> ×10 4
+> GT
+> Pred 21012
+> Data value
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> 1.2
+> 1.4
+> Count
+> ×10 4
+> GT
+> Pred 21012
+> Data value
+> 0.0
+> 0.5
+> 1.0
+> 1.5
+> 2.0
+> 2.5
+> Count
+> ×10 4
+> GT
+> Pred 21012
+> Data value
+> 0.0
+> 0.5
+> 1.0
+> 1.5
+> 2.0
+> 2.5
+> Count
+> ×10 4
+> GT
+> Pred 0100 200 300 400
+> Data value
+> 0.0
+> 0.5
+> 1.0
+> 1.5
+> 2.0
+> 2.5
+> Count
+> ×10 3
+> GT
+> Pred
+
+(a) Ours 0 100 200 300 400  
+
+> Data value
+> 0.0
+> 0.5
+> 1.0
+> 1.5
+> 2.0
+> 2.5
+> 3.0
+> Count
+> ×10 3
+> GT
+> Pred
+
+(b) CSDI 0 100 200 300 400  
+
+> Data value
+> 0.0
+> 0.5
+> 1.0
+> 1.5
+> 2.0
+> 2.5
+> Count
+> ×10 3
+> GT
+> Pred
+
+(c) SAITS 0 100 200 300 400  
+
+> Data value
+> 0.0
+> 0.5
+> 1.0
+> 1.5
+> 2.0
+> 2.5
+> Count
+> ×10 3
+> GT
+> Pred
+
+(d) BRITS 
+
+Figure 5: Distribution of imputed values across different models on real datasets. (Top) Physionet dataset with 10% missing data; (Bottom) PM25 dataset. than competing methods, indicating stronger preservation of the signal’s spectral structure. Finally, Figure 5 shows a comparison between the imputed values and the observed ones for Physionet (top) and PM25 (bottom). In Physionet, CSDI and our method capture the general distribution shape, but LSCD has a slight advantage for larger values, while SAITS and BRITS show a concentration in lower values, without covering the tails of the distribution. For PM25, both CSDI and our method show similar performance, but our method covers more accurately larger values. These ex-periments underscore the advantage of using Lomb-Scargle-based spectrum conditioning within a diffusion framework. By circumventing the need to fill in missing points before spectral analysis, our approach better preserves the time series’ inherent frequency characteristics. As evidenced by strong results on both Physionet and PM2.5, frequency-aware conditioning leads not only to lower time-domain errors but also to more accurate frequency reconstructions. 
+
+5.5. Ablation Studies 
+
+To validate the contribution of each component in our LSCD framework, we conduct ablation studies on the Physionet and PM25 datasets, progressively removing key elements. Results are summarized in Table 3. The full model achieves the best performance across all settings, demonstrating the effectiveness of Lomb-Scargle conditioning ( LS ), spectral encoder ( Espec ), and spectral consistency loss ( LSCons ). Re-moving LSCons marginally increases MAE, highlighting its role in aligning imputations with spectral properties. Further removing Espec degrades performance more significantly, emphasizing the importance of encoding inter-frequency dependencies. Removing LS conditioning entirely causes the largest degradation, underscoring the necessity of direct spectral supervision. Notably, S-MAE remains stable at high missing rates. These results confirm that all compo-nents contribute to accurate time-domain imputation while preserving spectral fidelity. 8LSCD: Lomb–Scargle Conditioned Diffusion for Time series Imputation 
+
+Table 3: Ablation of LSCD in Physionet and PM2.5. METHOD 10% M ISS . 50% M ISS . 90% M ISS . PM25 MAE S-MAE MAE S-MAE MAE S-MAE MAE S-MAE OURS 0.211 0.012 0.303 0.052 0.479 0.093 9.069 0.0219                                  
+
+> W/OLSCons 0.213 0.012 0.303 0.052 0.480 0.093 9.085 0.0223
+> W/OLSCons ,ESPEC 0.218 0.013 0.304 0.052 0.480 0.093 9.334 0.0222
+> W/OLSCons ,ESPEC ,LS 0.219 0.013 0.307 0.052 0.481 0.093 9.669 0.0239
+
+6. Limitations 
+
+Lomb–Scargle natively supports irregularly sampled data. However, our LSCD architecture for time series imputation works with grid-based data and thus our differentiable imple-mentation of Lomb–Scargle is adapted for this type of input. While score-based diffusion models such as CSDI (Tashiro et al., 2021) and LSCD rely on a fixed time grid, they are able to operate on irregularly sampled time series, provided that the interpolation time points are known at training time .In contrast, continuous-time methods only require knowl-edge of the interpolation time points at inference time. 
+
+7. Conclusions 
+
+We presented Lomb–Scargle Conditioned Diffusion (LSCD), a novel approach for time series imputation that leverages a diffusion model conditioned on the Lomb–Scargle peri-odogram. Our method directly incorporates spectral infor-mation within the diffusion framework, ensuring that both time-domain and frequency-domain characteristics of the data are preserved. Our experimental evaluation on synthetic and real-world datasets demonstrated that LSCD consistently outperforms existing imputation methods in both time-domain accuracy (MAE, RMSE) and spectral consistency (S-MAE). Notably, our method maintains superior performance even under ex-treme missingness (up to 90%), demonstrating its robustness in practical scenarios. Our approach employs a spectral encoder to process the Lomb–Scargle spectrum and a spectral consistency loss to reinforce alignment between imputed signals and their fre-quency representations. Our ablation studies confirmed that each of these components contributes significantly to the overall effectiveness of our method. The spectral encoder captures inter-frequency and inter-feature dependencies, en-hancing the model’s ability to utilize spectral cues, while the spectral consistency loss ensures that frequency components are faithfully reconstructed in the imputation. Beyond imputation, we see significant potential for Lomb– Scargle in machine learning applications involving missing or irregular data. To facilitate broader adoption, we provide a differentiable implementation which can be seamlessly integrated into learning pipelines. We hope this will encour-age further exploration of spectral-guided learning methods. 
+
+Impact Statement 
+
+Our work focuses on improving time series imputation. Po-tential applications include healthcare (e.g., filling gaps in patient vitals), climate modeling (handling sparse sensor readings), and finance (dealing with stock transactions). By restoring continuity and enhancing frequency fidelity, we enable more reliable downstream analyses, which can lead to better decision-making in critical domains. 
+
+Acknowledgments 
+
+This paper was prepared for informational purposes in part by the Artificial Intelligence Research group of JPMorgan Chase & Co. and its affiliates (“JP Morgan”) and is not a product of the Research Department of JP Morgan. JP Morgan makes no representation and warranty whatsoever and disclaims all liability, for the completeness, accuracy or reliability of the information contained herein. This docu-ment is not intended as investment research or investment advice, or a recommendation, offer or solicitation for the purchase or sale of any security, financial instrument, fi-nancial product or service, or to be used in any way for evaluating the merits of participating in any transaction, and shall not constitute a solicitation under any jurisdiction or to any person, if such solicitation under such jurisdiction or to such person would be unlawful. 
+
+References 
+
+Alaa, A., Chan, A. J., and van der Schaar, M. Generative time-series modeling with fourier flows. In Proceedings of the International Conference on Learning Representa-tions (ICLR) , 2021. Ansari, A. F., Heng, A., Lim, A., and Soh, H. Neural continuous-discrete state space models for irregularly-sampled time series. In Proceedings of the International Conference on Machine Learning (ICML) , 2023. Bamford, T., Fons, E., El-Laham, Y., and Vyetrenko, S. Mads: Modulated auto-decoding siren for time series imputation. ArXiv , abs/2307.00868, 2023. Batista, G. E. A. P. A. and Monard, M. C. A study of 9LSCD: Lomb–Scargle Conditioned Diffusion for Time series Imputation 
+
+k-nearest neighbour as an imputation method. In Interna-tional Conference on Health Information Science , 2002. Bilo ˇs, M., Sommer, J., Rangapuram, S. S., Januschowski, T., and G ¨unnemann, S. Neural flows: efficient alterna-tive to neural odes. In Advances in Neural Information Processing Systems (NeurIPS) , 2021. Bilo ˇs, M., Rasul, K., Schneider, A., Nevmyvaka, Y., and G ¨unnemann, S. Modeling temporal data as continuous functions with stochastic process diffusion. In Proceed-ings of the International Conference on Machine Learn-ing (ICML) , 2023. Brouwer, E. D., Simm, J., Arany, A., and Moreau, Y. Gru-ode-bayes: continuous modeling of sporadically-observed time series. In Advances in Neural Information Processing Systems (NeurIPS) , 2019. Cao, W., Wang, D., Li, J., Zhou, H., Li, L., and Li, Y. Brits: Bidirectional recurrent imputation for time series. In Advances in Neural Information Processing Systems (NeurIPS) , 2018. Che, Z., Purushotham, S., Cho, K., Sontag, D. A., and Liu, Y. Recurrent neural networks for multivariate time series with missing values. Scientific Reports , 8, 2016. Crabb ´e, J., Huynh, N., Stanczuk, J., and Van Der Schaar, M. Time series diffusion in the frequency domain. In 
+
+Proceedings of the International Conference on Machine Learning (ICML) , 2024. Donghao, L. and Xue, W. ModernTCN: A modern pure convolution structure for general time series analysis. In 
+
+Proceedings of the International Conference on Learning Representations (ICLR) , 2024. Du, W., C ˆot ´e, D., and Liu, Y. Saits: Self-attention-based imputation for time series. Expert Systems with Applica-tions , 219, 2023. Du, W., Wang, J., Qian, L., Yang, Y., Liu, F., Wang, Z., Ibrahim, Z., Liu, H., Zhao, Z., Zhou, Y., Wang, W., Ding, K., Liang, Y., Prakash, B. A., and Wen, Q. Tsi-bench: Benchmarking time series imputation. ArXiv ,abs/2406.12747, 2024. Durbin, T. and Koopman, S. Time Series Analysis by State Space Methods: Second Edition . OUP Oxford, 2012. El-Laham, Y., Sun, Z., Zhu, H., Balch, T., and Vyetrenko, S. Variational neural stochastic differential equations with change points. Transactions on Machine Learning Research , 2025. Fons, E., Sztrajman, A., El-Laham, Y., Iosifidis, A., and Vyetrenko, S. Hypertime: Implicit neural representations for time series. In NeurIPS 2022 Workshop on Synthetic Data for Empowering Machine Learning Research (Syn-theticData4ML) , 2022. Fons, E., Sztrajman, A., El-Laham, Y., Coletta, A., Iosi-fidis, A., and Vyetrenko, S. ihypertime: Interpretable time series generation with implicit neural representa-tions. Transactions on Machine Learning Research , 2024. Fortuin, V., Baranchuk, D., Raetsch, G., and Mandt, S. Gp-vae: Deep probabilistic time series imputation. In 
+
+International Conference on Artificial Intelligence and Statistics , volume 108, pp. 1651–1661, 2020. Fung, D. S. Methods for the estimation of missing values in time series . PhD thesis, Edith Cowan University, 2006. Garnelo, M., Rosenbaum, D., Maddison, C., Ramalho, T., Saxton, D., Shanahan, M., Teh, Y. W., Rezende, D., and Eslami, S. A. Conditional neural processes. In Pro-ceedings of the International Conference on Machine Learning (ICML) , 2018. Ghahramani, Z. and Jordan, M. I. Supervised learning from incomplete data via an EM approach. In Advances in Neural Information Processing Systems (NeurIPS) , 1993. Ho, J., Jain, A., and Abbeel, P. Denoising diffusion prob-abilistic models. In Advances in Neural Information Processing Systems (NeurIPS) , 2020. Kidger, P., Morrill, J., Foster, J., and Lyons, T. Neural controlled differential equations for irregular time series. In Advances in Neural Information Processing Systems (NeurIPS) , 2020. Lomb, N. R. Least-squares frequency analysis of unequally spaced data. Astrophysics and Space Science , 39(2):447– 462, 1976. Miao, X., Wu, Y., Wang, J., Gao, Y., Mao, X., and Yin, J. Generative semi-supervised learning for multivariate time series imputation. Proceedings of the AAAI Confer-ence on Artificial Intelligence (AAAI) , 35(10):8983–8991, 2021. Mitra, R., McGough, S. F., Chakraborty, T. R., Holmes, C. C., Copping, R., Hagenbuch, N., Biedermann, S., Noo-nan, J., Lehmann, B., Shenvi, A., Doan, X. V., Leslie, D., Bianconi, G., S ´anchez-Garc ´ıa, R. J., Davies, A., Mack-intosh, M., Andrinopoulou, E.-R., Basiri, A., Harbron, C., and MacArthur, B. D. Learning from data with struc-tured missingness. Nature Machine Intelligence , 5:13–23, 2023. Nelwamondo, F. V., Mohamed, S., and Marwala, T. Miss-ing data: A comparison of neural network and expec-tation maximization techniques. Current Science , 93: 1514–1521, 2007. 10 LSCD: Lomb–Scargle Conditioned Diffusion for Time series Imputation 
+
+Oh, Y., Lim, D., and Kim, S. Stable neural stochastic differential equations in analyzing irregular time series data. In Proceedings of the International Conference on Learning Representations (ICLR) , 2024. Rubanova, Y., Chen, R. T. Q., and Duvenaud, D. K. Latent ordinary differential equations for irregularly-sampled time series. In Advances in Neural Information Process-ing Systems (NeurIPS) , 2019. Scargle, J. Studies in astronomical time series analysis. II. statistical aspects of spectral analysis of unevenly spaced data. The Astrophysical Journal , 263:835–853, 1982. Schirmer, M., Eltayeb, M., Lessmann, S., and Rudolph, M. Modeling irregular time series with continuous recurrent units. In Proceedings of the International Conference on Machine Learning (ICML) , 2022. Shukla, S. N. and Marlin, B. Multi-time attention networks for irregularly sampled time series. In Proceedings of the International Conference on Learning Representations (ICLR) , 2021. Silva, I., Moody, G. B., Scott, D. J., Celi, L. A., and Mark, R. G. Predicting in-hospital mortality of ICU patients: The physionet/computing in cardiology challenge 2012. 
+
+Computing in Cardiology , pp. 245–248, 2012. Song, Y. and Ermon, S. Generative modeling by estimating gradients of the data distribution. In Advances in Neural Information Processing Systems (NeurIPS) , 2019. Song, Y., Sohl-Dickstein, J., Kingma, D. P., Kumar, A., Er-mon, S., and Poole, B. Score-based generative modeling through stochastic differential equations. In Proceedings of the International Conference on Learning Representa-tions (ICLR) , 2021. Tashiro, Y., Song, J., Song, Y., and Ermon, S. CSDI: Con-ditional score-based diffusion models for probabilistic time series imputation. Advances in Neural Information Processing Systems (NeurIPS) , 2021. VanderPlas, J. T. Understanding the lomb–scargle peri-odogram. The Astrophysical Journal Supplement Series ,236(1):16, 2018. Walter.O, Y., Kihoro, J., Athiany, K., and KibunjaH., W. Imputation of incomplete non- stationary seasonal time series data. Mathematical theory and modeling , 3:142– 154, 2013. Wu, H., Hu, T., Liu, Y., Zhou, H., Wang, J., and Long, M. TimesNet: Temporal 2d-variation modeling for general time series analysis. In Proceedings of the International Conference on Learning Representations (ICLR) , 2023. Yalavarthi, V. K., Madhusudhanan, K., Scholz, R., Ahmed, N., Burchert, J., Jawed, S., Born, S., and Schmidt-Thieme, L. Grafiti: graphs for forecasting irregularly sampled time series. In Proceedings of the AAAI Conference on Artificial Intelligence (AAAI) , 2024. Yang, X., Sun, Y., Yuan, X., and Chen, X. Frequency-aware generative models for multivariate time series imputation. In Advances in Neural Information Processing Systems (NeurIPS) , 2024a. Yang, Y., Jin, M., Wen, H., Zhang, C., Liang, Y., Ma, L., Wang, Y., Liu, C.-M., Yang, B., Xu, Z., Bian, J., Pan, S., and Wen, Q. A survey on diffusion models for time series and spatio-temporal data. ArXiv , abs/2404.18886, 2024b. Yi, X., Zheng, Y., Zhang, J., and Li, T. St-mvl: Filling missing values in geo-sensory time series data. In In-ternational Joint Conference on Artificial Intelligence ,2016. Zhang, W., Yin, C., Liu, H., Zhou, X., and Xiong, H. Irreg-ular multivariate time series forecasting: a transformable patching graph neural networks approach. In Proceedings of the International Conference on Machine Learning (ICML) , 2024. 11 LSCD: Lomb–Scargle Conditioned Diffusion for Time series Imputation 
+
+A. Lomb-Scargle Discussion 
+
+The Lomb-Scargle periodogram provides a spectral representation of a signal. It is typically used to understand the power spectrum of an irregularly sampled time series sample, typically in the context of astronomy data. Consider a univariate signal x = ( xt1 , . . . , x tN ), which is assumed to be irregularly sampled at times t1, . . . , t N . For a given frequency f , the idea behind the Lomb-Scargle periodogram is to fit x to a sinusoid using least-squares. Equivalently, we assume that at each time tn, the signal can be modeled as a noisy sinusoid: 
+
+xtn = A cos(2 πf t n + ϕ) + ϵtn (3) where ϵt ∼ N (0 , σ 2) is assumed to be white Gaussian noise. Using a trigonometric identity, the model can equivalently be represented as: 
+
+xtn = α1 cos(2 πf t n) + α2 sin(2 πf t n) + ϵtn (4) where the amplitude A and phase ϕ can be related to the parameters α1 and α2 as follows: 
+
+A =
+
+q
+
+α21 + α22 (5) 
+
+ϕ = tan −1
+
+
+
+− α2
+
+α1
+
+
+
+(6) The model formulation in (4) is convenient, because it can be expressed as a linear model with additive Gaussian noise: 
+
+
+
+xt1
+
+...
+
+xtN
+
+| {z } 
+
+> x
+
+=
+
+
+
+cos(2 πf t 1) sin(2 πf t 1)
+
+... ...
+
+cos(2 πf t N ) sin(2 πf t N )
+
+| {z }
+
+> H
+
+α1
+
+α2
+
+| {z } 
+
+> θ
+
++ϵ, (7) where ϵ ∼ N (0, σ 2IN ). The maximum likelihood estimator of θ is equivalent to the least-squares solution and is given by: 
+
+bθ = ( H⊺H)−1H⊺x (8) The above equation yields a solution for the estimators bα1 and bα2, which can readily be converted into the original parameters 
+
+A and ϕ as: 
+
+bA =
+
+vuuutPNn=1 xtn cos(2 πf (tn − ϕ)) 
+
+2
+
+PNn=1 cos 2(2 πf (tn − ϕ)) +
+
+PNn=1 xtn sin(2 πf (tn − ϕ)) 
+
+2
+
+PNn=1 sin 2(2 πf (tn − ϕ)) (9) 
+
+ϕ = 14πf tan −1
+
+PNn=1 sin(4 πf t n)
+
+PNn=1 cos(4 πf t n)
+
+!
+
+(10) Note here that ϕ is not random, since it does not depend on the observed signal. Since we are working with a sinusoid, the amplitude estimator bA can be converted to a measure of power as P (f ) ∝ bA2 
+
+> 2
+
+to provide the relative strength of the frequency f :
+
+P (f ) = 12
+
+PNn=1 xtn cos(2 πf (tn − ϕ)) 
+
+2
+
+PNn=1 cos 2(2 πf (tn − ϕ)) +
+
+PNn=1 xtn sin(2 πf (tn − ϕ)) 
+
+2
+
+PNn=1 sin 2(2 πf (tn − ϕ)) 
+
+ (11) Repeating this exercise for a collection of candidate frequencies f1, . . . , f K (and yielding corresponding power estimators 
+
+P (f1), . . . , P (fK )), we can get obtain a periodogram of the signal. It can be shown that under Gaussian noise ( σ2 = 1 ), 
+
+P (f ) follows a χ2 distribution with 2 degrees of freedom, allowing for ease of access to the false alarm probabilities of the power for each frequency. 
+
+B. Theoretical Discussions 
+
+In this section, we provide a high-level theoretical discussion of our work. 12 LSCD: Lomb–Scargle Conditioned Diffusion for Time series Imputation 
+
+B.1. Conditional Entropy of Reverse Process 
+
+First, we leverage a result that was presented in (Yang et al., 2024a) related to the conditional entropy of the reverse process of a diffusion model. Specifically, the theoretical result presented by the authors shows that the conditional entropy of the diffusion reverse process given the frequency representation of time series is strictly less than the conditional entropy of the reverse diffusion process without the frequency information: 
+
+H(Xta t−1|Xta t , Xco  
+
+> 0
+
+, CH, CD) < H(Xta t−1|Xta t , Xco  
+
+> 0
+
+) (12) where Xta t denotes the diffusion process of the target at time t, Xco  
+
+> 0
+
+denotes the time-series observation condition, and CH
+
+and CD denote the high-frequency and dominant-frequency condition, respectively. Here, H(·|· ) denotes the conditional entropy, which for two random quantities X given Y is defined as: 
+
+H(X|Y) = −
+
+Z
+
+p(x, y) log p(x|y)dx, (13) where p(x, y) denotes the joint distribution of X and Y, while p(x|y) denotes the conditional distribution of X given Y.The essence behind the theoretical result shown in (12) is that incorporating additional conditional information reduces the entropy of the reverse process. This result also applies to conditioning on additional information, such as the encoded Lomb-Scargle representation ZS = Espec (LS (Xco  
+
+> 0
+
+)) and thus we can directly deduce that: 
+
+H(Xta t−1|Xta t , Xco  
+
+> 0
+
+, ZS ) < H(Xta t−1|Xta t , Xco  
+
+> 0
+
+) (14) The proof of this result is straightforward and follows the same logic as the proof presented in Appendix A of (Yang et al., 2024a). 
+
+B.2. Potential Bias of Sinusoidal Assumption of Lomb-Scargle 
+
+Recall from Appendix A, each frequency component of the Lomb-Scargle periodogram can be derived using least-squares, where the underlying time-series signal is assumed to be a sinusoid with zero-mean and additive noise. From the maximum likelihood point of view, the noise is Gaussian with variance σ2. One important aspect of this work to discuss is the potential bias of utilizing the Lomb-Scargle periodogram in the imputation model, since the periodogram is based on the assumption that the underlying data is sinusoidal. In this work, the Lomb-Scargle periodogram is incorporated in two aspects: (1) as a conditioning variable in the imputation model; and (2) as part of the spectral consistency loss LSCons used to fine-tune our model in the final stage of training to enforce alignment between the spectrum of the observed data and that of the generative model. In the first aspect, the Lomb-Scargle periodogram is encoded using a transformer module and incorporated as a conditioning vector throughout the reverse process of the diffusion model. This conditioning provides spectral information about the target time series, guiding the generation process toward samples with similar frequency characteristics. Unlike conditioning on independent variables, the periodogram contains meaningful information about the spectral properties of the time series being generated, making it an informative conditioning signal that should improve generation quality. The sinusoid assumption of the time-series utilized in the derivation of the Lomb-Scargle periodogram does not introduce bias into the model, but rather guides the diffusion process. In the scenario in which the periodogram is not useful, the model would learn to ignore the conditional information. In our work, we have observed that utilizing this information does improve the generative quality. In the second aspect, the spectral fine-tuning introduces a regularization of our model from the score-matching optimum obtained in the first stage of training, creating a trade-off between distributional accuracy (captured by the initial training) and spectral fidelity. To be precise, in the first part of training, the standard score-matching objective is optimized, that is, 
+
+L(θ) = E∥ϵ − ϵθ (xta t , t | xco  
+
+> 0
+
+)∥2, (15) and in the second part of training, the spectral consistency loss is minimized, where: 
+
+LSCons (θ) = E ∥LS  xco 
+
+> 0
+
+ − LS  bxco 
+
+> 0
+
+∥22
+
+ , (16) While the score-matching objective learns to approximate the full data distribution, it may not adequately capture the frequency representation of the time series data. The spectral consistency loss addresses this limitation by explicitly 13 LSCD: Lomb–Scargle Conditioned Diffusion for Time series Imputation 
+
+enforcing that generated samples maintain spectral characteristics consistent with the observed data, which we believe is especially useful for time-series with high degrees of missingness. One can roughly interpret our training algorithm as minimizing a single regularized loss with two terms: 
+
+Lreg (θ) = λ1L(θ) + λ2LSCons (θ), (17) where λ1 > 0 and λ2 > 0 are scaling constants. As can be seen in (17) , our training algorithm will introduce a bias, since the spectral consistency loss will deviate the parameters from optimal solution, which minimizes the score-matching objective. 
+
+C. Computation times 
+
+We present an analysis of the computational speed of our method (LSCD). In Tables 4 and 5 we show a comparison of training and inference computation times respectively, for the LSCD and CSDI models, evaluated on PhysioNet and PM2.5 datasets. All computations in this analysis were performed using a g5.2xlarge AWS instance (AMD EPYC 7R32 CPU, with an Nvidia A10G 24 GB GPU). As shown in the tables, the percentage increase in computation time is approx. 9% for training and 13% for inference. However, the training of LSCD includes a final fine-tuning stage using the spectral consistency loss 
+
+LSCons from Section 4.3, which takes 288 .7 s/ep for PhysioNet and 430 .3 s/ep for PM2.5, due to requiring running the inference pipeline as part of the computation. Considering this step together with the full training process, LCSD resulted in an additional 43% training time for PhysioNet and 45% for PM2.5. Table 4: Training time per epoch for CSDI and LSCD. The last column shows the relative increase for LSCD. Measurements were averaged over 10 epochs. CSDI (s/epoch) LSCD (s/epoch) ∆Time (%) PhysioNet 10.30 11.18 8.5% PM2.5 14.82 16.23 9.5% Table 5: Inference time per batch for CSDI and LSCD (batch size = 16). The last column shows the relative increase for LSCD. Measurements were averaged over 5 batches. CSDI (s/batch) LSCD (s/batch) ∆Time (%) PhysioNet 88.19 99.18 13.3% PM2.5 69.36 78.58 12.5% 
+
+D. Datasets 
+
+Here we introduce in detail the datasets used in our evaluation. We evaluate our method on both synthetic and real-world datasets with varying degrees of missingness to assess its robustness in imputation tasks. We use publicly available real data from two domains, healthcare and climate, and we generate a synthetic dataset where we have control over the ground truth frequencies. A summary of the datasets characteristics is shown in Table 6 Table 6: Summary of datasets used for evaluation.                                 
+
+> DATASET # S AMPLES # F EATURES TIME STEPS MISSINGNESS TYPE MISSING %LINK
+> SYNTHETIC SINES 2000 5100 MCAR, S EQUENCE , B LOCK 10% N/A PHYSIO NET 4000 35 48 NATURALLY OCCURRING + MCAR 80% ( NATURAL )[L INK ]PM2.5 A IR QUALITY 5633 36 36 NON -R ANDOM + A RTIFICIAL 13% ( NATURAL )[L INK ]
+
+PhysioNet. This dataset contains multivariate physiological measurements from ICU patients (Silva et al., 2012). We use the preprocessed version from Cao et al. (2018); Tashiro et al. (2021), consisting of 4,000 patient records with 35 variables measured hourly over 48 time steps. Approximately 80% of values are naturally missing. For evaluation, we hold out 10% ,
+
+50% , and 90% of the observed values as ground truth and assess imputation quality on these missing entries. 14 LSCD: Lomb–Scargle Conditioned Diffusion for Time series Imputation 
+
+PM2.5 Air Quality Data. This dataset contains hourly PM2.5 pollution measurements from 36 monitoring stations in Beijing over a 12-month period (Yi et al., 2016). Following prior work (Cao et al., 2018; Tashiro et al., 2021), we extract sequences of length 36. The dataset exhibits approximately 13% naturally occurring missing values, with additional structured missingness artificially introduced for evaluation. The dataset presents real-world challenges such as non-random missing patterns and periodic fluctuations in pollution levels. 
+
+D.1. Synthetic Sines dataset 
+
+We generate a synthetic time series dataset for evaluating the proposed method. The dataset is designed to simulate multivariate time series with distinct frequency and amplitude characteristics across different channels. The process is described below. D.1.1. T IME SERIES GENERATION 
+
+Let L represent the number of timesteps, K the number of channels, and T the maximum time horizon. For each sample, a multivariate time series X ∈ RL×K is generated using a sum of sinusoidal components with additive Gaussian noise. Specifically, the time series for each channel k is generated as follows: 
+
+fk(t) = 
+
+> Nk
+
+X
+
+> i=1
+
+ak,i sin(2 πf k,i t + ϕk,i ) + εk,
+
+where ak,i , fk,i , and ϕk,i are the amplitude, frequency, and phase of the i-th sinusoidal component of channel k, respectively. The term εk represents Gaussian noise with zero mean and a standard deviation σk. The number of sinusoidal components 
+
+Nk, as well as the parameters ak,i , fk,i , and ϕk,i , vary across channels to simulate heterogeneity. D.1.2. F REQUENCY AND AMPLITUDE SAMPLING 
+
+For each channel k, the amplitudes ak,i are fixed for all samples within the dataset, while the frequencies fk,i are drawn from a Beta distribution, defined as: 
+
+fk,i ∼ Beta (α = 2 , β = 2) · wk +
+
+
+
+μk − wk
+
+2
+
+
+
+,
+
+where μk and wk represent the mean and width of the frequency range for channel k. Sampling from a Beta distribution ensures that frequencies are concentrated around μk but still allow variability, making the generated time series more realistic. This approach follows Fourier Flows (Alaa et al., 2021), which leverages Beta distributions for frequency modeling in generative time series tasks. Fixing the amplitudes ak,i for each frequency simplifies the interpretation of each sinusoidal component’s contribution and reduces the complexity of parameter selection while retaining diversity in frequency combinations. D.1.3. D ATASET CHARACTERISTICS 
+
+The dataset contains 2000 samples, each with L = 100 timesteps spanning a time horizon of T = 10 .0 units. The dataset consists of K = 5 channels with distinct amplitude and frequency configurations, summarized in Table 7. Table 7: Characteristics of the generated dataset for each channel. 
+
+Channel Components ( Nk) Mean Frequencies ( μk) Frequency Widths ( wk) Amplitudes ( ak,i )
+
+1 1 [1.0] [1.0] [1.0] 2 2 [1.0, 2.0] [1.0, 1.5] [0.5, 1.0] 3 3 [1.0, 2.0, 3.0] [1.0, 1.0, 1.5] [0.5, 1.0, 1.5] 4 4 [0.5, 1.0, 1.5, 2.0] [1.0, 1.0, 1.0, 2.0] [0.8, 1.2, 1.5, 2.0] 5 5 [0.5, 1.0, 2.0, 3.0, 4.0] [0.5, 1.0, 1.0, 1.5, 2.0] [1.0, 1.5, 2.0, 2.5, 3.0] D.1.4. M ISSINGNESS SIMULATION 
+
+A binary mask M ∈ { 0, 1}L×K is generated to simulate missingness in the dataset. To make the setting more realistic, the dataset is initially generated with 10% missing data, where values are randomly masked. This ensures that even before 15 LSCD: Lomb–Scargle Conditioned Diffusion for Time series Imputation 
+
+applying specific missingness mechanisms, the dataset already contains some level of real-world uncertainty. We evaluate three missingness mechanisms: • MCAR (Missing Completely at Random) : Values are masked independently of the underlying data distribution. This serves as a baseline missingness pattern. • Sequence Missing : Contiguous time intervals are masked to simulate sensor downtimes or transmission failures. • Block Missing : Large regions of the dataset, spanning both time steps and feature dimensions, are masked to mimic large-scale data outages. The actual missing rate of block missingness is difficult to strictly control due to the overlap between blocks. Instead, a “factor” is used to adjust the missing rate approximately. Recent studies on time series imputation (Du et al., 2024; Mitra et al., 2023) highlight that block and sequence missingness patterns better represent real-world scenarios compared to MAR or MNAR mechanisms. These structured patterns closely align with real applications such as sensor failures, data transmission losses, and large-scale system outages. Unlike MCAR, which assumes uniform randomness, structured missingness provides a more challenging and realistic evaluation of imputation models. Furthermore, methods that perform well under sequence and block missingness conditions tend to generalize better across diverse real-world datasets. We use the PyGrinder 1 library to generate missingness patterns in our dataset, ensuring a standardized and reproducible approach to missing data simulation. Each missingness mechanism is applied at three levels (10%, 50%, and 90%) to assess the robustness of our method under increasing data loss. The specific hyperparameters used for each mechanism and the resulting missing rates, as computed from the actual data, are summarized in Table 8. Table 8: Missingness parameters and actual missing rates for different mechanisms. 
+
+Mechanism Hyperparameters Target Rate Actual Rate 
+
+MCAR p = 0 .1 10% 10.0% MCAR p = 0 .5 50% 50.0% MCAR p = 0 .9 90% 90.0% Sequence Missing p = 0 .1, seq len = 50 10% 10.0% Sequence Missing p = 0 .5, seq len = 50 50% 50.0% Sequence Missing p = 0 .9, seq len = 30 90% 55.6% Block Missing factor = 0 .1, block len = 40 , block width = 4 10% 18.8% Block Missing factor = 0 .5, block len = 40 , block width = 4 50% 56.4% Block Missing factor = 0 .9, block len = 40 , block width = 4 90% 71.9% As seen in Table 8, the actual missing rates for block missingness tend to deviate from the target values. This is due to the nature of block-based masking, where overlapping blocks and feature constraints introduce variability in the effective missing proportion. Instead of directly specifying the missing rate, the “factor” parameter is used to approximate the final missing rate, though it does not always match the intended level exactly. The structured missingness patterns allow for evaluating the model’s ability to reconstruct both small-scale gaps and large missing regions effectively. 
+
+> 1https://github.com/WenjieDu/PyGrinder
+
+16 LSCD: Lomb–Scargle Conditioned Diffusion for Time series Imputation 
+
+E. Implementation and Reproducibility details 
+
+E.1. Lomb-Scargle implementation 
+
+The following listing provides a PyTorch implementation of the Lomb–Scargle periodogram, designed to efficiently compute spectral estimates for irregularly sampled time series. This implementation is fully differentiable, allowing seamless integration into learning-based models for gradient-based optimization.  
+
+> 1
+
+import torch  
+
+> 23
+
+class LombScargleBatchMask(torch.nn.Module):  
+
+> 4
+
+def __init__(self, omegas):  
+
+> 5
+
+super(LombScargleBatchMask, self).__init__()  
+
+> 6
+
+self.omegas = omegas # Tensor of angular frequencies (omegas)  
+
+> 78
+
+def forward(self, t, y, mask=None):  
+
+> 9
+
+"""  
+
+> 10
+
+Computes the Lomb-Scargle periodogram for a batch of time series with masking.  
+
+> 11 12
+
+Args:  
+
+> 13
+
+t (Tensor): Time values, shape [B, N].  
+
+> 14
+
+y (Tensor): Observed data values, shape [B, N].  
+
+> 15
+
+mask (Tensor, optional): Boolean mask, shape [B, N] (1 = valid, 0 = missing).  
+
+> 16 17
+
+Returns:  
+
+> 18
+
+Tensor: Lomb-Scargle periodogram values, shape [B, M].  
+
+> 19
+
+"""  
+
+> 20
+
+B, N = t.shape  
+
+> 21
+
+M = self.omegas.shape[0]  
+
+> 22 23
+
+if mask is None:  
+
+> 24
+
+mask = torch.ones_like(t) # Default to all valid points  
+
+> 25 26
+
+# Expand tensors  
+
+> 27
+
+t = t.unsqueeze(1) # [B, 1, N]  
+
+> 28
+
+y = y.unsqueeze(1) # [B, 1, N]  
+
+> 29
+
+mask = mask.unsqueeze(1) # [B, 1, N]  
+
+> 30
+
+omega = self.omegas.view(1, M, 1) # [1, M, 1]  
+
+> 31 32
+
+# Compute tau for each frequency and batch  
+
+> 33
+
+two_omega_t = 2 * omega * t # [B, M, N]  
+
+> 34
+
+sin_2wt = (torch.sin(two_omega_t) * mask).sum(dim=2)  
+
+> 35
+
+cos_2wt = (torch.cos(two_omega_t) * mask).sum(dim=2)  
+
+> 36 37
+
+tan_2omega_tau = sin_2wt / torch.clamp(cos_2wt, min=1e-10)  
+
+> 38
+
+tau = torch.atan(tan_2omega_tau) / (2 * torch.clamp(omega.squeeze(2), min=1e-10))  
+
+> 39 40
+
+# Compute Lomb-Scargle periodogram  
+
+> 41
+
+omega_t_tau = omega * (t - tau.unsqueeze(2)) # [B, M, N]  
+
+> 42
+
+cos_omega_t_tau = torch.cos(omega_t_tau) * mask  
+
+> 43
+
+sin_omega_t_tau = torch.sin(omega_t_tau) * mask  
+
+> 44 45
+
+y_cos = y * cos_omega_t_tau  
+
+> 46
+
+y_sin = y * sin_omega_t_tau  
+
+> 47 48
+
+P_cos =(y_cos.sum(dim=2)**2)/torch.clamp(cos_omega_t_tau.pow(2).sum(dim=2),min=1e-10)  
+
+> 49
+
+P_sin = (y_sin.sum(dim=2)**2)/torch.clamp(sin_omega_t_tau.pow(2).sum(dim=2),min=1e-10)  
+
+> 50 51
+
+P = 0.5 * (P_cos + P_sin) # [B, M]  
+
+> 52 53
+
+return P
+
+Listing 1: Batch Lomb-Scargle Periodogram with Masking 
+
+E.2. Model Architecture Details Diffusion Model Architecture 
+
+Our approach adopts a diffusion-based generative model for time series imputation, implemented in a style consistent with standard score-based diffusion frameworks (Tashiro et al., 2021). Below, we outline the high-level architecture and key components: • Denoising Network: A U-shaped transformer that incorporates temporal convolution blocks and multi-head attention layers. The network accepts the following inputs: 17 LSCD: Lomb–Scargle Conditioned Diffusion for Time series Imputation 
+
+1. Noisy target values xta t at diffusion step t,2. Observed context xco  
+
+> 0
+
+(unmasked entries), 3. Spectral embeddings zS from the Lomb–Scargle encoder, 4. A positional encoding of the diffusion step t.• Irregular Sampling Handling: Timestamps s are mapped through 128-dimensional positional embeddings and fused into the feature representations at each layer, enabling the model to account for non-uniform time intervals. • Network Block Details: For each denoising step, the architecture employs a series of transformer blocks to capture temporal structure: 
+
+– Multi-Head Self-Attention , which learns dependencies among time steps, 
+
+– Positional Encodings added along the time axis to preserve sequence order, 
+
+– Feed-Forward layers with dropout and normalization to encourage stable training and robust generalization. 
+
+Spectrum Encoder Transformer Blocks 
+
+As described in Section 4.2, we employ two transformer modules, one along the frequency axis, and one along the features axis, in order to extract a latent embedding zS from the Lomb–Scargle periodogram LS (xco  
+
+> 0
+
+) ∈ RK×L. Key hyperparameters include: • dmodel (internal hidden dimension used by each attention module): 64 .• nHeads (number of attention heads): 8.• depth (number of transformer layers): 4 blocks for each dimension (frequency/features). 
+
+Input Representation: Log-transformed power spectral density values log(1 + LS (xco  
+
+> 0
+
+)) across J frequency bins, normalized to zero mean/unit variance per channel. 
+
+Training and Hyperparameters 
+
+We train for 400 epochs and select the best checkpoint via a validation set. The final zS from our spectral encoder is concatenated with the other conditioning signals (e.g. partial observations) at every denoising step to guide the model. • Diffusion Steps : Tmax = 50 .• Batch Size : 16. • Learning Rate : 1e-3. 
+
+F. Evaluation Metrics 
+
+To ensure a fair evaluation, we compute reconstruction errors only on the target values, defined as the set of originally observed values that were artificially removed for evaluation. In contrast, frequency-domain metrics are computed using all observed values (condition plus target), ensuring that spectral estimates are not influenced by imputed values outside of the ground truth. In line with the conditional diffusion framework described in Section 3.3, let us recall that we split the data into a conditional 
+
+portion xco  
+
+> 0
+
+= mco ⊙ X and a target portion xta  
+
+> 0
+
+= ( M − mco ) ⊙ X. When we refer to “originally observed values that were artificially removed,” we mean xta  
+
+> 0
+
+. At test time, the model imputes these missing target entries, producing a complete reconstruction ˆX.
+
+F.1. Time-Domain Metrics 
+
+For time-domain metrics, we evaluate performance only on the target (imputed) entries, i.e., the set of indices where 
+
+(M − mco ) is 1.18 LSCD: Lomb–Scargle Conditioned Diffusion for Time series Imputation 
+
+Mean Absolute Error (MAE) 
+
+MAE =
+
+P
+
+> k,l
+
+h Mk,l − mco k,l 
+
+ Xk,l − ˆXk,l 
+
+iP
+
+> k,l
+
+ Mk,l − mco k,l 
+
+ . (18) MAE measures the average absolute deviation between the imputed values ˆXk,l and the ground truth Xk,l where (Mk,l −
+
+mco k,l ) = 1 .
+
+Root Mean Squared Error (RMSE) 
+
+RMSE =
+
+vuutP
+
+> k,l
+
+h Mk,l − mco k,l 
+
+   Xk,l − ˆXk,l 
+
+2iP
+
+> k,l
+
+ Mk,l − mco k,l 
+
+ . (19) RMSE penalizes large deviations more severely than MAE, again computed only over the target entries. 
+
+F.2. Frequency-Domain Metrics 
+
+For frequency-domain metrics, we compute the Lomb–Scargle power spectral density (PSD) using only the originally observed points , i.e., where Mk,l = 1 . This ensures the spectral estimate is not influenced by imputed values outside the known ground truth. 
+
+Spectral Mean Absolute Error (S-MAE) To assess how well the imputed signals preserve the original frequency characteristics, we compare the normalized Lomb–Scargle PSD estimates of the ground-truth series PGT (ω) against those of the reconstruction PPred (ω). Let Ω be the set of evaluated frequencies: S-MAE = 1
+
+|Ω|
+
+X
+
+> ω∈Ω
+
+PGT (ω)
+
+P 
+
+> ω′
+
+PGT (ω′) − PPred (ω)
+
+P 
+
+> ω′
+
+PPred (ω′) . (20) Here, PGT (ω) and PPred (ω) are both computed strictly from points where Mk,l = 1 .19 LSCD: Lomb–Scargle Conditioned Diffusion for Time series Imputation 
+
+G. Visualizations of spectral distributions 
+
+G.1. PM25 dataset 0
+
+25 
+
+50 
+
+75 
+
+100 
+
+125 
+
+> Density
+
+GT 
+
+Pred 
+
+0.02 0.00 0.02 0.04 0.06 0.08 0.10 
+
+Lead Frequency 
+
+0
+
+2
+
+> Count
+
+×10 3
+
+(a) Ours 0
+
+25 
+
+50 
+
+75 
+
+100 
+
+125 
+
+> Density
+
+GT 
+
+Pred 
+
+0.02 0.00 0.02 0.04 0.06 0.08 0.10 
+
+Lead Frequency 
+
+0
+
+2
+
+> Count
+
+×10 3 (b) CSDI 0
+
+25 
+
+50 
+
+75 
+
+100 
+
+125 
+
+> Density
+
+GT 
+
+Pred 
+
+0.02 0.00 0.02 0.04 0.06 0.08 0.10 
+
+Lead Frequency 
+
+0
+
+2
+
+> Count
+
+×10 3 (c) SAITS 0
+
+25 
+
+50 
+
+75 
+
+100 
+
+125 
+
+> Density
+
+GT 
+
+Pred 
+
+0.02 0.00 0.02 0.04 0.06 0.08 0.10 
+
+Lead Frequency 
+
+0
+
+2
+
+> Count
+
+×10 3 (d) TimesNet 0
+
+25 
+
+50 
+
+75 
+
+100 
+
+125 
+
+> Density
+
+GT 
+
+Pred 
+
+0.02 0.00 0.02 0.04 0.06 0.08 0.10 
+
+Lead Frequency 
+
+0
+
+2
+
+> Count
+
+×10 3
+
+(e) BRITS 0
+
+25 
+
+50 
+
+75 
+
+100 
+
+125 
+
+> Density
+
+GT 
+
+Pred 
+
+0.02 0.00 0.02 0.04 0.06 0.08 0.10 
+
+Lead Frequency 
+
+0
+
+2
+
+> Count
+
+×10 3 (f) GP-VAE 0
+
+25 
+
+50 
+
+75 
+
+100 
+
+125 
+
+> Density
+
+GT 
+
+Pred 
+
+0.02 0.00 0.02 0.04 0.06 0.08 0.10 
+
+Lead Frequency 
+
+0
+
+2
+
+> Count
+
+×10 3 (g) ModernTCN 0
+
+25 
+
+50 
+
+75 
+
+100 
+
+125 
+
+> Density
+
+GT 
+
+Pred 
+
+0.02 0.00 0.02 0.04 0.06 0.08 0.10 
+
+Lead Frequency 
+
+0
+
+2
+
+> Count
+
+×10 3 (h) US-GAN 
+
+Figure 6: Distribution of leading frequency on PM25 dataset. 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+2.0 
+
+1.5 
+
+1.0 
+
+0.5 
+
+0.0 
+
+0.5 
+
+1.0 
+
+1.5 
+
+2.0 
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) 
+
+(a) Ours 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+2.0 
+
+1.5 
+
+1.0 
+
+0.5 
+
+0.0 
+
+0.5 
+
+1.0 
+
+1.5 
+
+2.0 
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) (b) CSDI 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+2.0 
+
+1.5 
+
+1.0 
+
+0.5 
+
+0.0 
+
+0.5 
+
+1.0 
+
+1.5 
+
+2.0 
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) (c) SAITS 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+2.0 
+
+1.5 
+
+1.0 
+
+0.5 
+
+0.0 
+
+0.5 
+
+1.0 
+
+1.5 
+
+2.0 
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) (d) TimesNet 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+2.0 
+
+1.5 
+
+1.0 
+
+0.5 
+
+0.0 
+
+0.5 
+
+1.0 
+
+1.5 
+
+2.0 
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) 
+
+(e) BRITS 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+2.0 
+
+1.5 
+
+1.0 
+
+0.5 
+
+0.0 
+
+0.5 
+
+1.0 
+
+1.5 
+
+2.0 
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) (f) GP-VAE 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+2.0 
+
+1.5 
+
+1.0 
+
+0.5 
+
+0.0 
+
+0.5 
+
+1.0 
+
+1.5 
+
+2.0 
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) (g) ModernTCN 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+2.0 
+
+1.5 
+
+1.0 
+
+0.5 
+
+0.0 
+
+0.5 
+
+1.0 
+
+1.5 
+
+2.0 
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) (h) US-GAN 
+
+Figure 7: Difference between the power spectral densities (PSD) of the ground truth and predictions, with the black line representing the mean difference and the shaded area indicating one standard deviation 20 LSCD: Lomb–Scargle Conditioned Diffusion for Time series Imputation 
+
+G.2. Physionet dataset 0.0 
+
+2.5 
+
+5.0 
+
+7.5 
+
+10.0 
+
+12.5 
+
+15.0 
+
+> Density
+
+GT 
+
+Pred 
+
+0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.6 
+
+Lead Frequency 
+
+0
+
+1
+
+> Count
+
+×10 4
+
+(a) Ours (b) CSDI 0.0 
+
+2.5 
+
+5.0 
+
+7.5 
+
+10.0 
+
+12.5 
+
+15.0 
+
+> Density
+
+GT 
+
+Pred 
+
+0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.6 
+
+Lead Frequency 
+
+0
+
+1
+
+> Count
+
+×10 4 (c) SAITS 0.0 
+
+2.5 
+
+5.0 
+
+7.5 
+
+10.0 
+
+12.5 
+
+15.0 
+
+> Density
+
+GT 
+
+Pred 
+
+0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.6 
+
+Lead Frequency 
+
+0
+
+1
+
+> Count
+
+×10 4 (d) TimesNet 0.0 
+
+2.5 
+
+5.0 
+
+7.5 
+
+10.0 
+
+12.5 
+
+15.0 
+
+> Density
+
+GT 
+
+Pred 
+
+0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.6 
+
+Lead Frequency 
+
+0
+
+1
+
+> Count
+
+×10 4
+
+(e) BRITS 0.0 
+
+2.5 
+
+5.0 
+
+7.5 
+
+10.0 
+
+12.5 
+
+15.0 
+
+> Density
+
+GT 
+
+Pred 
+
+0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.6 
+
+Lead Frequency 
+
+0
+
+1
+
+> Count
+
+×10 4 (f) GP-VAE 0.0 
+
+2.5 
+
+5.0 
+
+7.5 
+
+10.0 
+
+12.5 
+
+15.0 
+
+> Density
+
+GT 
+
+Pred 
+
+0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.6 
+
+Lead Frequency 
+
+0
+
+1
+
+> Count
+
+×10 4 (g) ModernTCN 0.0 
+
+2.5 
+
+5.0 
+
+7.5 
+
+10.0 
+
+12.5 
+
+15.0 
+
+> Density
+
+GT 
+
+Pred 
+
+0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.6 
+
+Lead Frequency 
+
+0
+
+1
+
+> Count
+
+×10 4 (h) US-GAN 
+
+Figure 8: Distribution of leading frequency on Physio dataset with 10% missing data. 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+2.0 
+
+1.5 
+
+1.0 
+
+0.5 
+
+0.0 
+
+0.5 
+
+1.0 
+
+1.5 
+
+2.0 
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) 
+
+(a) Ours (b) CSDI 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+2.0 
+
+1.5 
+
+1.0 
+
+0.5 
+
+0.0 
+
+0.5 
+
+1.0 
+
+1.5 
+
+2.0 
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) (c) SAITS 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+2.0 
+
+1.5 
+
+1.0 
+
+0.5 
+
+0.0 
+
+0.5 
+
+1.0 
+
+1.5 
+
+2.0 
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) (d) TimesNet 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+2.0 
+
+1.5 
+
+1.0 
+
+0.5 
+
+0.0 
+
+0.5 
+
+1.0 
+
+1.5 
+
+2.0 
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) 
+
+(e) BRITS 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+2.0 
+
+1.5 
+
+1.0 
+
+0.5 
+
+0.0 
+
+0.5 
+
+1.0 
+
+1.5 
+
+2.0 
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) (f) GP-VAE 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+2.0 
+
+1.5 
+
+1.0 
+
+0.5 
+
+0.0 
+
+0.5 
+
+1.0 
+
+1.5 
+
+2.0 
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) (g) ModernTCN 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+2.0 
+
+1.5 
+
+1.0 
+
+0.5 
+
+0.0 
+
+0.5 
+
+1.0 
+
+1.5 
+
+2.0 
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) (h) US-GAN 
+
+Figure 9: Difference between the power spectral densities (PSD) of the ground truth and predictions, with the black line representing the mean difference and the shaded area indicating one standard deviation, on Physionet with 10% missing data. 21 LSCD: Lomb–Scargle Conditioned Diffusion for Time series Imputation 0.0 
+
+2.5 
+
+5.0 
+
+7.5 
+
+10.0 
+
+12.5 
+
+15.0 
+
+> Density
+
+GT 
+
+Pred 
+
+0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.6 
+
+Lead Frequency 
+
+0
+
+1
+
+> Count
+
+×10 4
+
+(a) Ours (b) CSDI 0.0 
+
+2.5 
+
+5.0 
+
+7.5 
+
+10.0 
+
+12.5 
+
+15.0 
+
+> Density
+
+GT 
+
+Pred 
+
+0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.6 
+
+Lead Frequency 
+
+0
+
+1
+
+> Count
+
+×10 4 (c) SAITS 0.0 
+
+2.5 
+
+5.0 
+
+7.5 
+
+10.0 
+
+12.5 
+
+15.0 
+
+> Density
+
+GT 
+
+Pred 
+
+0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.6 
+
+Lead Frequency 
+
+0
+
+1
+
+> Count
+
+×10 4 (d) TimesNet 0.0 
+
+2.5 
+
+5.0 
+
+7.5 
+
+10.0 
+
+12.5 
+
+15.0 
+
+> Density
+
+GT 
+
+Pred 
+
+0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.6 
+
+Lead Frequency 
+
+0
+
+1
+
+> Count
+
+×10 4
+
+(e) BRITS 0.0 
+
+2.5 
+
+5.0 
+
+7.5 
+
+10.0 
+
+12.5 
+
+15.0 
+
+> Density
+
+GT 
+
+Pred 
+
+0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.6 
+
+Lead Frequency 
+
+0
+
+1
+
+> Count
+
+×10 4 (f) GP-VAE 0.0 
+
+2.5 
+
+5.0 
+
+7.5 
+
+10.0 
+
+12.5 
+
+15.0 
+
+> Density
+
+GT 
+
+Pred 
+
+0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.6 
+
+Lead Frequency 
+
+0
+
+1
+
+> Count
+
+×10 4 (g) ModernTCN 0.0 
+
+2.5 
+
+5.0 
+
+7.5 
+
+10.0 
+
+12.5 
+
+15.0 
+
+> Density
+
+GT 
+
+Pred 
+
+0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.6 
+
+Lead Frequency 
+
+0
+
+1
+
+> Count
+
+×10 4 (h) US-GAN 
+
+Figure 10: Distribution of leading frequency on Physio dataset with 50% missing data. 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+4
+
+3
+
+2
+
+1
+
+0
+
+1
+
+2
+
+3
+
+4
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) 
+
+(a) Ours (b) CSDI 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+4
+
+3
+
+2
+
+1
+
+0
+
+1
+
+2
+
+3
+
+4
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) (c) SAITS 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+4
+
+3
+
+2
+
+1
+
+0
+
+1
+
+2
+
+3
+
+4
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) (d) TimesNet 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+4
+
+3
+
+2
+
+1
+
+0
+
+1
+
+2
+
+3
+
+4
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) 
+
+(e) BRITS 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+4
+
+3
+
+2
+
+1
+
+0
+
+1
+
+2
+
+3
+
+4
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) (f) GP-VAE 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+4
+
+3
+
+2
+
+1
+
+0
+
+1
+
+2
+
+3
+
+4
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) (g) ModernTCN 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+4
+
+3
+
+2
+
+1
+
+0
+
+1
+
+2
+
+3
+
+4
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) (h) US-GAN 
+
+Figure 11: Difference between the power spectral densities (PSD) of the ground truth and predictions, with the black line representing the mean difference and the shaded area indicating one standard deviation, on Physionet with 50% missing data. 22 LSCD: Lomb–Scargle Conditioned Diffusion for Time series Imputation 0.0 
+
+2.5 
+
+5.0 
+
+7.5 
+
+10.0 
+
+12.5 
+
+15.0 
+
+> Density
+
+GT 
+
+Pred 
+
+0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.6 
+
+Lead Frequency 
+
+0
+
+1
+
+> Count
+
+×10 4
+
+(a) Ours (b) CSDI 0.0 
+
+2.5 
+
+5.0 
+
+7.5 
+
+10.0 
+
+12.5 
+
+15.0 
+
+> Density
+
+GT 
+
+Pred 
+
+0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.6 
+
+Lead Frequency 
+
+0
+
+1
+
+> Count
+
+×10 4 (c) SAITS 0.0 
+
+2.5 
+
+5.0 
+
+7.5 
+
+10.0 
+
+12.5 
+
+15.0 
+
+> Density
+
+GT 
+
+Pred 
+
+0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.6 
+
+Lead Frequency 
+
+0
+
+1
+
+> Count
+
+×10 4 (d) TimesNet 0.0 
+
+2.5 
+
+5.0 
+
+7.5 
+
+10.0 
+
+12.5 
+
+15.0 
+
+> Density
+
+GT 
+
+Pred 
+
+0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.6 
+
+Lead Frequency 
+
+0
+
+1
+
+> Count
+
+×10 4
+
+(e) BRITS 0.0 
+
+2.5 
+
+5.0 
+
+7.5 
+
+10.0 
+
+12.5 
+
+15.0 
+
+> Density
+
+GT 
+
+Pred 
+
+0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.6 
+
+Lead Frequency 
+
+0
+
+1
+
+> Count
+
+×10 4 (f) GP-VAE 0.0 
+
+2.5 
+
+5.0 
+
+7.5 
+
+10.0 
+
+12.5 
+
+15.0 
+
+> Density
+
+GT 
+
+Pred 
+
+0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.6 
+
+Lead Frequency 
+
+0
+
+1
+
+> Count
+
+×10 4 (g) ModernTCN 0.0 
+
+2.5 
+
+5.0 
+
+7.5 
+
+10.0 
+
+12.5 
+
+15.0 
+
+> Density
+
+GT 
+
+Pred 
+
+0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.6 
+
+Lead Frequency 
+
+0
+
+1
+
+> Count
+
+×10 4 (h) US-GAN 
+
+Figure 12: Distribution of leading frequency on Physio dataset with 90% missing data. 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+8
+
+6
+
+4
+
+2
+
+0
+
+2
+
+4
+
+6
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) 
+
+(a) Ours (b) CSDI 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+8
+
+6
+
+4
+
+2
+
+0
+
+2
+
+4
+
+6
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) (c) SAITS 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+8
+
+6
+
+4
+
+2
+
+0
+
+2
+
+4
+
+6
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) (d) TimesNet 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+8
+
+6
+
+4
+
+2
+
+0
+
+2
+
+4
+
+6
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) 
+
+(e) BRITS 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+8
+
+6
+
+4
+
+2
+
+0
+
+2
+
+4
+
+6
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) (f) GP-VAE 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+8
+
+6
+
+4
+
+2
+
+0
+
+2
+
+4
+
+6
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) (g) ModernTCN 0.0 0.1 0.2 0.3 0.4 0.5 
+
+Frequency 
+
+8
+
+6
+
+4
+
+2
+
+0
+
+2
+
+4
+
+6
+
+> PSD(GT) - PSD(Pred)
+
+PSD(GT) - PSD(Pred) (h) US-GAN 
+
+Figure 13: Difference between the power spectral densities (PSD) of the ground truth and predictions, with the black line representing the mean difference and the shaded area indicating one standard deviation, on Physionet with 90% missing data. 23 LSCD: Lomb–Scargle Conditioned Diffusion for Time series Imputation 
+
+H. Visualization of time distributions 
+
+H.1. PM25 dataset 0 100 200 300 400 
+
+Data value 
+
+0.0 
+
+0.5 
+
+1.0 
+
+1.5 
+
+2.0 
+
+2.5 
+
+> Count
+
+×10 3
+
+GT 
+
+Pred 
+
+(a) Ours 0 100 200 300 400 
+
+Data value 
+
+0.0 
+
+0.5 
+
+1.0 
+
+1.5 
+
+2.0 
+
+2.5 
+
+3.0 
+
+> Count
+
+×10 3
+
+GT 
+
+Pred (b) CSDI 0 100 200 300 400 
+
+Data value 
+
+0.0 
+
+0.5 
+
+1.0 
+
+1.5 
+
+2.0 
+
+2.5 
+
+> Count
+
+×10 3
+
+GT 
+
+Pred (c) SAITS 0 100 200 300 400 
+
+Data value 
+
+0.0 
+
+0.5 
+
+1.0 
+
+1.5 
+
+2.0 
+
+2.5 
+
+> Count
+
+×10 3
+
+GT 
+
+Pred (d) TimesNet 0 100 200 300 400 
+
+Data value 
+
+0.0 
+
+0.5 
+
+1.0 
+
+1.5 
+
+2.0 
+
+2.5 
+
+> Count
+
+×10 3
+
+GT 
+
+Pred 
+
+(e) BRITS 0 100 200 300 400 
+
+Data value 
+
+0.0 
+
+0.5 
+
+1.0 
+
+1.5 
+
+2.0 
+
+2.5 
+
+> Count
+
+×10 3
+
+GT 
+
+Pred (f) GP-VAE 0 100 200 300 400 
+
+Data value 
+
+0.0 
+
+0.5 
+
+1.0 
+
+1.5 
+
+2.0 
+
+2.5 
+
+> Count
+
+×10 3
+
+GT 
+
+Pred (g) ModernTCN 0 100 200 300 400 
+
+Data value 
+
+0.0 
+
+0.5 
+
+1.0 
+
+1.5 
+
+2.0 
+
+2.5 
+
+> Count
+
+×10 3
+
+GT 
+
+Pred (h) US-GAN 
+
+Figure 14: Distribution of imputed values across different models on PM25 dataset. 
+
+H.2. Physionet dataset 2 1 0 1 2
+
+Data value 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+1.0 
+
+1.2 
+
+1.4 
+
+> Count
+
+×10 3
+
+GT 
+
+Pred 
+
+(a) Ours (b) CSDI 2 1 0 1 2
+
+Data value 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+1.0 
+
+1.2 
+
+1.4 
+
+> Count
+
+×10 3
+
+GT 
+
+Pred (c) SAITS 2 1 0 1 2
+
+Data value 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+1.25 
+
+1.50 
+
+1.75 
+
+> Count
+
+×10 4
+
+GT 
+
+Pred (d) TimesNet 2 1 0 1 2
+
+Data value 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+1.0 
+
+1.2 
+
+1.4 
+
+1.6 
+
+> Count
+
+×10 3
+
+GT 
+
+Pred 
+
+(e) BRITS 2 1 0 1 2
+
+Data value 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+1.25 
+
+1.50 
+
+1.75 
+
+2.00 
+
+> Count
+
+×10 3
+
+GT 
+
+Pred (f) GP-VAE 2 1 0 1 2
+
+Data value 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+1.0 
+
+1.2 
+
+1.4 
+
+> Count
+
+×10 3
+
+GT 
+
+Pred (g) ModernTCN 2 1 0 1 2
+
+Data value 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+1.0 
+
+1.2 
+
+1.4 
+
+> Count
+
+×10 3
+
+GT 
+
+Pred (h) US-GAN 
+
+Figure 15: Distribution of imputed values across different models on on Physionet with 10% missing data. 24 LSCD: Lomb–Scargle Conditioned Diffusion for Time series Imputation 2 1 0 1 2
+
+Data value 
+
+> 0
+> 1
+> 2
+> 3
+> 4
+> 5
+> 6
+> 7
+> Count
+> ×10 3
+
+GT 
+
+Pred 
+
+(a) Ours (b) CSDI 2 1 0 1 2
+
+Data value 
+
+> 0
+> 1
+> 2
+> 3
+> 4
+> 5
+> 6
+> 7
+> 8
+> Count
+> ×10 3
+
+GT 
+
+Pred (c) SAITS 2 1 0 1 2
+
+Data value 
+
+> 0
+> 2
+> 4
+> 6
+> 8
+> Count
+> ×10 4
+
+GT 
+
+Pred (d) TimesNet 2 1 0 1 2
+
+Data value 
+
+> 0
+> 2
+> 4
+> 6
+> 8
+> Count
+> ×10 3
+
+GT 
+
+Pred 
+
+(e) BRITS 2 1 0 1 2
+
+Data value 
+
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> 1.2
+> 1.4
+> Count
+> ×10 4
+
+GT 
+
+Pred (f) GP-VAE 2 1 0 1 2
+
+Data value 
+
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> Count
+> ×10 4
+
+GT 
+
+Pred (g) ModernTCN 2 1 0 1 2
+
+Data value 
+
+> 0
+> 1
+> 2
+> 3
+> 4
+> 5
+> 6
+> 7
+> 8
+> Count
+> ×10 3
+
+GT 
+
+Pred (h) US-GAN 
+
+Figure 16: Distribution of imputed values across different models on on Physionet with 50% missing data. 2 1 0 1 2
+
+Data value 
+
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> 1.2
+> 1.4
+> Count
+> ×10 4
+
+GT 
+
+Pred 
+
+(a) Ours (b) CSDI 2 1 0 1 2
+
+Data value 
+
+> 0.0
+> 0.5
+> 1.0
+> 1.5
+> 2.0
+> 2.5
+> Count
+> ×10 4
+
+GT 
+
+Pred (c) SAITS 2 1 0 1 2
+
+Data value 
+
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> 1.2
+> Count
+> ×10 5
+
+GT 
+
+Pred (d) TimesNet 2 1 0 1 2
+
+Data value 
+
+> 0.0
+> 0.5
+> 1.0
+> 1.5
+> 2.0
+> 2.5
+> Count
+> ×10 4
+
+GT 
+
+Pred 
+
+(e) BRITS 2 1 0 1 2
+
+Data value 
+
+> 0
+> 1
+> 2
+> 3
+> 4
+> 5
+> Count
+> ×10 4
+
+GT 
+
+Pred (f) GP-VAE 2 1 0 1 2
+
+Data value 
+
+> 0
+> 1
+> 2
+> 3
+> 4
+> Count
+> ×10 4
+
+GT 
+
+Pred (g) ModernTCN 2 1 0 1 2
+
+Data value 
+
+> 0.0
+> 0.5
+> 1.0
+> 1.5
+> 2.0
+> Count
+> ×10 4
+
+GT 
+
+Pred (h) US-GAN 
+
+Figure 17: Distribution of imputed values across different models on on Physionet with 90% missing data. 25 LSCD: Lomb–Scargle Conditioned Diffusion for Time series Imputation 
+
+I. Visualization of imputed examples 
+
+(a) Ours (b) CSDI 
+
+(c) SAITS (d) TimesNet 
+
+Figure 18: Reconstruction results on PhysioNet with 10% missing data. 
+
+(a) Ours (b) CSDI 
+
+(c) SAITS (d) TimesNet 
+
+Figure 19: Reconstruction results on PhysioNet with 50% missing data. 
+
+(a) Ours (b) CSDI 
+
+(c) SAITS (d) TimesNet 
+
+Figure 20: Reconstruction results on PhysioNet with 90% missing data. 26

@@ -1,0 +1,1650 @@
+Title: Conditional Lagrangian Wasserstein Flow for Time Series Imputation
+
+URL Source: https://openreview.net/pdf?id=yK6yb16vRe
+
+Number of Pages: 20
+
+Markdown Content:
+000 001 002 003 004 005 006 007 008 009 010 011 012 013 014 015 016 017 018 019 020 021 022 023 024 025 026 027 028 029 030 031 032 033 034 035 036 037 038 039 040 041 042 043 044 045 046 047 048 049 050 051 052 053 054 
+
+# Conditional Lagrangian Wasserstein Flow for Time Series Imputation 
+
+Anonymous Authors 1
+
+# Abstract 
+
+Time series imputation is important for numer-ous real-world applications. To overcome the limitations of diffusion model-based imputation methods, e.g., slow convergence in inference, we propose a novel method for time series imputa-tion in this work, called Conditional Lagrangian Wasserstein Flow (CLWF). Following the prin-ciple of least action in Lagrangian mechanics, we learn the velocity by minimizing the corre-sponding kinetic energy. Moreover, to enhance the model’s performance, we estimate the gra-dient of a task-specific potential function using a time-dependent denoising autoencoder and in-tegrate it into the base estimator to reduce the sampling variance. Finally, the proposed method demonstrates competitive performance compared to other state-of-the-art imputation approaches. 
+
+# 1. Introduction 
+
+Time series imputation is essential for various practical sce-narios in many fields, such as transportation, environment, and medical care, etc. Deep learning-based approaches, such as RNNs, VAEs, and GANs, have been proved to be advantageous compared to traditional machine learning methods on various complex real-world multivariate time series analysis tasks (Fortuin et al., 2020). More recently, diffusion models, such as denoising diffusion probabilistic models (DDPMs) (Ho et al., 2020) and score-based genera-tive models (SBGMs) (Song et al., 2020), have gained more and more attention in the field of time series analysis due to their powerful modelling capability (Lin et al., 2023; Meijer & Chen, 2024). Although many diffusion model-based time series imputa-tion approaches have been proposed and show their ad-vantages compared to conventional deep learning mod-els (Tashiro et al., 2021; Chen et al., 2021; 2023), they are 
+
+> 1Anonymous Institution, Anonymous City, Anonymous Region, Anonymous Country. Correspondence to: Anonymous Author
+> <anon.email@domain.com >.Preliminary work. Under review by the International Conference on Machine Learning (ICML). Do not distribute.
+
+limited to slow convergence or large computational costs. Such limitations may prevent them being applied to real-world applications. To address the aforementioned issues, in this work, we leverage the optimal transport theory (Vil-lani et al., 2009) and Lagrangian mechanics (Arnol’d, 2013) to propose a novel method, called Conditional Lagrangian Wasserstein Flow (CLWF), for fast and accurate time series imputation. In our method, we treat the multivariate time series im-putation task as a conditional optimal transport problem, whereby the random noise is the source distribution, the missing data is the target distribution, and the observed data is the conditional information. To generate new data sam-ples efficiently and accurately, we need to find the shortest path in the probability space according to the optimal trans-port theory. To this end, we first project the original source and target distributions into the Wasserstein space via sam-pling mini-batch OT maps. Afterwards, we construct the time-dependent intermediate samples through interpolating the source distribution and target distribution. Then accord-ing to the principle of least action in Lagrangian mechan-ics (Arnol’d, 2013), the optimal velocity function moving the source distribution to the target distribution is learned in a self-supervised manner by minimizing the corresponding kinetic energy. We can solve the model efficiently using flow matching in a simulation-free manner (Lipman et al., 2022; Liu et al., 2022; Albergo & Vanden-Eijnden, 2023; Tong et al., 2023). To further improve the model’s performance, we leverage the denoising affect of the time-dependent denoising autoen-coder (TDAE) model which is trained on the observed time series data to estimate the gradient of task-specific potential function. By doing so, combined with the aforementioned flow model, we can formulate a new path sampler to reduce the sampling variances. Furthermore, we can interpret the gradient of the potential function as the control signal from the perspective of stochastic optimal control (SOC) in data generation (Bellman, 1966; Chen et al., 2021; Caluya & Halder, 2021; Berner et al., 2024), Consequently, the sam-pling procedure can be viewed as a controlled path integral (Zhang & Chen, 2022). We also explain the variance re-duction effect of the new sampler using the Rao-Blackwell theorem (Casella & Robert, 1996). Moreover, we propose a resampling technique using the interpolated conditional 1055 056 057 058 059 060 061 062 063 064 065 066 067 068 069 070 071 072 073 074 075 076 077 078 079 080 081 082 083 084 085 086 087 088 089 090 091 092 093 094 095 096 097 098 099 100 101 102 103 104 105 106 107 108 109 
+
+> Conditional Lagrangian Wasserstein Flow
+
+samples to enhance the model’s imputation performance. Finally, CLWF is assessed on three real-word and one syn-thetic time series datasets for validation. The results ob-tained show that the proposed method achieves competitive performance and admits faster convergence compared with other state-of-the-art time series imputation methods. The contributions of the paper are summarized as follows: • We present Conditional Lagrangian Wasserstein Flow, a novel conditional generative framework based on the optimal transport theory and Lagrangian mechanics; • We develop the efficient training and inference algo-rithms to solve the time series imputation problem; • We establish theoretical links between optimal trans-port, stochastic optimal control and path measures; • We demonstrate that the proposed method has achieved competitive performance on time series imputation tasks compared to other state-of-the-art methods. 
+
+# 2. Preliminaries 
+
+In this section, we will succinctly introduce the fundamen-tals of stochastic differential equations, optimal transport, Shr¨ odinger Bridge, and Lagrangian mechanics. 
+
+2.1. Stochastic Differential Equations 
+
+We treat the data generation task as an initial value prob-lem (IVP), in which X0 ∈ Rd is the initial data (e.g., some random noise) at the initial time t = 0 , and XT ∈ Rd is target data at the terminal time t = T . To solve the IVP, we consider a stochastic differential equation (SDE) de-fined by a Borel measurable time-dependent drift function 
+
+μt : Rd × [0 , T ] → Rd, and a positive Borel measurable time-dependent diffusion function σt : [0 , T ] → Rd>0. Ac-cordingly, the It ˆo form of the SDE can be described as follows (Oksendal, 2013): 
+
+dXt = μt(Xt, t )d t + σt(t)d Wt, (1) where Wt is a Brownian motion/Wiener process. Note that when the diffusion term is not considered, the SDE degen-erates to an ordinary differential equation (ODE), which is typically easier to solve numerically. Nonetheless, we will use the SDE for theoretical analysis throughout the pa-per, as it provides a more general framework. Accordingly, The above SDE’s associated forward Fokker-Planck Kol-mogorov (FPK) equatio (Risken & Frank, 2012) describing the evolution of the marginal density pt(Xt) reads 
+
+∂p t
+
+∂t + ∇ · (ptμt) = ⟨D(t), ∇2(pt)⟩, (2) where D(t) := 12 σ⊤(t)σ(t), ∇2 represents the Hessian operator, and ⟨· , ·⟩ := trace (·⊤, ·) represents the Frobenius inner product. In fact, both Eq. (1) and Eq. (2) reveal the system’s dynam-ics and act as the boundary conditions for the optimization problems introduced in later sections, each with a different focus. When the constraint is given by Eq. (1) , the formal-ism is Lagrangian, depicting the movement of each indi-vidual particle. In contrast, when the constraint is Eq. (2) ,the formalism is Eulerian, representing the evolution of the population as a whole. 
+
+2.2. Optimal Transport 
+
+The optimal transport (OT) problem aims to find the optimal transport plans/maps that move the source distribution to the target distribution (Villani et al., 2009; Santambrogio, 2015; Peyr ´e et al., 2019). In the Kantorovich’s formulation of the OT problem, the transport costs are minimized with respect to some probabilistic couplings/joint distributions (Villani et al., 2009; Santambrogio, 2015; Peyr ´e et al., 2019). Let p0 and pT be two Borel probability measures with finite second moments on the space Ω ∈ Rd. Π( p0, p T ) denotes a set of transport plans between these two marginals. Then, the Kantorovich’s OT problem is defined as follows: 
+
+inf  
+
+> π∈Π( p0,p T)
+
+Z
+
+> X ×Y
+
+12 ∥x − y∥2π(x, y )d xdy, (3) where Π( p0, p T ) = π ∈ P (X × Y ) : ( πx)#π = p0, (πy )#π = pT ,with πx and πy being two projections of X × Y on Ω. The minimizer of Eq. (3) , π∗, always exists and is referred to as the OT plan. Note that Eq. (3) can also include an entropy regularization term, the Kullback–Leibler (KL) divergence DKL (π∥p0 ⊗ pT ).This transforms the original OT problem into the entropy-regularized optimal transport (EROT) problem with Eq. (2) serving as the constraint, which frames the transport problem better in terms of convexity and stability (Cuturi, 2013). In particular, from a data generation perspective, 
+
+p0 is some random initial noise and pT is the target data distribution, and we can sample the corresponding OT plan in a mini-batch manner (Tong et al., 2023; 2024; Pooladian et al., 2023). 
+
+2.3. Shr¨ odinger Bridge 
+
+The transport problem in Sec. 2.2 can be further viewed from a distribution evolution perspective, which is particularly suitable for developing the flow-based models that model data generation process. For this reason, the Shr ¨odinger Bridge (SB) problem is introduced herein (L ´eonard, 2012). Assume that Ω ∈ C1(Rd × [0 , T ]) , P(Ω) is a probability path measure on the path space Ω, then the goal of the SB 2110 111 112 113 114 115 116 117 118 119 120 121 122 123 124 125 126 127 128 129 130 131 132 133 134 135 136 137 138 139 140 141 142 143 144 145 146 147 148 149 150 151 152 153 154 155 156 157 158 159 160 161 162 163 164 
+
+> Conditional Lagrangian Wasserstein Flow
+
+problem is to find the following optimal path measure: 
+
+P∗ = arg min 
+
+> P∈P (Ω)
+
+DKL (P∥Q),
+
+subject to P0 = q0 and PT = qT ,
+
+(4) where DKL (P∥Q) = 
+
+(log 
+
+ dP
+
+> dQ
+
+
+
+dP, if P ≪ Q,
+
++∞, otherwise , and Q is a reference path measure, e.g., Brownian motion or Ornstein-Uhlenbeck process. Moreover, the distribution matching problem in Eq. (3) can be reframed as a dynamical SB problem as well (Gushchin et al., 2024; Koshizuka & Sato, 2023; Liu et al., 2024): 
+
+arg min  
+
+> θ
+
+Ep(Xt)
+
+h 12 μθt (Xt, t ) 2i
+
+,
+
+subject to Eq. (1) or Eq. (2) ,
+
+(5) where θ is the parameters of the variational drift function 
+
+μt.
+
+2.4. Lagrangian Mechanics 
+
+In this section, we formulate the data generation problem within the framework of Lagrangian mechanics (Arnol’d, 2013). Let pt and ˙pt := d pt/dt be the density and law of the generalized coordinates Xt, respectively. Denoting the kinetic energy as K(pt, ˙pt, t ) and the potential energy as 
+
+U(pt, t ), then the corresponding Lagrangian is given by 
+
+L(pt, ˙pt, t ) = K(pt, ˙pt, t ) − U (pt). (6) Further, we assume that Eq. (6) is lower semi-continuous (lsc) and strictly convex in ˙pt in the Wasserstein space. Con-sequently, K(xt, μ t, t ) and U(pt, t ) are defined as follows, respectively: 
+
+K(xt, μ t, t ) := Ept(xt)
+
+" Z T
+
+> 0
+
+12 ∥μt(xt, t )∥2dt
+
+#
+
+, (7) 
+
+U(pt, t ) := 
+
+Z
+
+> Rd
+
+Vt(xt)pt(xt)dx t, (8) where Vt(Xt) is the potential function. Then the action in the context of Lagrangian mechanics is defined as follows: 
+
+A(μt(xst)) := 
+
+Z T
+
+> 0
+
+Z
+
+> Rd
+
+L(xt, μ t, t )dx tdt. (9) According to the principle of least action (Feynman, 2005), the shortest path is the one minimizing the action, which is aligned with Eq. (4) in the SB theory as well. There-fore, we can leverage the Lagrangian dynamics to tackle the OT problem for data generation. Moreover, to solve Eq. (6) , the corresponding stationary condition, i.e., the Euler-Lagrangian equation (Arnol’d, 2013), needs to be satisfied: 
+
+ddt ∂∂ ˙pt
+
+L(xt, μ t, t ) = ∂∂p t
+
+L(pt, ˙pt, t ), (10) with the boundary conditions: dXt 
+
+> dt
+
+= μt, p0 = q0, and 
+
+pT = qT .
+
+# 3. Conditional Lagrangian Wasserstein Flow for Time Series Imputation 
+
+In this section, building on the theory introduced in Sec. 2, we propose Conditional Lagrangian Wasserstein Flow, a novel conditional generative method for time series imputa-tion. 
+
+3.1. Time Series Imputation 
+
+Our goal is to impute the missing time series data points based on the observations. To this end, we adopt a condi-tionally generative approach for time series imputation in the sample space RK×L, where K represents the dimension of the multivariate time series and L represents sequence length. In our self-supervised learning approach, the to-tal observed data xobs ∈ RK×L are partitioned into the imputation target xtar := xobs ⊙ M tar and the condition 
+
+xcond := xobs ⊙ M cond , where ⊙ denotes the Hadamard product, M cond ∈ RK×L and M tar ∈ RK×L are the con-dition and target masks, respectively. Consequently, the missing data points xtar can be gener-ated based on the conditions xcond joint with some un-informative initial distribution x0 ∈ RK×L (e.g., Gaus-sian noise) at the initial time t = 0 . Thereby, the imputa-tion task can be described as: xtar ∼ p(xtar |xin 0 ), where 
+
+xin 0 := Concatenate( xcond , x 0) ∈ RK×L×2 is the the total input of the model. 
+
+3.2. Interpolation in Wasserstein Space 
+
+To solve Eq. (7) , we need to sample the intermediate variable 
+
+Xt in the Wasserstein space first. To do so, the interpolation method is adopted to construct the intermediate samples (Liu et al., 2022; Albergo & Vanden-Eijnden, 2023; Tong et al., 2024). According to the OT and SB problems intro-duced in Sec. 2, we define the following time-differentiable interpolant: 
+
+It : Γ × Γ → Γ such that I0 = X0 and IT = XT , (11) where Γ ∈ Rd is the support of the marginals p0(X0) and 
+
+pT (XT ), as well as the conditional p(Xt|X0, X T , t ).To implement Eq. (11) , we first independently sample some random noise X0 ∼ N (0 , σ 20 ) at the initial time t = 0 and the data samples XT ∼ p(xtar ) at the terminal time t = T ,3165 166 167 168 169 170 171 172 173 174 175 176 177 178 179 180 181 182 183 184 185 186 187 188 189 190 191 192 193 194 195 196 197 198 199 200 201 202 203 204 205 206 207 208 209 210 211 212 213 214 215 216 217 218 219 
+
+> Conditional Lagrangian Wasserstein Flow
+
+respectively. Afterwards, the interpolation method is used to construct the intermediate samples Xt ∼ p(Xt|X0, X T , t ),where t ∼ Uniform(0 , T ). More specifically, we design the following sampling approach: 
+
+Xt = tT (XT + γt) + (1 − tT )X0
+
++ α(t)
+
+r t(T − t)
+
+T ϵ, t ∈ [0 , T ], (12) where γt ∼ N (0 , σ 2 
+
+> γ
+
+) is some random noise with vari-ance σγ injected to the target data samples to improve the coupling’s generalization property, α(t) ≥ 0 is a time-dependent scalar, and ϵ ∼ N (0 , I).Note that Eq. (12) can only allow us to generate time-dependent intermediate samples in the Euclidean space but not the Wasserstein space, which can lead to slow conver-gence as the sampling paths are not straightened. Hence, to address this issue, we can project the samples XT and X0
+
+in the Wasserstein space before interpolating to strengthen the probability flow. To this end, we leverage the method adopted in (Tong et al., 2023; 2024; Pooladian et al., 2023) to sample the optimal mini-batch OT maps between X0
+
+and XT first, and perform the interpolations according to Eq. (12) afterwards. Finally, we have the joint variable 
+
+xin  
+
+> t
+
+:= ( xcond , x t) as the input for computing the velocity of the Wasserstein flow. 
+
+3.3. Velocity Estimation via Flow Matching 
+
+To estimate the velocity of the Wasserstein flow μt(Xt, t )
+
+in Eq. (1) , the previous methods that require trajectory sim-ulation for training can result in long convergence time and large computational costs (Chen et al., 2018; Onken et al., 2021). To circumvent the above issue, in this work we adopt a simulation-free learnning strategy based on the OT theory introduce in Sec. 2.2 (Liu et al., 2022; Tong et al., 2023; Albergo & Vanden-Eijnden, 2023), which turns out to be faster and more scalable to large time series datasets. By drawing mini-batch interpolated samples of the source distribution and target distribution in the Wasserstein space using Eq. (12) , we can now model the variational velocity function via a neural network parameterized by θ. Then, according to Eq. (1) , the target velocity can be computed as the difference between the source distribution and target distribution. Therefore, the variational velocity function 
+
+μθ (xin  
+
+> t
+
+, t ) can be learned trough 
+
+arg min 
+
+> θ
+
+Z T
+
+> 0
+
+Z
+
+> R
+
+dXt
+
+dt − μθt (xt, t )
+
+> 22
+
+dxtdt (13) 
+
+≈ arg min  
+
+> θ
+
+E
+
+"
+
+xtar  
+
+> t
+
+− x0
+
+T − μθt (xin  
+
+> t
+
+, t )
+
+> 22
+
+#
+
+. (14) Since Eq. (14) can be solved by drawing mini-batch samples in the Wasserstein space and performing stochastic gradi-ent descent accordingly, the learning process operates in a simulation-free manner. Moreover, note that Eq. (13) also obeys the principle of least action introduced in Sec. 2.4 as it minimizes the kinetic energy described in Eq. (7) . Therefore, this also indicates that the geodesic that drives the particles from the source distribution to the target distribution in the OT problem described in Sec. 2 is identified, which, as a result, allows us to generate new samples with fewer simulation steps compared to standard diffusion models. 
+
+3.4. Gradient of Potential Function 
+
+So far, we have demonstrated how to leverage the kinetic energy to estimate the velocity in the Lagrangian described by Eq. (6) . Apart from this, we can also incorporate the prior knowledge within the task-specific potential energy into the dynamics, which enables us to further improve the data generation performance. To this end, we let Ut(Xt) : Rd ×
+
+[0 , T ] → R be the task-specific potential function depending on the generalized coordinates Xt (Yang & Karniadakis, 2020; Onken et al., 2021; Neklyudov et al., 2023b), and the dynamics (here, we assume that the particle is solely driven by the drift) of the system vt(Xt, t ) yields dXt
+
+dt = vt(Xt, t ) = −∇ xUt(Xt). (15) Moreover, since the data generation problem in our case can also be interpreted as a stochastic optimal control (SOC) problem (Bellman, 1966; Fleming & Rishel, 2012; N ¨usken & Richter, 2021; Zhang & Chen, 2022; Holdijk et al., 2023; Berner et al., 2024), the existence of such Ut(Xt) is guar-anteed by Pontryagin’s Maximum Principle (PMP) (Evans, 2024). Please refer to Appendix B for further details. To estimate vt(Xt, t ), according to the Lagrangian in Eq. (6) , we assume that the potential function takes the form 
+
+Ut(Xt) ≈ − log N (Xt| bXt, σ 2 
+
+> p
+
+), where bXt the estimated mean and σ2 
+
+> p
+
+is the pre-defined variance. As a result, the corresponding derivative is ∇xUt(Xt) = Xt− bXt
+
+> σ2
+> p
+
+. In terms of practical implementation, we parameterize ∇xU (Xt) via a time-dependent denoising autoencoder (TDAE). More specifically, we either pre-train or jointly train the TDAE on the intermediate time series data samples Xt generated by Eq. (12) . The input is perturbed with noise, while the reconstruction target remains clean, to achieve the denois-ing effect. Afterwards, the reconstruction discrepancies of the TDAE are used to approximate the variational vϕt (Xt, t )
+
+parametrized by ϕ depending on the predicted Xt:
+
+vϕt (Xt, t ) = − sσ2
+
+> p
+
+ Xt − TDAE( Xt), (16) where TDAE( Xt) represents the reconstruction of the TAVE model with input Xt, s := s0t(T − t)/T with s0
+
+4220 221 222 223 224 225 226 227 228 229 230 231 232 233 234 235 236 237 238 239 240 241 242 243 244 245 246 247 248 249 250 251 252 253 254 255 256 257 258 259 260 261 262 263 264 265 266 267 268 269 270 271 272 273 274 
+
+> Conditional Lagrangian Wasserstein Flow Observed data
+> Target data
+> Initial noise
+> Intermediate samples
+> Joint input
+> Conditional data
+> Target velocity
+> Flow
+> matching
+> loss
+> TDAE model
+> Flow model
+
+xt
+
+xt
+
+x0
+
+x0
+
+> Potential
+> function
+
+xt
+
+xobs 
+
+xobs 
+
+xcond 
+
+xcond 
+
+xt
+
+xt
+
+dX t / dt 
+
+xtar 
+
+Figure 1: The overall training process of Conditional Lagrangian Wasserstein Flow. being a positive scalar, and σ2 
+
+> p
+
+is treated as a positive con-stant for simplicity. In this manner, we can incorporate the prior knowledge learned from the accessible training data into the sampling procedure established via Eq. (14) to enhance the data gen-eration performance. 
+
+3.5. Resampling Trick 
+
+Note that during inference, the model will generate the new data whose region encompasses both xtar  
+
+> t
+
+and xcond  
+
+> t
+
+, as the new input for next function evaluation iteration. How-ever, from the problem defined in Sec. 3.1, xcond  
+
+> t
+
+can be computed accurately by interpolating the condition and the initial noise via Eq. (12) . Therefore, we propose the follow-ing resampling trick to update the generated intermediate samples ˆxt at time t by stitching the observed data region with the generated data region: 
+
+ˆxt =
+
+ tT xobs + (1 − tT )x0
+
+
+
+⊙ M cond + xgen  
+
+> t
+
+⊙ M tar ,
+
+(17) where xgen  
+
+> t
+
+denotes the generated intermediate data samples. The visualization of the proposed resampling trick can be found in Appendix D. 
+
+3.6. The Algorithms 
+
+We now present the proposed training and inference algo-rithms. In the training procedure, we minimize the flowing matching loss to learn the variational velocity function μθt
+
+using the interpolation method. To estimate the variational drift function vϕt , we can calculate the gradient of poten-tial function using the TDVE model. The overall training process of our method is shown in Fig. 1. In the inference procedure, we use the ODE sampler con-structed by μθt to perform the path integral. Moreover, if 
+
+Algorithm 1 Training procedure 
+
+Require: Terminal time: T , max epoch, observed data 
+
+Xobs , parameters: θ and ϕ.
+
+while epoch < max epoch do 
+
+sample t, (x0, x T )
+
+if OT then 
+
+sample the mini-batch OT maps; 
+
+end if 
+
+sample xt according to Eq. (12); minimize the loss function Eq. (14); 
+
+end while if Rao-Blackwellization then 
+
+train a TDAE model using Xobs and X0.
+
+end if 
+
+we want to further reduce the sampling variances, we can use the drift function vϕt to formulate a new sampler. In addition, we can also choose to use the resampling trick to enhance the data generation performance. Finally, the detailed training and inference procedures are summarized in Algorithms 1 and 2, respectively. 
+
+3.7. Discussion 
+
+Here, we shed some light on the proposed method’s con-nection to stochastic optimal control, path measures, and Rao-Blackwellization. 
+
+Stochastic optimal control. We first following the prin-ciple of least action in Lagrangian mechanics and optimal transport theory to compute the velocity function μt by minimizing the corresponding kinetic energy. To further improve the data generation performance, we leverage the marginal log density-based potential function to construct the drift function vt. According to the stochastic optimal control theory, it suggests that vt in fact can act as the opti-5275 276 277 278 279 280 281 282 283 284 285 286 287 288 289 290 291 292 293 294 295 296 297 298 299 300 301 302 303 304 305 306 307 308 309 310 311 312 313 314 315 316 317 318 319 320 321 322 323 324 325 326 327 328 329 
+
+> Conditional Lagrangian Wasserstein Flow
+
+Algorithm 2 Sampling procedure 
+
+Require: Step number: N , step size: hL,sample initial noise x0 ∼ N (0 , σ 20 ), conditional informa-tion xcond .
+
+while t < N do 
+
+xin  
+
+> t
+
+= Concatenate( xcond , ˆxt)ˆxt+1 = ˆ xt + μθt (xin  
+
+> t
+
+, t ) TN
+
+if Rao-Blackwellization then 
+
+ˆxt+1 = ˆ xt+1 + vϕt (xpred  
+
+> t+1
+
+, t ) TN
+
+end if if Resampling then 
+
+ˆxt+1 =
+
+ (t+1) TN xcond +  T − (t+1) TN
+
+x0
+
+
+
+⊙
+
+M cond + ˆ xt+1 ⊙ M tar 
+
+end if 
+
+t = t + 1 
+
+end while 
+
+mal control signal if we consider the data generation process as a controlled SDE. Moreover, the optimal control signal can be attained by solving the corresponding HJB equation using the Hopf-Cole transformation (Evans, 2022) and the FB-SDE theory Anderson (1982); Song et al. (2020). Please refer to Appendix B for the detailed discussion. 
+
+Path measures. We can now establish the path integral sam-pler by leveraging the Random-Nikon derivative between the uncontrolled and controlled path measures obtained by the Girsanov theorem (Liptser & Shiryaev, 2013), and ob-tain the corresponding KL divergence as well. Moreover, we can also derive the ELBO for the marginal density p(t)
+
+by solving the associated Fokker-Planck equation using the Feynman-Kac formula (Karatzas & Shreve, 2014). Further details can be found in Appendices B.4 and B.5, respec-tively. 
+
+Rao-Blackwellization. If we let the sampler constructed by 
+
+μt be the based sampler and the sampler constructed by vt
+
+the sufficient statistic, it can be seen that the new sampler can, according to the Rao-Blackwell theorem (Casella & Robert, 1996), improve the data generation performance by reducing the sampling variances. The relevant theoretical details can be found in Appendix C. 
+
+# 4. Experiments 
+
+In the section, we present the numerical results to demon-strate the effectiveness of our approach. 
+
+4.1. Datasets 
+
+We use one synthetic dataset and three public multivariate time series datasets for validation. 
+
+1) Synthetic dataset was generated by the function: x =
+
+t sin(10 t + 2 πϵ ), where ϵ ∼ N (0 , I) and t ∈ [0 , 1] with step size of 0.01 . The batch size is 200 , the total number of data points is 20 , 000 , the missing rate of the raw data is 80% . 40% , 60% , and 80% of the datapoints are masked randomly as the imputation targets, denoted as Synthetic 0.4, Synthetic 0.6 and Synthetic 0.8, respectively. 
+
+2) PM 2.5 dataset (Zheng et al., 2013) was collected from the air quality monitoring sites for 12 months. The missing rate of the raw data is 13% . The feature number K is 36 and the sequence length L is 36 . In our experiments, only the observed datapoints are masked randomly as the imputation targets. 
+
+3) PhysioNet dataset (Silva et al., 2012) was collected from the intensive care unit for 48 hours. The feature number 
+
+K is 35 and the sequence length L is 48 . The missing rate of the raw data is 80% . 10% and 50% of the datapoints are masked randomly as the imputation targets, denoted as PhysioNet 0.1 and PhysioNet 0.5, respectively. 
+
+4) ETTh1 dataset (Zhou et al., 2021) was collected from the electric power indicators for 2 years. The feature number K
+
+is 24 and the sequence length L is 96 . 25% , 37 .5% , and 50% 
+
+of the datapoints are masked randomly as the imputation targets, denoted as ETTh1 0.25, ETTh1 0.375 and ETTh1 0.5, respectively. 
+
+4.2. Baselines 
+
+For comparison, we select the following state-of-the-art timer series imputation methods as the baselines: 1) GP-VAE (Fortuin et al., 2020), which incorporates the Gaussian Process prior into a VAE model; 2) CSDI (Tashiro et al., 2021), which is based on the conditional diffusion model; 3) CSBI (Chen et al., 2023), which adopts the Schr ¨odinger Bridge diffusion framework; 4) DSPD-GP (Bilo ˇs et al., 2023), which combines the diffusion model with the Gaus-sian Process prior; 5) DLinear (Zeng et al., 2023), which utilizes the moving average kernel for decomposition; 6) LightTS (Zhang et al., 2022), which captures the temporal patterns by continuous and interval sampling; 7) Etsformer (Woo et al., 2022), which proposes to use the exponential smoothing attention and the frequency attention; 8) Times-Net (Wu et al., 2023), which extracts the complex temporal information from the transformed 2D tensors. 
+
+4.3. Experimental Settings 
+
+In terms of architecture choice, both the flow model and the TDAE model are built upon Transformers (Tashiro et al., 2021). We use the ODE sampler for inference and sam-ple the exact optimal transport maps for interpolations to achieve the optimal performance. The optimizer is Adam and the learning rate: 0.001 with linear scheduler. The maximum training epochs is 200 . The mini batch size for 6330 331 332 333 334 335 336 337 338 339 340 341 342 343 344 345 346 347 348 349 350 351 352 353 354 355 356 357 358 359 360 361 362 363 364 365 366 367 368 369 370 371 372 373 374 375 376 377 378 379 380 381 382 383 384 
+
+Conditional Lagrangian Wasserstein Flow 0.0 0.2 0.4 0.6 0.8 1.0 
+
+> Time
+> 0.75
+> 0.50
+> 0.25
+> 0.00
+> 0.25
+> 0.50
+> 0.75
+> 1.00
+> Value
+> Condition
+> Imputation
+> Ground truth
+
+(a) Synthetic 0.4. 0.0 0.2 0.4 0.6 0.8 1.0  
+
+> Time
+> 0.8
+> 0.6
+> 0.4
+> 0.2
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> Value
+> Condition
+> Imputation
+> Ground truth
+
+(b) Synthetic 0.6. 0.0 0.2 0.4 0.6 0.8 1.0  
+
+> Time
+> 1.00
+> 0.75
+> 0.50
+> 0.25
+> 0.00
+> 0.25
+> 0.50
+> 0.75
+> Value
+> Condition
+> Imputation
+> Ground truth
+
+(c) Synthetic 0.8. 
+
+Figure 2: Visualization of the test imputation results on the synthetic data, green dots are the conditions, blue dots are the imputation results, and red dots are the ground truth. training is 64 . The total step number of the Euler method used in CLWF is 15 , while the total step numbers for other diffusion models. i.e., CSDI, CSBI, and DSPD-GP are 50 ,as suggested in their papers. The number of the Monte Carlo samples for inference is 20 . The standard deviation σ0 for the initial noise X0 is 0.1, and the standard deviation σγ
+
+for the injected noise γt is 0.001 . The coefficient σ2 
+
+> p
+
+in the gradient of the potential function is 0.01 .
+
+4.4. Overall Imputation Results 
+
+Tables 1 and 2 show the overall test imputation results on PM 2.5, PhysioNet, and Etth1, respectively. And the re-sults demonstrate that CLWF achieves competitive perfor-mance compared with the state-of-the-art methods in terms of RMSE and MAE. Note that CLWF requires less simulation steps ( 15 ) and sam-pled paths ( 20 ) to obtain high-quality data samples, which suggests that CLWF is faster and less computational expen-sive, compared to other existing diffusion-based time series imputation models, such as CSDI, CSBI, and DSPD. Table 1: Test imputation results on PM 2.5, PhysioNet 0.1, and PhysioNet 0.5 ( 5-trial averages). The best are in bold and the second best are underlined. Method PM 2.5 PhysioNet 0.1 PhysioNet 0.5 RMSE MAE RMSE MAE RMSE MAE GP-VAE 43 .1 26 .4 0.73 0.42 0.76 0.47 
+
+CSDI 19 .3 9.86 0.57 0.24 0.65 0.32 
+
+CSBI 19 .0 9.80 0.55 0.23 0.63 0.63 0.63 0.31 
+
+DSPD-GP 18 .3 9.70 9.70 9.70 0.54 0.22 0.22 0.22 0.68 0.30 
+
+CLWF 18 .118 .118 .1 9.70 9.70 9.70 0.47 0.47 0.47 0.22 0.22 0.22 0.64 0.29 0.29 0.29 
+
+4.5. Ablation Study 
+
+To further demonstrate the effectiveness of our proposed method, we conduct the following ablation study experi-ments. Table 2: Test imputation results on ETT-h1( 5-trial averages). The best are in bold and the second best are underlined. Method ETT-h1 0.25 ETT-h1 0.375 ETT-h1 0.5 RMSE MAE RMSE MAE RMSE MAE DLinear 0.541 0.402 0.577 0.404 0.506 0.347 
+
+LightTS 0.469 0.347 0.544 0.382 0.463 0.318 
+
+Etsformer 0.411 0.304 0.514 0.364 0.424 0.292 
+
+TimesNet 0.262 0.178 0.289 0.196 0.319 0.319 0.319 0.215 
+
+CLWF 0.197 0.197 0.197 0.128 0.128 0.128 0.263 0.263 0.263 0.171 0.171 0.171 0.323 0.205 0.205 0.205 
+
+1) Single-path-sample Results. We compare the test impu-tation results of CLWF and CSDI by only using one path samples. From the results shown in Table 3, it can be seen that CLWF can achieve relatively good imputation results by only using one single Monte Carlo path integral sample, which indicates that CLWF has smaller sampling variances. Table 3: Single-sample test imputation results on PM 2.5, PhysioNet 0.1, and PhysioNet 0.5 ( 5-trial averages). Method PM 2.5 PhysioNet 0.1 PhysioNet 0.5 RMSE MAE RMSE MAE RMSE MAE CSDI 22 .2 11 .7 0.74 0.30 0.83 0.40 
+
+CLWF 18 .418 .418 .4 10 .010 .010 .0 0.48 0.48 0.48 0.22 0.22 0.22 0.64 0.64 0.64 0.30 0.30 0.30 
+
+2) Numbers of Diffusion Steps. We compare the test impu-tation results of CLWF and CSDI using varying numbers of diffusion steps From the results shown in Table 4, we can see that CLWF has better imputation performance using less simulation steps for inference compared with CSDI, which implies that CLWF has faster convergence during inference. 
+
+3) Effect of Rao-Blackwellization. We compare the test imputation results of CLWF with and without using the Rao-Blackwellzation, referred to as Base and RB, respec-tively. From the results shown in Table 5, it can be seen that the new sampler can further improve the time series imputation performance of the base sampler by reducing 7385 386 387 388 389 390 391 392 393 394 395 396 397 398 399 400 401 402 403 404 405 406 407 408 409 410 411 412 413 414 415 416 417 418 419 420 421 422 423 424 425 426 427 428 429 430 431 432 433 434 435 436 437 438 439 
+
+> Conditional Lagrangian Wasserstein Flow
+
+Table 4: Test imputation results on PhysioNet 0.1 with different simulation steps ( 5 trials). Method 5 steps 10 steps 15 steps 20 steps RMSE MAE RMSE MAE RMSE MAE RMSE MAE CSDI 0.60 0.22 0.58 0.22 0.57 0.22 0.56 0.22         
+
+> CLWF 0.48 0.48 0.48 0.22 0.22 0.22 0.47 0.47 0.47 0.22 0.22 0.22 0.47 0.47 0.47 0.22 0.22 0.22 0.48 0.48 0.48 0.22 0.22 0.22
+
+Table 5: Ablation study imputation results on Rao-Blackwellization ( 5-trial averages). Method PM 2.5 PhysioNet 0.1 PhysioNet 0.5 RMSE MAE RMSE MAE RMSE MAE Base 18 .27 9.76 0.4802 0.2221 0.2221 0.2221 0.6476 0.2991 0.2991 0.2991                           
+
+> RB 18 .08 18 .08 18 .08 9.71 9.71 9.71 0.4785 0.4785 0.4785 0.2250 0.6466 0.6466 0.6466 0.3003
+> Method ETT-h1 0.25 ETT-h1 0.375 ETT-h1 0.5 RMSE MAE RMSE MAE RMSE MAE Base 0.1999 0.1317 0.2191 0.1422 0.1422 0.1422 0.2906 0.1882
+> RB 0.1970 0.1970 0.1970 0.1266 0.1266 0.1266 0.2185 0.2185 0.2185 0.1424 0.2891 0.2891 0.2891 0.1845 0.1845 0.1845
+
+the variances/RMSEs, which is also supported by the Rao-Blackwell theorem. Finally, please refer to Appendix E for details on the hard-ware and software environments used in the experiments, and to Appendix F for additional experimental results. 
+
+# 5. Related Work 
+
+5.1. Diffusion Models 
+
+Diffusion models, such as DDPMs (Ho et al., 2020) and SBGM (Song et al., 2020), are considered as the new contenders to GANs on data generation tasks. But they generally take relatively long time to produce high quality samples. To mitigate this problem, the flowing matching methods have been proposed from an OT perspective. For example, ENOT uses the saddle point reformulation of the OT problem to develop a new diffusion model (Gushchin et al., 2024) The flowing matching methods have also been proposed based on the OT theory (Lipman et al., 2022; Liu, 2022; Liu et al., 2023; Albergo & Vanden-Eijnden, 2023; Albergo et al., 2023). In particular, mini-batch couplings are proposed to straighten probability flows for fast infer-ence (Pooladian et al., 2023; Tong et al., 2024; 2023). The Schr ¨odinger Bridge framework have also been applied to diffusion models for improving the data generation perfor-mance of diffusion models. Diffusion Schr ¨odinger Bridge utilizes the Iterative Proportional Fitting (IPF) method to solve the SB problem (De Bortoli et al., 2021). SB-FBSDE proposes to use forward-backward (FB) SDE theory to solve the SB problem through likelihood training (Chen et al., 2022). GSBM formulates a generalized Schr ¨odinger Bridge matching framework by including the task-specific state costs for various data generation tasks (Liu et al., 2024) NLSB chooses to model the potential function rather than the velocity function to solve the Lagrangian SB prob-lem (Koshizuka & Sato, 2023). Action Matching (Neklyu-dov et al., 2023a;b) leverages the principle of least action in Lagrangian mechanics to implicitly model the velocity func-tion for trajectory inference. Another classes of diffusion models have also been proposed from an stochastic optimal control perspective by solving the HJB-PDEs (N ¨usken & Richter, 2021; Zhang & Chen, 2022; Berner et al., 2024; Liu et al., 2024; Park et al., 2024). 
+
+5.2. Time Series Imputation 
+
+Many diffusion-based models have been recently proposed for time series imputation (Lin et al., 2023; Meijer & Chen, 2024). For instance, CSDI (Tashiro et al., 2021) combines a conditional DDPM with a Transformer model to impute time series data. CSBI (Chen et al., 2023) adopts the FB-SDE theory to train the conditional Schr ¨odinger Bridge model to for probabilistic time series imputation. To model the dynamics of time series from irregular sampled data, DSPD-GP (Bilo ˇs et al., 2023) uses a Gaussian process as the noise generator. TDdiff (Kollovieh et al., 2024) utilizes self guidance and learned implicit probability density to improve the time series imputation performance of the diffu-sion models. However, the time series imputation methods mentioned above exhibit common issues, such as slow con-vergence, similar to many diffusion models. Therefore, in this work, we proposed CLWF to tackle thess challenges. 
+
+# 6. Conclusion 
+
+In this work, we proposed CLWF, a novel time series im-putation method based on the optimal transport theory and Lagrangian mechanics. To generate the missing time series data, following the principle of least action, CLWF learns a velocity field by minimizing the kinetic energy to move the initial random noise to the target distribution. Moreover, we can also estimate the derivative of a potential function via a TDAE model trained on the observed training data to further improve the performance of the base sampler by Rao-Blackwellization. In contrast with previous diffusion-based models, the proposed requires less simulation steps and Monet Carlo samples to produce high-quality data, which leads to fast inference. For validation, CWLF is assessed on two public datasets and achieves competitive results com-pared with existing methods. 
+
+# Impact Statement 
+
+This paper presents work whose goal is to advance the field of time series imputation and deep learning. There are many potential societal consequences of our work, none which we feel must be specifically highlighted here. 8440 441 442 443 444 445 446 447 448 449 450 451 452 453 454 455 456 457 458 459 460 461 462 463 464 465 466 467 468 469 470 471 472 473 474 475 476 477 478 479 480 481 482 483 484 485 486 487 488 489 490 491 492 493 494 
+
+> Conditional Lagrangian Wasserstein Flow
+
+# References 
+
+Albergo, M. S. and Vanden-Eijnden, E. Building normaliz-ing flows with stochastic interpolants. In The Eleventh International Conference on Learning Representations ,2023. Albergo, M. S., Boffi, N. M., and Vanden-Eijnden, E. Stochastic interpolants: A unifying framework for flows and diffusions. arXiv preprint arXiv:2303.08797 , 2023. Anderson, B. D. Reverse-time diffusion equation models. 
+
+Stochastic Processes and their Applications , 12(3):313– 326, 1982. Arnol’d, V. I. Mathematical methods of classical mechanics ,volume 60. Springer Science & Business Media, 2013. Bellman, R. Dynamic programming. science , 153(3731): 34–37, 1966. Berner, J., Richter, L., and Ullrich, K. An optimal con-trol perspective on diffusion-based generative model-ing. Transactions on Machine Learning Research , 2024. ISSN 2835-8856. URL https://openreview. net/forum?id=oYIjw37pTP .Bertsekas, D. Dynamic programming and optimal control: Volume I , volume 4. Athena scientific, 2012. Bilo ˇs, M., Rasul, K., Schneider, A., Nevmyvaka, Y., and G ¨unnemann, S. Modeling temporal data as continuous functions with stochastic process diffusion. In Interna-tional Conference on Machine Learning , pp. 2452–2470. PMLR, 2023. Caluya, K. F. and Halder, A. Wasserstein proximal algo-rithms for the schr ¨odinger bridge problem: Density con-trol with nonlinear drift. IEEE Transactions on Automatic Control , 67(3):1163–1178, 2021. Casella, G. and Robert, C. P. Rao-blackwellisation of sam-pling schemes. Biometrika , 83(1):81–94, 1996. Chen, R. T., Rubanova, Y., Bettencourt, J., and Duvenaud, D. K. Neural ordinary differential equations. Advances in neural information processing systems , 31, 2018. Chen, T., Liu, G.-H., and Theodorou, E. Likelihood train-ing of schr ¨odinger bridge using forward-backward sdes theory. In International Conference on Learning Repre-sentations, 2022 , 2022. Chen, Y., Georgiou, T. T., and Pavon, M. Stochastic control liaisons: Richard sinkhorn meets gaspard monge on a schrodinger bridge. Siam Review , 63(2):249–313, 2021. Chen, Y., Deng, W., Fang, S., Li, F., Yang, N. T., Zhang, Y., Rasul, K., Zhe, S., Schneider, A., and Nevmyvaka, Y. Provably convergent schr ¨odinger bridge with applica-tions to probabilistic time series imputation. In Interna-tional Conference on Machine Learning , pp. 4485–4513. PMLR, 2023. Cuturi, M. Sinkhorn distances: Lightspeed computation of optimal transport. Advances in neural information processing systems , 26, 2013. De Bortoli, V., Thornton, J., Heng, J., and Doucet, A. Diffu-sion schr ¨odinger bridge with applications to score-based generative modeling. Advances in Neural Information Processing Systems , 34:17695–17709, 2021. Domingo-Enrich, C., Han, J., Amos, B., Bruna, J., and Chen, R. T. Stochastic optimal control matching. arXiv preprint arXiv:2312.02027 , 2023. Evans, L. C. Partial differential equations , volume 19. American Mathematical Society, 2022. Evans, L. C. An introduction to mathematical optimal con-trol theory spring, 2024 version. Lecture notes available at https://math.berkeley.edu/ evans/control.course.pdf ,2024. Feynman, R. P. The principle of least action in quantum mechanics. In Feynman’s thesis—a new approach to quantum theory , pp. 1–69. World Scientific, 2005. Fleming, W. H. and Rishel, R. W. Deterministic and stochas-tic optimal control , volume 1. Springer Science & Busi-ness Media, 2012. Fortuin, V., Baranchuk, D., R ¨atsch, G., and Mandt, S. Gp-vae: Deep probabilistic time series imputation. In Interna-tional conference on artificial intelligence and statistics ,pp. 1651–1661. PMLR, 2020. Gozzi, F. and Russo, F. Verification theorems for stochastic optimal control problems via a time dependent fukushima– dirichlet decomposition. Stochastic Processes and their Applications , 116(11):1530–1562, 2006. Gushchin, N., Kolesov, A., Korotin, A., Vetrov, D. P., and Burnaev, E. Entropic neural optimal transport via diffu-sion processes. Advances in Neural Information Process-ing Systems , 36, 2024. Ho, J., Jain, A., and Abbeel, P. Denoising diffusion proba-bilistic models. Advances in neural information process-ing systems , 33:6840–6851, 2020. Holdijk, L., Du, Y., Hooft, F., Jaini, P., Ensing, B., and Welling, M. Stochastic optimal control for collective variable free sampling of molecular transition paths. Ad-vances in Neural Information Processing Systems , 36, 2023. 9495 496 497 498 499 500 501 502 503 504 505 506 507 508 509 510 511 512 513 514 515 516 517 518 519 520 521 522 523 524 525 526 527 528 529 530 531 532 533 534 535 536 537 538 539 540 541 542 543 544 545 546 547 548 549 
+
+> Conditional Lagrangian Wasserstein Flow
+
+Karatzas, I. and Shreve, S. Brownian motion and stochastic calculus , volume 113. springer, 2014. Kollovieh, M., Ansari, A. F., Bohlke-Schneider, M., Zschiegner, J., Wang, H., and Wang, Y. B. Predict, refine, synthesize: Self-guiding diffusion models for probabilis-tic time series forecasting. Advances in Neural Informa-tion Processing Systems , 36, 2024. Koshizuka, T. and Sato, I. Neural lagrangian schr ¨odinger bridge: Diffusion modeling for population dynamics. In 
+
+The Eleventh International Conference on Learning Rep-resentations , 2023. Lehmann, E. L. and Casella, G. Theory of point estimation .Springer Science & Business Media, 2006. L ´eonard, C. From the schr ¨odinger problem to the monge– kantorovich problem. Journal of Functional Analysis ,262(4):1879–1920, 2012. Lin, L., Li, Z., Li, R., Li, X., and Gao, J. Diffusion models for time-series applications: a survey. Frontiers of Infor-mation Technology & Electronic Engineering , pp. 1–23, 2023. Lipman, Y., Chen, R. T., Ben-Hamu, H., Nickel, M., and Le, M. Flow matching for generative modeling. In The Eleventh International Conference on Learning Repre-sentations , 2022. Liptser, R. S. and Shiryaev, A. N. Statistics of random processes: I. General theory , volume 5. Springer Science & Business Media, 2013. Liu, G.-H., Lipman, Y., Nickel, M., Karrer, B., Theodorou, E., and Chen, R. T. Generalized schr ¨odinger bridge matching. In The Twelfth International Conference on Learning Representations , 2024. Liu, Q. Rectified flow: A marginal preserving approach to optimal transport. arXiv preprint arXiv:2209.14577 ,2022. Liu, X., Gong, C., and Liu, Q. Flow straight and fast: Learning to generate and transfer data with rectified flow. In The Eleventh International Conference on Learning Representations , 2022. Liu, X., Wu, L., Ye, M., and Liu, Q. Learning diffusion bridges on constrained domains. In international confer-ence on learning representations (ICLR) , 2023. Meijer, C. and Chen, L. Y. The rise of diffusion models in time-series forecasting. arXiv preprint arXiv:2401.03006 ,2024. Neklyudov, K., Brekelmans, R., Severo, D., and Makhzani, A. Action matching: Learning stochastic dynamics from samples. In International Conference on Machine Learn-ing , pp. 25858–25889. PMLR, 2023a. Neklyudov, K., Brekelmans, R., Tong, A., Atanackovic, L., Liu, Q., and Makhzani, A. A computational framework for solving wasserstein lagrangian flows. arXiv preprint arXiv:2310.10649 , 2023b. N ¨usken, N. and Richter, L. Solving high-dimensional hamilton–jacobi–bellman pdes using neural networks: perspectives from the theory of controlled diffusions and measures on path space. Partial differential equations and applications , 2(4):48, 2021. Oksendal, B. Stochastic differential equations: an intro-duction with applications . Springer Science & Business Media, 2013. Onken, D., Fung, S. W., Li, X., and Ruthotto, L. Ot-flow: Fast and accurate continuous normalizing flows via opti-mal transport. Proceedings of the AAAI Conference on Artificial Intelligence , 35(10):9223–9232, 2021. Park, B., Choi, J., Lim, S., and Lee, J. Stochastic optimal control for diffusion bridges in function spaces. arXiv preprint arXiv:2405.20630 , 2024. Peyr ´e, G., Cuturi, M., et al. Computational optimal trans-port: With applications to data science. Foundations and Trends® in Machine Learning , 11(5-6):355–607, 2019. Pooladian, A.-A., Ben-Hamu, H., Domingo-Enrich, C., Amos, B., Lipman, Y., and Chen, R. T. Multisample flow matching: Straightening flows with minibatch cou-plings. In International Conference on Machine Learning ,pp. 28100–28127. PMLR, 2023. Risken, H. and Frank, T. The Fokker-Planck Equa-tion: Methods of Solution and Applications , volume 18. Springer Science & Business Media, 2012. Santambrogio, F. Optimal transport for applied mathemati-cians. Birk¨ auser, NY , 55(58-63):94, 2015. Silva, I., Moody, G., Scott, D. J., Celi, L. A., and Mark, R. G. Predicting in-hospital mortality of icu patients: The physionet/computing in cardiology challenge 2012. In 2012 Computing in Cardiology , pp. 245–248. IEEE, 2012. Song, Y., Sohl-Dickstein, J., Kingma, D. P., Kumar, A., Er-mon, S., and Poole, B. Score-based generative modeling through stochastic differential equations. In International Conference on Learning Representations , 2020. 10 550 551 552 553 554 555 556 557 558 559 560 561 562 563 564 565 566 567 568 569 570 571 572 573 574 575 576 577 578 579 580 581 582 583 584 585 586 587 588 589 590 591 592 593 594 595 596 597 598 599 600 601 602 603 604 
+
+> Conditional Lagrangian Wasserstein Flow
+
+Tashiro, Y., Song, J., Song, Y., and Ermon, S. Csdi: Con-ditional score-based diffusion models for probabilistic time series imputation. Advances in Neural Information Processing Systems , 34:24804–24816, 2021. Tong, A., Malkin, N., Fatras, K., Atanackovic, L., Zhang, Y., Huguet, G., Wolf, G., and Bengio, Y. Simulation-free schr ¨odinger bridges via score and flow matching. arXiv preprint arXiv:2307.03672 , 2023. Tong, A., FATRAS, K., Malkin, N., Huguet, G., Zhang, Y., Rector-Brooks, J., Wolf, G., and Bengio, Y. Improving and generalizing flow-based generative models with mini-batch optimal transport. Transactions on Machine Learn-ing Research , 2024. ISSN 2835-8856. URL https:// openreview.net/forum?id=CD9Snc73AW . Ex-pert Certification. Villani, C. et al. Optimal transport: old and new , volume 338. Springer, 2009. Woo, G., Liu, C., Sahoo, D., Kumar, A., and Hoi, S. Ets-former: Exponential smoothing transformers for time-series forecasting. arXiv preprint arXiv:2202.01381 ,2022. Wu, H., Hu, T., Liu, Y., Zhou, H., Wang, J., and Long, M. Timesnet: Temporal 2d-variation modeling for general time series analysis. In The Eleventh International Con-ference on Learning Representations . OpenReview.net, 2023. Yang, L. and Karniadakis, G. E. Potential flow generator with l 2 optimal transport regularity for generative models. 
+
+IEEE Transactions on Neural Networks and Learning Systems , 33(2):528–538, 2020. Yong, J. and Zhou, X. Y. Stochastic controls: Hamiltonian systems and HJB equations , volume 43. Springer Science & Business Media, 2012. Zeng, A., Chen, M., Zhang, L., and Xu, Q. Are transformers effective for time series forecasting? In Proceedings of the AAAI conference on artificial intelligence , volume 37, pp. 11121–11128, 2023. Zhang, Q. and Chen, Y. Path integral sampler: A stochastic control approach for sampling. In The Tenth Interna-tional Conference on Learning Representations . OpenRe-view.net, 2022. URL https://openreview.net/ forum?id=_uCb2ynRu7Y .Zhang, T., Zhang, Y., Cao, W., Bian, J., Yi, X., Zheng, S., and Li, J. Less is more: Fast multivariate time series forecasting with light sampling-oriented mlp structures. 
+
+arXiv preprint arXiv:2207.01186 , 2022. Zheng, Y., Liu, F., and Hsieh, H.-P. U-air: When urban air quality inference meets big data. In Proceedings of the 19th ACM SIGKDD international conference on Knowledge discovery and data mining , pp. 1436–1444, 2013. Zhou, H., Zhang, S., Peng, J., Zhang, S., Li, J., Xiong, H., and Zhang, W. Informer: Beyond efficient transformer for long sequence time-series forecasting. In Proceedings of the AAAI conference on artificial intelligence , volume 35, pp. 11106–11115, 2021. Zhou, X. Y., Yong, J., and Li, X. Stochastic verification theorems within the framework of viscosity solutions. 
+
+SIAM Journal on Control and Optimization , 35(1):243– 253, 1997. 11 605 606 607 608 609 610 611 612 613 614 615 616 617 618 619 620 621 622 623 624 625 626 627 628 629 630 631 632 633 634 635 636 637 638 639 640 641 642 643 644 645 646 647 648 649 650 651 652 653 654 655 656 657 658 659 
+
+> Conditional Lagrangian Wasserstein Flow
+
+# A. Notations 
+
+Below are some mathematical notations used throughout the paper: • ∇ denotes the Jacobian operator; • ∇· denotes the divergence operator; • ∇2 denotes the Hessian operator; • ⟨· , ·⟩ := trace (·⊤, ·) denotes the Frobenius inner product. 
+
+# B. Stochastic Optimal Control 
+
+In this section, we show how the stochastic optimal control theory is related to our data generation task. 
+
+B.1. Cost Function 
+
+An SDE controlled by the deterministic control function u ∈ U ⊂ C(Rd × [0 , T ]; R), where U is a set of admissible controls, reads 
+
+dXut = ( a + σu )( Xut , t )d t + σ(Xut , t )d W t, (18) where a ∈ C1(Rd × [0 , T ]; Rd) is the drift/advection function, σ(t) ∈ C1(Rd × [0 , T ]); Rd×d is the diffusion function, and 
+
+W t is the standard Brownian motion. Therefore, the data generation task can also be interpreted as a stochastic optimal control (SOC) problem (Bellman, 1966; Fleming & Rishel, 2012; N ¨usken & Richter, 2021; Zhang & Chen, 2022; Holdijk et al., 2023; Koshizuka & Sato, 2023; Domingo-Enrich et al., 2023; Berner et al., 2024) whose cost functional J is defined as: 
+
+J (u; xinit , t ) = E
+
+" Z Tt
+
+h(Xus , u, s )d s + g(XuT ) Xut = xinit 
+
+#
+
+, (19) where h(Xus , u, s ) := f (Xus , s ) + 12 ∥u(Xus , s )∥22, where f ∈ C1(Rd × [t, T ]; [0 , ∞)) , is the instantaneous/running cost, and g ∈ C1(Rd; R) denotes the terminal cost. The above SOC problem can be solved via dynamic programming (Bellman, 1966; Bertsekas, 2012). 
+
+B.2. Pontryagin’s Maximum Principle 
+
+Consider the following optimization problem derived from Eq. 19: 
+
+arg min  
+
+> u∈U
+
+J (u; x0, t ) = arg min 
+
+> u∈U
+
+( Z T
+
+> 0
+
+h(x, u, t )d t + g(XT )
+
+)
+
+(20) subject to 
+
+(
+
+˙x(t) = v(x, u, t ), 0 < t ≤ T, x(0) = x0, (21) where ˙x(t) := dx(t)dt and v(x, u, t ) denotes the system dynamics. Accordingly, the associated Lagrangian functional is defined as 
+
+L(x, λ, u, t ) := 
+
+Z T
+
+> 0
+
+n
+
+h(x, u, t ) + λ(t)( ˙ x(t) − v(x, u, t )) 
+
+o
+
+dt + g(XT ), (22) where λ(t) is the Lagrangian multiplier. Now, let’s consider a dynamic system defined by the following Hamiltonian 
+
+H(x, λ, u ) := K + U
+
+= λ⊤(t)v(x, u, t ) − h(x, u, t ) (23) 12 660 661 662 663 664 665 666 667 668 669 670 671 672 673 674 675 676 677 678 679 680 681 682 683 684 685 686 687 688 689 690 691 692 693 694 695 696 697 698 699 700 701 702 703 704 705 706 707 708 709 710 711 712 713 714 
+
+> Conditional Lagrangian Wasserstein Flow
+
+where K is the kinetic energy, U is the potential energy, and λ(t) serves as the momentum/costate here. Then, the Lagrangian functional in Eq. 22 becomes 
+
+L(x, λ, u, t ) := 
+
+Z T
+
+> 0
+
+n
+
+− H (x, λ, u ) + λ(t) ˙ x(t)
+
+o
+
+dt + g(XT ), (24) We now apply variations of calculus to Eq. (24) by assuming (x∗(t), λ (t), u ∗(t)) is its minimizer and adding perturbation 
+
+δx, δu, δλ with δx (0) = 0 . Now we perform the first-order Taylor expansion: 
+
+δL := L(x∗ + δx, λ + δλ, u ∗ + δu ) − L (x∗, λ, u ∗)
+
+≈
+
+Z T
+
+> 0
+
+n
+
+− H xδx − H λδλ − H uδu + λ ddt δx + δλ ˙x∗o
+
+dt + gxδ(XT ). (25) Using integration by parts, we obtain 
+
+δL ≈ 
+
+Z T
+
+> 0
+
+n
+
+(−H x − ˙λ)δx − H λδλ + ( −H u + ˙ x∗)δλ + ddt (λδx )
+
+o
+
+dt + gxδ(XT ). (26) Let δL = 0 , we see that (x∗(t), λ (t), u ∗(t)) satisfies the following necessary optimality conditions for the Hamiltonian system with optimal control: 
+
+x∗(0) = x0, Initial value (27) 
+
+˙x∗(t) = Hλ(x∗(t), λ (t), u ∗(t)) , System dynamics (28) 
+
+˙λ∗(t) = −H x(x∗(t), λ (t), u ∗(t)) , Adjoint/costate equation (29) 
+
+λ(T ) = −gx(x∗(T )) , Adjoint terminal value (30) 
+
+Hu(x∗(t), λ (t), u ∗(t)) = 0 , Extremal (31) where Eq. (28) and Eq. (29) are also known as Hamilton’s canonical equations. 
+
+Theorem B.1. Pontryagin’s Maximum Principle (PMP) (Evans, 2024). If the u∗ is the optimal solution to the optimal control problem Eq. (19) , then there exists a function λ solution of the costate/adjoint equation for which 
+
+u∗ = arg max  
+
+> u∈U
+
+H(x, λ, u ), 0 ≤ t ≤ T. (32) This result implies that the Hamiltonian H is maximized with respect to the optimal control u∗ at each time t.
+
+B.3. Hamilton-Jacobi-Bellman Equation 
+
+Here, we show how to derive the expression for the optimal control. Let pt ∈ C2,1(Rd × [0 , T ], R) be the density, then the controlled forward Fokker-Planck Kolmogorov (FPK) equation of the controlled SDE in Eq. (18) reads 
+
+∂p t
+
+∂t + ∇ · (ptv) = ⟨D(t), ∇2(pt)⟩, (33) where v(x, t ) := ( a + σu )( x, t ) represents the controlled system dynamics and D(t) := 12 σ⊤(t)σ(t).Considering the optimization objective Eq. (20) with respect to the new constraint Eq. (33) , we define formulate the following Lagrangian 
+
+L(p, x, ψ ) = 
+
+Z T
+
+> 0
+
+Z
+
+> Rd
+
+(
+
+h(x, u, t )pt(x) − ψ(x, t )
+
+ ∂p t(x)
+
+∂t | {z }
+
+> term (1)
+
++ ∇ · (vp t)
+
+| {z }
+
+> term (2)
+
+− ⟨ D(t), ∇2(pt)⟩
+
+| {z }
+
+> term (3)
+
+)
+
+dxdt
+
++
+
+Z
+
+> Rd
+
+g(x)pT (x)dx, (34) where ψ(x, t ) serves as the Lagrangian multiplier. 13 715 716 717 718 719 720 721 722 723 724 725 726 727 728 729 730 731 732 733 734 735 736 737 738 739 740 741 742 743 744 745 746 747 748 749 750 751 752 753 754 755 756 757 758 759 760 761 762 763 764 765 766 767 768 769 
+
+> Conditional Lagrangian Wasserstein Flow
+
+We now apply integration by parts to term (1) with respect to t and integration by parts to term (2) with respect to x,respectively. Then, the two-fold integration by parts are performed in term (3), and we have 
+
+Z
+
+> Rd
+
+⟨D(t), ∇2(pt)⟩ψdx =
+
+Z
+
+> Rd
+
+⟨D(t), ∇2(ψ)⟩pdx, (35) where we assume the functions have compact support such that their respective products terms vanish at both ends. Then Eq. (34) becomes 
+
+L(p, x, ψ ) = 
+
+Z T
+
+> 0
+
+Z
+
+> Rd
+
+pt(x)
+
+n
+
+h(x, u, t ) + ∂ψ ∂t + ⟨∇ ψ, v (x, t )⟩ + ⟨D(t), ∇2(ψ)⟩
+
+o
+
+dxdt
+
+−
+
+Z
+
+> Rd
+
+ψ(x, T )pT (x)d x +
+
+Z
+
+> Rd
+
+ψ(x, 0) p0(x)d x. (36) Let the density pt be fixed, then according to the verification theorem (Zhou et al., 1997; Gozzi & Russo, 2006), we can easily attain the optimal control that minimizes Eq. 36 with respect to u:
+
+u∗ = −σ⊤(t)∇xψ(x, t ). (37) Plug Eq. (37) into Eq. (36) and let the new integral equal 0, we have 
+
+L(p, x, ψ ) = 
+
+Z T
+
+> 0
+
+Z
+
+> Rd
+
+p(x, t )
+
+n ∂ψ ∂t + 12 σ⊤(t)∇xψ(x, t ) 22 + ⟨∇ ψ, v (x, t )⟩ + ⟨D(t), ∇2(ψ)⟩
+
+o
+
+dxdt
+
+−
+
+Z
+
+> Rd
+
+ψ(x, T )pT (x)d x +
+
+Z
+
+> Rd
+
+ψ(x, 0) p0(x)d x. (38) And the associated minimizer (x∗(t), λ (t), u ∗(t)) satisfies the following optimality conditions: 
+
+∂∂p L(p, x, ψ ) = 0 (39) 
+
+∂∂p T
+
+L(p, x, ψ ) = 0 . (40) As a result, we obtain the following partial differential equation (PDE) whose solution is the potential function ψ:
+
+∂ψ ∂t + 12 σ⊤(t)∇ψ 22 + ⟨∇ ψ, v (x, t )⟩ = −⟨ D(t), ∇2(ψ)⟩, (41) with the terminal condition: ψ(x, T ) = g(x), (42) where 12 σ⊤(t)∇ψ 22 + ⟨∇ ψ, v (x, t )⟩ is the Hamiltonian with ∇ψ being the momentum. And Eq. (41) is the cerebrated Hamilton-Jacobi-Bellman (HJB) equation with the value function ψ = inf  
+
+> u
+
+J being the unique viscosity solution (Zhou et al., 1997; Gozzi & Russo, 2006; Yong & Zhou, 2012; Evans, 2022). Further, Eq. (41) can be linearized by using the Hopf-Cole transformation (Evans, 2022). To this end, we let ψ(x, t ) = log ep(x) to have: 
+
+ep = exp( ψ) (43) 
+
+∇ep = exp( ψ)∇ψ (44) We also have 
+
+⟨D(t), ∇2(ep)⟩ =
+
+> d
+
+X
+
+> i,j =1
+
+(D(t)) i,j 
+
+∂2
+
+∂xi ∂xj
+
+exp( ψ)= exp( ψ)
+
+( dX
+
+> i,j =1
+
+(D(t)) i,j 
+
+∂2ψ∂xi ∂xj
+
++ ∂ψ ∂xi
+
+∂ψ ∂xj
+
+!) 
+
+= exp( ψ)
+
+(
+
+⟨D(t), ∇2(ψ)⟩ + 12 σ⊤(t)∇ψ 22
+
+)
+
+. (45) 14 770 771 772 773 774 775 776 777 778 779 780 781 782 783 784 785 786 787 788 789 790 791 792 793 794 795 796 797 798 799 800 801 802 803 804 805 806 807 808 809 810 811 812 813 814 815 816 817 818 819 820 821 822 823 824 
+
+> Conditional Lagrangian Wasserstein Flow
+
+Combining Eq. (41), Eq. (44), and Eq. (45), we have 
+
+∂ ep∂t = exp( ψ) ∂ψ ∂t 
+
+= − exp( ψ)
+
+(
+
+12 σ⊤(t)∇xψ 22 + ⟨∇ ψ, v (x, t )⟩ + ⟨D(t), ∇2(ψ)⟩
+
+)
+
+= −⟨ D(t), ∇2(ep)⟩ − ⟨∇ ep, v (x, t )⟩, (46) which in fact is the backward Fokker-Planck Kolmogorov equation, which suggests that pt is a reverse-time density. Then, the optimal control signal amounts to 
+
+u∗ = −σ⊤(t)∇ log ep(x). (47) Consequently, according to Eq. 18, we have the following controlled reverse-time SDE: 
+
+dX t = [ f (Xt, t ) − σ2(t)∇ log ept(X, t )]d t + σ(t)d W t. (48) Recall the coupled forward-backward SDE system (Anderson, 1982; Song et al., 2020), then the above reverse-time SDE has the following forward-time counterpart: 
+
+dX t = f (Xt, t )d t + σ(t)d Wt. (49) Further, we consider an overdamped Langevin dynamics system by letting f (Xt, t ) := −∇ x log ˆ pt(x), where ˆpt is the forward-time density. Consequently, this enables us to control the sampling process in the forward (noise-to-data) sampling process. 
+
+B.4. Path Sampling via Stochastic Optimal Control 
+
+Let P ∈ C1(Rd × [0 , T ]; Rd) be the base path measure and Pu ∈ C1(Rd × [0 , T ]; Rd) the associated path measure rendered by the optimal control u ∈ C1(Rd × [0 , T ]; Rd). We have the following Radon-Nikodym derivative attained by Girsanov theorem (Liptser & Shiryaev, 2013): 
+
+dPu
+
+dP = exp 
+
+( Z T
+
+> 0
+
+u⊤(x, t )d Wt −
+
+Z T
+
+> 0
+
+12 ∥u(x, t )∥22dt
+
+)
+
+(50) 
+
+dP
+
+dPu = exp 
+
+(
+
+−
+
+Z T
+
+> 0
+
+u⊤(x, t )d Wt −
+
+Z T
+
+> 0
+
+12 ∥u(x, t )∥22dt
+
+)
+
+, (51) where u satisfies the Novikov’s condition: E
+
+h
+
+exp 
+
+ 12
+
+R T 
+
+> 0
+
+u2dt
+
+i 
+
+< ∞.Noting that dXt = vdt + σtdWt, dXut = vdt + σt(d Wt + udt ), and E
+
+h R T 
+
+> 0
+
+u⊤(x, t )d Wt
+
+i
+
+= 0 , then the KL divergence between the two path measures amounts to 
+
+DKL (Pu∥P) = −EP
+
+"
+
+log dPu
+
+dP (X)
+
+#
+
+= EP
+
+" Z T
+
+> 0
+
+12 ∥u(X, t )∥22dt X0 = x
+
+#
+
+. (52) This result suggests that finding the optimal control enables us sample the target distribution. Furthermore, to reduce to the sampling variances, recalling the cost functional defined in Eq. 19, one can adopt the importance sampling scheme through sampling N paths from the path measure P u and compute the average given by 
+
+1
+
+N
+
+> N
+
+X
+
+> i=1
+
+J (Xi,u )W(Xi,u ), (53) where the importance weights W(Xi,u ) given by Eq. (51) are 
+
+W(Xi,u ) = exp 
+
+(
+
+−
+
+Z T
+
+> 0
+
+u⊤(x, t )d Wt −
+
+Z T
+
+> 0
+
+12 ∥u(x, t )∥22dt
+
+)
+
+. (54) 15 825 826 827 828 829 830 831 832 833 834 835 836 837 838 839 840 841 842 843 844 845 846 847 848 849 850 851 852 853 854 855 856 857 858 859 860 861 862 863 864 865 866 867 868 869 870 871 872 873 874 875 876 877 878 879 
+
+> Conditional Lagrangian Wasserstein Flow
+
+B.5. Feynman-Kac Formula 
+
+The Feynman-Kac Formula is very powerful tool to solve parabolic PDEs. 
+
+Theorem B.2. (Feynman-Kac formula (Karatzas & Shreve, 2014)) . Let x ∈ Rd be the spatial variable and t ∈ [0 , T ] the temporal variable. 
+
+∂∂t ρ(x, t ) + ¯ μ(x, t ) ∂∂x ρ(x, t ) + 12 ¯σ2(x, t ) ∂2
+
+∂x 2 ρ(x, t ) − A(x, t )ρ(x, t ) + c(x, t ) = 0 , (55) 
+
+subject to the terminal condition: ρ(x, T ) = ψ(x), (56) 
+
+where ρ ∈ C2,1(Rd × [0 , T ]; R), ¯μ ∈ C1(Rd × [0 , T ]; Rd), ¯σ ∈ C1(Rd × [0 , T ]; Rd×d), c ∈ C1(Rd × [0 , T ]; Rd),
+
+A ∈ C1(Rd × [0 , T ]; Rd), and ψ ∈ C1(Rd; Rd) are known functions. Let Wt is a Brownian motion under path measure P
+
+and X solves the following SDE: 
+
+dX t = eμ(X, t ) + eσ(X, t )dW t. (57) 
+
+Then ρ(x, t ) can be represented by the Feynman-Kac formula as follow: 
+
+ρ(x, t ) = EP
+
+"
+
+exp 
+
+(
+
+−
+
+Z Tt
+
+A(Xs, s )d s
+
+)
+
+ψ(XT ) + 
+
+Z Tt
+
+exp 
+
+
+
+−
+
+Z τt
+
+A(Xs, s )d s
+
+
+
+c(Xτ , τ )d τ Xt = x
+
+#
+
+(58) Now we use the Feynman-Kac formula to compute the marginal distribution. To this end, we first rewrite the forward Fokker-Planck equation as follows: 
+
+∂∂t p(x, t ) = −∇ · (μp ) − ⟨ D(t), ∇2(p)⟩
+
+= −(∇ · μ)p − μ∇p − ⟨ D(t), ∇2(p)⟩, (59) and let its coefficients match their counterparts in Eq. (55) and Eq. (56) as follows: 
+
+p −→ ρ (60a) 
+
+μ −→ eμ (60b) 
+
+σ −→ eσ (60c) 
+
+⟨D(t), ∇2(p)⟩ −→ 12 σ2 ∂2
+
+∂x 2 ρ (60d) 
+
+−∇ · μ −→ A (60e) 
+
+0 −→ c (60f) 
+
+g(x) −→ ψ(x). (60g) Therefore, according to Eq. (58), we obtain the following expressions for the marginal distribution: 
+
+p(x, t ) = EP
+
+"
+
+exp 
+
+(Z Tt
+
+∇ · μ(Xs, s )d s
+
+)
+
+g(XT ) Xt = x
+
+#
+
+(61) 
+
+p(x, t ) = EP
+
+"
+
+exp 
+
+
+
+−
+
+Z t
+
+> 0
+
+∇ · μ(Xs, s )d s
+
+
+
+g(X0) X0 = x
+
+#
+
+. (62) Combining Eq. (61) with Eq. 52, we use Jensen’s inequality to obtain the following ELBO: 
+
+log p(x, t ) ≥ EP
+
+"
+
+−
+
+Z t
+
+> 0
+
+n
+
+∇ · μ(Xs, s )d s + log g(X0) X0 = x
+
+#
+
+− EP
+
+"
+
+log dPu
+
+dP (X)
+
+#
+
+≥ EP
+
+"
+
+−
+
+Z t
+
+> 0
+
+n
+
+∇ · μ(Xs, s ) + 12 ∥u(X, s )∥22
+
+o
+
+ds + log g(X0) X0 = x
+
+#
+
+(63) 16 880 881 882 883 884 885 886 887 888 889 890 891 892 893 894 895 896 897 898 899 900 901 902 903 904 905 906 907 908 909 910 911 912 913 914 915 916 917 918 919 920 921 922 923 924 925 926 927 928 929 930 931 932 933 934 
+
+> Conditional Lagrangian Wasserstein Flow
+
+B.6. Connection to Flow Matching 
+
+Since we have the intermediate sample Xt = tT XT + (1 − tT )X0, we can directly computed the predicted terminal samples at time T using the predicted ˆXt at time t without iterative function evaluations: 
+
+ˆXT ≈   ˆXt − (1 − tT )X0
+
+/( tT ). (64) Assume the log-densities of X0, Xt, and XT can be represented by the same function, then the terminal cost in the value function Eq. (20) is defined as g(XT ) := − log p(XT ). As a result, it suggests that minimizing the running cost at time t
+
+also means minimizing the terminal cost at time T .First, following the principle of least action in Lagrangian dynamics, the uncontrolled system dynamics v(xt, t ) is learned by minimizing the associated kinetic energy. The uncontrolled sampling process can be described as follow: 
+
+dx t = v(xt, t )d t (65) Since we formulate the potential energy function U (xt, t ) = log p(xt, t ) = log N (xt; ˜ xt, ˜σt), where ˜xt = TDAE (xt, t )
+
+attained by the reconstruction process of the TDAE model. Accordingly, the controlled sampling process can be cast as: 
+
+dx t = u(xt, t )dt = −σ⊤(t)∇x log p(xt, t )d t = − xt − ˜xt
+
+˜σ2
+
+> t
+
+(66) The corresponding sampling scheme is 
+
+xt+1 = xt + v(xt, t )d t (67) 
+
+xut+1 = xt+1 + u(xt+1 , t + 1)d˜ t. (68) 
+
+# C. Rao-Blackwellization 
+
+Here we prove that the proposed sampler is, in fact, a Rao-Blackwellized trajectory sampler (Casella & Robert, 1996). We first start with the following definition: 
+
+Definition C.1 (Sufficient statistic) . A sufficient statistic T for a parameter Θ captures all the necessary information contained in the data sample X to estimate Θ. Once T is known, X does not provide additional information to estimate Θ.To determine whether a statistic is sufficient, we can apply the following theorem. 
+
+Theorem C.2. (Fisher-Neyma theorem (Lehmann & Casella, 2006)). Let probability density function of X be p(x|φ),then the statistics T are sufficient for X iff p(x|φ) are be written in the following form: 
+
+p(x|φ) = F(x)G(T (x); φ), (69) 
+
+where F(x) is a distribution independent of θ and g(·, θ ) captures all the dependence on θ via sufficient statistics T (x).
+
+Following the above theorem, in our context, we assume that the marginal distribution of Xt is the Gaussian with unknown mean and known variance: N (Xt; mφ(Xt−1), σ 2(t)) . Then the joint distribution of N samples can be written and decomposed as follows: 
+
+p(X1 
+
+> t
+
+, X 2 
+
+> t
+
+, . . . , X Nt |φ) = (2 π)−N/ 2σ2 exp 
+
+ −12σ2
+
+> N
+
+X
+
+> i=1
+
+(Xit − mφ)2
+
+= (2 π)−N/ 2σ2 exp 
+
+ −12σ2
+
+> N
+
+X
+
+> i=1
+
+Xit + mφ
+
+σ2
+
+> N
+
+X
+
+> i=1
+
+Xit − N m 2
+
+> φ
+
+2σ2
+
+
+
+= (2 π)−N/ 2σ2 exp 
+
+ −12σ2
+
+> N
+
+X
+
+> i=1
+
+Xit
+
+| {z }
+
+> F(x)
+
+exp 
+
+ mφ
+
+σ2
+
+> N
+
+X
+
+> i=1
+
+Xit
+
+| {z }  
+
+> T(x)
+
+− N m 2
+
+> φ
+
+2σ2
+
+| {z } 
+
+> G(T(x); φ)
+
+. (70) 17 935 936 937 938 939 940 941 942 943 944 945 946 947 948 949 950 951 952 953 954 955 956 957 958 959 960 961 962 963 964 965 966 967 968 969 970 971 972 973 974 975 976 977 978 979 980 981 982 983 984 985 986 987 988 989 
+
+> Conditional Lagrangian Wasserstein Flow
+
+The above result suggests that the trajectory sampler can be formulated as a sufficient statistic for φ. Consequently, for our task, we have: 1) the parameter to estimate Θ := Xt, where Xt is the intermediate sample predicted (or its mean) at time t; 2) the data sample X := X0, where X0 is the initial noise (as well as the observation); 3) the base unbiased sampler representing the system dynamics estimated according to the principle of least action, S(X0; μ, t ) := X0 + R t 
+
+> 0
+
+μ(Xs, s )d s =
+
+Xt−1 + R tt−1 μ(Xs, s )d s = Xt, where 0 < t ≤ T ; 4) the sufficient statistic representing the optimal control signal according to Pontryagin’s Maximum Principle, T (X0; u, t ) := X0 + R t−10 u∗(Xs, s )d s = Xt−1, where 0 < t ≤ T . As a result, we have the new sampler S∗ := ES|T  = ET (X0; u, t ) + R tt−1 μ(T (X0; u, s ), s )d s. Then, according to the Rao-Blackwell theorem: 
+
+Theorem C.3. (Rao-Blackwell theorem (Casella & Robert, 1996)). Let S be an unbiased estimator of some parameter Θ,and T (X ) the sufficient statistic for Θ, then: 1) S∗ = E[S|T (X )] , is an unbiased estimator for Θ, and 2) V[S] ≥ V[S∗].The inequality is strict unless S is a function of T .
+
+Proof: In the ODE/SDE sampling process, we have p(Xt|Xt−1, X 0) = p(Xt|Xt−1), i.e., p(Θ |T , X ) = p(Θ |T ). Since T
+
+is a statistic of X and S is an estimator of Θ, we have ES|T  = ES|T , Θ. We now apply the law of total expectation ( Z
+
+and Y are two random variables): 
+
+E[Z|Y ] = 
+
+Z
+
+zp (z|Y )d z =⇒ EE[Z|Y ] =
+
+Z Z 
+
+zp (z|y)d zp (y)d y
+
+=
+
+Z Z 
+
+zp (z|y)p(y)d zdy
+
+=
+
+Z Z 
+
+zp (z, y )d zdy =
+
+Z
+
+zp (z)d z = E[Z], (71) to attain the following relationships: 
+
+ES∗|Θ = EES|T |Θ = EES|T , Θ|Θ = ES| Θ. (72) Then we apply the law of total variance to attain the following relationships: 
+
+VS| Θ = EVS|T , Θ|Θ + VES|T , Θ|Θ
+
+= EVS|T , Θ|Θ + VS∗|Θ, (73) where EVS|T , Θ|Θ ≥ 0, therefore VS| Θ ≥ VS∗|Θ.The results in Eq. (72) and Eq. (73) suggest that the new sampler has the same expectation as the base sampler but with smaller variance (mean squared error), which is also verified by the experimental results. 
+
+C.1. Overall Theoretical Framework 
+
+Fig. 3 visualizes the overall theoretical framework of the proposed method in this paper. 18 990 991 992 993 994 995 996 997 998 999 1000 1001 1002 1003 1004 1005 1006 1007 1008 1009 1010 1011 1012 1013 1014 1015 1016 1017 1018 1019 1020 1021 1022 1023 1024 1025 1026 1027 1028 1029 1030 1031 1032 1033 1034 1035 1036 1037 1038 1039 1040 1041 1042 1043 1044 
+
+Conditional Lagrangian Wasserstein Flow Optimal 
+
+transport 
+
+Lagrangian 
+
+mechanics 
+
+> Optimization
+> objective
+
+Schrödinger 
+
+Bridge 
+
+Stochastic 
+
+optimal control 
+
+Path measures 
+
+HJB equation 
+
+> Hopf-Cole
+> Transformation
+> Feynman-Kac
+> formula
+> Girsanov
+> theorem
+
+Forward Fokker-
+
+Planck equation ELBO 
+
+> Optimization
+> constraint
+> Optimization
+> objective
+> Cost
+> functional
+
+Entropy 
+
+regularization 
+
+Optimal 
+
+control signal 
+
+Backward Fokker-
+
+Planck equation 
+
+Forward 
+
+SDE 
+
+Backward 
+
+SDE 
+
+> Optimization
+> constraint
+
+FB-SDE system 
+
+> Pontryagin’s
+> Maximum Principle
+
+Hamiltonian 
+
+mechanics 
+
+> Legendre
+> transformation
+
+Figure 3: The overall theoretical framework. 
+
+# D. Resampling Trick 
+
+The proposed resampling process introduced in Sec. 3.5 is illustrated in Fig. 4. Observed data 
+
+Initial noise 
+
+Ground truth 
+
+intermediate samples xobs 
+
+x0
+
+xt +1
+
+^xt +1
+
+Interpolate 
+
+Generate ^xt +1
+
+New generated samples ^xt +1
+
+xt +1Resample 
+
+^xt
+
+Repeat 
+
+Generated 
+
+samples 
+
+Figure 4: The proposed resampling process for inference. 
+
+# E. Experimental Environment 
+
+For the hardware environment of the experiments, we use a single NVIDIA A100-PCIE-40GB GPU and an Intel(R) Xeon(R) Gold-6248R-3.00GHz CPU. For the software environment, the Python version is 3.9.7, the CUDA version 11.7, and the Pytorch version is 2.0.1. 19 1045 1046 1047 1048 1049 1050 1051 1052 1053 1054 1055 1056 1057 1058 1059 1060 1061 1062 1063 1064 1065 1066 1067 1068 1069 1070 1071 1072 1073 1074 1075 1076 1077 1078 1079 1080 1081 1082 1083 1084 1085 1086 1087 1088 1089 1090 1091 1092 1093 1094 1095 1096 1097 1098 1099 
+
+> Conditional Lagrangian Wasserstein Flow
+
+# F. Additional Experimental Results 
+
+F.1. Ablation study on simulation steps. 
+
+Table 6: Test imputation results on PM 2.5 with different simulation steps ( 5 trials). Method 5 steps 10 steps 15 steps 20 steps RMSE MAE RMSE MAE RMSE MAE RMSE MAE CSDI 34 .21 ± 0.16 14 .85 ± 0.01 29 .43 ± 0.46 12 .48 ± 0.08 22 .40 ± 0.16 10 .78 ± 0.04 19 .22 ± 0.13 9.91 ± 0.02                                                  
+
+> CLWF 18 .29 ±0.002 18 .29 ±0.002 18 .29 ±0.002 9 .78 ±0.004 9.78 ±0.004 9.78 ±0.004 18 .28 ±0.003 18 .28 ±0.003 18 .28 ±0.003 9 .77 ±0.005 9.77 ±0.005 9.77 ±0.005 18 .26 ±0.006 18 .26 ±0.006 18 .26 ±0.006 9 .76 ±0.004 9.76 ±0.004 9.76 ±0.004 18 .21 ±0.002 18 .21 ±0.002 18 .21 ±0.002 9 .72 ±0.004 9.72 ±0.004 9.72 ±0.004
+
+F.2. Ablation study on Rao-Blackwellization. 
+
+Table 7: Test imputation results on PM 2.5, PhysioNet 0.1, and PhysioNet 0.5 ( 5 trials). Method PM 2.5 PhysioNet 0.1 PhysioNet 0.5 RMSE MAE RMSE MAE RMSE MAE CLWF (no RB) 18 .27 ± 0.01 9.76 ± 0.01 0.4802 ± 1e-4 0.2221 ± 0e-40.2221 ± 0e-40.2221 ± 0e-4 0.6476 ± 0e-4 0.2991 ± 0e-40.2991 ± 0e-40.2991 ± 0e-4
+
+CLWF (with RB) 18 .08 ± 0.02 18 .08 ± 0.02 18 .08 ± 0.02 9.71 ± 0.00 9.71 ± 0.00 9.71 ± 0.00 0.4785 ± 1e-40.4785 ± 1e-40.4785 ± 1e-4 0.2250 ± 1e-4 0.6466 ± 0e-40.6466 ± 0e-40.6466 ± 0e-4 0.3003 ± 0e-4
+
+Table 8: Test imputation results on synthetic data ( 5-trials, values are multiplied by 10 2). Method Synthetic 0.4 Synthetic 0.6 Synthetic 0.8 RMSE MAE RMSE MAE RMSE MAE CLWF (no RB) 22 .91 ± 0.49 15 .28 ± 0.21 25 .65 ± 0.31 15 .54 ± 0.22 27 .41 ± 0.27 15 .91 ± 0.23 
+
+CLWF (with RB) 22 .72 ± 0.48 22 .72 ± 0.48 22 .72 ± 0.48 13 .23 ± 0.42 13 .23 ± 0.42 13 .23 ± 0.42 25 .44 ± 0.30 25 .44 ± 0.30 25 .44 ± 0.30 15 .28 ± 0.17 15 .28 ± 0.17 15 .28 ± 0.17 27 .32 ± 0.27 27 .32 ± 0.27 27 .32 ± 0.27 15 .79 ± 0.23 15 .79 ± 0.23 15 .79 ± 0.23 
+
+F.3. Ablation study on Resampling. 
+
+Table 9: Test imputation results on ETT-h1( 5-trial averages). The best are in bold and the second best are underlined. Method ETT-h1 0.25 ETT-h1 0.375 ETT-h1 0.5 RMSE MAE RMSE MAE RMSE MAE Base 0.1999 ± 8e-4 0.1317 ± 3e-4 0.2191 ± 2e-4 0.1422 ± 4e-4 0.2906 ± 1e-3 0.1882 ± 2e-4
+
+RB 0.1970 ± 6e-4 0.1266 ± 2e-4 0.2185 ± 4e-4 0.1424 ± 2e-4 0.2891 ± 2e-40.2891 ± 2e-40.2891 ± 2e-4 0.1845 ± 2e-40.1845 ± 2e-40.1845 ± 2e-4
+
+Resampling 0.1976 ± 8e-4 0.1257 ± 3e-4 0.2165 ± 1e-3 0.1366 ± 1e-4 0.2964 ± 1e-3 0.1988 ± 4e-4
+
+Resampling + RB 0.1968 ± 8e-40.1968 ± 8e-40.1968 ± 8e-4 0.1253 ± 3e-40.1253 ± 3e-40.1253 ± 3e-4 0.2157 ± 6e-40.2157 ± 6e-40.2157 ± 6e-4 0.1363 ± 3e-40.1363 ± 3e-40.1363 ± 3e-4 0.2921 ± 9e-4 0.1926 ± 3e-4
+
+F.4. Time Efficiency 
+
+We report the statistics regarding the time efficiency of our method here. Table 10: Inference time costs on ETT-h1 0.5. Base RB Resampling Resampling + RB s/iteration 3.26 6.36 3.28 6.38 
+
+20
