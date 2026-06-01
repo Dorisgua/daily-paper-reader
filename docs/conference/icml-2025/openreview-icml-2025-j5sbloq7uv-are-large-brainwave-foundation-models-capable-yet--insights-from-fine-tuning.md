@@ -1,21 +1,21 @@
 ---
 title: Are Large Brainwave Foundation Models Capable Yet ? Insights from Fine-Tuning
-title_zh: 大型脑波基础模型足够胜任吗？微调带来的启示
+title_zh: 大型脑波基础模型的能力如何？来自微调的见解
 authors: "Na Lee, Konstantinos Barmpas, Yannis Panagakis, Dimitrios Adamos, Nikolaos Laskaris, Stefanos Zafeiriou"
 date: 2025-05-01
 pdf: "https://openreview.net/pdf?id=J5SbLoq7Uv"
 tags: ["query:eeg"]
-score: 9.0
-evidence: 评估大型脑波基础模型在脑机接口任务上的表现
-tldr: "本文系统性评估了大型脑波基础模型（LBMs）在多个脑机接口（BCI）基准任务上的表现，包括记忆任务和睡眠阶段分类。结果显示，最先进的LBM相比传统深度架构仅带来0.5%的边际提升，却需要数十倍甚至百倍的参数。这一发现对BCI领域的基础模型效率与实用性提出了重要质疑。"
+score: 7.0
+evidence: 系统评估大型脑波基础模型在包括EEG的BCI基准任务上的性能
+tldr: "该文对现有大型脑波基础模型在多个脑机接口基准任务（包括记忆任务和睡眠阶段分类）上进行了系统性微调评估。结果表明，这些LBM相比传统深度架构仅获得0.5%的边际提升，却需要数百万参数，远多于传统模型的数千参数。这一发现质疑了大型脑波基础模型在当前BCI任务中的效率和必要性，为未来脑电模型设计提供了重要参考。"
 source: ICML-2025-Accepted
 selection_source: conference_retrieval
 figures_json: "[{\"url\": \"assets/figures/openreview/openreview-icml-2025-j5sbloq7uv/fig-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 707, \"height\": 266, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-j5sbloq7uv/fig-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 700, \"height\": 315, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-j5sbloq7uv/fig-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 884, \"height\": 522, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-j5sbloq7uv/fig-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 816, \"height\": 622, \"label\": \"Figure\"}]"
 tables_json: "[{\"url\": \"assets/tables/openreview/openreview-icml-2025-j5sbloq7uv/table-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1778, \"height\": 424, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-j5sbloq7uv/table-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 1448, \"height\": 207, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-j5sbloq7uv/table-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1456, \"height\": 206, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-j5sbloq7uv/table-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 870, \"height\": 355, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-j5sbloq7uv/table-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 1592, \"height\": 673, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-j5sbloq7uv/table-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 1780, \"height\": 812, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-j5sbloq7uv/table-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 1164, \"height\": 280, \"label\": \"Table\"}]"
-motivation: 现有基础模型在AI领域成功，但脑波建模能力尚不明确。
-method: 通过在多个BCI任务上系统微调当前最先进的大型脑波基础模型进行评估。
-result: "LBM仅比传统深度架构提升0.5%，但参数数量级更高。"
-conclusion: 当前LBM在BCI中效率低下，需重新审视其适用性。
+motivation: 大型脑波基础模型在BCI任务上的实际能力尚不明确。
+method: 对现有大型脑波基础模型进行系统性微调实验，在多个BCI基准任务上评测。
+result: "大型脑波基础模型性能提升微小（0.5%）且参数巨大，效率远低于传统架构。"
+conclusion: 当前大型脑波基础模型的效率低下，其在BCI中的适用性值得重新思考。
 ---
 
 ## Abstract

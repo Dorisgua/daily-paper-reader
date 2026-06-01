@@ -1,21 +1,21 @@
 ---
 title: Accurate Identification of Communication Between Multiple Interacting Neural Populations
-title_zh: MR-LFADS：多交互神经群体通信的精确识别
+title_zh: 准确识别多个交互神经群体之间的通信
 authors: "Belle Liu, Jacob Sacks, Matthew D. Golub"
 date: 2025-05-01
 pdf: "https://openreview.net/pdf?id=O14GjxDAt3"
 tags: ["query:eeg-latent"]
-score: 7.0
-evidence: 使用序列变分自编码器对神经群体进行潜在因子分析
-tldr: 现有模型难以从局部动态中分离出脑区间通信。本文提出MR-LFADS，一个基于区域特定循环神经网络的序列变分自编码器，通过结构化信息瓶颈和数据约束通信实现潜在因子分析。该方法可无监督推断未观测输入，有效分离脑区间通信成分。虽然以神经群体为对象，但其潜在空间建模思想可直接迁移至EEG多通道信号表征与缺失通道补全。
+score: 6.0
+evidence: 使用序列变分自编码器进行多区域神经潜在因子分析，可应用于EEG潜在空间表征
+tldr: MR-LFADS提出多区域潜在因子分析方法，利用序列变分自编码器、结构化信息瓶颈和数据约束通信，从局部动态中分离区域间通信。在模拟和真实神经数据上准确识别了因果关系，为EEG多通道潜在空间建模提供了可迁移的框架。
 source: ICML-2025-Accepted
 selection_source: conference_retrieval
 figures_json: "[{\"url\": \"assets/figures/openreview/openreview-icml-2025-o14gjxdat3/fig-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1607, \"height\": 754, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-o14gjxdat3/fig-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 854, \"height\": 1259, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-o14gjxdat3/fig-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 852, \"height\": 1066, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-o14gjxdat3/fig-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1753, \"height\": 837, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-o14gjxdat3/fig-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 1773, \"height\": 658, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-o14gjxdat3/fig-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 1753, \"height\": 1144, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-o14gjxdat3/fig-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 1771, \"height\": 1263, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-o14gjxdat3/fig-008.webp\", \"caption\": \"\", \"page\": 0, \"index\": 8, \"width\": 1762, \"height\": 1251, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-o14gjxdat3/fig-009.webp\", \"caption\": \"\", \"page\": 0, \"index\": 9, \"width\": 1390, \"height\": 762, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-o14gjxdat3/fig-010.webp\", \"caption\": \"\", \"page\": 0, \"index\": 10, \"width\": 1052, \"height\": 1564, \"label\": \"Figure\"}]"
 tables_json: "[{\"url\": \"assets/tables/openreview/openreview-icml-2025-o14gjxdat3/table-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1744, \"height\": 1091, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-o14gjxdat3/table-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 750, \"height\": 329, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-o14gjxdat3/table-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1507, \"height\": 487, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-o14gjxdat3/table-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1749, \"height\": 755, \"label\": \"Table\"}]"
-motivation: 现有模型难以从局部动态中分离出脑区间通信成分。
-method: 提出MR-LFADS，利用区域特定RNN的序列变分自编码器，通过结构化信息瓶颈和数据约束通信进行潜在因子分析。
-result: 在模拟和真实神经数据上优于现有方法，成功分离通信与局部动态。
-conclusion: MR-LFADS为多脑区通信分析提供了可解释的潜在空间方法，并能推广至EEG信号处理。
+motivation: 现有模型难以从局部动态和未记录区域的影响中分离区域间通信。
+method: 提出MR-LFADS，包含区域特异性循环网络、结构化瓶颈和数据约束通信的序列VAE。
+result: 在合成和真实神经记录数据上准确识别了因果通信，优于现有方法。
+conclusion: MR-LFADS有效解开了神经群体通信的混杂因素，推动了神经数据分析。
 ---
 
 ## Abstract

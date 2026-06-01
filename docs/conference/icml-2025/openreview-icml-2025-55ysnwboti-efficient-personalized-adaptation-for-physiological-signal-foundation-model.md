@@ -5,17 +5,17 @@ authors: "Chenrui Wu, Haishuai Wang, Xiang Zhang, Chengqi Zhang, Jiajun Bu"
 date: 2025-05-01
 pdf: "https://openreview.net/pdf?id=55ysNwbOTI"
 tags: ["query:eeg"]
-score: 5.0
-evidence: 生理信号基础模型的个性化适应，适用于EEG类数据
-tldr: 本文提出PhysioPFM框架，用于高效个性化适应时间序列基础模型以适应生理信号。针对医疗环境中计算资源有限和数据隐私问题，PhysioPFM能够快速适配到私有、不均衡的本地数据，在多个生理信号任务上优于通用的基础模型。为EEG信号的分析和适应提供了可行方案。
+score: 6.0
+evidence: 基于生理信号基础模型实现EEG个性化适应
+tldr: 该论文关注时间序列基础模型在医疗中的挑战：资源有限和数据隐私。提出PhysioPFM框架，实现高效的个性化适应，能够在保护隐私的条件下，在本地数据上对生理信号基础模型（包括EEG）进行微调。该方法在少量本地数据上即可提升性能，适应不同临床场景。
 source: ICML-2025-Accepted
 selection_source: conference_retrieval
 figures_json: "[{\"url\": \"assets/figures/openreview/openreview-icml-2025-55ysnwboti/fig-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 833, \"height\": 533, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-55ysnwboti/fig-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 810, \"height\": 434, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-55ysnwboti/fig-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1685, \"height\": 694, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-55ysnwboti/fig-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1584, \"height\": 368, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-55ysnwboti/fig-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 858, \"height\": 536, \"label\": \"Figure\"}]"
 tables_json: "[{\"url\": \"assets/tables/openreview/openreview-icml-2025-55ysnwboti/table-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1418, \"height\": 601, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-55ysnwboti/table-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 1416, \"height\": 597, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-55ysnwboti/table-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 779, \"height\": 502, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-55ysnwboti/table-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 787, \"height\": 487, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-55ysnwboti/table-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 774, \"height\": 302, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-55ysnwboti/table-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 1775, \"height\": 979, \"label\": \"Table\"}]"
-motivation: 通用基础模型在医疗私有数据上不如特定方法。
-method: 提出PhysioPFM框架，结合个性化适应策略。
-result: 在生理信号任务上优于通用基础模型。
-conclusion: 为隐私敏感场景下的生理信号建模提供了有效方法。
+motivation: 医疗中计算资源和数据隐私限制基础模型部署。
+method: 提出PhysioPFM框架，通过高效微调实现个性化适应。
+result: 在多个生理信号数据集上显示，个性化模型优于通用模型。
+conclusion: PhysioPFM使得基础模型在本地EEG数据上安全高效地部署。
 ---
 
 ## Abstract

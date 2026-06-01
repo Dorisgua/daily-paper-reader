@@ -5,17 +5,17 @@ authors: "Weizhu Qian, Dalin Zhang, Yan Zhao, Yunyao Cheng"
 date: 2025-01-09
 pdf: "https://openreview.net/pdf?id=yK6yb16vRe"
 tags: ["query:eeg-latent"]
-score: 7.0
-evidence: 条件拉格朗日Wasserstein流用于时间序列插补，生成式方法可应用于EEG
-tldr: 基于扩散模型的插补方法推理收敛慢。本文提出条件拉格朗日Wasserstein流（CLWF），遵循最小作用量原理学习速度场，并使用时变去噪自编码器估计势函数梯度以降低采样方差。实验表明CLWF性能优于现有最优方法，为EEG通道生成式插补提供了高效替代方案。
+score: 6.0
+evidence: 时间序列插补方法，使用拉格朗日 Wasserstein 流和去噪自编码器
+tldr: 针对扩散模型插补方法收敛慢的问题，本文提出条件拉格朗日Wasserstein流（CLWF），基于最小作用量原理学习速度场，并集成去噪自编码器减小采样方差。实验显示CLWF在多个基准数据集上达到竞争性能，为时间序列插补提供了高效方案。
 source: ICML-2025-Rejected-Public
 selection_source: conference_retrieval
 figures_json: "[{\"url\": \"assets/figures/openreview/openreview-icml-2025-yk6yb16vre/fig-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1318, \"height\": 554, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-yk6yb16vre/fig-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 1744, \"height\": 453, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-yk6yb16vre/fig-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1199, \"height\": 816, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-yk6yb16vre/fig-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1286, \"height\": 562, \"label\": \"Figure\"}]"
 tables_json: "[{\"url\": \"assets/tables/openreview/openreview-icml-2025-yk6yb16vre/table-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 868, \"height\": 580, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-yk6yb16vre/table-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 874, \"height\": 745, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-yk6yb16vre/table-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 887, \"height\": 319, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-yk6yb16vre/table-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 886, \"height\": 321, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-yk6yb16vre/table-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 886, \"height\": 210, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-yk6yb16vre/table-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 883, \"height\": 202, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-yk6yb16vre/table-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 889, \"height\": 373, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-yk6yb16vre/table-008.webp\", \"caption\": \"\", \"page\": 0, \"index\": 8, \"width\": 1761, \"height\": 217, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-yk6yb16vre/table-009.webp\", \"caption\": \"\", \"page\": 0, \"index\": 9, \"width\": 1761, \"height\": 235, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-yk6yb16vre/table-010.webp\", \"caption\": \"\", \"page\": 0, \"index\": 10, \"width\": 1717, \"height\": 235, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-yk6yb16vre/table-011.webp\", \"caption\": \"\", \"page\": 0, \"index\": 11, \"width\": 1761, \"height\": 311, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-yk6yb16vre/table-012.webp\", \"caption\": \"\", \"page\": 0, \"index\": 12, \"width\": 1412, \"height\": 147, \"label\": \"Table\"}]"
-motivation: 扩散模型插补方法推理速度慢。
-method: 提出条件拉格朗日Wasserstein流，结合最小作用量原理和去噪自编码器。
-result: 在多个基准上达到竞争性能，收敛更快。
-conclusion: CLWF为时间序列插补提供了快速生成式方法，可推广至EEG。
+motivation: 扩散模型插补方法推理收敛慢，需要更高效的插补方案。
+method: 基于拉格朗日力学最小作用量原理学习速度，结合时间相关去噪自编码器估计势函数梯度。
+result: 在时间序列插补任务上取得竞争性性能，优于现有扩散模型方法。
+conclusion: CLWF为时间序列插补提供了新的高效框架，可推广至EEG等多变量序列。
 ---
 
 ## Abstract

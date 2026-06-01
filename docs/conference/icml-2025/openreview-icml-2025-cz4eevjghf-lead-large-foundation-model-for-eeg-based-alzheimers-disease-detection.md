@@ -1,21 +1,21 @@
 ---
 title: "LEAD: Large Foundation Model for EEG-Based Alzheimer’s Disease Detection"
-title_zh: LEAD：基于EEG的阿尔茨海默病检测的大型基础模型
+title_zh: LEAD：用于EEG阿尔茨海默病检测的大型基础模型
 authors: "Yihe Wang, Nan Huang, Nadia Mammone, Marco Cecchi, Xiang Zhang"
 date: 2025-01-23
 pdf: "https://openreview.net/pdf?id=cz4EevJGHf"
 tags: ["query:eeg"]
-score: 8.0
-evidence: 基于深度学习的大型EEG基础模型用于阿尔茨海默病检测
-tldr: 现有EEG阿尔茨海默病检测方法受限于数据集小和跨被试差异。本文构建了包含813名被试的最大EEG-AD数据集，并提出首个大型基础模型LEAD。通过自监督预训练等完整流程，LEAD在多项评估中达到最先进性能。该工作展示了大型预训练模型在EEG信号处理中的应用价值，其方法学可直接服务于EEG表征学习与通道补全等任务。
+score: 6.0
+evidence: EEG信号处理与深度学习用于AD检测
+tldr: 本文针对EEG在阿尔茨海默病检测中的数据集缺乏和性能差的问题，构建了包含813名被试的大型EEG-AD语料库，并提出了首个EEG基础模型LEAD。该方法涵盖数据预处理、自监督学习等完整流程，在检测性能上显著优于现有方法，推动了EEG在疾病诊断中的应用。
 source: ICML-2025-Rejected-Public
 selection_source: conference_retrieval
 figures_json: "[{\"url\": \"assets/figures/openreview/openreview-icml-2025-cz4eevjghf/fig-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 724, \"height\": 311, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-cz4eevjghf/fig-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 1696, \"height\": 917, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-cz4eevjghf/fig-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1378, \"height\": 1034, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-cz4eevjghf/fig-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1766, \"height\": 336, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-cz4eevjghf/fig-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 876, \"height\": 572, \"label\": \"Figure\"}]"
 tables_json: "[{\"url\": \"assets/tables/openreview/openreview-icml-2025-cz4eevjghf/table-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1780, \"height\": 600, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-cz4eevjghf/table-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 1778, \"height\": 1148, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-cz4eevjghf/table-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1423, \"height\": 614, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-cz4eevjghf/table-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1775, \"height\": 639, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-cz4eevjghf/table-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 1773, \"height\": 586, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-cz4eevjghf/table-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 891, \"height\": 349, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-cz4eevjghf/table-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 1776, \"height\": 537, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-cz4eevjghf/table-008.webp\", \"caption\": \"\", \"page\": 0, \"index\": 8, \"width\": 1782, \"height\": 560, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-cz4eevjghf/table-009.webp\", \"caption\": \"\", \"page\": 0, \"index\": 9, \"width\": 893, \"height\": 699, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-cz4eevjghf/table-010.webp\", \"caption\": \"\", \"page\": 0, \"index\": 10, \"width\": 1780, \"height\": 724, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-cz4eevjghf/table-011.webp\", \"caption\": \"\", \"page\": 0, \"index\": 11, \"width\": 894, \"height\": 420, \"label\": \"Table\"}]"
-motivation: EEG阿尔茨海默病检测面临数据集小和跨被试差异大的挑战。
-method: 构建大规模EEG-AD数据集，提出基于自监督预训练的大型基础模型LEAD。
-result: 在多项评估中取得最先进性能，显著优于现有方法。
-conclusion: LEAD证明了大型预训练模型在EEG信号处理中的有效性，为相关研究提供了新基准。
+motivation: 现有EEG AD检测方法受限于数据集规模和个体差异，性能不佳。
+method: 构建大型EEG-AD数据集，并提出LEAD基础模型，采用自监督学习进行特征提取。
+result: 在最大EEG-AD数据集上验证，LEAD检测性能显著优于现有方法。
+conclusion: LEAD为EEG在AD检测中的应用树立了新标杆，证明了基础模型的潜力。
 ---
 
 ## Abstract

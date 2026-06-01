@@ -1,6 +1,6 @@
 {
   "top_k": 200,
-  "generated_at": "2026-06-01T08:21:28.893039+00:00",
+  "generated_at": "2026-06-01T09:17:50.108661+00:00",
   "papers": [
     {
       "id": "openreview-icml-2025-cz4eevjghf",
@@ -238,69 +238,6 @@
       ]
     },
     {
-      "id": "openreview-icml-2025-1w2wlyrq0k",
-      "source": "ICML-2025-Accepted",
-      "title": "MindAligner: Explicit Brain Functional Alignment for Cross-Subject Visual Decoding from Limited fMRI Data",
-      "abstract": "Brain decoding aims to reconstruct visual perception of human subject from fMRI signals, which is crucial for understanding brain's perception mechanisms.  Existing methods are confined to the single-subject paradigm due to substantial brain variability, which leads to weak generalization across individuals and incurs high training costs, exacerbated by limited availability of fMRI data. To address these challenges, we propose MindAligner, an explicit functional alignment framework for cross-subject brain decoding from limited fMRI data. The proposed MindAligner enjoys several merits. First, we learn a Brain Transfer Matrix (BTM) that projects the brain signals of an arbitrary new subject to one of the known subjects, enabling seamless use of pre-trained decoding models. Second, to facilitate reliable BTM learning, a Brain Functional Alignment module is proposed to perform soft cross-subject brain alignment under different visual stimuli with a multi-level brain alignment loss, uncovering fine-grained functional correspondences with high interpretability. Experiments indicate that MindAligner not only outperforms existing methods in visual decoding under data-limited conditions, but also provides valuable neuroscience insights in cross-subject functional analysis. The code will be made publicly available.",
-      "authors": [
-        "Yuqin Dai",
-        "Zhouheng Yao",
-        "Chunfeng Song",
-        "Qihao Zheng",
-        "Weijian Mai",
-        "Kunyu Peng",
-        "Shuai Lu",
-        "Wanli Ouyang",
-        "Jian Yang",
-        "Jiamin Wu"
-      ],
-      "primary_category": "Brain Decoding",
-      "categories": [
-        "Brain Decoding",
-        "Functional Alignment",
-        "Cross-subject Decoding",
-        "Neuroscience",
-        "Neuroimaging",
-        "Visual Perception"
-      ],
-      "published": "2025-05-01T13:13:26.907+00:00",
-      "link": "https://openreview.net/forum?id=1W2WlYRq0K",
-      "pdf_url": null,
-      "tags": [
-        "keyword:eeg",
-        "keyword:eeg-latent",
-        "query:eeg",
-        "query:eeg-latent"
-      ]
-    },
-    {
-      "id": "openreview-icml-2025-n7qkt6gjl9",
-      "source": "ICML-2025-Accepted",
-      "title": "Identifying Neural Dynamics Using Interventional State Space Models",
-      "abstract": "Neural circuits produce signals that are complex and nonlinear. To facilitate the understanding of neural dynamics, a popular approach is to fit state space models (SSM) to the data and analyze the dynamics of the low-dimensional latent variables. Despite the power of SSM to explain the dynamics of neural circuits, these models have been shown to merely capture statistical associations in the data and cannot be causally interpreted. Therefore, an important research problem is to build models that can predict neural dynamics under causal manipulations. Here, we propose interventional state-space models (iSSM), a class of causal models that can predict neural responses to novel perturbations. We draw on recent advances in causal dynamical systems and present theoretical results for the identifiability of iSSM. In simulations of the motor cortex, we show that iSSM can recover the true latents and the underlying dynamics. In addition, we illustrate two applications of iSSM in biological datasets. First, we applied iSSM to a dataset of calcium recordings from ALM neurons in mice during photostimulation. Second, we applied iSSM to a dataset of electrophysiological recordings from macaque dlPFC during micro-stimulation. In both cases, we show that iSSM outperforms SSM and results in identifiable parameters. The code is available at https://github.com/amin-nejat/issm.",
-      "authors": [
-        "Amin Nejatbakhsh",
-        "Yixin Wang"
-      ],
-      "primary_category": "Causal dynamical systems",
-      "categories": [
-        "Causal dynamical systems",
-        "interventions",
-        "state space models",
-        "photo-stimulation",
-        "micro-stimulation"
-      ],
-      "published": "2025-05-01T13:17:35.861+00:00",
-      "link": "https://openreview.net/forum?id=n7qKt6gjl9",
-      "pdf_url": null,
-      "tags": [
-        "keyword:eeg",
-        "keyword:eeg-latent",
-        "query:eeg",
-        "query:eeg-latent"
-      ]
-    },
-    {
       "id": "openreview-icml-2025-j5sbloq7uv",
       "source": "ICML-2025-Accepted",
       "title": "Are Large Brainwave Foundation Models Capable Yet ? Insights from Fine-Tuning",
@@ -332,28 +269,6 @@
       ]
     },
     {
-      "id": "openreview-icml-2025-xlriub1r5s",
-      "source": "ICML-2025-Accepted",
-      "title": "Neighbour-Driven Gaussian Process Variational Autoencoders for Scalable Structured Latent Modelling",
-      "abstract": "Gaussian Process (GP) Variational Autoencoders (VAEs) extend standard VAEs by replacing the fully factorised Gaussian prior with a GP prior, thereby capturing richer correlations among latent variables. However, performing exact GP inference in large-scale GPVAEs is computationally prohibitive, often forcing existing approaches to rely on restrictive kernel assumptions or large sets of inducing points. In this work, we propose a neighbour-driven approximation strategy that exploits local adjacencies in the latent space to achieve scalable GPVAE inference. By confining computations to the nearest neighbours of each data point, our method preserves essential latent dependencies, allowing more flexible kernel choices and mitigating the need for numerous inducing points. Through extensive experiments on tasks including representation learning, data imputation, and conditional generation, we demonstrate that our approach outperforms other GPVAE variants in both predictive performance and computational efficiency.",
-      "authors": [
-        "Xinxing Shi",
-        "Xiaoyu Jiang",
-        "Mauricio A Álvarez"
-      ],
-      "primary_category": "Gaussian process VAE; nearest neighbour",
-      "categories": [
-        "Gaussian process VAE; nearest neighbour"
-      ],
-      "published": "2025-05-01T13:13:47.086+00:00",
-      "link": "https://openreview.net/forum?id=XlRIub1r5s",
-      "pdf_url": null,
-      "tags": [
-        "keyword:eeg-latent",
-        "query:eeg-latent"
-      ]
-    },
-    {
       "id": "openreview-icml-2025-55ysnwboti",
       "source": "ICML-2025-Accepted",
       "title": "Efficient Personalized Adaptation for Physiological Signal Foundation Model",
@@ -381,25 +296,25 @@
       ]
     },
     {
-      "id": "openreview-icml-2025-pfquniwc7z",
+      "id": "openreview-icml-2025-06ulfily8j",
       "source": "ICML-2025-Accepted",
-      "title": "The Brain's Bitter Lesson: Scaling Speech Decoding With Self-Supervised Learning",
-      "abstract": "The past few years have seen remarkable progress in the decoding of speech from brain activity, primarily driven by large single-subject datasets. However, due to individual variation, such as anatomy, and differences in task design and scanning hardware, leveraging data across subjects and datasets remains challenging. In turn, the field has not benefited from the growing number of open neural data repositories to exploit large-scale deep learning. To address this, we develop neuroscience-informed self-supervised objectives, together with an architecture, for learning from heterogeneous brain recordings. Scaling to nearly **400 hours** of MEG data and **900 subjects**, our approach shows generalisation across participants, datasets, tasks, and even to *novel* subjects. It achieves **improvements of 15-27%** over state-of-the-art models and **matches *surgical* decoding performance with *non-invasive* data**. These advances unlock the potential for scaling speech decoding models beyond the current frontier.",
+      "title": "MindCustomer: Multi-Context Image Generation Blended with Brain Signal",
+      "abstract": "Advancements in generative models have promoted text- and image-based multi-context image generation. Brain signals, offering a direct representation of user intent, present new opportunities for image customization. However, it faces challenges in brain interpretation, cross-modal context fusion and retention. In this paper, we present MindCustomer to explore the blending of visual brain signals in multi-context image generation. We first design shared neural data augmentation for stable cross-subject brain embedding by introducing the Image-Brain Translator (IBT) to generate brain responses from visual images. Then, we propose an effective cross-modal information fusion pipeline that mask-freely adapts distinct semantics from image and brain contexts within a diffusion model. It resolves semantic conflicts for context preservation and enables harmonious context integration. During the fusion pipeline, we further utilize the IBT to transfer image context to the brain representation to mitigate the cross-modal disparity. MindCustomer enables cross-subject generation, delivering unified, high-quality, and natural image outputs. Moreover, it exhibits strong generalization for new subjects via few-shot learning, indicating the potential for practical application. As the first work for multi-context blending with brain signal, MindCustomer lays a foundational exploration and inspiration for future brain-controlled generative technologies.",
       "authors": [
-        "Dulhan Jayalath",
-        "Gilad Landau",
-        "Brendan Shillingford",
-        "Mark Woolrich",
-        "Oiwi Parker Jones"
+        "Muzhou Yu",
+        "Shuyun Lin",
+        "Lei Ma",
+        "Bo Lei",
+        "Kaisheng Ma"
       ],
-      "primary_category": "neural decoding",
+      "primary_category": "Human-Computer Interaction",
       "categories": [
-        "neural decoding",
-        "speech decoding",
-        "neuroscience"
+        "Human-Computer Interaction",
+        "Brain-Computer Interface",
+        "Generative AI"
       ],
-      "published": "2025-05-01T13:18:52.349+00:00",
-      "link": "https://openreview.net/forum?id=pFqUNiwC7Z",
+      "published": "2025-05-01T13:15:07.833+00:00",
+      "link": "https://openreview.net/forum?id=06UlFIly8J",
       "pdf_url": null,
       "tags": [
         "keyword:eeg",
@@ -409,60 +324,27 @@
       ]
     },
     {
-      "id": "openreview-icml-2025-g7wlilhghh",
-      "source": "ICML-2025-Rejected-Public",
-      "title": "Learning Encoding-Decoding Direction Pairs to Unveil Concepts of Influence in Deep Vision Networks",
-      "abstract": "Latent space directions have played a key role in understanding, debugging, and improving deep learning models, since concepts are encoded in directions of the feature space as superpositions. The encoding direction of a concept maps a latent factor to a feature component, while the decoding direction retrieves it. These encoding-decoding direction pairs unlock significant potential to open the black-box nature of deep networks. Decoding directions help attribute meaning to latent codes, while encoding directions help assess the influence of the concept on the predictions, and both directions may assist in unlearning irrelevant concepts. Compared to previous autoencoder and dictionary learning approaches, we offer a different perspective in learning these direction pairs. We base the decoding direction on unsupervised interpretable basis learning and introduce signal vectors to estimate encoding directions. Meanwhile, we empirically prove that the uncertainty region of the model is informative and can be used to effectively reveal meaningful and influential concepts that impact model predictions. Tests on synthetic data show the approach's efficacy in recovering the underlying encoding-decoding direction pairs in a controlled setting, while experiments on state-of-the art deep image classifiers show notable improvements, or competitive performance, in interpretability and influence, compared to previous unsupervised and even supervised direction learning approaches.",
-      "authors": [
-        "Alexandros Doumanoglou",
-        "Kurt Driessens",
-        "Dimitrios Zarpalas"
-      ],
-      "primary_category": "latent space",
-      "categories": [
-        "latent space",
-        "interpretability",
-        "concepts",
-        "directions",
-        "signals",
-        "patterns",
-        "distractors"
-      ],
-      "published": "2025-01-23T09:46:01.334+00:00",
-      "link": "https://openreview.net/forum?id=g7wLilhGhh",
-      "pdf_url": null,
-      "tags": [
-        "keyword:eeg-latent",
-        "query:eeg-latent"
-      ]
-    },
-    {
-      "id": "openreview-icml-2025-zlc4b9oqwx",
+      "id": "openreview-icml-2025-kb6mjy0mtv",
       "source": "ICML-2025-Accepted",
-      "title": "Flow-field inference from neural data using deep recurrent networks",
-      "abstract": "Neural computations underlying processes such as decision-making, working memory, and motor control are thought to emerge from neural population dynamics. But estimating these dynamics remains a significant challenge. Here we introduce Flow-field Inference from Neural Data using deep Recurrent networks (FINDR), an unsupervised deep learning method for inferring low-dimensional, nonlinear, stochastic dynamics underlying neural population activity. Using spike train data from frontal brain regions of rats performing an auditory decision-making task, we demonstrate that FINDR performs competitively with existing methods in capturing the heterogeneous responses of individual neurons. When trained to disentangle task-relevant and irrelevant activity, FINDR uncovers interpretable low-dimensional dynamics. These dynamics can be visualized as flow fields and attractors, enabling direct tests of attractor-based theories of neural computation. We suggest FINDR as a powerful method for revealing the low-dimensional task-relevant dynamics of neural populations and their associated computations.",
+      "title": "Learning Single Index Models with Diffusion Priors",
+      "abstract": "Diffusion models (DMs) have demonstrated remarkable ability to generate diverse and high-quality images by efficiently modeling complex data distributions. They have also been explored as powerful generative priors for signal recovery, resulting in a substantial improvement in the quality of reconstructed signals. However, existing research on signal recovery with diffusion models either focuses on specific reconstruction problems or is unable to handle nonlinear measurement models with discontinuous or unknown link functions. In this work, we focus on using DMs to achieve accurate recovery from semi-parametric single index models, which encompass a variety of popular nonlinear models that may have {\\em discontinuous} and {\\em unknown} link functions. We propose an efficient reconstruction method that only requires one round of unconditional sampling and (partial) inversion of DMs. Theoretical analysis on the effectiveness of the proposed methods has been established under appropriate conditions. We perform numerical experiments on image datasets for different nonlinear measurement models. We observe that compared to competing methods, our approach can yield more accurate reconstructions while utilizing significantly fewer neural function evaluations.",
       "authors": [
-        "Timothy Doyeon Kim",
-        "Thomas Zhihao Luo",
-        "Tankut Can",
-        "Kamesh Krishnamurthy",
-        "Jonathan W. Pillow",
-        "Carlos D Brody"
+        "Anqi Tang",
+        "Youming Chen",
+        "Shuchen Xue",
+        "Zhaoqiang Liu"
       ],
-      "primary_category": "computational neuroscience",
+      "primary_category": "Single index models",
       "categories": [
-        "computational neuroscience",
-        "dynamical systems",
-        "neural population dynamics",
-        "interpretability"
+        "Single index models",
+        "diffusion priors",
+        "inversion of diffusion models"
       ],
-      "published": "2025-05-01T13:15:04.492+00:00",
-      "link": "https://openreview.net/forum?id=ZLC4B9oQWX",
+      "published": "2025-05-01T13:18:28.695+00:00",
+      "link": "https://openreview.net/forum?id=kB6mJY0MTV",
       "pdf_url": null,
       "tags": [
-        "keyword:eeg",
         "keyword:eeg-latent",
-        "query:eeg",
         "query:eeg-latent"
       ]
     },
@@ -549,26 +431,29 @@
       ]
     },
     {
-      "id": "openreview-icml-2025-ps3ao9mhjv",
+      "id": "openreview-icml-2025-9rg2oawj0s",
       "source": "ICML-2025-Accepted",
-      "title": "Prediction models that learn to avoid missing values",
-      "abstract": "Handling missing values at test time is challenging for machine learning models, especially when aiming for both high accuracy and interpretability. Established approaches often add bias through imputation or excessive model complexity via missingness indicators. Moreover, either method can obscure interpretability, making it harder to understand how the model utilizes the observed variables in predictions. We propose *missingness-avoiding* (MA) machine learning, a general framework for training models to rarely require the values of missing (or imputed) features at test time. We create tailored MA learning algorithms for decision trees, tree ensembles, and sparse linear models by incorporating classifier-specific regularization terms in their learning objectives. The tree-based models leverage contextual missingness by reducing reliance on missing values based on the observed context. Experiments on real-world datasets demonstrate that **MA-DT, MA-LASSO, MA-RF**, and **MA-GBT** effectively reduce the reliance on features with missing values while maintaining predictive performance competitive with their unregularized counterparts. This shows that our framework gives practitioners a powerful tool to maintain interpretability in predictions with test-time missing values.",
+      "title": "ProDiff: Prototype-Guided Diffusion for Minimal Information Trajectory Imputation",
+      "abstract": "Trajectory data is crucial for various applications but often suffers from incompleteness due to device limitations and diverse collection scenarios. Existing imputation methods rely on sparse trajectory or travel information, such as velocity, to infer missing points. However, these approaches assume that sparse trajectories retain essential behavioral patterns, which place significant demands on data acquisition and overlook the potential of large-scale human trajectory embeddings.\nTo address this, we propose ProDiff, a trajectory imputation framework that uses only two endpoints as minimal information. It integrates prototype learning to embed human movement patterns and a denoising diffusion probabilistic model for robust spatiotemporal reconstruction. Joint training with a tailored loss function ensures effective imputation.\nProDiff outperforms state-of-the-art methods, improving accuracy by 6.28\\% on FourSquare and 2.52\\% on WuXi. Further analysis shows a 0.927 correlation between generated and real trajectories, demonstrating the effectiveness of our approach.",
       "authors": [
-        "Lena Stempfle",
-        "Anton Matsson",
-        "Newton Mwai",
-        "Fredrik D. Johansson"
+        "Tianci Bu",
+        "Le Zhou",
+        "Wenchuan Yang",
+        "Jianhong Mou",
+        "Kang Yang",
+        "Suoyi Tan",
+        "Feng Yao",
+        "Jingyuan Wang",
+        "Xin Lu"
       ],
-      "primary_category": "Missing values",
+      "primary_category": "Minimal Information Trajectory Imputation",
       "categories": [
-        "Missing values",
-        "interpretablity",
-        "boosting",
-        "decision trees",
-        "rule-based methods"
+        "Minimal Information Trajectory Imputation",
+        "Prototype Learning",
+        "Diffusion Model"
       ],
-      "published": "2025-05-01T13:16:06.735+00:00",
-      "link": "https://openreview.net/forum?id=ps3aO9MHJv",
+      "published": "2025-05-01T13:17:31.86+00:00",
+      "link": "https://openreview.net/forum?id=9rG2oAWj0s",
       "pdf_url": null,
       "tags": [
         "keyword:eeg-latent",
@@ -624,43 +509,6 @@
       "tags": [
         "query:eeg-latent"
       ]
-    },
-    {
-      "id": "openreview-icml-2025-vodz3zhscj",
-      "source": "ICML-2025-Accepted",
-      "title": "Neural Encoding and Decoding at Scale",
-      "abstract": "Recent work has demonstrated that large-scale, multi-animal models are powerful tools for characterizing the relationship between neural activity and behavior. Current large-scale approaches, however, focus exclusively on either predicting neural activity from behavior (encoding) or predicting behavior from neural activity (decoding), limiting their ability to capture the bidirectional relationship between neural activity and behavior. To bridge this gap, we introduce a multimodal, multi-task model that enables simultaneous Neural Encoding and Decoding at Scale (NEDS). Central to our approach is a novel multi-task-masking strategy, which alternates between neural, behavioral, within-modality, and cross-modality masking. We pretrain our method on the International Brain Laboratory (IBL) repeated site dataset, which includes recordings from 83 animals performing the visual decision-making task. In comparison to other large-scale modeling approaches, we demonstrate that NEDS achieves state-of-the-art performance for both encoding and decoding when pretrained on multi-animal data and then fine-tuned on new animals. Surprisingly, NEDS's learned embeddings exhibit emergent properties: even without explicit training, they are highly predictive of the brain regions in each recording. Altogether, our approach is a step towards a foundation model of the brain that enables seamless translation between neural activity and behavior.",
-      "authors": [
-        "Yizi Zhang",
-        "Yanchen Wang",
-        "Mehdi Azabou",
-        "Alexandre Andre",
-        "Zixuan Wang",
-        "Hanrui Lyu",
-        "International Brain Laboratory",
-        "Eva L Dyer",
-        "Liam Paninski",
-        "Cole Lincoln Hurwitz"
-      ],
-      "primary_category": "neural coding",
-      "categories": [
-        "neural coding",
-        "multimodal",
-        "multi-task",
-        "transformer",
-        "masked modeling",
-        "electrophysiology",
-        "neuroscience",
-        "brain region",
-        "Neuropixels"
-      ],
-      "published": "2025-05-01T13:17:53.716+00:00",
-      "link": "https://openreview.net/forum?id=vOdz3zhSCj",
-      "pdf_url": null,
-      "tags": [
-        "keyword:eeg",
-        "query:eeg"
-      ]
     }
   ],
   "queries": [
@@ -694,33 +542,17 @@
           "score": 0.014925373134328358,
           "rank": 7
         },
-        "openreview-icml-2025-1w2wlyrq0k": {
-          "score": 0.014705882352941176,
-          "rank": 8
-        },
         "openreview-icml-2025-o14gjxdat3": {
           "score": 0.014285714285714285,
           "rank": 10
         },
+        "openreview-icml-2025-06ulfily8j": {
+          "score": 0.013513513513513514,
+          "rank": 14
+        },
         "openreview-icml-2025-4x83oh6oy6": {
           "score": 0.012987012987012988,
           "rank": 17
-        },
-        "openreview-icml-2025-pfquniwc7z": {
-          "score": 0.012658227848101266,
-          "rank": 19
-        },
-        "openreview-icml-2025-zlc4b9oqwx": {
-          "score": 0.0125,
-          "rank": 20
-        },
-        "openreview-icml-2025-vodz3zhscj": {
-          "score": 0.011363636363636364,
-          "rank": 28
-        },
-        "openreview-icml-2025-n7qkt6gjl9": {
-          "score": 0.011235955056179775,
-          "rank": 29
         }
       },
       "ranked": [
@@ -730,103 +562,78 @@
           "star_rating": 5
         },
         {
-          "paper_id": "openreview-icml-2025-j5sbloq7uv",
+          "paper_id": "openreview-icml-2025-nkjeaq6jcy",
           "score": 1.0,
           "star_rating": 5
         },
         {
-          "paper_id": "openreview-icml-2025-i6uxiaamje",
+          "paper_id": "openreview-icml-2025-j5sbloq7uv",
           "score": 0.9586435070306036,
           "star_rating": 5
         },
         {
           "paper_id": "openreview-icml-2025-yai2zyfmed",
-          "score": 0.9586435070306036,
-          "star_rating": 5
-        },
-        {
-          "paper_id": "openreview-icml-2025-ghzx2apayd",
           "score": 0.9185999185999183,
           "star_rating": 5
         },
         {
-          "paper_id": "openreview-icml-2025-nkjeaq6jcy",
+          "paper_id": "openreview-icml-2025-ghzx2apayd",
           "score": 0.8798076923076922,
           "star_rating": 4
         },
         {
           "paper_id": "openreview-icml-2025-o14gjxdat3",
+          "score": 0.8798076923076922,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-icml-2025-i6uxiaamje",
           "score": 0.8422090729783037,
-          "star_rating": 4
-        },
-        {
-          "paper_id": "openreview-icml-2025-pfquniwc7z",
-          "score": 0.8422090729783037,
-          "star_rating": 4
-        },
-        {
-          "paper_id": "openreview-icml-2025-1w2wlyrq0k",
-          "score": 0.8057498057498057,
-          "star_rating": 4
-        },
-        {
-          "paper_id": "openreview-icml-2025-zlc4b9oqwx",
-          "score": 0.8057498057498057,
           "star_rating": 4
         },
         {
           "paper_id": "openreview-icml-2025-4x83oh6oy6",
-          "score": 0.7703788748564866,
+          "score": 0.8057498057498057,
           "star_rating": 4
         },
         {
-          "paper_id": "openreview-icml-2025-vodz3zhscj",
+          "paper_id": "openreview-icml-2025-06ulfily8j",
           "score": 0.73604826546003,
           "star_rating": 4
         },
         {
-          "paper_id": "openreview-icml-2025-n7qkt6gjl9",
-          "score": 0.6703296703296702,
-          "star_rating": 4
-        },
-        {
           "paper_id": "openreview-icml-2025-pkda4gc4p2",
-          "score": 0.5213675213675214,
+          "score": 0.5495495495495496,
           "star_rating": 4
-        },
-        {
-          "paper_id": "openreview-icml-2025-nbjrggxlpi",
-          "score": 0.3668882557771445,
-          "star_rating": 3
         },
         {
           "paper_id": "openreview-icml-2025-55ysnwboti",
-          "score": 0.29792429792429775,
+          "score": 0.41577409931840303,
           "star_rating": 3
         },
         {
-          "paper_id": "openreview-icml-2025-xlriub1r5s",
-          "score": 0.1737891737891738,
-          "star_rating": 3
-        },
-        {
-          "paper_id": "openreview-icml-2025-g7wlilhghh",
-          "score": 0.15469146238377016,
+          "paper_id": "openreview-icml-2025-nbjrggxlpi",
+          "score": 0.32035835650293487,
           "star_rating": 3
         },
         {
           "paper_id": "openreview-icml-2025-kpwmojajr7",
-          "score": 0.1360089186176142,
+          "score": 0.1737891737891738,
+          "star_rating": 3
+        },
+        {
+          "paper_id": "openreview-icml-2025-kb6mjy0mtv",
+          "score": 0.1737891737891738,
           "star_rating": 3
         },
         {
           "paper_id": "openreview-icml-2025-gdyg0ohx0k",
-          "score": 0.06517094017094004,
+          "score": 0.09983633387888699,
           "star_rating": 2
         },
         {
           "paper_id": "openreview-icml-2025-ggert5kcpa",
-          "score": 0.0319204604918889,
+          "score": 0.015799015799015898,
           "star_rating": 2
         }
       ]
@@ -881,10 +688,6 @@
           "score": 0.0136986301369863,
           "rank": 13
         },
-        "openreview-icml-2025-1w2wlyrq0k": {
-          "score": 0.013513513513513514,
-          "rank": 14
-        },
         "openreview-icml-2025-nkjeaq6jcy": {
           "score": 0.013157894736842105,
           "rank": 16
@@ -893,25 +696,17 @@
           "score": 0.01282051282051282,
           "rank": 18
         },
-        "openreview-icml-2025-xlriub1r5s": {
-          "score": 0.012658227848101266,
-          "rank": 19
+        "openreview-icml-2025-9rg2oawj0s": {
+          "score": 0.012048192771084338,
+          "rank": 23
         },
-        "openreview-icml-2025-ps3ao9mhjv": {
-          "score": 0.011111111111111112,
-          "rank": 30
-        },
-        "openreview-icml-2025-zlc4b9oqwx": {
-          "score": 0.01098901098901099,
-          "rank": 31
+        "openreview-icml-2025-kb6mjy0mtv": {
+          "score": 0.011494252873563218,
+          "rank": 27
         },
         "openreview-icml-2025-nbjrggxlpi": {
           "score": 0.01020408163265306,
           "rank": 38
-        },
-        "openreview-icml-2025-n7qkt6gjl9": {
-          "score": 0.009615384615384616,
-          "rank": 44
         },
         "openreview-icml-2025-55ysnwboti": {
           "score": 0.00909090909090909,
@@ -925,43 +720,28 @@
           "star_rating": 5
         },
         {
-          "paper_id": "openreview-icml-2025-pkda4gc4p2",
+          "paper_id": "openreview-icml-2025-yai2zyfmed",
           "score": 1.0,
           "star_rating": 5
         },
         {
-          "paper_id": "openreview-icml-2025-yai2zyfmed",
-          "score": 0.9586435070306036,
-          "star_rating": 5
-        },
-        {
-          "paper_id": "openreview-icml-2025-xlriub1r5s",
+          "paper_id": "openreview-icml-2025-pkda4gc4p2",
           "score": 0.9586435070306036,
           "star_rating": 5
         },
         {
           "paper_id": "openreview-icml-2025-ghzx2apayd",
-          "score": 0.9185999185999183,
+          "score": 0.9586435070306036,
           "star_rating": 5
         },
         {
           "paper_id": "openreview-icml-2025-cz4eevjghf",
-          "score": 0.8798076923076922,
-          "star_rating": 4
+          "score": 0.9185999185999183,
+          "star_rating": 5
         },
         {
           "paper_id": "openreview-icml-2025-ggert5kcpa",
           "score": 0.8798076923076922,
-          "star_rating": 4
-        },
-        {
-          "paper_id": "openreview-icml-2025-g7wlilhghh",
-          "score": 0.8422090729783037,
-          "star_rating": 4
-        },
-        {
-          "paper_id": "openreview-icml-2025-n7qkt6gjl9",
-          "score": 0.8422090729783037,
           "star_rating": 4
         },
         {
@@ -970,12 +750,12 @@
           "star_rating": 4
         },
         {
-          "paper_id": "openreview-icml-2025-j5sbloq7uv",
+          "paper_id": "openreview-icml-2025-i6uxiaamje",
           "score": 0.7703788748564866,
           "star_rating": 4
         },
         {
-          "paper_id": "openreview-icml-2025-i6uxiaamje",
+          "paper_id": "openreview-icml-2025-j5sbloq7uv",
           "score": 0.73604826546003,
           "star_rating": 4
         },
@@ -986,53 +766,43 @@
         },
         {
           "paper_id": "openreview-icml-2025-4x83oh6oy6",
-          "score": 0.6388587937883712,
+          "score": 0.6703296703296702,
           "star_rating": 4
         },
         {
-          "paper_id": "openreview-icml-2025-pfquniwc7z",
-          "score": 0.608262108262108,
-          "star_rating": 4
+          "paper_id": "openreview-icml-2025-9rg2oawj0s",
+          "score": 0.49392712550607265,
+          "star_rating": 3
         },
         {
-          "paper_id": "openreview-icml-2025-ps3ao9mhjv",
-          "score": 0.578503688092729,
-          "star_rating": 4
-        },
-        {
-          "paper_id": "openreview-icml-2025-zlc4b9oqwx",
-          "score": 0.5495495495495496,
-          "star_rating": 4
-        },
-        {
-          "paper_id": "openreview-icml-2025-gdyg0ohx0k",
+          "paper_id": "openreview-icml-2025-kb6mjy0mtv",
           "score": 0.46719946719946726,
           "star_rating": 3
         },
         {
           "paper_id": "openreview-icml-2025-nbjrggxlpi",
-          "score": 0.4411571334648256,
+          "score": 0.41577409931840303,
           "star_rating": 3
         },
         {
-          "paper_id": "openreview-icml-2025-vodz3zhscj",
-          "score": 0.32035835650293487,
+          "paper_id": "openreview-icml-2025-06ulfily8j",
+          "score": 0.3910256410256411,
+          "star_rating": 3
+        },
+        {
+          "paper_id": "openreview-icml-2025-gdyg0ohx0k",
+          "score": 0.3433395872420263,
           "star_rating": 3
         },
         {
           "paper_id": "openreview-icml-2025-55ysnwboti",
-          "score": 0.1737891737891738,
+          "score": 0.23371647509578536,
           "star_rating": 3
         },
         {
           "paper_id": "openreview-icml-2025-yk6yb16vre",
-          "score": 0.15469146238377016,
+          "score": 0.1933160472486314,
           "star_rating": 3
-        },
-        {
-          "paper_id": "openreview-icml-2025-1w2wlyrq0k",
-          "score": 0.0823211875843454,
-          "star_rating": 2
         }
       ]
     },
@@ -1066,6 +836,10 @@
           "score": 0.014925373134328358,
           "rank": 7
         },
+        "openreview-icml-2025-9rg2oawj0s": {
+          "score": 0.014705882352941176,
+          "rank": 8
+        },
         "openreview-icml-2025-4x83oh6oy6": {
           "score": 0.014492753623188406,
           "rank": 9
@@ -1078,17 +852,9 @@
           "score": 0.0136986301369863,
           "rank": 13
         },
-        "openreview-icml-2025-1w2wlyrq0k": {
-          "score": 0.013513513513513514,
-          "rank": 14
-        },
         "openreview-icml-2025-i6uxiaamje": {
           "score": 0.012987012987012988,
           "rank": 17
-        },
-        "openreview-icml-2025-xlriub1r5s": {
-          "score": 0.01282051282051282,
-          "rank": 18
         },
         "openreview-icml-2025-kpwmojajr7": {
           "score": 0.0125,
@@ -1097,10 +863,6 @@
         "openreview-icml-2025-pkda4gc4p2": {
           "score": 0.011494252873563218,
           "rank": 27
-        },
-        "openreview-icml-2025-ps3ao9mhjv": {
-          "score": 0.010752688172043012,
-          "rank": 33
         },
         "openreview-icml-2025-ggert5kcpa": {
           "score": 0.009174311926605505,
@@ -1115,26 +877,26 @@
         },
         {
           "paper_id": "openreview-icml-2025-gdyg0ohx0k",
+          "score": 1.0,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "openreview-icml-2025-cz4eevjghf",
           "score": 0.9586435070306036,
           "star_rating": 5
         },
         {
           "paper_id": "openreview-icml-2025-kpwmojajr7",
-          "score": 0.9586435070306036,
+          "score": 0.9185999185999183,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "openreview-icml-2025-ghzx2apayd",
+          "score": 0.9185999185999183,
           "star_rating": 5
         },
         {
           "paper_id": "openreview-icml-2025-yai2zyfmed",
-          "score": 0.9185999185999183,
-          "star_rating": 5
-        },
-        {
-          "paper_id": "openreview-icml-2025-xlriub1r5s",
-          "score": 0.9185999185999183,
-          "star_rating": 5
-        },
-        {
-          "paper_id": "openreview-icml-2025-cz4eevjghf",
           "score": 0.8798076923076922,
           "star_rating": 4
         },
@@ -1144,83 +906,58 @@
           "star_rating": 4
         },
         {
-          "paper_id": "openreview-icml-2025-ghzx2apayd",
-          "score": 0.8422090729783037,
-          "star_rating": 4
-        },
-        {
           "paper_id": "openreview-icml-2025-yk6yb16vre",
-          "score": 0.8422090729783037,
-          "star_rating": 4
-        },
-        {
-          "paper_id": "openreview-icml-2025-ggert5kcpa",
           "score": 0.8057498057498057,
           "star_rating": 4
         },
         {
-          "paper_id": "openreview-icml-2025-j5sbloq7uv",
+          "paper_id": "openreview-icml-2025-i6uxiaamje",
           "score": 0.7703788748564866,
           "star_rating": 4
         },
         {
-          "paper_id": "openreview-icml-2025-g7wlilhghh",
-          "score": 0.702712746191007,
+          "paper_id": "openreview-icml-2025-kb6mjy0mtv",
+          "score": 0.73604826546003,
           "star_rating": 4
         },
         {
           "paper_id": "openreview-icml-2025-o14gjxdat3",
-          "score": 0.6703296703296702,
-          "star_rating": 4
-        },
-        {
-          "paper_id": "openreview-icml-2025-nbjrggxlpi",
-          "score": 0.6388587937883712,
-          "star_rating": 4
-        },
-        {
-          "paper_id": "openreview-icml-2025-ps3ao9mhjv",
-          "score": 0.608262108262108,
-          "star_rating": 4
-        },
-        {
-          "paper_id": "openreview-icml-2025-pfquniwc7z",
-          "score": 0.578503688092729,
-          "star_rating": 4
-        },
-        {
-          "paper_id": "openreview-icml-2025-n7qkt6gjl9",
-          "score": 0.5495495495495496,
-          "star_rating": 4
-        },
-        {
-          "paper_id": "openreview-icml-2025-zlc4b9oqwx",
-          "score": 0.5495495495495496,
-          "star_rating": 4
-        },
-        {
-          "paper_id": "openreview-icml-2025-i6uxiaamje",
-          "score": 0.5213675213675214,
+          "score": 0.702712746191007,
           "star_rating": 4
         },
         {
           "paper_id": "openreview-icml-2025-nkjeaq6jcy",
-          "score": 0.46719946719946726,
+          "score": 0.702712746191007,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-icml-2025-9rg2oawj0s",
+          "score": 0.6703296703296702,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-icml-2025-ggert5kcpa",
+          "score": 0.578503688092729,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-icml-2025-j5sbloq7uv",
+          "score": 0.5213675213675214,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-icml-2025-06ulfily8j",
+          "score": 0.49392712550607265,
           "star_rating": 3
         },
         {
           "paper_id": "openreview-icml-2025-55ysnwboti",
-          "score": 0.29792429792429775,
+          "score": 0.46719946719946726,
           "star_rating": 3
         },
         {
-          "paper_id": "openreview-icml-2025-1w2wlyrq0k",
-          "score": 0.23371647509578536,
-          "star_rating": 3
-        },
-        {
-          "paper_id": "openreview-icml-2025-vodz3zhscj",
-          "score": 0.1933160472486314,
+          "paper_id": "openreview-icml-2025-nbjrggxlpi",
+          "score": 0.3668882557771445,
           "star_rating": 3
         }
       ]
@@ -1247,17 +984,13 @@
           "score": 0.015384615384615385,
           "rank": 5
         },
-        "openreview-icml-2025-zlc4b9oqwx": {
-          "score": 0.015151515151515152,
-          "rank": 6
+        "openreview-icml-2025-06ulfily8j": {
+          "score": 0.014925373134328358,
+          "rank": 7
         },
         "openreview-icml-2025-o14gjxdat3": {
           "score": 0.014705882352941176,
           "rank": 8
-        },
-        "openreview-icml-2025-1w2wlyrq0k": {
-          "score": 0.014492753623188406,
-          "rank": 9
         },
         "openreview-icml-2025-j5sbloq7uv": {
           "score": 0.014084507042253521,
@@ -1275,14 +1008,6 @@
           "score": 0.011235955056179775,
           "rank": 29
         },
-        "openreview-icml-2025-g7wlilhghh": {
-          "score": 0.010416666666666666,
-          "rank": 36
-        },
-        "openreview-icml-2025-pfquniwc7z": {
-          "score": 0.010309278350515464,
-          "rank": 37
-        },
         "openreview-icml-2025-nbjrggxlpi": {
           "score": 0.00980392156862745,
           "rank": 42
@@ -1290,43 +1015,38 @@
       },
       "ranked": [
         {
-          "paper_id": "openreview-icml-2025-ghzx2apayd",
+          "paper_id": "openreview-icml-2025-pkda4gc4p2",
           "score": 1.0,
           "star_rating": 5
         },
         {
-          "paper_id": "openreview-icml-2025-j5sbloq7uv",
+          "paper_id": "openreview-icml-2025-ghzx2apayd",
           "score": 0.9586435070306036,
           "star_rating": 5
         },
         {
           "paper_id": "openreview-icml-2025-yai2zyfmed",
-          "score": 0.9586435070306036,
-          "star_rating": 5
-        },
-        {
-          "paper_id": "openreview-icml-2025-cz4eevjghf",
           "score": 0.9185999185999183,
           "star_rating": 5
         },
         {
-          "paper_id": "openreview-icml-2025-pkda4gc4p2",
+          "paper_id": "openreview-icml-2025-j5sbloq7uv",
+          "score": 0.9185999185999183,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "openreview-icml-2025-cz4eevjghf",
           "score": 0.8798076923076922,
           "star_rating": 4
         },
         {
-          "paper_id": "openreview-icml-2025-zlc4b9oqwx",
-          "score": 0.8057498057498057,
+          "paper_id": "openreview-icml-2025-06ulfily8j",
+          "score": 0.8422090729783037,
           "star_rating": 4
         },
         {
-          "paper_id": "openreview-icml-2025-pfquniwc7z",
-          "score": 0.7703788748564866,
-          "star_rating": 4
-        },
-        {
-          "paper_id": "openreview-icml-2025-gdyg0ohx0k",
-          "score": 0.73604826546003,
+          "paper_id": "openreview-icml-2025-kb6mjy0mtv",
+          "score": 0.8422090729783037,
           "star_rating": 4
         },
         {
@@ -1335,73 +1055,53 @@
           "star_rating": 4
         },
         {
+          "paper_id": "openreview-icml-2025-4x83oh6oy6",
+          "score": 0.73604826546003,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-icml-2025-55ysnwboti",
+          "score": 0.6703296703296702,
+          "star_rating": 4
+        },
+        {
           "paper_id": "openreview-icml-2025-i6uxiaamje",
           "score": 0.6388587937883712,
           "star_rating": 4
         },
         {
-          "paper_id": "openreview-icml-2025-kpwmojajr7",
+          "paper_id": "openreview-icml-2025-o14gjxdat3",
+          "score": 0.6388587937883712,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-icml-2025-gdyg0ohx0k",
           "score": 0.608262108262108,
           "star_rating": 4
         },
         {
-          "paper_id": "openreview-icml-2025-4x83oh6oy6",
-          "score": 0.578503688092729,
-          "star_rating": 4
-        },
-        {
-          "paper_id": "openreview-icml-2025-55ysnwboti",
-          "score": 0.5495495495495496,
-          "star_rating": 4
-        },
-        {
-          "paper_id": "openreview-icml-2025-o14gjxdat3",
-          "score": 0.5213675213675214,
-          "star_rating": 4
-        },
-        {
-          "paper_id": "openreview-icml-2025-xlriub1r5s",
+          "paper_id": "openreview-icml-2025-kpwmojajr7",
           "score": 0.49392712550607265,
           "star_rating": 3
         },
         {
-          "paper_id": "openreview-icml-2025-ps3ao9mhjv",
+          "paper_id": "openreview-icml-2025-9rg2oawj0s",
           "score": 0.4411571334648256,
           "star_rating": 3
         },
         {
-          "paper_id": "openreview-icml-2025-ggert5kcpa",
-          "score": 0.41577409931840303,
-          "star_rating": 3
-        },
-        {
-          "paper_id": "openreview-icml-2025-1w2wlyrq0k",
-          "score": 0.41577409931840303,
-          "star_rating": 3
-        },
-        {
-          "paper_id": "openreview-icml-2025-g7wlilhghh",
-          "score": 0.3433395872420263,
-          "star_rating": 3
-        },
-        {
           "paper_id": "openreview-icml-2025-yk6yb16vre",
-          "score": 0.32035835650293487,
+          "score": 0.3910256410256411,
           "star_rating": 3
         },
         {
-          "paper_id": "openreview-icml-2025-vodz3zhscj",
-          "score": 0.29792429792429775,
-          "star_rating": 3
-        },
-        {
-          "paper_id": "openreview-icml-2025-nkjeaq6jcy",
+          "paper_id": "openreview-icml-2025-ggert5kcpa",
           "score": 0.25462134764460337,
           "star_rating": 3
         },
         {
-          "paper_id": "openreview-icml-2025-n7qkt6gjl9",
-          "score": 0.1933160472486314,
+          "paper_id": "openreview-icml-2025-nkjeaq6jcy",
+          "score": 0.23371647509578536,
           "star_rating": 3
         }
       ]
@@ -1528,14 +1228,6 @@
           "score": 0.014705882352941176,
           "rank": 8
         },
-        "openreview-icml-2025-1w2wlyrq0k": {
-          "score": 0.014492753623188406,
-          "rank": 9
-        },
-        "openreview-icml-2025-zlc4b9oqwx": {
-          "score": 0.014084507042253521,
-          "rank": 11
-        },
         "openreview-icml-2025-nkjeaq6jcy": {
           "score": 0.013888888888888888,
           "rank": 12
@@ -1544,17 +1236,9 @@
           "score": 0.0125,
           "rank": 20
         },
-        "openreview-icml-2025-n7qkt6gjl9": {
-          "score": 0.012048192771084338,
-          "rank": 23
-        },
-        "openreview-icml-2025-vodz3zhscj": {
-          "score": 0.009523809523809525,
-          "rank": 45
-        },
-        "openreview-icml-2025-pfquniwc7z": {
-          "score": 0.009433962264150943,
-          "rank": 46
+        "openreview-icml-2025-06ulfily8j": {
+          "score": 0.011904761904761904,
+          "rank": 24
         }
       }
     },
@@ -1615,33 +1299,17 @@
           "score": 0.014492753623188406,
           "rank": 9
         },
-        "openreview-icml-2025-1w2wlyrq0k": {
-          "score": 0.014084507042253521,
-          "rank": 11
-        },
-        "openreview-icml-2025-n7qkt6gjl9": {
-          "score": 0.012658227848101266,
-          "rank": 19
-        },
         "openreview-icml-2025-j5sbloq7uv": {
           "score": 0.011904761904761904,
           "rank": 24
-        },
-        "openreview-icml-2025-xlriub1r5s": {
-          "score": 0.011764705882352941,
-          "rank": 25
         },
         "openreview-icml-2025-55ysnwboti": {
           "score": 0.011494252873563218,
           "rank": 27
         },
-        "openreview-icml-2025-pfquniwc7z": {
-          "score": 0.00980392156862745,
-          "rank": 42
-        },
-        "openreview-icml-2025-g7wlilhghh": {
-          "score": 0.009174311926605505,
-          "rank": 49
+        "openreview-icml-2025-06ulfily8j": {
+          "score": 0.01020408163265306,
+          "rank": 38
         }
       }
     },
@@ -1675,10 +1343,6 @@
           "score": 0.015625,
           "rank": 4
         },
-        "openreview-icml-2025-zlc4b9oqwx": {
-          "score": 0.015384615384615385,
-          "rank": 5
-        },
         "openreview-icml-2025-j5sbloq7uv": {
           "score": 0.015151515151515152,
           "rank": 6
@@ -1695,25 +1359,21 @@
           "score": 0.014084507042253521,
           "rank": 11
         },
-        "openreview-icml-2025-1w2wlyrq0k": {
-          "score": 0.01282051282051282,
-          "rank": 18
+        "openreview-icml-2025-kb6mjy0mtv": {
+          "score": 0.011494252873563218,
+          "rank": 27
+        },
+        "openreview-icml-2025-06ulfily8j": {
+          "score": 0.011111111111111112,
+          "rank": 30
         },
         "openreview-icml-2025-4x83oh6oy6": {
           "score": 0.01098901098901099,
           "rank": 31
         },
-        "openreview-icml-2025-pfquniwc7z": {
-          "score": 0.010869565217391304,
-          "rank": 32
-        },
         "openreview-icml-2025-55ysnwboti": {
           "score": 0.010638297872340425,
           "rank": 34
-        },
-        "openreview-icml-2025-g7wlilhghh": {
-          "score": 0.00980392156862745,
-          "rank": 42
         },
         "openreview-icml-2025-nbjrggxlpi": {
           "score": 0.009708737864077669,
@@ -1759,10 +1419,6 @@
           "score": 0.014285714285714285,
           "rank": 10
         },
-        "openreview-icml-2025-1w2wlyrq0k": {
-          "score": 0.014084507042253521,
-          "rank": 11
-        },
         "openreview-icml-2025-j5sbloq7uv": {
           "score": 0.013888888888888888,
           "rank": 12
@@ -1771,9 +1427,13 @@
           "score": 0.013157894736842105,
           "rank": 16
         },
-        "openreview-icml-2025-ps3ao9mhjv": {
-          "score": 0.011904761904761904,
-          "rank": 24
+        "openreview-icml-2025-06ulfily8j": {
+          "score": 0.012987012987012988,
+          "rank": 17
+        },
+        "openreview-icml-2025-9rg2oawj0s": {
+          "score": 0.012195121951219513,
+          "rank": 22
         },
         "openreview-icml-2025-nbjrggxlpi": {
           "score": 0.010869565217391304,
@@ -1786,14 +1446,6 @@
         "openreview-icml-2025-55ysnwboti": {
           "score": 0.01020408163265306,
           "rank": 38
-        },
-        "openreview-icml-2025-pfquniwc7z": {
-          "score": 0.009900990099009901,
-          "rank": 41
-        },
-        "openreview-icml-2025-zlc4b9oqwx": {
-          "score": 0.009523809523809525,
-          "rank": 45
         }
       }
     }
@@ -1924,401 +1576,316 @@
   "global_pool_limit": 120,
   "global_pool_guaranteed_per_lane": 2,
   "global_pool_effective_size": 120,
-  "reranked_at": "2026-06-01T08:22:40.515204+00:00",
+  "reranked_at": "2026-06-01T09:19:01.746832+00:00",
   "llm_ranked": [
     {
-      "paper_id": "openreview-icml-2025-yai2zyfmed",
-      "score": 9.0,
-      "evidence_en": "EEG-language pretraining with multimodal alignment for clinical phenotyping",
-      "evidence_cn": "EEG-语言预训练结合多模态对齐用于临床表型分析",
-      "canonical_evidence": "EEG-语言预训练结合多模态对齐用于临床表型分析",
-      "tldr_en": "EEG-Language Pretraining proposes multimodal alignment between EEG and clinical reports, enabling zero-shot classification and retrieval, directly advancing EEG latent space representation.",
-      "tldr_cn": "多模态语言模型在脑功能数据领域尚未探索。本文开创性地提出EEG-语言模型（ELM），在15000份EEG和临床报告上训练。通过多模态对齐及时序裁剪、文本分割，结合多实例学习解决不匹配问题。相比仅用EEG的模型，在四项临床评估中显著提升，并首次实现零样本分类和信号/报告检索。直接贡献于EEG潜在空间表征学习。",
-      "title_zh": "EEG-语言预训练实现高度标签高效的临床表型分析",
-      "motivation_cn": "多模态语言模型在脑功能数据临床表型分析中的应用尚属空白。",
-      "method_cn": "提出EEG-语言预训练模型，结合多模态对齐、时序裁剪、文本分割和多实例学习。",
-      "result_cn": "在四项临床评估中显著优于仅EEG模型，实现零样本分类和检索。",
-      "conclusion_cn": "ELM证明了EEG-语言联合预训练的巨大潜力，为EEG潜在表征研究奠定了重要基础。",
-      "matched_requirement_id": "req-2",
+      "paper_id": "openreview-icml-2025-ghzx2apayd",
+      "score": 8.0,
+      "evidence_en": "directly addresses EEG missing channel completion via latent representations and distillation",
+      "evidence_cn": "直接针对EEG缺失通道补全问题，利用潜在表示和蒸馏",
+      "canonical_evidence": "直接针对EEG缺失通道补全问题，利用潜在表示和蒸馏",
+      "tldr_en": "Proposes EEG-DisGCMAE, a unified graph self-supervised pre-training method for transferring knowledge from high-density to low-density EEG, enabling missing channel imputation.",
+      "tldr_cn": "现有方法难以利用大量无标签高密度EEG数据提升少量有标签低密度EEG数据的性能。该论文将问题建模为图迁移学习和知识蒸馏，提出EEG-DisGCMAE，统一了图对比预训练和图掩码自编码器预训练范式。通过图拓扑蒸馏损失函数，有效从高密度到低密度电极迁移知识，实现了缺失通道的有效补全和性能提升。",
+      "title_zh": "预训练图对比掩码自编码器是EEG的强大蒸馏器",
+      "motivation_cn": "高密度EEG数据标注成本高，低密度数据性能受限。",
+      "method_cn": "提出EEG-DisGCMAE，统一图对比与掩码自编码器预训练，并设计图拓扑蒸馏损失。",
+      "result_cn": "在跨密度EEG任务上显著提升分类和重建性能。",
+      "conclusion_cn": "该方法有效解决了EEG数据密度差异问题，为缺失通道补全提供了新思路。",
+      "matched_requirement_id": "req-5",
       "matched_query_tag": "query:eeg-latent",
-      "matched_query_text": "EEG latent space representation"
+      "matched_query_text": "EEG missing channel completion using latent space models"
     },
     {
-      "paper_id": "openreview-icml-2025-j5sbloq7uv",
-      "score": 9.0,
-      "evidence_en": "Evaluation of large brainwave foundation models on BCI tasks",
-      "evidence_cn": "评估大型脑波基础模型在脑机接口任务上的表现",
-      "canonical_evidence": "评估大型脑波基础模型在脑机接口任务上的表现",
-      "tldr_en": "This paper evaluates Large Brainwave Foundation Models (LBMs) on BCI benchmarks, finding only 0.5% improvement over traditional models with far more parameters.",
-      "tldr_cn": "本文系统性评估了大型脑波基础模型（LBMs）在多个脑机接口（BCI）基准任务上的表现，包括记忆任务和睡眠阶段分类。结果显示，最先进的LBM相比传统深度架构仅带来0.5%的边际提升，却需要数十倍甚至百倍的参数。这一发现对BCI领域的基础模型效率与实用性提出了重要质疑。",
-      "title_zh": "大型脑波基础模型足够胜任吗？微调带来的启示",
-      "motivation_cn": "现有基础模型在AI领域成功，但脑波建模能力尚不明确。",
-      "method_cn": "通过在多个BCI任务上系统微调当前最先进的大型脑波基础模型进行评估。",
-      "result_cn": "LBM仅比传统深度架构提升0.5%，但参数数量级更高。",
-      "conclusion_cn": "当前LBM在BCI中效率低下，需重新审视其适用性。",
-      "matched_requirement_id": "req-10",
-      "matched_query_tag": "query:eeg",
-      "matched_query_text": "EEG based brain computer interface research papers"
-    },
-    {
-      "paper_id": "openreview-icml-2025-nkjeaq6jcy",
-      "score": 8.0,
-      "evidence_en": "Flow-based distribution alignment for few-trial neural adaptation in BCI",
-      "evidence_cn": "基于流的分布对齐用于脑机接口中少试次神经适应",
-      "canonical_evidence": "基于流的分布对齐用于脑机接口中少试次神经适应",
-      "tldr_en": "Proposes Flow-Based Distribution Alignment (FDA) for stable latent dynamics in BCI neural adaptation with few trials, addressing nonstationarity across days.",
-      "tldr_cn": "本文针对脑机接口（BCI）跨天神经信号非平稳性导致性能下降的问题，提出基于流匹配的分布对齐框架（FDA），通过稳定潜空间动力学实现少试次下的高效神经适应。实验表明，该方法在少量校准试次下显著提升了跨天解码性能，为实际BCI部署提供了可行方案。",
-      "title_zh": "用于少试次神经适应且具有稳定潜动力学的流匹配方法",
-      "motivation_cn": "解决BCI跨天神经信号非平稳性，现有对齐方法在少试次时不稳定。",
-      "method_cn": "提出流匹配分布对齐（FDA），利用潜空间流匹配实现跨天分布对齐。",
-      "result_cn": "在少试次下实现稳定高效的神经适应，优于现有对齐方法。",
-      "conclusion_cn": "FDA提升了BCI实际部署中的鲁棒性和实用性。",
-      "matched_requirement_id": "req-10",
-      "matched_query_tag": "query:eeg",
-      "matched_query_text": "EEG based brain computer interface research papers"
-    },
-    {
-      "paper_id": "openreview-icml-2025-cz4eevjghf",
-      "score": 8.0,
-      "evidence_en": "large foundation model for EEG-based Alzheimer's detection using deep learning",
-      "evidence_cn": "基于深度学习的大型EEG基础模型用于阿尔茨海默病检测",
-      "canonical_evidence": "基于深度学习的大型EEG基础模型用于阿尔茨海默病检测",
-      "tldr_en": "LEAD introduces the first large foundation model for EEG-based Alzheimer's detection, using self-supervised pretraining on 813 subjects, advancing EEG signal processing.",
-      "tldr_cn": "现有EEG阿尔茨海默病检测方法受限于数据集小和跨被试差异。本文构建了包含813名被试的最大EEG-AD数据集，并提出首个大型基础模型LEAD。通过自监督预训练等完整流程，LEAD在多项评估中达到最先进性能。该工作展示了大型预训练模型在EEG信号处理中的应用价值，其方法学可直接服务于EEG表征学习与通道补全等任务。",
-      "title_zh": "LEAD：基于EEG的阿尔茨海默病检测的大型基础模型",
-      "motivation_cn": "EEG阿尔茨海默病检测面临数据集小和跨被试差异大的挑战。",
-      "method_cn": "构建大规模EEG-AD数据集，提出基于自监督预训练的大型基础模型LEAD。",
-      "result_cn": "在多项评估中取得最先进性能，显著优于现有方法。",
-      "conclusion_cn": "LEAD证明了大型预训练模型在EEG信号处理中的有效性，为相关研究提供了新基准。",
+      "paper_id": "openreview-icml-2025-4x83oh6oy6",
+      "score": 7.0,
+      "evidence_en": "includes EEG signal processing in multimodal foundation model",
+      "evidence_cn": "包含EEG信号处理的多模态基础模型",
+      "canonical_evidence": "包含EEG信号处理的多模态基础模型",
+      "tldr_en": "Proposes NormWear, a foundation model pretrained on diverse physiological signals including EEG, for generalizable EEG signal representations.",
+      "tldr_cn": "该论文提出NormWear，一个针对可穿戴传感数据的预训练基础模型，在包括PPG、ECG、EEG、GSR和IMU等多种公开数据集上进行训练。通过提取通用且信息丰富的表示，NormWear在多个下游任务中表现出色，可有效处理EEG信号的特征提取，为EEG信号分析提供了一种强大的基础模型。",
+      "title_zh": "面向多变量可穿戴生理信号感知的基础模型",
+      "motivation_cn": "可穿戴生理信号模式多样，缺乏通用表示方法。",
+      "method_cn": "提出NormWear，在多种生理信号上预训练，学习通用波形表示。",
+      "result_cn": "在多个评估任务中表现优异，验证了模型泛化能力。",
+      "conclusion_cn": "NormWear可作为EEG等生理信号分析的基础工具。",
       "matched_requirement_id": "req-9",
       "matched_query_tag": "query:eeg",
       "matched_query_text": "electroencephalogram signal processing and analysis"
     },
     {
-      "paper_id": "openreview-icml-2025-nbjrggxlpi",
-      "score": 8.0,
-      "evidence_en": "Conditional diffusion model with learned prior for signal restoration, applicable to EEG reconstruction",
-      "evidence_cn": "带联合学习先验的条件扩散模型用于信号恢复，可应用于EEG重建",
-      "canonical_evidence": "带联合学习先验的条件扩散模型用于信号恢复，可应用于EEG重建",
-      "tldr_en": "RestoreGrad improves conditional DDPMs by jointly learning a more informative prior, achieving better signal restoration performance.",
-      "tldr_cn": "本文提出RestoreGrad，改进条件去噪扩散概率模型（DDPM）用于信号恢复。现有方法使用标准高斯先验，丢弃了退化信号中的有用信息。RestoreGrad联合学习一个更具信息量的先验，显著提升了信号恢复质量。该方法可应用于EEG信号重建与缺失通道补全。",
-      "title_zh": "RestoreGrad：基于联合学习先验的条件去噪扩散模型信号恢复",
-      "motivation_cn": "标准高斯先验丢弃了退化信号中的有用信息。",
-      "method_cn": "联合学习一个信息更丰富的先验来改进条件DDPM。",
-      "result_cn": "信号恢复性能显著提升。",
-      "conclusion_cn": "为信号恢复提供了一种更强先验的生成框架。",
-      "matched_requirement_id": "req-3",
-      "matched_query_tag": "query:eeg-latent",
-      "matched_query_text": "deep learning for EEG signal reconstruction"
-    },
-    {
-      "paper_id": "openreview-icml-2025-ghzx2apayd",
-      "score": 8.0,
-      "evidence_en": "proposes graph masked autoencoder for EEG, learning latent representations that bridge high- and low-density data",
-      "evidence_cn": "提出图掩码自编码器用于EEG，学习潜在表示以桥接高密度与低密度数据",
-      "canonical_evidence": "提出图掩码自编码器用于EEG，学习潜在表示以桥接高密度与低密度数据",
-      "tldr_en": "EEG-DisGCMAE uses graph contrastive masked autoencoder pretraining to learn latent representations from unlabeled EEG, enabling effective distillation to low-density settings.",
-      "tldr_cn": "充分利用海量无标记高密度EEG数据以提升有限低密度场景性能是挑战。本文提出EEG-DisGCMAE统一预训练范式，融合图对比学习与掩码自编码器，通过图拓扑蒸馏损失函数实现知识迁移。实验证明该方法在跨密度EEG分类中表现优异，为EEG潜在空间表示学习提供了有效框架。",
-      "title_zh": "预训练图对比掩码自编码器是EEG的强蒸馏器",
-      "motivation_cn": "高低密度EEG数据间的知识迁移困难。",
-      "method_cn": "统一图对比与掩码自编码器预训练，结合蒸馏损失。",
-      "result_cn": "在跨密度EEG分类任务上取得最优性能。",
-      "conclusion_cn": "EEG-DisGCMAE能高效利用无标记EEG数据学习潜在表示。",
-      "matched_requirement_id": "req-2",
-      "matched_query_tag": "query:eeg-latent",
-      "matched_query_text": "EEG latent space representation"
-    },
-    {
-      "paper_id": "openreview-icml-2025-o14gjxdat3",
+      "paper_id": "openreview-icml-2025-j5sbloq7uv",
       "score": 7.0,
-      "evidence_en": "latent factor analysis using sequential VAE for neural populations",
-      "evidence_cn": "使用序列变分自编码器对神经群体进行潜在因子分析",
-      "canonical_evidence": "使用序列变分自编码器对神经群体进行潜在因子分析",
-      "tldr_en": "MR-LFADS uses region-specific RNNs and structured bottlenecks to disentangle inter-regional communication in neural population recordings, offering a latent factor model applicable to EEG.",
-      "tldr_cn": "现有模型难以从局部动态中分离出脑区间通信。本文提出MR-LFADS，一个基于区域特定循环神经网络的序列变分自编码器，通过结构化信息瓶颈和数据约束通信实现潜在因子分析。该方法可无监督推断未观测输入，有效分离脑区间通信成分。虽然以神经群体为对象，但其潜在空间建模思想可直接迁移至EEG多通道信号表征与缺失通道补全。",
-      "title_zh": "MR-LFADS：多交互神经群体通信的精确识别",
-      "motivation_cn": "现有模型难以从局部动态中分离出脑区间通信成分。",
-      "method_cn": "提出MR-LFADS，利用区域特定RNN的序列变分自编码器，通过结构化信息瓶颈和数据约束通信进行潜在因子分析。",
-      "result_cn": "在模拟和真实神经数据上优于现有方法，成功分离通信与局部动态。",
-      "conclusion_cn": "MR-LFADS为多脑区通信分析提供了可解释的潜在空间方法，并能推广至EEG信号处理。",
-      "matched_requirement_id": "req-2",
-      "matched_query_tag": "query:eeg-latent",
-      "matched_query_text": "EEG latent space representation"
-    },
-    {
-      "paper_id": "openreview-icml-2025-pfquniwc7z",
-      "score": 7.0,
-      "evidence_en": "self-supervised learning for speech decoding from MEG brain activity",
-      "evidence_cn": "使用自监督学习从MEG脑活动解码语音，类似EEG脑机接口",
-      "canonical_evidence": "使用自监督学习从MEG脑活动解码语音，类似EEG脑机接口",
-      "tldr_en": "The Brain's Bitter Lesson presents a self-supervised learning framework for decoding speech from MEG recordings across 900 subjects, demonstrating cross-subject generalization relevant to EEG-based BCI.",
-      "tldr_cn": "基于个体差异和数据集异构性，脑活动解码难以跨被试泛化。本文提出神经科学启发的自监督学习架构，在400小时MEG数据和900名被试上训练，实现了跨被试、跨数据集和跨任务的语音解码。其结果比以往方法有显著提升，且首次在MEG上展示了大规模预训练的有效性。该工作的自监督预训练范式可直接指导EEG脑机接口信号处理。",
-      "title_zh": "大脑的痛苦教训：用自监督学习扩展语音解码",
-      "motivation_cn": "脑活动解码因个体差异和数据异构性难以跨被试泛化。",
-      "method_cn": "提出神经科学启发的自监督学习架构和模型，在大规模MEG数据上预训练。",
-      "result_cn": "在900名被试上实现了跨被试、跨数据集和跨任务的语音解码，性能大幅提升。",
-      "conclusion_cn": "展示了大规模自监督学习在脑信号处理中的潜力，为EEG脑机接口提供了新范式。",
+      "evidence_en": "systematically evaluates large brainwave foundation models on BCI benchmarks including EEG",
+      "evidence_cn": "系统评估大型脑波基础模型在包括EEG的BCI基准任务上的性能",
+      "canonical_evidence": "系统评估大型脑波基础模型在包括EEG的BCI基准任务上的性能",
+      "tldr_en": "Evaluates large brainwave foundation models on multiple BCI tasks including EEG, showing marginal gains over traditional methods despite massive parameters, questioning their BCI applicability.",
+      "tldr_cn": "该文对现有大型脑波基础模型在多个脑机接口基准任务（包括记忆任务和睡眠阶段分类）上进行了系统性微调评估。结果表明，这些LBM相比传统深度架构仅获得0.5%的边际提升，却需要数百万参数，远多于传统模型的数千参数。这一发现质疑了大型脑波基础模型在当前BCI任务中的效率和必要性，为未来脑电模型设计提供了重要参考。",
+      "title_zh": "大型脑波基础模型的能力如何？来自微调的见解",
+      "motivation_cn": "大型脑波基础模型在BCI任务上的实际能力尚不明确。",
+      "method_cn": "对现有大型脑波基础模型进行系统性微调实验，在多个BCI基准任务上评测。",
+      "result_cn": "大型脑波基础模型性能提升微小（0.5%）且参数巨大，效率远低于传统架构。",
+      "conclusion_cn": "当前大型脑波基础模型的效率低下，其在BCI中的适用性值得重新思考。",
       "matched_requirement_id": "req-10",
       "matched_query_tag": "query:eeg",
       "matched_query_text": "EEG based brain computer interface research papers"
     },
     {
       "paper_id": "openreview-icml-2025-gdyg0ohx0k",
-      "score": 7.0,
-      "evidence_en": "diffusion model for time series imputation with missing data, directly applicable to EEG channel reconstruction",
-      "evidence_cn": "扩散模型用于时间序列缺失数据插补，直接适用于EEG通道重建",
-      "canonical_evidence": "扩散模型用于时间序列缺失数据插补，直接适用于EEG通道重建",
-      "tldr_en": "LSCD uses Lomb-Scargle conditioned diffusion to impute missing time series data, achieving accurate recovery without prior interpolation.",
-      "tldr_cn": "时间序列中缺失或不规则采样数据是常见难题。现有频域方法依赖均匀采样，需预插值导致频谱失真。本文提出LSCD，引入可微Lomb-Scargle层计算不规则采样信号的功率谱，并以此条件训练扩散模型用于插补。实验证明该方法在合成和真实基准上优于纯时域方法，可直接迁移至EEG缺失通道补全任务。",
-      "title_zh": "LSCD: 基于Lomb-Scargle条件扩散的时间序列插补",
-      "motivation_cn": "时间序列缺失数据插补中频域方法受均匀采样假设限制。",
-      "method_cn": "提出Lomb-Scargle条件扩散模型，结合可微分频谱计算与分数匹配。",
-      "result_cn": "在合成和真实数据上恢复缺失值更准确。",
-      "conclusion_cn": "LSCD为不规则采样时间序列插补提供了新方案，适用于EEG通道补全。",
-      "matched_requirement_id": "req-7",
+      "score": 6.0,
+      "evidence_en": "Diffusion model for time series imputation applicable to EEG channel completion",
+      "evidence_cn": "扩散模型用于时间序列插补可应用于脑电图通道补全",
+      "canonical_evidence": "扩散模型用于时间序列插补可应用于脑电图通道补全",
+      "tldr_en": "Proposes LSCD, a differentiable Lomb-Scargle layer integrated into a score-based diffusion model for time series imputation, achieving superior accuracy on irregularly sampled data; method is transferable to EEG missing channel recovery.",
+      "tldr_cn": "本文提出LSCD，一种将可微Lomb-Scargle层集成到基于分数的扩散模型中的时间序列插补方法。该方法针对不规则采样数据，通过频谱条件实现更准确的缺失值恢复。虽然论文未直接应用于脑电图，但其扩散模型框架和频谱分析技术可直接迁移至脑电图缺失通道补全任务，为潜在空间生成模型在脑电图信号重建中的应用提供了方法论桥梁。",
+      "title_zh": "LSCD：基于Lomb-Scargle条件扩散的时间序列插补",
+      "motivation_cn": "现有时间序列插补方法在处理不规则采样数据时依赖FFT，需先插值导致频谱失真。",
+      "method_cn": "提出可微Lomb-Scargle层计算不规则采样数据的功率谱，并将其作为条件输入扩散模型进行插补。",
+      "result_cn": "在合成和真实基准上，该方法比纯时域基线更准确地恢复缺失数据，同时保留频谱特性。",
+      "conclusion_cn": "融合频谱条件扩散模型可有效提升时间序列插补的精度和鲁棒性。",
+      "matched_requirement_id": "req-composite-eeg-latent",
+      "matched_query_tag": "query:eeg-latent:composite",
+      "matched_query_text": "Papers central to EEG论文，latent space缺失通道补全, especially work that connects or combines: E; EEG latent space representation; deep learning for EEG signal reconstruction; generative models for EEG channel imputation; EEG missing channel completion using latent space models; latent space based imputation for multichannel EEG; reconstruct missing EEG channels with deep generative networks."
+    },
+    {
+      "paper_id": "openreview-icml-2025-nbjrggxlpi",
+      "score": 6.0,
+      "evidence_en": "Conditional diffusion model for signal restoration applicable to EEG reconstruction",
+      "evidence_cn": "条件扩散模型用于信号恢复可应用于脑电图重建",
+      "canonical_evidence": "条件扩散模型用于信号恢复可应用于脑电图重建",
+      "tldr_en": "Proposes RestoreGrad, a conditional DDPM with a jointly learned informative prior for signal restoration, outperforming standard Gaussian prior methods; technique is transferable to EEG signal reconstruction tasks.",
+      "tldr_cn": "本文提出RestoreGrad，一种条件去噪扩散概率模型，通过联合学习一个更具信息量的先验分布来替代标准高斯先验，从而提升信号恢复质量。该方法在降质观测信号条件下重建干净信号，其框架可直接迁移至脑电图信号重建与缺失通道补全场景。实验表明，联合学习先验显著优于传统条件扩散模型，为脑电图潜在空间生成提供了有效工具。",
+      "title_zh": "RestoreGrad：基于联合学习先验的条件去噪扩散模型的信号恢复",
+      "motivation_cn": "现有条件扩散模型使用标准高斯先验丢弃了降质信号中的有用信息。",
+      "method_cn": "提出与扩散模型联合学习的可训练先验，替代固定高斯先验，改进条件去噪过程。",
+      "result_cn": "在多种信号恢复任务上，联合学习先验比标准条件扩散模型取得更优的性能。",
+      "conclusion_cn": "更丰富的先验分布能够显著提升条件扩散模型在信号恢复中的效果。",
+      "matched_requirement_id": "req-composite-eeg-latent",
+      "matched_query_tag": "query:eeg-latent:composite",
+      "matched_query_text": "Papers central to EEG论文，latent space缺失通道补全, especially work that connects or combines: E; EEG latent space representation; deep learning for EEG signal reconstruction; generative models for EEG channel imputation; EEG missing channel completion using latent space models; latent space based imputation for multichannel EEG; reconstruct missing EEG channels with deep generative networks."
+    },
+    {
+      "paper_id": "openreview-icml-2025-yai2zyfmed",
+      "score": 6.0,
+      "evidence_en": "EEG-language pretraining for clinical phenotyping; directly processes EEG signals",
+      "evidence_cn": "脑电图-语言预训练用于临床表型分析；直接处理脑电图信号",
+      "canonical_evidence": "脑电图-语言预训练用于临床表型分析；直接处理脑电图信号",
+      "tldr_en": "Pioneers EEG-language models (ELMs) trained on 15000 EEGs and clinical reports, enabling zero-shot classification and retrieval; relevant to EEG signal processing and analysis.",
+      "tldr_cn": "本文率先提出脑电图-语言模型（ELM），在15000份脑电图和临床报告上训练多模态对齐模型。通过时间序列裁剪和文本分割及多实例学习，解决了脑电图与文本片段不匹配的问题。模型在四项临床评估中显著优于纯脑电图模型，并首次实现零样本分类和神经信号与报告的检索。该工作为脑电图信号处理和分析提供了新的多模态框架，属于脑电图主题下的重要进展。",
+      "title_zh": "脑电图-语言预训练用于高标签效率的临床表型分析",
+      "motivation_cn": "脑电图多模态语言建模尚未探索，现有模型需要大量标注数据且泛化性差。",
+      "method_cn": "提出脑电图-语言模型，利用多实例学习对齐时间序列与文本片段，实现跨模态预训练。",
+      "result_cn": "在四个临床任务上显著优于纯脑电图基线，并实现了零样本分类和跨模态检索。",
+      "conclusion_cn": "脑电图-语言预训练能有效利用临床报告提升脑电图分析的标签效率和泛化能力。",
+      "matched_requirement_id": "req-composite-eeg",
+      "matched_query_tag": "query:eeg:composite",
+      "matched_query_text": "Papers central to 脑电图, especially work that connects or combines: f; e; electroencephalogram signal processing and analysis; EEG based brain computer interface research papers."
+    },
+    {
+      "paper_id": "openreview-icml-2025-kb6mjy0mtv",
+      "score": 6.0,
+      "evidence_en": "diffusion prior for signal reconstruction applicable to EEG",
+      "evidence_cn": "扩散模型作为生成先验用于信号恢复，可应用于EEG重建",
+      "canonical_evidence": "扩散模型作为生成先验用于信号恢复，可应用于EEG重建",
+      "tldr_en": "Uses diffusion models as generative priors to reconstruct signals from nonlinear measurements, enabling robust EEG signal reconstruction.",
+      "tldr_cn": "现有基于扩散模型的信号恢复方法要么针对特定重建问题，要么无法处理含不连续或未知链接函数的非线性测量。本文提出一种高效方法，利用扩散先验从半参数单指标模型中恢复信号，涵盖了多种非线性模型。该方法适用于EEG信号重建等任务，能够处理非线性和未知失真，提高了重建质量。",
+      "title_zh": "使用扩散先验学习单指标模型",
+      "motivation_cn": "现有扩散模型信号恢复方法对非线性测量模型支持不足。",
+      "method_cn": "提出利用扩散先验恢复半参数单指标模型中的信号，处理不连续未知链接函数。",
+      "result_cn": "在多个非线性恢复任务中取得优异效果，重建质量显著提升。",
+      "conclusion_cn": "该方法通用且有效，可扩展到EEG等信号重建领域。",
+      "matched_requirement_id": "req-3",
       "matched_query_tag": "query:eeg-latent",
-      "matched_query_text": "reconstruct missing EEG channels with deep generative networks"
+      "matched_query_text": "deep learning for EEG signal reconstruction"
+    },
+    {
+      "paper_id": "openreview-icml-2025-55ysnwboti",
+      "score": 6.0,
+      "evidence_en": "physiological signal foundation model with EEG adaptation",
+      "evidence_cn": "基于生理信号基础模型实现EEG个性化适应",
+      "canonical_evidence": "基于生理信号基础模型实现EEG个性化适应",
+      "tldr_en": "Proposes PhysioPFM, a framework to efficiently adapt foundation models to local physiological data including EEG.",
+      "tldr_cn": "该论文关注时间序列基础模型在医疗中的挑战：资源有限和数据隐私。提出PhysioPFM框架，实现高效的个性化适应，能够在保护隐私的条件下，在本地数据上对生理信号基础模型（包括EEG）进行微调。该方法在少量本地数据上即可提升性能，适应不同临床场景。",
+      "title_zh": "生理信号基础模型的高效个性化适应",
+      "motivation_cn": "医疗中计算资源和数据隐私限制基础模型部署。",
+      "method_cn": "提出PhysioPFM框架，通过高效微调实现个性化适应。",
+      "result_cn": "在多个生理信号数据集上显示，个性化模型优于通用模型。",
+      "conclusion_cn": "PhysioPFM使得基础模型在本地EEG数据上安全高效地部署。",
+      "matched_requirement_id": "req-9",
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis"
+    },
+    {
+      "paper_id": "openreview-icml-2025-cz4eevjghf",
+      "score": 6.0,
+      "evidence_en": "EEG signal processing and deep learning for AD detection",
+      "evidence_cn": "EEG信号处理与深度学习用于AD检测",
+      "canonical_evidence": "EEG信号处理与深度学习用于AD检测",
+      "tldr_en": "LEAD is a large foundation model for EEG-based Alzheimer's detection, using a curated 813-subject corpus and self-supervised learning.",
+      "tldr_cn": "本文针对EEG在阿尔茨海默病检测中的数据集缺乏和性能差的问题，构建了包含813名被试的大型EEG-AD语料库，并提出了首个EEG基础模型LEAD。该方法涵盖数据预处理、自监督学习等完整流程，在检测性能上显著优于现有方法，推动了EEG在疾病诊断中的应用。",
+      "title_zh": "LEAD：用于EEG阿尔茨海默病检测的大型基础模型",
+      "motivation_cn": "现有EEG AD检测方法受限于数据集规模和个体差异，性能不佳。",
+      "method_cn": "构建大型EEG-AD数据集，并提出LEAD基础模型，采用自监督学习进行特征提取。",
+      "result_cn": "在最大EEG-AD数据集上验证，LEAD检测性能显著优于现有方法。",
+      "conclusion_cn": "LEAD为EEG在AD检测中的应用树立了新标杆，证明了基础模型的潜力。",
+      "matched_requirement_id": "req-9",
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis"
     },
     {
       "paper_id": "openreview-icml-2025-yk6yb16vre",
-      "score": 7.0,
-      "evidence_en": "conditional Lagrangian Wasserstein flow for time series imputation, a generative method applicable to EEG",
-      "evidence_cn": "条件拉格朗日Wasserstein流用于时间序列插补，生成式方法可应用于EEG",
-      "canonical_evidence": "条件拉格朗日Wasserstein流用于时间序列插补，生成式方法可应用于EEG",
-      "tldr_en": "CLWF proposes a conditional flow method for time series imputation, overcoming diffusion model slow convergence.",
-      "tldr_cn": "基于扩散模型的插补方法推理收敛慢。本文提出条件拉格朗日Wasserstein流（CLWF），遵循最小作用量原理学习速度场，并使用时变去噪自编码器估计势函数梯度以降低采样方差。实验表明CLWF性能优于现有最优方法，为EEG通道生成式插补提供了高效替代方案。",
+      "score": 6.0,
+      "evidence_en": "time series imputation method using Lagrangian Wasserstein flow and denoising autoencoder",
+      "evidence_cn": "时间序列插补方法，使用拉格朗日 Wasserstein 流和去噪自编码器",
+      "canonical_evidence": "时间序列插补方法，使用拉格朗日 Wasserstein 流和去噪自编码器",
+      "tldr_en": "CLWF is a novel time series imputation method using Lagrangian Wasserstein flow and a time-dependent denoising autoencoder.",
+      "tldr_cn": "针对扩散模型插补方法收敛慢的问题，本文提出条件拉格朗日Wasserstein流（CLWF），基于最小作用量原理学习速度场，并集成去噪自编码器减小采样方差。实验显示CLWF在多个基准数据集上达到竞争性能，为时间序列插补提供了高效方案。",
       "title_zh": "条件拉格朗日Wasserstein流用于时间序列插补",
-      "motivation_cn": "扩散模型插补方法推理速度慢。",
-      "method_cn": "提出条件拉格朗日Wasserstein流，结合最小作用量原理和去噪自编码器。",
-      "result_cn": "在多个基准上达到竞争性能，收敛更快。",
-      "conclusion_cn": "CLWF为时间序列插补提供了快速生成式方法，可推广至EEG。",
-      "matched_requirement_id": "req-4",
+      "motivation_cn": "扩散模型插补方法推理收敛慢，需要更高效的插补方案。",
+      "method_cn": "基于拉格朗日力学最小作用量原理学习速度，结合时间相关去噪自编码器估计势函数梯度。",
+      "result_cn": "在时间序列插补任务上取得竞争性性能，优于现有扩散模型方法。",
+      "conclusion_cn": "CLWF为时间序列插补提供了新的高效框架，可推广至EEG等多变量序列。",
+      "matched_requirement_id": "req-6",
       "matched_query_tag": "query:eeg-latent",
-      "matched_query_text": "generative models for EEG channel imputation"
+      "matched_query_text": "latent space based imputation for multichannel EEG"
     },
     {
-      "paper_id": "openreview-icml-2025-xlriub1r5s",
+      "paper_id": "openreview-icml-2025-o14gjxdat3",
       "score": 6.0,
-      "evidence_en": "Scalable structured latent modelling with Gaussian Process VAE",
-      "evidence_cn": "可扩展的结构化潜变量建模，采用高斯过程变分自编码器",
-      "canonical_evidence": "可扩展的结构化潜变量建模，采用高斯过程变分自编码器",
-      "tldr_en": "Proposes a neighbour-driven approximation for GPVAE that scales to large datasets while preserving latent dependencies, enabling flexible kernel choices.",
-      "tldr_cn": "本文针对高斯过程变分自编码器（GPVAE）在大规模数据上计算昂贵的问题，提出基于最近邻的近似推理策略，在保持潜变量依赖性的同时实现扩展。该方法允许更灵活的内核选择，在多个合成和真实数据集上提升了潜空间建模的效率和准确性。",
-      "title_zh": "基于邻居驱动的高斯过程变分自编码器可实现可扩展的结构化潜变量建模",
-      "motivation_cn": "GPVAE在大规模数据上推理复杂，现有方法依赖限制性假设。",
-      "method_cn": "利用潜空间中的局部邻接关系，仅对每个数据点的最近邻进行GP计算。",
-      "result_cn": "在保持潜变量依赖的同时显著降低计算成本，支持灵活核函数。",
-      "conclusion_cn": "为大规模结构化潜变量建模提供了高效的近似方法。",
+      "evidence_en": "uses sequential VAE for multi-region neural latent factor analysis, applicable to EEG latent space",
+      "evidence_cn": "使用序列变分自编码器进行多区域神经潜在因子分析，可应用于EEG潜在空间表征",
+      "canonical_evidence": "使用序列变分自编码器进行多区域神经潜在因子分析，可应用于EEG潜在空间表征",
+      "tldr_en": "MR-LFADS uses structured bottlenecks and data-constrained communication to disentangle inter-regional neural communication from local dynamics via sequential VAE.",
+      "tldr_cn": "MR-LFADS提出多区域潜在因子分析方法，利用序列变分自编码器、结构化信息瓶颈和数据约束通信，从局部动态中分离区域间通信。在模拟和真实神经数据上准确识别了因果关系，为EEG多通道潜在空间建模提供了可迁移的框架。",
+      "title_zh": "准确识别多个交互神经群体之间的通信",
+      "motivation_cn": "现有模型难以从局部动态和未记录区域的影响中分离区域间通信。",
+      "method_cn": "提出MR-LFADS，包含区域特异性循环网络、结构化瓶颈和数据约束通信的序列VAE。",
+      "result_cn": "在合成和真实神经记录数据上准确识别了因果通信，优于现有方法。",
+      "conclusion_cn": "MR-LFADS有效解开了神经群体通信的混杂因素，推动了神经数据分析。",
       "matched_requirement_id": "req-2",
       "matched_query_tag": "query:eeg-latent",
       "matched_query_text": "EEG latent space representation"
     },
     {
-      "paper_id": "openreview-icml-2025-g7wlilhghh",
+      "paper_id": "openreview-icml-2025-nkjeaq6jcy",
       "score": 6.0,
-      "evidence_en": "latent space encoding-decoding direction pairs",
-      "evidence_cn": "潜空间编解码方向对",
-      "canonical_evidence": "潜空间编解码方向对",
-      "tldr_en": "Introduces latent space direction pairs (encoding-decoding) to interpret concepts in deep networks; offers a general method for latent space analysis applicable to EEG representations.",
-      "tldr_cn": "该论文提出学习编解码方向对来揭示深度视觉网络中的概念，其中编码方向将潜在因子映射到特征分量，解码方向检索概念。这一潜空间分析方法不限于视觉，可迁移至EEG潜空间表示学习，用于理解EEG信号中的潜在特征，支持EEG缺失通道补全等任务。",
-      "title_zh": "学习编解码方向对以揭示深度视觉网络中的影响概念",
-      "motivation_cn": "深度网络概念以叠加方式编码在特征空间方向中，但缺乏显式的编解码方向对。",
-      "method_cn": "通过对比自编码器和字典学习，学习每个概念的编码方向和解码方向对。",
-      "result_cn": "在多个视觉网络上成功提取了有意义的编解码方向，提升了可解释性。",
-      "conclusion_cn": "编解码方向对提供了一种通用的潜空间概念解析工具，可应用于EEG等领域。",
+      "evidence_en": "uses flow matching on stable latent dynamics for BCI neural adaptation",
+      "evidence_cn": "使用流匹配对稳定潜在动力学进行BCI神经适应",
+      "canonical_evidence": "使用流匹配对稳定潜在动力学进行BCI神经适应",
+      "tldr_en": "Proposes Flow-Based Distribution Alignment (FDA) using flow matching on latent dynamics for few-trial neural adaptation in BCIs, achieving stable cross-day decoding with few calibration trials.",
+      "tldr_cn": "该文针对BCI中因神经信号非平稳性导致的跨天性能退化问题，提出基于流匹配的分布对齐框架（FDA），通过建模稳定潜在动力学实现少试次神经适应。实验结果表明，在仅有少量校准试次的情况下，FDA能够显著提升跨天解码性能，且优于现有对齐方法。该工作展示了流匹配模型在脑信号潜在空间对齐中的潜力，为BCI实际部署提供了高效适应方案。",
+      "title_zh": "基于流匹配的少试次神经适应与稳定潜在动力学",
+      "motivation_cn": "BCI中神经信号非平稳性导致跨天性能下降，现有对齐方法在少试次时不稳定。",
+      "method_cn": "提出基于流匹配的分布对齐框架，对神经信号的潜在动力学进行建模和对齐。",
+      "result_cn": "在少量试次下，FDA能有效对齐跨天神经信号，提升解码准确率。",
+      "conclusion_cn": "流匹配模型为少试次BCI适应提供了一种稳定高效的潜在空间对齐方法。",
+      "matched_requirement_id": "req-2",
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation"
+    },
+    {
+      "paper_id": "openreview-icml-2025-pkda4gc4p2",
+      "score": 5.0,
+      "evidence_en": "VAE latent space for time series data augmentation",
+      "evidence_cn": "VAE潜空间用于时间序列数据增强",
+      "canonical_evidence": "VAE潜空间用于时间序列数据增强",
+      "tldr_en": "ASCENSION uses VAE latent space probabilistic structure for class-conditional time series augmentation.",
+      "tldr_cn": "本文针对现有生成式数据增强方法在不同时间序列数据集上效果不稳定的问题，提出ASCENSION方法，利用VAE潜空间的概率结构进行类别扩展。该方法在多个非EEG数据集上取得一致提升，为时间序列增强提供了新思路，可迁移至EEG信号增强。",
+      "title_zh": "ASCENSION：基于自编码器潜空间类别扩展的时间序列数据增强",
+      "motivation_cn": "现有时间序列数据增强方法在不同数据集上表现不稳定，缺乏通用性。",
+      "method_cn": "利用VAE潜空间的概率结构进行类别条件扩展，生成新样本。",
+      "result_cn": "在ECG、电力、振动等多个领域数据集上均取得一致改进。",
+      "conclusion_cn": "ASCENSION为时间序列数据增强提供了鲁棒且通用的方案，可适应不同应用。",
       "matched_requirement_id": "req-2",
       "matched_query_tag": "query:eeg-latent",
       "matched_query_text": "EEG latent space representation"
     },
     {
       "paper_id": "openreview-icml-2025-ggert5kcpa",
-      "score": 6.0,
-      "evidence_en": "Matrix completion method for missing data recovery, applicable to EEG channel imputation",
-      "evidence_cn": "矩阵补全方法可应用于EEG缺失通道恢复",
-      "canonical_evidence": "矩阵补全方法可应用于EEG缺失通道恢复",
-      "tldr_en": "Proposes orthogonal complement matrix completion (OCMC) to handle incomplete side information, generalizing matrix completion for missing data tasks.",
-      "tldr_cn": "本文提出正交补矩阵补全（OCMC）模型，解决具有不完整侧信息的矩阵补全问题。该模型利用可用侧信息推导的正交补投影，将传统完美侧信息矩阵补全推广到不完整侧信息场景。理论分析证明其收敛性。该方法可迁移至EEG多通道缺失值插补。",
-      "title_zh": "基于正交补投影的不完整侧信息矩阵补全",
-      "motivation_cn": "现有矩阵补全方法假设侧信息完整，实际中难以满足。",
-      "method_cn": "提出OCMC模型，利用正交补投影处理不完整侧信息。",
-      "result_cn": "理论证明有效，实验验证了优越性。",
-      "conclusion_cn": "OCMC扩展了矩阵补全的适用范围。",
-      "matched_requirement_id": "req-composite-eeg-latent",
-      "matched_query_tag": "query:eeg-latent:composite",
-      "matched_query_text": "Papers central to EEG论文，latent space缺失通道补全, especially work that connects or combines: E; EEG latent space representation; deep learning for EEG signal reconstruction; generative models for EEG channel imputation; EEG missing channel completion using latent space models; latent space based imputation for multichannel EEG; reconstruct missing EEG channels with deep generative networks."
-    },
-    {
-      "paper_id": "openreview-icml-2025-pkda4gc4p2",
-      "score": 6.0,
-      "evidence_en": "VAE latent space for time series augmentation, transferable to EEG latent representation",
-      "evidence_cn": "VAE潜在空间用于时间序列增广，可迁移至EEG潜在表示",
-      "canonical_evidence": "VAE潜在空间用于时间序列增广，可迁移至EEG潜在表示",
-      "tldr_en": "Proposes ASCENSION, a VAE-based latent space expansion method for time series data augmentation, which can be applied to EEG signal enhancement.",
-      "tldr_cn": "现有时间序列数据增广方法难以跨领域一致有效。本文提出ASCENSION，利用变分自编码器的潜在空间概率结构进行类扩展，实现高效的数据增广。实验在ECG、电力等多个领域验证其有效性。该方法为EEG信号潜在空间建模和通道补全提供了可迁移的生成框架。",
-      "title_zh": "ASCENSION: 基于自动编码器的潜在空间类扩展用于时间序列数据增广",
-      "motivation_cn": "时间序列数据增广面临跨数据集一致性差的问题。",
-      "method_cn": "提出基于VAE潜在空间类扩展的生成式增广方法。",
-      "result_cn": "在多种时间序列数据集上表现优于现有方法。",
-      "conclusion_cn": "ASCENSION为时间序列增广提供了新范式，可应用于EEG领域。",
-      "matched_requirement_id": "req-composite-eeg-latent",
-      "matched_query_tag": "query:eeg-latent:composite",
-      "matched_query_text": "Papers central to EEG论文，latent space缺失通道补全, especially work that connects or combines: E; EEG latent space representation; deep learning for EEG signal reconstruction; generative models for EEG channel imputation; EEG missing channel completion using latent space models; latent space based imputation for multichannel EEG; reconstruct missing EEG channels with deep generative networks."
-    },
-    {
-      "paper_id": "openreview-icml-2025-ps3ao9mhjv",
       "score": 5.0,
-      "evidence_en": "missingness-avoiding learning applicable to EEG channel imputation",
-      "evidence_cn": "缺失值避免学习适用于EEG通道补全",
-      "canonical_evidence": "缺失值避免学习适用于EEG通道补全",
-      "tldr_en": "Proposes missingness-avoiding machine learning that trains models to rely less on missing features, reducing bias from imputation; method is transferable to EEG channel imputation tasks.",
-      "tldr_cn": "该论文提出了一种缺失值避免的机器学习框架，通过正则化训练模型在测试时尽量减少对缺失特征的依赖，从而避免传统填补方法的偏差。虽然实验在表格数据上，但该方法可直接应用于EEG多通道缺失补全问题，为EEG缺失通道处理提供新的通用策略。",
-      "title_zh": "学习避免缺失值的预测模型",
-      "motivation_cn": "传统缺失值处理方法引入偏差或增加模型复杂度，且损害可解释性。",
-      "method_cn": "在决策树、树集成和稀疏线性模型中引入分类器特定的正则化项，鼓励模型避免使用缺失特征。",
-      "result_cn": "该方法在多个数据集上减少了偏差，同时保持或提升预测性能。",
-      "conclusion_cn": "缺失值避免学习是一种有效的通用框架，可扩展至EEG等领域的缺失值问题。",
+      "evidence_en": "matrix completion method applicable to EEG channel imputation",
+      "evidence_cn": "矩阵补全方法可应用于EEG通道插补",
+      "canonical_evidence": "矩阵补全方法可应用于EEG通道插补",
+      "tldr_en": "OCMC enables matrix completion with incomplete side information via orthogonal complement projection, with PAC guarantees.",
+      "tldr_cn": "针对实际中边信息不完整的问题，本文提出正交补矩阵补全（OCMC）模型，通过从可用边信息导出正交补投影，推广了完美边信息矩阵补全。PAC理论分析证明了方法的有效性，为缺失数据补全提供了新工具，可应用于EEG通道缺失恢复。",
+      "title_zh": "基于正交补投影的不完整边信息矩阵补全",
+      "motivation_cn": "现有矩阵补全方法假设边信息完美，但实际中边信息往往缺失。",
+      "method_cn": "利用可用边信息导出正交补投影，构建不完美边信息下的矩阵补全模型。",
+      "result_cn": "通过PAC学习理论分析了模型的样本复杂度，实验验证了优于传统方法。",
+      "conclusion_cn": "OCMC为不完整边信息下的矩阵补全提供了理论支撑和实用算法。",
+      "matched_requirement_id": "req-5",
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG missing channel completion using latent space models"
+    },
+    {
+      "paper_id": "openreview-icml-2025-9rg2oawj0s",
+      "score": 5.0,
+      "evidence_en": "diffusion-based trajectory imputation with prototype learning, transferable to EEG channel imputation",
+      "evidence_cn": "基于扩散模型的原型学习轨迹插补，可迁移至EEG通道补全",
+      "canonical_evidence": "基于扩散模型的原型学习轨迹插补，可迁移至EEG通道补全",
+      "tldr_en": "ProDiff uses only two endpoints with prototype learning and diffusion to impute trajectories, achieving robust spatiotemporal imputation.",
+      "tldr_cn": "ProDiff提出仅利用起点和终点作为最小信息的轨迹插补框架，结合原型学习嵌入人类移动模式与去噪扩散概率模型实现鲁棒时空插补。在多个轨迹数据集上优于基线，其扩散生成范式为EEG缺失通道生成提供了可借鉴的方法。",
+      "title_zh": "ProDiff：基于原型引导的扩散模型实现最小信息轨迹插补",
+      "motivation_cn": "现有轨迹插补依赖稀疏轨迹信息，对数据采集要求高且忽视大规模嵌入。",
+      "method_cn": "提出ProDiff，整合原型学习和去噪扩散概率模型，仅用两个端点进行插补。",
+      "result_cn": "在真实轨迹数据集上以少量信息达到甚至超越完整信息方法的性能。",
+      "conclusion_cn": "ProDiff验证了扩散模型在极稀疏信息下进行时空插补的有效性。",
       "matched_requirement_id": "req-4",
       "matched_query_tag": "query:eeg-latent",
       "matched_query_text": "generative models for EEG channel imputation"
     },
     {
-      "paper_id": "openreview-icml-2025-n7qkt6gjl9",
-      "score": 5.0,
-      "evidence_en": "interventional state space models for latent neural dynamics",
-      "evidence_cn": "用于潜在神经动力学的干预状态空间模型",
-      "canonical_evidence": "用于潜在神经动力学的干预状态空间模型",
-      "tldr_en": "Proposes interventional state space models (iSSM) to predict neural responses under perturbations, modeling latent dynamics with causal interpretability, relevant to EEG latent space modeling.",
-      "tldr_cn": "该论文提出干预状态空间模型(iSSM)，能够预测神经回路在未知扰动下的响应，通过低维潜变量动力学实现因果解释。尽管实验基于神经记录，其潜空间建模框架可直接用于EEG信号中的潜特征提取和因果分析，为EEG潜空间表示提供新方法。",
-      "title_zh": "使用干预状态空间模型识别神经动力学",
-      "motivation_cn": "传统状态空间模型仅捕捉统计关联，无法进行因果预测。",
-      "method_cn": "结合因果动态系统理论，在状态空间模型中引入干预变量，学习因果潜动力学。",
-      "result_cn": "在合成和实际神经数据上成功预测了干预下的神经响应。",
-      "conclusion_cn": "干预状态空间模型为神经潜动力学提供了因果建模工具，可推广至EEG分析。",
-      "matched_requirement_id": "req-2",
-      "matched_query_tag": "query:eeg-latent",
-      "matched_query_text": "EEG latent space representation"
-    },
-    {
-      "paper_id": "openreview-icml-2025-55ysnwboti",
-      "score": 5.0,
-      "evidence_en": "Personalized adaptation of physiological signal foundation model for EEG-like data",
-      "evidence_cn": "生理信号基础模型的个性化适应，适用于EEG类数据",
-      "canonical_evidence": "生理信号基础模型的个性化适应，适用于EEG类数据",
-      "tldr_en": "Proposes PhysioPFM, a framework for efficient personalized adaptation of time series foundation models to physiological signals with limited data and privacy constraints.",
-      "tldr_cn": "本文提出PhysioPFM框架，用于高效个性化适应时间序列基础模型以适应生理信号。针对医疗环境中计算资源有限和数据隐私问题，PhysioPFM能够快速适配到私有、不均衡的本地数据，在多个生理信号任务上优于通用的基础模型。为EEG信号的分析和适应提供了可行方案。",
-      "title_zh": "生理信号基础模型的高效个性化适应",
-      "motivation_cn": "通用基础模型在医疗私有数据上不如特定方法。",
-      "method_cn": "提出PhysioPFM框架，结合个性化适应策略。",
-      "result_cn": "在生理信号任务上优于通用基础模型。",
-      "conclusion_cn": "为隐私敏感场景下的生理信号建模提供了有效方法。",
-      "matched_requirement_id": "req-9",
-      "matched_query_tag": "query:eeg",
-      "matched_query_text": "electroencephalogram signal processing and analysis"
-    },
-    {
-      "paper_id": "openreview-icml-2025-vodz3zhscj",
+      "paper_id": "openreview-icml-2025-06ulfily8j",
       "score": 4.0,
-      "evidence_en": "Multi-task neural encoding and decoding model at scale",
-      "evidence_cn": "大规模多任务神经编码解码模型",
-      "canonical_evidence": "大规模多任务神经编码解码模型",
-      "tldr_en": "Presents NEDS, a multimodal multi-task model for simultaneous neural encoding and decoding at scale using multi-task masking, pretrained on IBL data.",
-      "tldr_cn": "本文提出NEDS模型，通过多任务掩码策略同时进行神经编码与解码，在大规模多动物数据上预训练，解决了现有模型只能单向预测的问题。该方法在多个基准上取得优异表现，为理解神经活动与行为间的双向关系提供了强大工具。",
-      "title_zh": "大规模神经编码与解码",
-      "motivation_cn": "现有大规模模型仅能单向预测神经活动或行为，缺乏双向建模能力。",
-      "method_cn": "采用多任务掩码策略，同时掩盖神经和行为模态，实现双向编码解码。",
-      "result_cn": "在IBL数据集上预训练，有效捕捉神经与行为间双向关系。",
-      "conclusion_cn": "NEDS为系统神经科学提供了可扩展的双向建模框架。",
-      "matched_requirement_id": "req-10",
-      "matched_query_tag": "query:eeg",
-      "matched_query_text": "EEG based brain computer interface research papers"
-    },
-    {
-      "paper_id": "openreview-icml-2025-zlc4b9oqwx",
-      "score": 4.0,
-      "evidence_en": "deep recurrent network for neural population dynamics",
-      "evidence_cn": "深度循环网络用于神经群体动力学推断",
-      "canonical_evidence": "深度循环网络用于神经群体动力学推断",
-      "tldr_en": "Introduces FINDR, an unsupervised deep recurrent method to infer low-dimensional nonlinear stochastic dynamics from neural spike trains, applicable to neural signal processing including EEG.",
-      "tldr_cn": "该论文提出FINDR方法，利用深度循环网络无监督地从神经脉冲序列推断低维非线性随机流场，捕捉个体神经元异质响应。该方法可应用于EEG信号处理，用于提取EEG中复杂的时序动态特征，支持EEG信号重建和分析。",
-      "title_zh": "利用深度循环网络从神经数据推断流场",
-      "motivation_cn": "神经群体动力学估计困难，现有方法局限。",
-      "method_cn": "设计无监督深度循环网络，学习低维流场并分离任务相关和无关活动。",
-      "result_cn": "在老鼠前额叶数据上媲美现有方法，并成功分离任务相关活动。",
-      "conclusion_cn": "FINDR为神经数据分析提供了有效的动力学推断工具，可拓展至EEG。",
-      "matched_requirement_id": "req-9",
-      "matched_query_tag": "query:eeg",
-      "matched_query_text": "electroencephalogram signal processing and analysis"
-    },
-    {
-      "paper_id": "openreview-icml-2025-kpwmojajr7",
-      "score": 4.0,
-      "evidence_en": "Latent space matrix completion for missing data imputation",
-      "evidence_cn": "潜变量空间矩阵补全用于缺失数据插补",
-      "canonical_evidence": "潜变量空间矩阵补全用于缺失数据插补",
-      "tldr_en": "Proposes transfer learning for missing not-at-random matrix completion using latent space feature shift, with active sampling to achieve minimax optimal entrywise error.",
-      "tldr_cn": "该论文针对缺失非随机矩阵补全问题，提出利用潜变量空间特征偏移的迁移学习方法。通过主动采样策略选择最具信息量的行列，在避免弱假设的同时达到极小化最优估计误差，为数据缺失场景下的插补提供了理论保证和高效算法。",
-      "title_zh": "面向缺失非随机矩阵补全的最优迁移学习",
-      "motivation_cn": "目标矩阵整行整列缺失导致传统方法不可行，需利用辅助源矩阵进行潜变量空间迁移学习。",
-      "method_cn": "建立源矩阵与目标矩阵在潜变量空间中的特征偏移模型，并结合主动采样与被动采样策略设计高效估计框架。",
-      "result_cn": "在主动采样设置下，所提框架达到极小化最优的逐元素估计误差，且无需不相干假设。",
-      "conclusion_cn": "潜变量空间迁移学习可有效解决极端缺失矩阵补全问题，理论最优且计算高效。",
-      "matched_requirement_id": "req-6",
-      "matched_query_tag": "query:eeg-latent",
-      "matched_query_text": "latent space based imputation for multichannel EEG"
-    },
-    {
-      "paper_id": "openreview-icml-2025-1w2wlyrq0k",
-      "score": 4.0,
-      "evidence_en": "Brain signal latent space alignment for cross-subject decoding",
-      "evidence_cn": "脑信号潜空间对齐用于跨被试解码",
-      "canonical_evidence": "脑信号潜空间对齐用于跨被试解码",
-      "tldr_en": "Proposes explicit functional alignment framework using Brain Transfer Matrix to project arbitrary subject fMRI to known subject's latent space for visual decoding from limited data.",
-      "tldr_cn": "论文提出显式功能对齐框架MindAligner，通过脑迁移矩阵将新被试的fMRI信号映射到已知被试的潜空间，实现跨被试视觉解码，有效应对数据有限和个体差异问题。",
-      "title_zh": "MindAligner：基于显式脑功能对齐的有限fMRI数据跨被试视觉解码",
-      "motivation_cn": "现有脑解码局限于单被试范式，跨被试泛化弱且训练成本高，fMRI数据有限加剧挑战。",
-      "method_cn": "学习脑迁移矩阵将任意新被试的脑信号投影到已知被试的潜空间，利用已知被试的解码器。",
-      "result_cn": "在有限数据下实现跨被试视觉解码，显著优于单被试基线且降低训练代价。",
-      "conclusion_cn": "显式功能对齐可有效桥接个体差异，推动脑解码的泛化应用。",
-      "matched_requirement_id": "req-2",
-      "matched_query_tag": "query:eeg-latent",
-      "matched_query_text": "EEG latent space representation"
+      "evidence_en": "brain signal generation, related to BCI",
+      "evidence_cn": "脑信号生成，与脑机接口相关",
+      "canonical_evidence": "脑信号生成，与脑机接口相关",
+      "tldr_en": "MindCustomer uses brain signals for multi-context image generation via a shared neural data augmentation and cross-modal fusion pipeline.",
+      "tldr_cn": "本文针对脑信号在图像生成中的应用挑战，提出MindCustomer框架，通过共享神经数据增强和跨模态融合管道，将视觉脑信号融入多上下文图像生成。实验表明该方法能有效融合图像和脑语义，生成定制化图像，为脑机接口应用提供了新思路。",
+      "title_zh": "MindCustomer：多上下文图像生成与脑信号融合",
+      "motivation_cn": "脑信号直接反映用户意图，但现有方法在脑信号解释和跨模态融合上存在挑战。",
+      "method_cn": "设计Image-Brain Translator实现跨主体脑嵌入，并提出无掩码跨模态信息融合管道。",
+      "result_cn": "成功实现了基于脑信号的图像生成，验证了方法的有效性。",
+      "conclusion_cn": "MindCustomer为脑信号驱动的图像生成提供了可行方案，拓展了脑机接口在创意领域的应用。",
+      "matched_requirement_id": "req-composite-eeg",
+      "matched_query_tag": "query:eeg:composite",
+      "matched_query_text": "Papers central to 脑电图, especially work that connects or combines: f; e; electroencephalogram signal processing and analysis; EEG based brain computer interface research papers."
     },
     {
       "paper_id": "openreview-icml-2025-i6uxiaamje",
       "score": 4.0,
-      "evidence_en": "Visual decoding from brain activity using human-aligned image models",
-      "evidence_cn": "利用人脑对齐图像模型从脑活动解码视觉信息",
-      "canonical_evidence": "利用人脑对齐图像模型从脑活动解码视觉信息",
-      "tldr_en": "Shows human-aligned image encoders better map brain signals to images, improving visual decoding accuracy by up to 21% for brain-computer interfaces.",
-      "tldr_cn": "论文发现人类对齐的图像编码器能更有效捕捉视觉刺激的感知属性，将脑信号映射到图像。在视觉解码任务中，图像检索准确率相比现有方法提升高达21%，促进脑机交互。",
-      "title_zh": "人类对齐图像模型改善脑视觉解码",
-      "motivation_cn": "脑机接口中视觉解码需对齐图像与脑信号表示空间，现有模型可能忽略感知特性。",
-      "method_cn": "采用人类对齐的图像编码器替代通用编码器，将脑信号直接映射到感知相关的图像特征空间。",
-      "result_cn": "在多个脑视觉数据集上，检索准确率提升21%，且跨被试泛化能力增强。",
-      "conclusion_cn": "利用人类视觉感知先验可显著提升脑信号到图像的解码性能。",
+      "evidence_en": "visual decoding from brain activity for BCI",
+      "evidence_cn": "从脑活动解码视觉图像用于脑机接口",
+      "canonical_evidence": "从脑活动解码视觉图像用于脑机接口",
+      "tldr_en": "Human-aligned image encoders improve visual decoding from brain activity, boosting retrieval accuracy by up to 21%.",
+      "tldr_cn": "本文针对脑活动视觉解码任务，引入与人类感知对齐的图像编码器，更有效地捕捉快速视觉刺激中的感知属性。实验表明，该方法将图像检索准确率相比现有最优技术提升高达21%，为脑机接口中的视觉解码提供了新方向。",
+      "title_zh": "人类对齐的图像模型改善脑视觉解码",
+      "motivation_cn": "现有脑活动到图像的解码方法未能充分利用与人类感知对齐的表征。",
+      "method_cn": "采用人类对齐的图像编码器将脑信号映射到图像空间，替代传统对齐策略。",
+      "result_cn": "在多个数据集上图像检索准确率提升高达21%。",
+      "conclusion_cn": "人类对齐的图像编码器能更有效地捕捉脑信号中的感知信息，提升解码性能。",
       "matched_requirement_id": "req-10",
       "matched_query_tag": "query:eeg",
       "matched_query_text": "EEG based brain computer interface research papers"
     },
     {
-      "paper_id": "openreview-icml-2025-4x83oh6oy6",
+      "paper_id": "openreview-icml-2025-kpwmojajr7",
       "score": 4.0,
-      "evidence_en": "foundation model pretrained on EEG among other signals, applicable to EEG representation learning",
-      "evidence_cn": "基础模型在EEG等信号上预训练，可用于EEG表示学习",
-      "canonical_evidence": "基础模型在EEG等信号上预训练，可用于EEG表示学习",
-      "tldr_en": "NormWear is a foundation model for wearable sensing, pretrained on multiple physiological signals including EEG, for generalizable representations.",
-      "tldr_cn": "可穿戴感知数据因模式和频带变化难以学习通用表示。本文提出NormWear，在PPG、ECG、EEG等多样生理信号上预训练的基础模型，能够提取可迁移的波形表示。评估表明其在多任务上表现优异，为EEG信号处理与分析提供了通用工具。",
-      "title_zh": "迈向多变量可穿戴生理信号感知的基础模型",
-      "motivation_cn": "可穿戴感知数据异构性强，缺乏通用表示。",
-      "method_cn": "提出在多模态生理信号上预训练的基础模型NormWear。",
-      "result_cn": "在多种评估任务上表现良好，表示可迁移。",
-      "conclusion_cn": "NormWear可作为EEG信号分析的基础特征提取器。",
-      "matched_requirement_id": "req-9",
-      "matched_query_tag": "query:eeg",
-      "matched_query_text": "electroencephalogram signal processing and analysis"
+      "evidence_en": "matrix completion with latent space shift",
+      "evidence_cn": "潜在空间偏移下的矩阵补全",
+      "canonical_evidence": "潜在空间偏移下的矩阵补全",
+      "tldr_en": "Transfers knowledge from a source matrix to complete a target matrix with entire missing rows/columns, leveraging latent space feature shift; not EEG but methodologically relevant.",
+      "tldr_cn": "该论文针对生物学问题中矩阵整行整列缺失的补全任务，提出使用转移学习框架，利用源矩阵与目标矩阵在潜在空间的特征偏移来指导补全。方法上包含主动和被动采样策略，并达到了理论最优界。虽不直接针对EEG信号，但缺失补全与潜在空间建模的方法对EEG通道补全具有方法论上的借鉴意义。",
+      "title_zh": "非随机缺失矩阵补全的最优转移学习",
+      "motivation_cn": "生物问题中目标矩阵因整行整列缺失难以估计，需借助含噪声且不完整的源矩阵进行转移学习。",
+      "method_cn": "利用潜在空间特征偏移连接源矩阵与目标矩阵，提出主动与被动采样下的高效估计框架。",
+      "result_cn": "在主动采样设置下达到极小化最优估计误差，避免了对不相干性的假设。",
+      "conclusion_cn": "提出了一种无需不相干假设的转移学习矩阵补全方法，具有理论保证和计算效率。",
+      "matched_requirement_id": "req-5",
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG missing channel completion using latent space models"
     }
   ],
-  "llm_ranked_at": "2026-06-01T08:25:06.424156+00:00",
+  "llm_ranked_at": "2026-06-01T09:21:13.006828+00:00",
   "display_min_score": 4.0,
-  "pruned_at": "2026-06-01T08:25:06.462770+00:00"
+  "pruned_at": "2026-06-01T09:21:13.047724+00:00"
 }

@@ -1,21 +1,21 @@
 ---
 title: Optimal Transfer Learning for Missing Not-at-Random Matrix Completion
-title_zh: 面向缺失非随机矩阵补全的最优迁移学习
+title_zh: 非随机缺失矩阵补全的最优转移学习
 authors: "Akhil Jalan, Yassir Jedra, Arya Mazumdar, Soumendu Sundar Mukherjee, Purnamrita Sarkar"
 date: 2025-05-01
 pdf: "https://openreview.net/pdf?id=KpWmOJAjr7"
 tags: ["query:eeg-latent"]
 score: 4.0
-evidence: 潜变量空间矩阵补全用于缺失数据插补
-tldr: 该论文针对缺失非随机矩阵补全问题，提出利用潜变量空间特征偏移的迁移学习方法。通过主动采样策略选择最具信息量的行列，在避免弱假设的同时达到极小化最优估计误差，为数据缺失场景下的插补提供了理论保证和高效算法。
+evidence: 潜在空间偏移下的矩阵补全
+tldr: 该论文针对生物学问题中矩阵整行整列缺失的补全任务，提出使用转移学习框架，利用源矩阵与目标矩阵在潜在空间的特征偏移来指导补全。方法上包含主动和被动采样策略，并达到了理论最优界。虽不直接针对EEG信号，但缺失补全与潜在空间建模的方法对EEG通道补全具有方法论上的借鉴意义。
 source: ICML-2025-Accepted
 selection_source: conference_retrieval
 figures_json: "[{\"url\": \"assets/figures/openreview/openreview-icml-2025-kpwmojajr7/fig-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 640, \"height\": 473, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-kpwmojajr7/fig-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 868, \"height\": 687, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-kpwmojajr7/fig-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 848, \"height\": 696, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-kpwmojajr7/fig-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 823, \"height\": 612, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-kpwmojajr7/fig-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 1597, \"height\": 670, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-kpwmojajr7/fig-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 1600, \"height\": 672, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-kpwmojajr7/fig-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 1596, \"height\": 670, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-kpwmojajr7/fig-008.webp\", \"caption\": \"\", \"page\": 0, \"index\": 8, \"width\": 1595, \"height\": 671, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-kpwmojajr7/fig-009.webp\", \"caption\": \"\", \"page\": 0, \"index\": 9, \"width\": 1596, \"height\": 677, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-kpwmojajr7/fig-010.webp\", \"caption\": \"\", \"page\": 0, \"index\": 10, \"width\": 1581, \"height\": 1294, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-kpwmojajr7/fig-011.webp\", \"caption\": \"\", \"page\": 0, \"index\": 11, \"width\": 1551, \"height\": 1248, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-kpwmojajr7/fig-012.webp\", \"caption\": \"\", \"page\": 0, \"index\": 12, \"width\": 1469, \"height\": 1213, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-kpwmojajr7/fig-013.webp\", \"caption\": \"\", \"page\": 0, \"index\": 13, \"width\": 1469, \"height\": 1211, \"label\": \"Figure\"}]"
 tables_json: "[{\"url\": \"assets/tables/openreview/openreview-icml-2025-kpwmojajr7/table-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 894, \"height\": 160, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-kpwmojajr7/table-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 880, \"height\": 249, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-kpwmojajr7/table-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1130, \"height\": 290, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-kpwmojajr7/table-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1130, \"height\": 292, \"label\": \"Table\"}]"
-motivation: 目标矩阵整行整列缺失导致传统方法不可行，需利用辅助源矩阵进行潜变量空间迁移学习。
-method: 建立源矩阵与目标矩阵在潜变量空间中的特征偏移模型，并结合主动采样与被动采样策略设计高效估计框架。
-result: 在主动采样设置下，所提框架达到极小化最优的逐元素估计误差，且无需不相干假设。
-conclusion: 潜变量空间迁移学习可有效解决极端缺失矩阵补全问题，理论最优且计算高效。
+motivation: 生物问题中目标矩阵因整行整列缺失难以估计，需借助含噪声且不完整的源矩阵进行转移学习。
+method: 利用潜在空间特征偏移连接源矩阵与目标矩阵，提出主动与被动采样下的高效估计框架。
+result: 在主动采样设置下达到极小化最优估计误差，避免了对不相干性的假设。
+conclusion: 提出了一种无需不相干假设的转移学习矩阵补全方法，具有理论保证和计算效率。
 ---
 
 ## Abstract

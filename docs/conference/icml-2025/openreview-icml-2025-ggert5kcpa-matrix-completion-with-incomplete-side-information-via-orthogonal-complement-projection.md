@@ -1,21 +1,21 @@
 ---
 title: Matrix Completion with Incomplete Side Information via Orthogonal Complement Projection
-title_zh: 基于正交补投影的不完整侧信息矩阵补全
+title_zh: 基于正交补投影的不完整边信息矩阵补全
 authors: "Gengshuo Chang, Wei Zhang, Lehan Zhang"
 date: 2025-05-01
 pdf: "https://openreview.net/pdf?id=ggERt5kcpa"
 tags: ["query:eeg-latent"]
-score: 6.0
-evidence: 矩阵补全方法可应用于EEG缺失通道恢复
-tldr: 本文提出正交补矩阵补全（OCMC）模型，解决具有不完整侧信息的矩阵补全问题。该模型利用可用侧信息推导的正交补投影，将传统完美侧信息矩阵补全推广到不完整侧信息场景。理论分析证明其收敛性。该方法可迁移至EEG多通道缺失值插补。
+score: 5.0
+evidence: 矩阵补全方法可应用于EEG通道插补
+tldr: 针对实际中边信息不完整的问题，本文提出正交补矩阵补全（OCMC）模型，通过从可用边信息导出正交补投影，推广了完美边信息矩阵补全。PAC理论分析证明了方法的有效性，为缺失数据补全提供了新工具，可应用于EEG通道缺失恢复。
 source: ICML-2025-Accepted
 selection_source: conference_retrieval
 figures_json: "[{\"url\": \"assets/figures/openreview/openreview-icml-2025-ggert5kcpa/fig-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 837, \"height\": 600, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-ggert5kcpa/fig-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 826, \"height\": 477, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-ggert5kcpa/fig-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1775, \"height\": 328, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-ggert5kcpa/fig-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1575, \"height\": 510, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-ggert5kcpa/fig-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 642, \"height\": 691, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-ggert5kcpa/fig-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 701, \"height\": 736, \"label\": \"Figure\"}]"
 tables_json: "[{\"url\": \"assets/tables/openreview/openreview-icml-2025-ggert5kcpa/table-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1378, \"height\": 283, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-ggert5kcpa/table-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 860, \"height\": 579, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-ggert5kcpa/table-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1237, \"height\": 277, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-ggert5kcpa/table-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1181, \"height\": 279, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-ggert5kcpa/table-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 837, \"height\": 528, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-ggert5kcpa/table-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 1632, \"height\": 381, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-ggert5kcpa/table-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 1146, \"height\": 207, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-ggert5kcpa/table-008.webp\", \"caption\": \"\", \"page\": 0, \"index\": 8, \"width\": 970, \"height\": 207, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-ggert5kcpa/table-009.webp\", \"caption\": \"\", \"page\": 0, \"index\": 9, \"width\": 1389, \"height\": 187, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-ggert5kcpa/table-010.webp\", \"caption\": \"\", \"page\": 0, \"index\": 10, \"width\": 1346, \"height\": 2197, \"label\": \"Table\"}]"
-motivation: 现有矩阵补全方法假设侧信息完整，实际中难以满足。
-method: 提出OCMC模型，利用正交补投影处理不完整侧信息。
-result: 理论证明有效，实验验证了优越性。
-conclusion: OCMC扩展了矩阵补全的适用范围。
+motivation: 现有矩阵补全方法假设边信息完美，但实际中边信息往往缺失。
+method: 利用可用边信息导出正交补投影，构建不完美边信息下的矩阵补全模型。
+result: 通过PAC学习理论分析了模型的样本复杂度，实验验证了优于传统方法。
+conclusion: OCMC为不完整边信息下的矩阵补全提供了理论支撑和实用算法。
 ---
 
 ## Abstract

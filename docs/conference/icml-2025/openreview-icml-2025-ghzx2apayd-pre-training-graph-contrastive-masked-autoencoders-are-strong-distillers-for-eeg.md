@@ -1,21 +1,21 @@
 ---
 title: Pre-Training Graph Contrastive Masked Autoencoders are Strong Distillers for EEG
-title_zh: 预训练图对比掩码自编码器是EEG的强蒸馏器
+title_zh: 预训练图对比掩码自编码器是EEG的强大蒸馏器
 authors: "Xinxu Wei, kanhao zhao, Yong Jiao, Hua Xie, Lifang He, Yu Zhang"
 date: 2025-05-01
 pdf: "https://openreview.net/pdf?id=gHzx2apaYD"
 tags: ["query:eeg-latent"]
 score: 8.0
-evidence: 提出图掩码自编码器用于EEG，学习潜在表示以桥接高密度与低密度数据
-tldr: 充分利用海量无标记高密度EEG数据以提升有限低密度场景性能是挑战。本文提出EEG-DisGCMAE统一预训练范式，融合图对比学习与掩码自编码器，通过图拓扑蒸馏损失函数实现知识迁移。实验证明该方法在跨密度EEG分类中表现优异，为EEG潜在空间表示学习提供了有效框架。
+evidence: 直接针对EEG缺失通道补全问题，利用潜在表示和蒸馏
+tldr: 现有方法难以利用大量无标签高密度EEG数据提升少量有标签低密度EEG数据的性能。该论文将问题建模为图迁移学习和知识蒸馏，提出EEG-DisGCMAE，统一了图对比预训练和图掩码自编码器预训练范式。通过图拓扑蒸馏损失函数，有效从高密度到低密度电极迁移知识，实现了缺失通道的有效补全和性能提升。
 source: ICML-2025-Accepted
 selection_source: conference_retrieval
 figures_json: "[{\"url\": \"assets/figures/openreview/openreview-icml-2025-ghzx2apayd/fig-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1747, \"height\": 786, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-ghzx2apayd/fig-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 839, \"height\": 210, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-ghzx2apayd/fig-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 857, \"height\": 361, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-ghzx2apayd/fig-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1626, \"height\": 258, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-ghzx2apayd/fig-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 852, \"height\": 380, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-ghzx2apayd/fig-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 1541, \"height\": 1720, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-ghzx2apayd/fig-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 1454, \"height\": 724, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-ghzx2apayd/fig-008.webp\", \"caption\": \"\", \"page\": 0, \"index\": 8, \"width\": 1555, \"height\": 587, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-icml-2025-ghzx2apayd/fig-009.webp\", \"caption\": \"\", \"page\": 0, \"index\": 9, \"width\": 1573, \"height\": 664, \"label\": \"Figure\"}]"
 tables_json: "[{\"url\": \"assets/tables/openreview/openreview-icml-2025-ghzx2apayd/table-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1759, \"height\": 767, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-ghzx2apayd/table-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 865, \"height\": 220, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-ghzx2apayd/table-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 890, \"height\": 340, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-ghzx2apayd/table-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 883, \"height\": 305, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-ghzx2apayd/table-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 828, \"height\": 254, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-ghzx2apayd/table-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 1250, \"height\": 286, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-ghzx2apayd/table-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 1398, \"height\": 321, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-ghzx2apayd/table-008.webp\", \"caption\": \"\", \"page\": 0, \"index\": 8, \"width\": 1675, \"height\": 243, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-ghzx2apayd/table-009.webp\", \"caption\": \"\", \"page\": 0, \"index\": 9, \"width\": 1686, \"height\": 244, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-ghzx2apayd/table-010.webp\", \"caption\": \"\", \"page\": 0, \"index\": 10, \"width\": 1542, \"height\": 242, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-ghzx2apayd/table-011.webp\", \"caption\": \"\", \"page\": 0, \"index\": 11, \"width\": 1147, \"height\": 239, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-ghzx2apayd/table-012.webp\", \"caption\": \"\", \"page\": 0, \"index\": 12, \"width\": 1268, \"height\": 211, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-icml-2025-ghzx2apayd/table-013.webp\", \"caption\": \"\", \"page\": 0, \"index\": 13, \"width\": 1436, \"height\": 497, \"label\": \"Table\"}]"
-motivation: 高低密度EEG数据间的知识迁移困难。
-method: 统一图对比与掩码自编码器预训练，结合蒸馏损失。
-result: 在跨密度EEG分类任务上取得最优性能。
-conclusion: EEG-DisGCMAE能高效利用无标记EEG数据学习潜在表示。
+motivation: 高密度EEG数据标注成本高，低密度数据性能受限。
+method: 提出EEG-DisGCMAE，统一图对比与掩码自编码器预训练，并设计图拓扑蒸馏损失。
+result: 在跨密度EEG任务上显著提升分类和重建性能。
+conclusion: 该方法有效解决了EEG数据密度差异问题，为缺失通道补全提供了新思路。
 ---
 
 ## Abstract
