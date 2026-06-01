@@ -1,0 +1,645 @@
+Title: 3607_SPICED_A_Synaptic_Homeost.pdf
+
+URL Source: https://openreview.net/pdf?id=qcdoHkkHcb
+
+Number of Pages: 27
+
+Markdown Content:
+# SPICED: A Synaptic Homeostasis-Inspired Framework for Unsupervised Continual EEG Decoding 
+
+Yangxuan Zhou 1,2 , Sha Zhao 1,2 ∗
+
+, Jiquan Wang 1,2 , Haiteng Jiang 3,4,1 , Shijian Li 1,2 ,Tao Li 3,4,1 , Gang Pan 1,2,4 1State Key Laboratory of Brain-machine Intelligence, Zhejiang University 
+
+> 2
+
+College of Computer Science and Technology, Zhejiang University 
+
+> 3
+
+Department of Neurobiology, Affiliated Mental Health Center & Hangzhou Seventh People’s Hospital, Zhejiang University School of Medicine 
+
+> 4
+
+MOE Frontier Science Center for Brain Science and Brain-machine Integration, Zhejiang University 
+
+{zyangxuan, szhao, wangjiquan, h.jiang}@zju.edu.cn; {shijianli, litaozjusc, gpan}@zju.edu.cn; 
+
+## Abstract 
+
+Human brain achieves dynamic stability-plasticity balance through synaptic home-ostasis, a self-regulatory mechanism that stabilizes critical memory traces while preserving optimal learning capacities. Inspired by this biological principle, we propose SPICED: a neuromorphic framework that integrates the synaptic home-ostasis mechanism for unsupervised continual EEG decoding, particularly ad-dressing practical scenarios where new individuals with inter-individual variability emerge continually. SPICED comprises a novel synaptic network that enables dynamic expansion during continual adaptation through three bio-inspired neural mechanisms: (1) critical memory reactivation, which mimics brain functional specificity, selectively activates task-relevant memories to facilitate adaptation; (2) synaptic consolidation, which strengthens these reactivated critical memory traces and enhances their replay prioritizations for further adaptations and (3) synap-tic renormalization, which are periodically triggered to weaken global memory traces to preserve learning capacities. The interplay within synaptic homeostasis dynamically strengthens task-discriminative memory traces and weakens detrimen-tal memories. By integrating these mechanisms with continual learning system, SPICED preferentially replays task-discriminative memory traces that exhibit strong associations with newly emerging individuals, thereby achieving robust adaptations. Meanwhile, SPICED effectively mitigates catastrophic forgetting by suppressing the replay prioritization of detrimental memories during long-term continual learning. Validated on three EEG datasets, SPICED show its effec-tiveness. More importantly, SPICED bridges biological neural mechanisms and artificial intelligence through synaptic homeostasis, providing insights into the broader applicability of bio-inspired principles. The source code is available at 
+
+https://github.com/xiaobaben/SPICED .
+
+> ∗
+
+Corresponding authors. 39th Conference on Neural Information Processing Systems (NeurIPS 2025). 1 Introduction 
+
+During long-term learning and memorization, the human brain dynamically balances information preservation (i.e., stability) and knowledge acquisition (i.e., plasticity) through a self-regulatory mechanism termed synaptic homeostasis [ 1– 3]. This homeostasis process coordinates two com-plementary neural mechanisms: synaptic consolidation , which stabilizes critical memory traces, and synaptic renormalization , which preserves brain learning capacities [ 4–10 ]. The homeostatic interplay between synaptic consolidation and renormalization sustains neural stability-plasticity equi-librium, enabling the brain to dynamically adapt to novel environmental demands and learning tasks. 
+
+This biological principle provides critical insights into overcoming stability-plasticity dilemma and catastrophic forgetting in artificial continual learning systems , especially in non-stationary continual brain decoding scenarios where the pretrained source model is required to adapt to unseen individuals continuously. For advancing brain decoding research and applications, brain-computer interface (BCI) technology has become instrumental. As the most widely adopted non-invasive BCI technique, electroencephalog-raphy (EEG) captures scalp-recorded electrophysiological activity with high temporal resolution, making it particularly valuable in both practical and clinical applications (e.g., sleep staging, de-pression diagnosis) [ 11 –15 ]. However, most EEG-based models trained on static datasets exhibit limited generalizability to unseen subjects due to substantial inter-individual variability, hindering their applicability in real-world scenarios where new ones are encountered continually. This problem can be reduced to continual EEG decoding , wherein EEG models need to dynamically assimilate new knowledge while retaining consolidated prior representations. Nevertheless, critical challenges persist on continual EEG decoding: (1) How to enhance model plasticity to enable robust adaptation to each newly emerging individual? (2) How to prevent catastrophic forgetting by suppressing the accumulation of detrimental memory traces during the long-term continual learning? 
+
+Motivated by synaptic homeostasis principles, we leverage the biological synaptic plasticity to develop the neuromorphic framework to address the aforementioned challenges in continual EEG decoding. Here, we propose a novel Syna ptic Homeostasis-Inspired framework for Unsupervised 
+
+Continual EEG Decoding, called SPICED , emulating the brain’s mechanisms for processing contin-uous information streams. The core of SPICED consists of a biologically inspired synaptic network comprising multiple interconnected synaptic nodes , with each node storing individual-specific information. Upon encountering a new individual, the synaptic network dynamically incorporates an individual-specific new node and selectively establishes synaptic connections with pre-existing nodes. For challenge (1) , we adopt the synaptic consolidation mechanism which can automatically and selectively reinforce critical task-discriminative memory traces, to enhance the model plasticity to continuously emerging new individuals. To this end, we need to decide which memory traces are important, and then consolidate them. Specifically, we introduce critical memory reactivation 
+
+mechanism guided by brain’s functional specificity to select and replay the important memory trace. During each adaptation, we identify task-discriminative synaptic nodes that are relevant to the indi-vidual adaptation, and selectively reactivate them to retrieve memory traces strongly associated with the target individual for replay. We further stabilize these reactivated synaptic nodes by strengthening their connections shown in Fig. 1 (a). As a result, these repeatedly reactivated task-discriminative memory traces undergo progressive consolidation, enhancing their replay prioritization to facilitate Neuron  
+
+> Neuron
+> Neuron
+> Neuron
+> Neuron
+> Neuron Synaptic Strength
+
+↑↑  Synaptic Strength  ↓↓  
+
+> Synaptic Connection
+> Synaptic Consolidation
+> Synaptic Renormalization
+> Neuron
+> Neuron
+> Synaptic Connection
+> (a) (b)
+> Synaptic Homeostasis
+> Periodically Selectively
+
+Figure 1: Synaptic consolidation and renormalization mechanisms. (a) Task-driven synaptic con-solidation via critical connection strengthening. (b) Stability-preserving synaptic renormalization through connection strength downscaling. 2robust adaptation to novel individuals. For challenge (2) , we adopt the synaptic renormalization 
+
+mechanism which can maintain a balance of synaptic strength, and restore the ability to learn novel sequences, to suppress the interference from detrimental memory traces. As illustrated in Fig. 1(b), SPICED periodically triggers global downscaling to weaken synaptic connection, preserving the network’s learning capacity. The synergistic balance between synaptic consolidation and renormal-ization in SPICED enables strengthening the task-discriminative memory traces and weakening the redundant noisy memories. By consequently suppressing the replay prioritization of detrimental memories during each individual adaptation, SPICED effectively mitigates catastrophic forgetting caused by error accumulation during long-term continual learning. Our contributions are as follows: • We propose SPICED, a neuromorphic framework comprising a bio-inspired synaptic net-work that integrates the synaptic homeostasis mechanism for unsupervised continual EEG decoding . SPICED achieves robust adaptation to novel individuals while preventing catastrophic forgetting in long-term learning scenarios. • We model the synaptic homeostasis between consolidation and renormalization , selec-tively stabilizing task-discriminative memory traces while suppressing interference from redundant noisy memories, achieving balanced network plasticity. • Validated across three mainstream EEG tasks, SPICED enables continuous dynamic expan-sion of synaptic networks while maintaining homeostatic balance, thereby achieving robust performance to novel unseen individuals. 
+
+## 2 Related Work 
+
+2.1 Synaptic Homeostasis 
+
+Synapses, which bridge pre-synaptic and post-synaptic neurons, function as the essential units for information storage within the brain. Under synaptic homeostasis, their strength and connectivity are dynamically regulated to encode information while preserving circuit stability [ 1 –3, 16 ]. During active learning states, task-specific neuronal ensembles are selectively recruited through cortical functional specificity, wherein environmental stimuli activate discrete neuronal populations aligned with behavioral demands [ 17 – 19 ]. This recruitment triggers the activity-dependent long-term potentiation (LTP) driven synaptic consolidation that selectively strengthens synapses within engaged circuits, thereby stabilizing newly encoded memories[ 9 , 20 , 21 ]. Following learning, during slow-wave sleep (0.5-4 Hz), long-term depression (LTD) driven synaptic renormalization globally downscales synaptic strength, preferentially weakening nonessential connections formed during wakefulness[10, 22]. 
+
+2.2 Synaptic-Inspired Continual Learning 
+
+Continual learning (CL) aims to enable artificial systems to incrementally acquire knowledge from continuous data streams. Numerous CL methods, such as the regularization-based [ 23 – 27 ], the parameter isolation based [ 28 – 30 ] and the rehearsal-based [ 31 – 34 ] methods, have been developed to mitigate catastrophic forgetting. Recent efforts have integrated synaptic plasticity principles into parameter adaptation and memory consolidation during CL process, demonstrating improved stability-plasticity trade-offs [ 35 – 42 ]. However, these methods only partially emulate neurobiological mechanisms, often necessitating architectural modifications or intrusive adjustments to core learning processes. In contrast, the SPICED framework introduces a novel learning paradigm that biologically emulates synaptic homeostasis through an auxiliary synaptic network, achieving model structural independence while preserving task-specific adaptability and interference suppression capabilities. 
+
+2.3 Continual EEG Decoding 
+
+Numerous deep learning methods have been proposed for EEG decoding across diverse tasks [ 43 – 47 ]. However, parameters of these EEG-based models are typically fixed after training, limiting their generalization ability to new subjects encountered in clinics. This limitation has motivated recent efforts to explore individual-specific continual EEG decoding algorithms in supervised paradigm [ 48 –50 ]. Zhou et al. [51] introduces an unsupervised individual continual learning (i.e., UICL paradigm) framework tailored for real-world deployment. It incrementally adapts model to unseen individuals 3（a）Synaptic Network Initialization      
+
+> Individual ID
+> Initial Feature
+> Individual Model
+> Replay Samples
+> Synapses{Node ID:
+> (Similarity, Strength)}
+> N4 INFO
+> N1
+> N3 N4
+> N2
+> N6
+> N1
+> N5
+> N3
+> N1
+> N4
+> N2
+> N1
+> ×
+> N7
+> N6
+> N2 N5
+> N3 N3
+> （b）Synaptic Node Incorporation
+> N1
+> N4
+> N2
+> N1 N7
+> N6
+> N2 N5
+> N3 N3
+> （c）Critical Memory Reactivation
+> Replay
+> Fusion
+> Model
+> （d）Synaptic Consolidation
+> N1
+> N4
+> N2
+> N7
+> N2 N5
+> N3 N3
+> N6
+> N1
+> Synaptic Strength ↑↑
+> （e）Synaptic Renormalization
+> N4
+> N2 N2 N5
+> N3 N3
+> N6
+> N1 N1 N7
+> Synaptic Strength
+
+↓↓ 
+
+> （f）Expanded Synaptic Network
+> ×
+> ×
+> ×
+> Model
+> Saving
+> Joint
+> Training
+> Continual
+> Adaptation
+
+Figure 2: The workflow of SPICED, a synaptic homeostasis-inspired framework for continual EEG decoding. (a) Synaptic network initialization: Constructing individual-specific nodes and initial feature-based synaptic connections. (b-e) Adaptive synaptic dynamics for novel subjects: (b) Synaptic node incorporation: Incremental integration of new individuals; (c) Critical memory reactivation: Replay of critical task-related memories; (d) Synaptic consolidation: Selective strengthening of task-relevant connections; (e) Synaptic renormalization: Global downscaling of synaptic strengths. (f) Expanded network evolution: Expanded synaptic network after continual individual adaptations. while retaining consolidated knowledge from prior adaptations. Our work is based on the setting of the proposed UICL paradigm. 
+
+## 3 Methodology 
+
+3.1 Overview 
+
+To emulate synaptic homeostasis in the human brain, we consider each subject as a distinct domain 
+
+and represent individuals as nodes with one-to-one correspondence to record their unique information (e.g., individual ID, initial feature (i.e., handcrafted features), corresponding model, replayed samples, and synaptic connections). Formally, given multiple labeled individual domains (i.e., source domain) 
+
+DS ={X i 
+
+> S
+
+, YS i}NS 
+
+> i=1
+
+with NS subjects, we first utilize the labeled source domain data to pretrain an EEG model and initialize the synaptic network as illustrated in Fig. 2(a). Specifically, we calculate and store each individual’s initial feature by extracting features across the time, frequency, and time–frequency domains, with detailed descriptions provided in the Appendix A. We measure inter-nodes initial feature similarity via weighted cosine similarity described as follows: 
+
+S(xi, x j ) = ωt sim (xti, x tj ) + ωf sim (xfi , x fj ) + ωtf sim (xtf i , x tf j )
+
+ωt + ωf + ωtf 
+
+(1) where xt, xf , xtf denote the EEG features vectors in the time, frequency and time-frequency do-mains,respectively, and ωt, ωf , ωtf denote their corresponding weights. We define a connection threshold ξ, such that synaptic connections are established between nodes whose pairwise similarity exceeds ξ, with initial synaptic strength sij set to 1. Based on inter-nodes similarity, we perform node-wise initialization of the source synaptic network. Then, given multiple unlabeled sequential individual target domains DT ={X i 
+
+> T
+
+}NT 
+
+> i=1
+
+comprising NT subjects, SPICED continuously adapts to unseen individual target domains by expanding its synaptic network through: (i) incremental node in-tegration, (ii) critical memory reactivation, and (iii) balanced synaptic consolidation-renormalization, as illustrated in Fig. 2(b-e). Following BrainUICL [ 51 ], after each adaptation to a new individual, we store high-confidence pseudo-labels and its corresponding model in individual-specific synaptic nodes for further memory replay. Notably, we preserve all labeled samples from source-domain 4individuals in their corresponding synaptic nodes. Through continuous integration of new nodes and assimilation of novel knowledge, the synaptic network progressively enhances its robustness shown in Fig. 2(f). Meanwhile, with the interplay of synaptic consolidation and renormalization, critical memories are continuously consolidated while redundant noisy memories are progressively suppressed during continual decoding. 
+
+3.2 Synaptic Network Initialization 
+
+To validate the effectiveness of our SPICED framework, we utilize identical EEG-based model architectures for each downstream EEG task. Specifically, the model integrates a feature extractor for capturing EEG features, a temporal encoder for learning temporal dependencies from EEG sequences, and a classifier adapted to the output requirements of different downstream tasks. Prior to synaptic network initialization, we pre-train the task-specific EEG model on source domains. The detailed model architecture and pre-training process are described in the Appendix B. For each source domain individual, we initialize their synaptic nodes by storing their initial feature, labeled samples, and the pre-trained model. Subsequently, we selectively establish synaptic connections between nodes based on pairwise weighted cosine similarity, and store the synaptic information (e.g., similarity and synaptic strength) for subsequent processing. 
+
+3.3 Synaptic Node Incorporation 
+
+Upon the arrival of a new individual, we first initialize its personal synaptic node (i.e., ID and initial feature). It then traverses pre-existing nodes in the synaptic network to compute pairwise similarity between their initial feature. If the similarity exceeds a predefined connection threshold 
+
+ξ, we establish their inter-nodes connections with an initial strength of 1, and we update the node’s synaptic data (e.g., Synapses: {Node1: {similarity: 0.5, strength: 1}}). 
+
+3.4 Synaptic Consolidation 
+
+Human brain leverages its functional specificity to activate task-aligned neuronal ensembles during external stimulation [ 17 , 18 ]. This neurobiological mechanism ensures cognitive efficiency while enabling adaptive flexibility to address novel environmental demands. Inspired by this mechanism, we introduce the Critical Memory Reactivation to activate task-relevant memory traces into ongoing individual-specific adaptation. To determine which nodes to reactivate, we introduce a synaptic importance coefficient to measure connection significance between nodes Ni and Nj as follows: 
+
+I(Ni, Nj ) = αS(xi, x j ) + (1 − α)¯ sj ; ¯sj = 1
+
+N
+
+XN 
+
+> k=1
+
+sjk (2) Here, I(Ni, Nj ) denotes the importance of node Nj relative to node Ni. S(xi, x j ) denotes the similarity between Ni and Nj . ¯sj denotes the average synaptic connection strength of node Nj ,reflecting the global activation status of its associated neural pathways within the synaptic network. And α denotes the importance weight of inter-nodes similarity. 
+
+3.4.1 Critical Data Replay 
+
+We calculate and rank the importance coefficient of synaptic connections for the current node in descending order. To prioritize the activation of the most relevant memories, we select top-K node samples via importance-weighted sampling for weighted replay. 
+
+3.4.2 Critical Model Fusion 
+
+In traditional continual learning paradigms, the incremental model Mi at the i-th step is derived from training on the prior model Mi−1, exclusively dependent on knowledge consolidated during the terminal phase of prior training cycles. In contrast, the human brain selectively recruits task-aligned neuronal assemblies during cognitive processing, integrating information streams from all historical experiences without dependence on a single network state . This biological insight motivates the integration of synaptic networks to determine optimal activation strategies. Specifically, for the current i-th individual, we select the top-K synaptic nodes based on importance coefficient 5ranking. Then we initialize the fusion model Mi through weighted aggregation of corresponding top-K node model parameters, as detailed below: 
+
+Mi =
+
+> K
+
+X
+
+> j=1
+
+I(Ni, Nj )
+
+PKk=1 I(Ni, Nk) Mj (3) Following the BrainUICL, we clone a guidance model from the fused model Mi and conduct self-supervised training on newly added individual samples using this guidance model, as detailed in the Appendix C. The guidance model generates high-quality pseudo-labels with predicted probabilities surpassing a predefined threshold η. Then, pseudo-labeled samples undergo joint training with incremental samples via cross-entropy loss, as formulated below: 
+
+L = −(β X
+
+> c
+
+˜yc log ˆ yc + (1 − β) X
+
+> c
+
+yRc log ˆ yRc ) (4) where β is a hyper-parameter controlling the weight of the loss function, while yc and yRc represent the pseudo-labels of incremental individual samples and the ground-truth labels of replayed top-K node’s samples, respectively. Following joint training, the fusion model Mi is used to predict incremental samples, and generates high-confidence pseudo-labeled samples. Both the pseudo-labeled samples and the fine-tuned model Mi are stored in node Ni to for future memory replay. Notably, if no synaptic connections exist for a new node , during the model fusion phase, we perform fusion using the three most similar node models based on inter-nodes similarity. The fused model is then directly applied to self-supervised learning for adaptation without employing replay strategies. 
+
+3.4.3 Critical Connection Consolidation 
+
+Upon completion of incremental individual adaptation, the SPICED conducts synaptic consolidation to simulate activity-dependent long-term potentiation (LTP) mechanisms, stabilizing the task-relevant node memories reactivated in critical memory reactivation. Specifically, we only strengthen the synaptic strengths of the top-K activated nodes, as described below: 
+
+s′ 
+
+> ij
+
+= γs ij , ∀i ∈ T K , ∀j ∈ N i, (5) Here, i indexes the top-K activated nodes, j indexes all nodes connected to node Ni and γ represents the consolidation coefficient governing synaptic strength amplification. In biological neural systems, 
+
+synaptic strength does not increase indefinitely with repeated activation due to metabolic homeostasis constraints . Studies indicate that synaptic efficacy typically saturates at 150–300% of baseline levels [ 52 –54 ]. In SPICED, we impose an upper limit of 3 on synaptic strength (with a baseline strength of 1) to align computational efficiency with biological plausibility. 
+
+Algorithm 1: SPICED framework for Unsupervised Individual Continual Learning 
+
+Input: {X i 
+
+> S
+
+, YS i}NS
+
+> i=1
+
+, {X i 
+
+> T
+
+}NT
+
+> i=1
+
+Output: Synaptic Network SN
+
+Synaptic Network Initialization: 
+
+Pretrain the source model M0 using {X i 
+
+> S
+
+, Yi 
+
+> S
+
+}
+
+Initialize the SN using {X i 
+
+> S
+
+, Yi 
+
+> S
+
+} and M0, guided by inter-individual similarity Eq. (1). 
+
+Unsupervised Individual Continual Learning: for i ← 1 to NT do 
+
+Initialize the synaptic node Ni for incremental individual and incorporate it into SN .Compute the top-K most critical nodes for all nodes relative to Ni according to Eq. (2). Weightedly replay samples from the top-K nodes. Aggregate the top-K models via weighted fusion to obtain model Mi by Eq. (3). Generate the guiding model Mg , copied from the model Mi;Optimize Mg by minimizing Eq. (7) and generate confident pseudo labels Optimize Mi by minimizing Eq. (4). Incorporate the high-confidence pseudo-labeled samples ( ˜X i 
+
+> T
+
+, ˜Yi 
+
+> T
+
+) and model Mi into Ni.Strengthen the synaptic strength of top-K activated nodes according to Eq. (5). Weaken the synaptic strength of global nodes according to Eq. (6). 
+
+end 
+
+63.5 Synaptic Renormalization 
+
+The proposed SPICED periodically triggers synaptic renormalization to simulate sleep-dependent long-term depression (LTD) mechanisms, globally weakening synaptic connection strengths. Inspired by the Ebbinghaus forgetting curve [ 55 ], which models the temporal decay of human memory retention, we formalize node-specific dynamic renormalization rates to regulate synaptic strength in a time-dependent manner, as detailed below: 
+
+s′′  
+
+> ij
+
+= e− tiλ · s′ 
+
+> ij
+
+, ∀i ∈ V , ∀j ∈ N i, (6) where V denotes the set of all synaptic nodes, j indexes all nodes connected to node Ni and λ
+
+is the decay factor. Notably, upon initialization of the i-th new node, the time step ti is set to 1. During global synaptic renormalization Eq. (6), ti is incremented by 1 for all nodes. However, when the current node is activated and undergoes synaptic consolidation Eq. (5) , ti is reset to 1. This mechanism ensures that infrequently activated nodes exhibit accelerated forgetting (higher decay rates), while frequently stabilized nodes maintain lower forgetting rates, aligning with neurobiological learning principles . The homeostasis interplay between synaptic consolidation and renormalization effectively consolidates critical information and enhances model adaptability to novel individuals. Meanwhile, it suppresses the redundant information, thereby preventing catastrophic forgetting caused by error accumulation. The overall algorithm is illustrated in Algorithm 1. 
+
+## 4 Experiment 
+
+4.1 Experimental Setup 
+
+Table 1: Overview of downstream BCI tasks and datasets. BCI Tasks Datasets # Subjects Rate # Channels Duration # Samples Label I. Sleep Staging ISRUC 100 200Hz 8 30s 89,240 5-class II. Emotion Recognition FACED 123 250Hz 32 10s 10,332 9-class III. Motor Imagery Physionet 109 160Hz 64 4s 9,837 4-class We selected three mainstream EEG-based task datasets for validation: ISRUC [ 56 ], FACED [ 57 ] and Physionet-MI [ 58 ] shown in Tab. 1. Each dataset comprises at least 100 subjects, enabling effective evaluation of the SPICED framework’s performance under long-term UICL scenarios. Detailed dataset descriptions and preprocessing procedures are provided in Appendix D, while more detailed experimental settings, including hyper-parameters and CL training details, are listed in Appendix E. 
+
+Each dataset is partitioned into a pretraining set (i.e., source domain) for pre-training the source model and an incremental set (i.e., target domain) for evaluating the performance of the SPICED framework in unsupervised individual continual learning (i.e., continual EEG decoding) scenario. For each novel individual in the incremental set, model performance is evaluated using Accuracy (ACC) 
+
+and Macro-F1 (MF1) metrics both before and after individual domain adaptation, as defined follows: Accuracy = 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+1(yi = ˆ yi) Macro-F1 = 1
+
+C
+
+> C
+
+X
+
+> c=1
+
+2 · Precision c · Recall c
+
+Precision c + Recall c
+
+Notably, for the i-th incremental individual, the SPICED framework initializes model Mi by integrat-ing information across the holistic synaptic network , rather than relying on the last incremental model Mi−1 from preceding temporal states .
+
+4.2 Results and Analysis 4.2.1 Overall Performance 
+
+We have evaluated the SPICED framework on three different downstream EEG datasets. Specifically, we set varying source-target (i.e., pretrain-incremental) dataset splits (source proportions: 10%-50%) to evaluate the long-term continual EEG decoding performance of the SPICED framework under few-shot pre-training conditions. Notably, the input order of incremental individuals directly 7Table 2: Overview performance of SPICED on three downstream EEG tasks under different source-target individuals splits (e.g., “10%” denotes that 10% of subjects are used to pretrain the source model, with the remaining 90% serving as incremental individuals). Notably, distinct synaptic connection thresholds ξ were configured for the three datasets, while consistency was maintained across all other hyper-parameters. ISRUC ( ξ = 0 .1) FACED ( ξ = 0 .4) Physionet-MI ( ξ = 0 .5)Average ACC Average MF1 Average ACC Average MF1 Average ACC Average MF1                                                                                                      
+
+> M0MiM0MiM0MiM0MiM0MiM0Mi
+> 10% 56.8 62 .6±1.35 (5.4 ↑)48.4 55 .4±1.51 (7.0 ↑)23.5 25 .7±0.10 (2.2 ↑)19.5 22 .7±0.17 (3.2 ↑)40.6 43 .4±0.44 (2.8 ↑)36.2 42 .0±0.46 (5.8 ↑)20% 57.3 69 .2±0.45 (11.9 ↑)44.1 61 .7±0.66 (17.6 ↑)26.8 32 .8±0.77 (6.0 ↑)23.8 30 .8±1.12 (7.0 ↑)42.0 45 .3±0.20 (3.3 ↑)38.8 43 .8±0.21 (5.0 ↑)30% 66.8 75 .6±0.13 (8.8 ↑)60.5 71 .4±0.07 (10.9 ↑)31.7 43 .7±0.51 (12.0 ↑)27.2 41 .7±0.58 (14.5 ↑)42.2 48 .7±0.17 (6.5 ↑)37.9 47 .9±0.24 (10.0 ↑)40% 73.5 77 .8±0.35 (4.3 ↑)68.6 72 .3±0.43 (3.7 ↑)38.4 48 .4±0.32 (10.0 ↑)35.5 46 .2±0.46 (10.7 ↑)47.7 50 .7±0.14 (3.0 ↑)44.8 49 .6±0.13 (4.8 ↑)50% 65.0 74 .5±0.39 (9.5 ↑)58.5 69 .2±0.37 (10.7 ↑)43.4 48 .9±0.42 (5.4 ↑)41.7 47 .0±0.50 (5.3 ↑)47.9 52 .4±0.11 (4.5 ↑)44.5 51 .2±0.14 (6.7 ↑)
+
+Figure 3: The visualization of the expanded synaptic network across ISRUC, FACED and Physionet-MI datasets, with connection thresholds ξ set to 0.1, 0.4, and 0.5, respectively. Notably, each point corresponds to an individual synaptic node, while dashed lines denote synaptic connections between nodes. Node size and dashed line thickness are proportional to the number of synaptic connections associated with each node. influences synaptic network expansion trajectories during long-term continual decoding. Therefore, for each source-target domain split ratio, we maintained consistent dataset partitioning while 
+
+altering the input order of incremental individuals across five repetitions, so as to evaluate the statistical reliability of experimental results . For incremental individuals, we report their personal performance of the initial source model M0 and the domain-adapted individual model Mi, as detailed in Tab. 2. Experimental results demonstrate that the SPICED framework maintains robust performance in long-term unsupervised individual continuous EEG decoding scenarios under few-shot supervised pre-training conditions. Furthermore, the SPICED framework demonstrates consistent stability across varying input order of incremental individuals, reflected in low standard deviations of accuracy and macro-F1 metrics. Besides, it is worth noting that for resting-state sleep datasets such as ISRUC, significant inter-individual variability in initial features necessitates a lower connection threshold ξ to enhance synaptic connection density. Conversely, for the task-based datasets such as FACED and PhysioNet-MI, the individual initial features exhibit lower variability under identical task stimuli. Therefore, we set ξ much higher to filter redundant homogeneous synaptic connections while preserving individual-discriminative connections. We employed t-SNE [ 59 ] to visualize the expanded synaptic networks across three datasets shown in Fig. 3. Central nodes (i.e., larger-sized ones) exhibit dense synaptic connections with high strength (i.e., thicker dashed lines), suggesting 
+
+frequent activation and consolidation processes during continual learning to facilitate adaptation to new individuals. In contrast, peripheral nodes (i.e., smaller-sized ones) exhibit sparse or absent synaptic connections, reflecting deviations of their initial features from dataset-level characteristics, thus being classified as outliers. Synaptic renormalization prioritized weakening these connections to mitigate noise introduced during critical memory reactivation, thereby enhancing training stability. 
+
+4.2.2 Comparison with Other Methods 
+
+We have compared our method with other existing methods at different source domain proportions: 
+
+MMD [ 60 ]: a UDA method that minimizes the Maximum Mean Discrepancy between feature distributions. EWC [23] : a classical regularization-based CL method. UCL-GV [61] : a contrastive alignment method for continual domain adaptation. ReSNT [ 48 ]: a dynamic memory evolution based method for continual EEG decoding. CoUDA [ 62 ]: a recent method for continual domain 8Table 3: Accuracy performance comparison with other methods at different source domain proportions. Each method was evaluated under the same dataset partitioning, with five runs conducted per method by randomly shuffling the input order of the incremental set to enable statistical evaluation. ISRUC FACED Physionet-MI 10% 30% 50% 10% 30% 50% 10% 30% 50% MMD 57.0±0.47 70.2±0.83 68.2±1.00 24.1±0.24 39.0±1.48 19.1±2.59 37.3±0.34 44.1±0.38 47.9±0.54 EWC 60.6±0.71 71.3±0.49 72.5±0.39 22.3±0.36 39.5±0.94 48.7±0.66 42.8±1.19 47.3±0.58 50.2±0.43 UCL-GV 52.5±1.16 72.5±0.32 73.9±0.29 25.0±0.43 41.4±1.50 22.8±3.64 33.1±0.35 39.7±0.22 45.5±0.71 ReSNT 56.4±0.70 71.3±0.89 72.1±0.69 14.1±1.66 33.3±8.10 23.6±3.29 35.9±1.49 44.1±0.50 48.8±0.28 CoUDA 52.7±0.44 73.3±0.23 72.3±0.94 23.9±0.16 39.2±1.06 22.5±2.61 41.6±0.25 44.2±0.31 51.4±0.16 BrainUICL 56.9±0.46 74.8±0.11 73.6±0.29 21.2±2.04 33.8±2.90 20.2±3.46 43.1±0.33 48.3±0.38 52.5±0.36          
+
+> SPICED 62.6±1.35 75.6±0.13 74.5±0.39 25.7±0.10 43.7±0.51 48.9±0.42 43.4±0.44 48.7±0.17 52.4±0.11
+
+adaptation. BrainUICL [ 51 ]: a dynamic framework designed for unsupervised continual EEG decoding. We implemented these methods based on our setting. Notably, each method was evaluated under the same dataset partitioning, with five repeats conducted per method by randomly shuffling the input order of the incremental set to enable statistical evaluation. The experimental results indicate that our SPICED method not only outperforms existing approaches but also exhibits superior robustness. This is attributed to SPICED’s mechanism of leveraging critical memory across the holistic synaptic network for individual adaptation, rather than exclusively depending on the latest model Mi−1 as in conventional continual domain adaptation paradigms. Such strategy substantially alleviates the disruptive effects of outlier shifts within the continual learning trajectory on the current individual. For instance, while BrainUICL achieves performance comparable to SPICED in certain experimental settings, it exhibits significantly degraded performance in several scenarios (e.g., 10% source proportion on ISRUC, 50% source proportion on FACED). 
+
+4.2.3 Interplay Analysis of Varying Hyper-parameters λ and γ
+
+The interplay between synaptic consolidation and renormalization collectively facilitates synaptic homeostasis. In this section, we conduct hyper-parameter studies on the synaptic renormalization decay factor λ and consolidation coefficient γ on the ISRUC dataset, as depicted in Fig. 4. The left sub-figure visualizes the variations in synaptic renormalization rate across distinct λ values. As λ
+
+increases, the rate of decline in renormalization diminishes progressively with step increments. The experimental results demonstrate that the SPICED framework achieves optimal performance when λ
+
+is set to 30 and γ to 1.3. This parameterization ensures a stabilized synaptic renormalization decay profile and moderate consolidation. This balance prevents synaptic strength collapse from transient suppression or explosion from recurrent activation. 0 30 60 90 120 150           
+
+> Steps
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> Renormalization Rate  =10
+> =20
+> =30
+> =40
+> =50
+> 10 20 30 40 50 1.1 1.2 1.3 1.4 1.5
+> Accuracy
+> 74.4
+> 74.8
+> 75.2
+> 75.6
+> 76.0
+> 10 20 30 40 50 1.1 1.2 1.3 1.4 1.5
+> Macro-F1
+> 70.4
+> 70.8
+> 71.2
+> 71.6
+
+Figure 4: Analysis of synaptic renormalization decay factor λ and consolidation coefficient γ on the ISRUC dataset with 30% source domain proportion. The left sub-figure illustrates the variation in synaptic renormalization rate across different decay factor λ values. 
+
+4.2.4 Dynamics of the Average Synaptic Strength 
+
+In this section, we visualize the dynamics of average synaptic connection strength in source domain nodes across three datasets during unsupervised continual domain adaptation, with all nodes initialized to an average synaptic strength of 1. As shown in Fig. 5, experimental results demonstrate that as the synaptic network expands, the dynamics of average synaptic strength changes exhibit a 90 10 20 30 40 50 60                 
+
+> 0
+> 2
+> ISRUC
+> 010 20 30 40 50 60 70 80
+> 0
+> 2
+> FACED
+> 010 20 30 40 50 60 70
+> 0
+> 2
+> Physionet-MI
+> Final Average Synaptic Strength Exceeds Initial Value Final Average Synaptic Strength Below Initial Value
+
+Figure 5: Dynamics of average synaptic connection strength in source domain nodes during synaptic network expansion: with color-coded trajectories indicating post-expansion potentiation or depression compared to initial strength. consistent pattern across three datasets. Critical nodes undergo persistent strengthening of their synaptic strength (i.e., blue lines), thereby enhancing their influence in subsequent learning tasks such as adaptation to new individuals. This persistent consolidation mechanism mimics neural LTP, where short-term memory representations are gradually consolidated from the hippocampus into cortical long-term engrams. Conversely, redundant connections undergo progressive weakening through synaptic renormalization (i.e., red lines), mitigating noise-induced disruptions during domain adaptation. This process mirrors the LTD-driven passive forgetting mechanism in the brain, which dynamically reallocates cognitive resources by suppressing task-irrelevant or low-salience information. In summary, our synaptic homeostasis-inspired SPICED framework enables long-term continual learning by consolidating task-discriminative features and suppressing redundant noise. It synergizes with the subsequent functionally specialized critical memory activation module to jointly enable robust unsupervised continual EEG decoding. More detailed visualization experiments are provided in the Appendix F, H. And more detailed additional studies are listed in Appendix G, I, J, K. 
+
+## 5 Conclusion 
+
+In this work, we propose SPICED—a neuromorphic framework integrating synaptic homeostasis principles for unsupervised continual EEG decoding in non-stationary scenarios. SPICED comprises a novel synaptic network that enables dynamic expansion during continual adaptation via three biologically inspired mechanisms. First, we introduced critical memory reactivation to selectively activate task-relevant memory for replay during each adaptation. Second, we adopt the synaptic consolidation to strengthen these critical memory traces. Third, we adopt the synaptic renormalization to periodically weaken inter-node connection strengths globally. The synergistic balance between these bio-inspired mechanisms enables robust adaptation to each newly emerging individual and prevention of catastrophic forgetting during long-term continual EEG decoding. SPICED achieves robust performance across three downstream EEG tasks. More discussion about implications and limitations is provided in Appendix L. 
+
+## 6 Acknowledgments 
+
+This work was supported by STI 2030 Major Projects (2021ZD0200400), the National Natural Science Foundation of China (No.62476240) and the Key Program of the Natural Science Foundation of Zhejiang Province, China (No. LZ24F020004). The corresponding author is Dr. Sha Zhao. 10 References 
+
+[1] Giulio Tononi and Chiara Cirelli. Sleep and synaptic homeostasis: a hypothesis. Brain research bulletin , 62(2):143–150, 2003. [2] Giulio Tononi and Chiara Cirelli. Sleep function and synaptic homeostasis. Sleep medicine reviews , 10(1):49–62, 2006. [3] Ami Citri and Robert C Malenka. Synaptic plasticity: multiple forms, functions, and mecha-nisms. Neuropsychopharmacology , 33(1):18–41, 2008. [4] Robert C Malenka and Mark F Bear. Ltp and ltd: an embarrassment of riches. Neuron , 44(1): 5–21, 2004. [5] Umberto Olcese, Steve K Esser, and Giulio Tononi. Sleep and synaptic renormalization: a computational study. Journal of neurophysiology , 104(6):3476–3493, 2010. [6] Daniel Bushey, Giulio Tononi, and Chiara Cirelli. Sleep and synaptic homeostasis: structural evidence in drosophila. Science , 332(6037):1576–1581, 2011. [7] Lorric Ziegler, Friedemann Zenke, David B Kastner, and Wulfram Gerstner. Synaptic consol-idation: from synapses to behavioral modeling. Journal of Neuroscience , 35(3):1319–1334, 2015. [8] Larry R Squire, Lisa Genzel, John T Wixted, and Richard G Morris. Memory consolidation. 
+
+Cold Spring Harbor perspectives in biology , 7(8):a021766, 2015. [9] Robert C Malenka, Nicoll, and Roger A. Long-term potentiation–a decade of progress? Science ,285(5435):1870–1874, 1999. [10] Linlin Sun, Hang Zhou, Joseph Cichon, and Guang Yang. Experience and sleep-dependent synaptic plasticity: from structure to activity. Philosophical Transactions of the Royal Society B, 375(1799):20190234, 2020. [11] Roddy Cowie, Ellen Douglas-Cowie, Nicolas Tsapatsoulis, George Votsis, Stefanos Kollias, Winfried Fellenz, and John G Taylor. Emotion recognition in human-computer interaction. 
+
+IEEE Signal processing magazine , 18(1):32–80, 2001. [12] Jaeseung Jeong. Eeg dynamics in patients with alzheimer’s disease. Clinical neurophysiology ,115(7):1490–1505, 2004. [13] Robert Jenke, Angelika Peer, and Martin Buss. Feature extraction and selection for emotion recognition from eeg. IEEE Transactions on Affective computing , 5(3):327–339, 2014. [14] Yangxuan Zhou, Sha Zhao, Jiquan Wang, Haiteng Jiang, Shijian Li, Benyan Luo, Tao Li, and Gang Pan. Personalized sleep staging leveraging source-free unsupervised domain adaptation. In 
+
+Proceedings of the AAAI Conference on Artificial Intelligence , volume 39, pages 14529–14537, 2025. [15] Yilin Wang, Sha Zhao, Haiteng Jiang, Shijian Li, Tao Li, and Gang Pan. M-mdd: A multi-task deep learning framework for major depressive disorder diagnosis using eeg. Neurocomputing ,636:130008, 2025. [16] C Andrew Frank, Matthew J Kennedy, Carleton P Goold, Kurt W Marek, and Graeme W Davis. Mechanisms underlying the rapid induction and sustained expression of synaptic homeostasis. 
+
+Neuron , 52(4):663–677, 2006. [17] Karl Friston. A theory of cortical responses. Philosophical transactions of the Royal Society B: Biological sciences , 360(1456):815–836, 2005. [18] Olaf Sporns and Richard F Betzel. Modular brain networks. Annual review of psychology , 67 (1):613–640, 2016. [19] Nancy Kanwisher. Functional specificity in the human brain: a window into the functional architecture of the mind. Proceedings of the national academy of sciences , 107(25):11163– 11170, 2010. 11 [20] Clive R Bramham and Elhoucine Messaoudi. Bdnf function in adult synaptic plasticity: the synaptic consolidation hypothesis. Progress in neurobiology , 76(2):99–125, 2005. [21] Craig H Bailey, Eric R Kandel, and Kristen M Harris. Structural components of synaptic plasticity and memory consolidation. Cold Spring Harbor perspectives in biology , 7(7):a021758, 2015. [22] Katherine G Akers, Alonso Martinez-Canabal, Leonardo Restivo, Adelaide P Yiu, Antonietta De Cristofaro, Hwa-Lin Hsiang, Anne L Wheeler, Axel Guskjolen, Yosuke Niibori, Hirotaka Shoji, et al. Hippocampal neurogenesis regulates forgetting during adulthood and infancy. 
+
+Science , 344(6184):598–602, 2014. [23] James Kirkpatrick, Razvan Pascanu, Neil Rabinowitz, Joel Veness, Guillaume Desjardins, Andrei A Rusu, Kieran Milan, John Quan, Tiago Ramalho, Agnieszka Grabska-Barwinska, et al. Overcoming catastrophic forgetting in neural networks. Proceedings of the national academy of sciences , 114(13):3521–3526, 2017. [24] Friedemann Zenke, Ben Poole, and Surya Ganguli. Continual learning through synaptic intelligence. In International conference on machine learning , pages 3987–3995. PMLR, 2017. [25] Rahaf Aljundi, Francesca Babiloni, Mohamed Elhoseiny, Marcus Rohrbach, and Tinne Tuyte-laars. Memory aware synapses: Learning what (not) to forget. In Proceedings of the European conference on computer vision (ECCV) , pages 139–154, 2018. [26] Zhizhong Li and Derek Hoiem. Learning without forgetting. IEEE transactions on pattern analysis and machine intelligence , 40(12):2935–2947, 2017. [27] Arslan Chaudhry, Puneet K Dokania, Thalaiyasingam Ajanthan, and Philip HS Torr. Riemannian walk for incremental learning: Understanding forgetting and intransigence. In Proceedings of the European conference on computer vision (ECCV) , pages 532–547, 2018. [28] Andrei A Rusu, Neil C Rabinowitz, Guillaume Desjardins, Hubert Soyer, James Kirkpatrick, Koray Kavukcuoglu, Razvan Pascanu, and Raia Hadsell. Progressive neural networks. arXiv preprint arXiv:1606.04671 , 2016. [29] Arun Mallya and Svetlana Lazebnik. Packnet: Adding multiple tasks to a single network by iterative pruning. In Proceedings of the IEEE conference on Computer Vision and Pattern Recognition , pages 7765–7773, 2018. [30] Chrisantha Fernando, Dylan Banarse, Charles Blundell, Yori Zwols, David Ha, Andrei A Rusu, Alexander Pritzel, and Daan Wierstra. Pathnet: Evolution channels gradient descent in super neural networks. arXiv preprint arXiv:1701.08734 , 2017. [31] Sylvestre-Alvise Rebuffi, Alexander Kolesnikov, Georg Sperl, and Christoph H Lampert. icarl: Incremental classifier and representation learning. In Proceedings of the IEEE conference on Computer Vision and Pattern Recognition , pages 2001–2010, 2017. [32] Francisco M Castro, Manuel J Marín-Jiménez, Nicolás Guil, Cordelia Schmid, and Karteek Alahari. End-to-end incremental learning. In Proceedings of the European conference on computer vision (ECCV) , pages 233–248, 2018. [33] David Lopez-Paz and Marc’Aurelio Ranzato. Gradient episodic memory for continual learning. 
+
+Advances in neural information processing systems , 30, 2017. [34] Rahaf Aljundi, Min Lin, Baptiste Goujaud, and Yoshua Bengio. Gradient based sample selection for online continual learning. Advances in neural information processing systems , 32, 2019. [35] Joonyoung Kim, Hyowoon Seo, Wan Choi, and Kyomin Jung. Homeostasis-inspired continual learning: learning to control structural regularization. IEEE Access , 9:9690–9698, 2021. [36] Martin Hofmann and Patrick Mäder. Synaptic scaling—an artificial neural network regulariza-tion inspired by nature. IEEE transactions on neural networks and learning systems , 33(7): 3094–3108, 2021. 12 [37] Francesco Lässig, Pau Vilimelis Aceituno, Martino Sorbaro, and Benjamin F Grewe. Bio-inspired, task-free continual learning through activity regularization. Biological Cybernetics ,117(4):345–361, 2023. [38] Xuming Ran, Juntao Yao, Yusong Wang, Mingkun Xu, and Dianbo Liu. Brain-inspired continual pre-trained learner via silent synaptic consolidation. arXiv preprint arXiv:2410.05899 , 2024. [39] Oswaldo Ludwig. Classp: a biologically-inspired approach to continual learning through adjustment suppression and sparsity promotion. arXiv preprint arXiv:2405.09637 , 2024. [40] Jonathan Mayzel and Elad Schneidman. Homeostatic synaptic normalization optimizes learning in network models of neural population codes. eLife , 13:RP96566, 2024. [41] Ziyu Lu, Wuwei Zhang, Trung Le, Hao Wang, Uygar Sümbül, Eric Todd SheaBrown, and Lu Mi. Netformer: An interpretable model for recovering dynamical connectivity in neuronal population dynamics. In The Thirteenth International Conference on Learning Representations .[42] Qianqian Shi, Faqiang Liu, Hongyi Li, Guangyu Li, Luping Shi, and Rong Zhao. Hybrid neural networks for continual learning inspired by corticohippocampal circuits. Nature Communica-tions , 16(1):1272, 2025. [43] zhaohui Wu, Pan Gang, and Zheng Nenggan. The convergence of machine and biological intelligence. IEEE Intelligent Systems , 28(5):31–33, 2013. [44] Shuaiqi Liu, Yingying Zhao, Yanling An, Jie Zhao, Shui-Hua Wang, and Jingwen Yan. Glfanet: A global to local feature aggregation network for eeg emotion recognition. Biomedical Signal Processing and Control , 85:104799, 2023. [45] Jiquan Wang, Sha Zhao, Yangxuan Zhou, Haiteng Jiang, Zhenghe Yu, Tao Li, Shijian Li, and Gang Pan. Narcolepsy diagnosis with sleep stage features using psg recordings. IEEE Transactions on Neural Systems and Rehabilitation Engineering , 2023. [46] Jiquan Wang, Sha Zhao, Zhiling Luo, Yangxuan Zhou, Haiteng Jiang, Shijian Li, Tao Li, and Gang Pan. Cbramod: A criss-cross brain foundation model for eeg decoding. arXiv preprint arXiv:2412.07236 , 2024. [47] Yangxuan Zhou, Sha Zhao, Jiquan Wang, Haiteng Jiang, Zhenghe Yu, Shijian Li, Tao Li, and Gang Pan. Simplifying multimodal with single eog modality for automatic sleep staging. IEEE Transactions on Neural Systems and Rehabilitation Engineering , 2024. [48] Tiehang Duan, Zhenyi Wang, Gianfranco Doretto, Fang Li, Cui Tao, and Donald Adjeroh. Replay with stochastic neural transformation for online continual eeg classification. In 2023 IEEE International Conference on Bioinformatics and Biomedicine (BIBM) , pages 1874–1879. IEEE, 2023. [49] Tiehang Duan, Zhenyi Wang, Li Shen, Gianfranco Doretto, Donald A Adjeroh, Fang Li, and Cui Tao. Retain and adapt: Online sequential eeg classification with subject shift. IEEE Transactions on Artificial Intelligence , 2024. [50] Tiehang Duan, Zhenyi Wang, Fang Li, Gianfranco Doretto, Donald A Adjeroh, Yiyi Yin, and Cui Tao. Online continual decoding of streaming eeg signal with a balanced and informative memory buffer. Neural Networks , 176:106338, 2024. [51] Yangxuan Zhou, Sha Zhao, Jiquan Wang, Haiteng Jiang, Shijian Li, Tao Li, and Gang Pan. Brainuicl: An unsupervised individual continual learning framework for eeg applications. In 
+
+The Thirteenth International Conference on Learning Representations .[52] John E Lisman. A mechanism for memory storage insensitive to molecular turnover: a bistable autophosphorylating kinase. Proceedings of the National Academy of Sciences , 82(9):3055– 3057, 1985. [53] Wickliffe C Abraham and Mark F Bear. Metaplasticity: the plasticity of synaptic plasticity. 
+
+Trends in neurosciences , 19(4):126–130, 1996. 13 [54] Wickliffe C Abraham. Metaplasticity: tuning synapses and networks for plasticity. Nature Reviews Neuroscience , 9(5):387–387, 2008. [55] Hermann Ebbinghaus. Über das gedächtnis: untersuchungen zur experimentellen psychologie .Duncker & Humblot, 1885. [56] Sirvan Khalighi, Teresa Sousa, José Moutinho Santos, and Urbano Nunes. Isruc-sleep: A comprehensive public dataset for sleep researchers. Computer Methods and Programs in Biomedicine , 124:180–192, 2016. ISSN 0169-2607. [57] Jingjing Chen, Xiaobin Wang, Chen Huang, Xin Hu, Xinke Shen, and Dan Zhang. A large finer-grained affective computing eeg dataset. Scientific Data , 10(1):740, 2023. [58] G. Schalk, D.J. McFarland, T. Hinterberger, N. Birbaumer, and J.R. Wolpaw. Bci2000: a general-purpose brain-computer interface (bci) system. IEEE Transactions on Biomedical Engineering , 51(6):1034–1043, 2004. [59] Laurens Van der Maaten and Geoffrey Hinton. Visualizing data using t-sne. Journal of machine learning research , 9(11), 2008. [60] Arthur Gretton, Karsten Borgwardt, Malte Rasch, Bernhard Schölkopf, and Alex Smola. A kernel method for the two-sample-problem. Advances in neural information processing systems ,19, 2006. [61] Abu Md Niamul Taufique, Chowdhury Sadman Jahan, and Andreas Savakis. Unsupervised continual learning for gradually varying domains. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 3740–3750, 2022. [62] Bojian Chen, Xinmin Zhang, Changqing Shen, Qi Li, and Zhihuan Song. Couda: Continual unsupervised domain adaptation for industrial fault diagnosis under dynamic working conditions. 
+
+IEEE Transactions on Industrial Informatics , 2025. [63] Aaron van den Oord, Yazhe Li, and Oriol Vinyals. Representation learning with contrastive predictive coding. arXiv preprint arXiv:1807.03748 , 2018. [64] Conrad Iber. The aasm manual for the scoring of sleep and associated events: rules, terminology, and technical specification. (No Title) , 2007. [65] Huy Phan and Kaare Mikkelsen. Automatic sleep staging of eeg signals: recent development, challenges, and future directions. Physiological Measurement , 43(4):04TR01, 2022. 
+
+## NeurIPS Paper Checklist 
+
+1. Claims 
+
+Question: Do the main claims made in the abstract and introduction accurately reflect the paper’s contributions and scope? Answer: [Yes] Justification: The main claims made in the abstract and introduction accurately reflect the paper’s contributions and scope. Guidelines: • The answer NA means that the abstract and introduction do not include the claims made in the paper. • The abstract and/or introduction should clearly state the claims made, including the contributions made in the paper and important assumptions and limitations. A No or NA answer to this question will not be perceived well by the reviewers. • The claims made should match theoretical and experimental results, and reflect how much the results can be expected to generalize to other settings. • It is fine to include aspirational goals as motivation as long as it is clear that these goals are not attained by the paper. 14 2. Limitations 
+
+Question: Does the paper discuss the limitations of the work performed by the authors? Answer: [Yes] Justification: We have discussed the limitations in the Appendix. Guidelines: • The answer NA means that the paper has no limitation while the answer No means that the paper has limitations, but those are not discussed in the paper. • The authors are encouraged to create a separate "Limitations" section in their paper. • The paper should point out any strong assumptions and how robust the results are to violations of these assumptions (e.g., independence assumptions, noiseless settings, model well-specification, asymptotic approximations only holding locally). The authors should reflect on how these assumptions might be violated in practice and what the implications would be. • The authors should reflect on the scope of the claims made, e.g., if the approach was only tested on a few datasets or with a few runs. In general, empirical results often depend on implicit assumptions, which should be articulated. • The authors should reflect on the factors that influence the performance of the approach. For example, a facial recognition algorithm may perform poorly when image resolution is low or images are taken in low lighting. Or a speech-to-text system might not be used reliably to provide closed captions for online lectures because it fails to handle technical jargon. • The authors should discuss the computational efficiency of the proposed algorithms and how they scale with dataset size. • If applicable, the authors should discuss possible limitations of their approach to address problems of privacy and fairness. • While the authors might fear that complete honesty about limitations might be used by reviewers as grounds for rejection, a worse outcome might be that reviewers discover limitations that aren’t acknowledged in the paper. The authors should use their best judgment and recognize that individual actions in favor of transparency play an impor-tant role in developing norms that preserve the integrity of the community. Reviewers will be specifically instructed to not penalize honesty concerning limitations. 3. Theory assumptions and proofs 
+
+Question: For each theoretical result, does the paper provide the full set of assumptions and a complete (and correct) proof? Answer: [NA] Justification: Our work does not include the steps of theoretical formula derivation and proof. Guidelines: • The answer NA means that the paper does not include theoretical results. • All the theorems, formulas, and proofs in the paper should be numbered and cross-referenced. • All assumptions should be clearly stated or referenced in the statement of any theorems. • The proofs can either appear in the main paper or the supplemental material, but if they appear in the supplemental material, the authors are encouraged to provide a short proof sketch to provide intuition. • Inversely, any informal proof provided in the core of the paper should be complemented by formal proofs provided in appendix or supplemental material. • Theorems and Lemmas that the proof relies upon should be properly referenced. 4. Experimental result reproducibility 
+
+Question: Does the paper fully disclose all the information needed to reproduce the main ex-perimental results of the paper to the extent that it affects the main claims and/or conclusions of the paper (regardless of whether the code and data are provided or not)? 15 Answer: [Yes] Justification: We have provided a detailed description of the algorithm in the main text, and also presented the pseudo-code of the algorithm. We have submitted supplementary materials(including source codes), and the dataset is open-source to facilitate reproduction. Guidelines: • The answer NA means that the paper does not include experiments. • If the paper includes experiments, a No answer to this question will not be perceived well by the reviewers: Making the paper reproducible is important, regardless of whether the code and data are provided or not. • If the contribution is a dataset and/or model, the authors should describe the steps taken to make their results reproducible or verifiable. • Depending on the contribution, reproducibility can be accomplished in various ways. For example, if the contribution is a novel architecture, describing the architecture fully might suffice, or if the contribution is a specific model and empirical evaluation, it may be necessary to either make it possible for others to replicate the model with the same dataset, or provide access to the model. In general. releasing code and data is often one good way to accomplish this, but reproducibility can also be provided via detailed instructions for how to replicate the results, access to a hosted model (e.g., in the case of a large language model), releasing of a model checkpoint, or other means that are appropriate to the research performed. • While NeurIPS does not require releasing code, the conference does require all submis-sions to provide some reasonable avenue for reproducibility, which may depend on the nature of the contribution. For example (a) If the contribution is primarily a new algorithm, the paper should make it clear how to reproduce that algorithm. (b) If the contribution is primarily a new model architecture, the paper should describe the architecture clearly and fully. (c) If the contribution is a new model (e.g., a large language model), then there should either be a way to access this model for reproducing the results or a way to reproduce the model (e.g., with an open-source dataset or instructions for how to construct the dataset). (d) We recognize that reproducibility may be tricky in some cases, in which case authors are welcome to describe the particular way they provide for reproducibility. In the case of closed-source models, it may be that access to the model is limited in some way (e.g., to registered users), but it should be possible for other researchers to have some path to reproducing or verifying the results. 5. Open access to data and code 
+
+Question: Does the paper provide open access to the data and code, with sufficient instruc-tions to faithfully reproduce the main experimental results, as described in supplemental material? Answer: [Yes] Justification: We have submitted supplementary materials(including source codes), and the dataset is open-source to facilitate reproduction. Guidelines: • The answer NA means that paper does not include experiments requiring code. • Please see the NeurIPS code and data submission guidelines ( https://nips.cc/ public/guides/CodeSubmissionPolicy ) for more details. • While we encourage the release of code and data, we understand that this might not be possible, so “No” is an acceptable answer. Papers cannot be rejected simply for not including code, unless this is central to the contribution (e.g., for a new open-source benchmark). • The instructions should contain the exact command and environment needed to run to reproduce the results. See the NeurIPS code and data submission guidelines ( https: //nips.cc/public/guides/CodeSubmissionPolicy ) for more details. 16 • The authors should provide instructions on data access and preparation, including how to access the raw data, preprocessed data, intermediate data, and generated data, etc. • The authors should provide scripts to reproduce all experimental results for the new proposed method and baselines. If only a subset of experiments are reproducible, they should state which ones are omitted from the script and why. • At submission time, to preserve anonymity, the authors should release anonymized versions (if applicable). • Providing as much information as possible in supplemental material (appended to the paper) is recommended, but including URLs to data and code is permitted. 6. Experimental setting/details 
+
+Question: Does the paper specify all the training and test details (e.g., data splits, hyper-parameters, how they were chosen, type of optimizer, etc.) necessary to understand the results? Answer: [Yes] Justification: We have provided detailed training details and parameter settings. Guidelines: • The answer NA means that the paper does not include experiments. • The experimental setting should be presented in the core of the paper to a level of detail that is necessary to appreciate the results and make sense of them. • The full details can be provided either with the code, in appendix, or as supplemental material. 7. Experiment statistical significance 
+
+Question: Does the paper report error bars suitably and correctly defined or other appropriate information about the statistical significance of the experiments? Answer: [Yes] Justification: We have provided statistical verification for the experimental results. Guidelines: • The answer NA means that the paper does not include experiments. • The authors should answer "Yes" if the results are accompanied by error bars, confi-dence intervals, or statistical significance tests, at least for the experiments that support the main claims of the paper. • The factors of variability that the error bars are capturing should be clearly stated (for example, train/test split, initialization, random drawing of some parameter, or overall run with given experimental conditions). • The method for calculating the error bars should be explained (closed form formula, call to a library function, bootstrap, etc.) • The assumptions made should be given (e.g., Normally distributed errors). • It should be clear whether the error bar is the standard deviation or the standard error of the mean. • It is OK to report 1-sigma error bars, but one should state it. The authors should preferably report a 2-sigma error bar than state that they have a 96% CI, if the hypothesis of Normality of errors is not verified. • For asymmetric distributions, the authors should be careful not to show in tables or figures symmetric error bars that would yield results that are out of range (e.g. negative error rates). • If error bars are reported in tables or plots, The authors should explain in the text how they were calculated and reference the corresponding figures or tables in the text. 8. Experiments compute resources 
+
+Question: For each experiment, does the paper provide sufficient information on the com-puter resources (type of compute workers, memory, time of execution) needed to reproduce the experiments? Answer: [No] 17 Justification: The focus of our work does not lie in computing resources. Guidelines: • The answer NA means that the paper does not include experiments. • The paper should indicate the type of compute workers CPU or GPU, internal cluster, or cloud provider, including relevant memory and storage. • The paper should provide the amount of compute required for each of the individual experimental runs as well as estimate the total compute. • The paper should disclose whether the full research project required more compute than the experiments reported in the paper (e.g., preliminary or failed experiments that didn’t make it into the paper). 9. Code of ethics 
+
+Question: Does the research conducted in the paper conform, in every respect, with the NeurIPS Code of Ethics https://neurips.cc/public/EthicsGuidelines ?Answer: [Yes] Justification: The research conducted in this paper conforms to the Code of Ethics of the Conference on Neural Information Processing Systems (NeurIPS). Guidelines: • The answer NA means that the authors have not reviewed the NeurIPS Code of Ethics. • If the authors answer No, they should explain the special circumstances that require a deviation from the Code of Ethics. • The authors should make sure to preserve anonymity (e.g., if there is a special consid-eration due to laws or regulations in their jurisdiction). 10. Broader impacts 
+
+Question: Does the paper discuss both potential positive societal impacts and negative societal impacts of the work performed? Answer: [Yes] Justification: We have explored the positive impacts that our work will bring to future brain-inspired endeavors. Guidelines: • The answer NA means that there is no societal impact of the work performed. • If the authors answer NA or No, they should explain why their work has no societal impact or why the paper does not address societal impact. • Examples of negative societal impacts include potential malicious or unintended uses (e.g., disinformation, generating fake profiles, surveillance), fairness considerations (e.g., deployment of technologies that could make decisions that unfairly impact specific groups), privacy considerations, and security considerations. • The conference expects that many papers will be foundational research and not tied to particular applications, let alone deployments. However, if there is a direct path to any negative applications, the authors should point it out. For example, it is legitimate to point out that an improvement in the quality of generative models could be used to generate deepfakes for disinformation. On the other hand, it is not needed to point out that a generic algorithm for optimizing neural networks could enable people to train models that generate Deepfakes faster. • The authors should consider possible harms that could arise when the technology is being used as intended and functioning correctly, harms that could arise when the technology is being used as intended but gives incorrect results, and harms following from (intentional or unintentional) misuse of the technology. • If there are negative societal impacts, the authors could also discuss possible mitigation strategies (e.g., gated release of models, providing defenses in addition to attacks, mechanisms for monitoring misuse, mechanisms to monitor how a system learns from feedback over time, improving the efficiency and accessibility of ML). 11. Safeguards 
+
+18 Question: Does the paper describe safeguards that have been put in place for responsible release of data or models that have a high risk for misuse (e.g., pretrained language models, image generators, or scraped datasets)? Answer: [NA] Justification: Our paper poses no such risks. Guidelines: • The answer NA means that the paper poses no such risks. • Released models that have a high risk for misuse or dual-use should be released with necessary safeguards to allow for controlled use of the model, for example by requiring that users adhere to usage guidelines or restrictions to access the model or implementing safety filters. • Datasets that have been scraped from the Internet could pose safety risks. The authors should describe how they avoided releasing unsafe images. • We recognize that providing effective safeguards is challenging, and many papers do not require this, but we encourage authors to take this into account and make a best faith effort. 12. Licenses for existing assets 
+
+Question: Are the creators or original owners of assets (e.g., code, data, models), used in the paper, properly credited and are the license and terms of use explicitly mentioned and properly respected? Answer: [Yes] Justification: All the reference materials have been properly cited. Guidelines: • The answer NA means that the paper does not use existing assets. • The authors should cite the original paper that produced the code package or dataset. • The authors should state which version of the asset is used and, if possible, include a URL. • The name of the license (e.g., CC-BY 4.0) should be included for each asset. • For scraped data from a particular source (e.g., website), the copyright and terms of service of that source should be provided. • If assets are released, the license, copyright information, and terms of use in the package should be provided. For popular datasets, paperswithcode.com/datasets 
+
+has curated licenses for some datasets. Their licensing guide can help determine the license of a dataset. • For existing datasets that are re-packaged, both the original license and the license of the derived asset (if it has changed) should be provided. • If this information is not available online, the authors are encouraged to reach out to the asset’s creators. 13. New assets 
+
+Question: Are new assets introduced in the paper well documented and is the documentation provided alongside the assets? Answer: [NA] Justification: The paper does not release new assets. Guidelines: • The answer NA means that the paper does not release new assets. • Researchers should communicate the details of the dataset/code/model as part of their submissions via structured templates. This includes details about training, license, limitations, etc. • The paper should discuss whether and how consent was obtained from people whose asset is used. • At submission time, remember to anonymize your assets (if applicable). You can either create an anonymized URL or include an anonymized zip file. 19 14. Crowdsourcing and research with human subjects 
+
+Question: For crowdsourcing experiments and research with human subjects, does the paper include the full text of instructions given to participants and screenshots, if applicable, as well as details about compensation (if any)? Answer: [NA] Justification: Our paper does not involve crowdsourcing nor research with human subjects. Guidelines: • The answer NA means that the paper does not involve crowdsourcing nor research with human subjects. • Including this information in the supplemental material is fine, but if the main contribu-tion of the paper involves human subjects, then as much detail as possible should be included in the main paper. • According to the NeurIPS Code of Ethics, workers involved in data collection, curation, or other labor should be paid at least the minimum wage in the country of the data collector. 15. Institutional review board (IRB) approvals or equivalent for research with human subjects 
+
+Question: Does the paper describe potential risks incurred by study participants, whether such risks were disclosed to the subjects, and whether Institutional Review Board (IRB) approvals (or an equivalent approval/review based on the requirements of your country or institution) were obtained? Answer: [NA] Justification: Our paper does not involve crowdsourcing nor research with human subjects. Guidelines: • The answer NA means that the paper does not involve crowdsourcing nor research with human subjects. • Depending on the country in which research is conducted, IRB approval (or equivalent) may be required for any human subjects research. If you obtained IRB approval, you should clearly state this in the paper. • We recognize that the procedures for this may vary significantly between institutions and locations, and we expect authors to adhere to the NeurIPS Code of Ethics and the guidelines for their institution. • For initial submissions, do not include any information that would break anonymity (if applicable), such as the institution conducting the review. 16. Declaration of LLM usage 
+
+Question: Does the paper describe the usage of LLMs if it is an important, original, or non-standard component of the core methods in this research? Note that if the LLM is used only for writing, editing, or formatting purposes and does not impact the core methodology, scientific rigorousness, or originality of the research, declaration is not required. Answer: [NA] Justification: The core method development in our paper does not involve LLMs as any important, original, or non-standard components. Guidelines: • The answer NA means that the core method development in this research does not involve LLMs as any important, original, or non-standard components. • Please refer to our LLM policy ( https://neurips.cc/Conferences/2025/LLM )for what should or should not be described. 20 A Initial Feature Extraction 
+
+In this work, the synaptic network construction is driven by inter-individual similarity matching of initial features, with synaptic connections formed when pairwise initial feature similarity exceeds a predefined threshold ξ. Thus, the extraction of individual initial feature constitutes a critical prerequisite for the framework. We extract individual-specific initial EEG features from raw signals via channel-wise feature engineering across three dimensions—time domain, frequency domain, and time-frequency domain. Time Domain Feature: For each EEG channel, we extract the mean, variance, kurtosis, skewness, and Hjorth parameters (mobility and complexity) as initial time-domain features. Frequency Domain Feature: For each EEG channel, we extract the power spectral density (PSD) across five frequency bands (i.e., δ (0.5-4Hz), θ (4-8Hz), α (8-13)Hz, β (13-30Hz), γ (30-45Hz)) as initial frequency-domain features. Time-Frequency Domain Feature: For each EEG channel, we extract wavelet energy features as initial time-frequency domain features. Following channel-wise feature extraction, inter-channel normalization is applied to the initial feature vectors to mitigate scaling discrepancies caused by dimensional heterogeneity across features. 
+
+## B More Details for Experimental Settings on Pre-training 
+
+To validate the effectiveness of the SPICED framework across diverse downstream EEG tasks, we employ a uniform model architecture comprising three core components: (1) a feature extractor composed of multiple layers of CNN, (2) a Transformer-based encoder for contextual representation learning, and (3) a task-specific classifier composed of multiple fully connected layers. The detailed model parameters and pre-trained settings are summarized in Table. 4. Table 4: Hyper-parameters of the pre-trained model and detailed pre-training configurations. For the Conv1D layer, the parameter from left to right corresponds to: filters , kernel size , and stride. Pre-training Epoch 100 Learning Rate 1e-4 Optimizer AdamW Adam β (0.5, 0.99) Weight Decay 3e-4 Batch 32 Dropout 0.1 Clipping gradient norm 1CNN Blocks 1-th Conv1D (64, 50, 6) 1-th MaxPool1D (8, 8) 2-th Conv1D (128, 8) 3-th Conv1D (256, 8) 4-th Conv1D (512, 8) 4-th MaxPool1D (4, 4) Transformer Layers 3Hidden Dimension 512 Heads 8Feed-forward dimension 2048 Classifier 1-th Linear Layer (encoder output, 256) 2-th Linear Layer (256, 128) 3-th Linear Layer (128, task-specific output) 
+
+## C More Details for Self-Supervised Learning 
+
+Following the BrainUICL framework, we apply a self-supervised learning (SSL) method on newly incremental individual to fine-tune the guided model cloned from the initial fusion model Mi, so as to generate high-confidence pseudo-labels for subsequent joint-training. Specifically, we employ the Contrastive Predictive Coding (CPC) [ 63 ] algorithm to adapt the feature extractor and encoder to the data distribution of new individuals by predicting future EEG sequences using prior contextual information. Formally, given a latent EEG sequences H = {h0, h 1, h 2, h 3, ..., h t, h t+1 , h t+2 , h t+3 }
+
+encoded by the feature encoder, we instantiate a Transformer encoder as an autoregressive model to encode the early-stage sequential representation Hi≤t into a contextual vector ct. Subsequently, 21 multiple linear layers are initialized to predict future EEG representations {ht+1 , h t+2 , h t+3 } condi-tioned on ct, formulated as zt+k = fk(ct) for k=1, 2, 3, where zt+k denotes the predicted time steps for ht+k. Then we employ the contrastive loss to update the feature extractor and encoder as follows: 
+
+Lcpc = − E
+
+> Hb
+
+[log exp (hTt+k(fk(ct))) 
+
+P  
+
+> hj∈Hb
+
+exp (( hTj fk(ct))) ] (7) 
+
+## D More Details for Dataset Preparation 
+
+ISRUC is a publicly sleep dataset comprising three sub-groups. In this study, we employ sub-group1 of the ISRUC dataset, comprising 100 all-night polysomnography (PSG) recordings from adult subjects. The EEG signals were acquired using six channels (F3-A2, C3-A2, O1-A2, F4-A1, C4-A1, and O2-A1) with a sampling frequency of 200 Hz. Additionally, two electrooculography (EOG) channels (E1-M2 and E2-M1) were included as input modalities. All EEG and EOG signals are were bandpass filtered (0.3 Hz–45 Hz) and resampled to 100 Hz. The signals are segmented into 30-second epochs, which are manually annotated by sleep experts into five sleep stages (Wake, N1, N2, N3, and REM) in accordance with the American Academy of Sleep Medicine (AASM) [ 64 ] guidelines. Following previous sleep studies [ 65 ], we formulate the sleep staging task as a sequence-to-sequence classification problem, with a sequence length of 20 corresponding to 10-minute sleep epochs (20 × 30-second epochs). Notably, subjects 8 and 40 were excluded due to incomplete channels. 
+
+FACED is a large-scale, high-resolution affective computing dataset that encompasses nine distinct emotional states: amusement, inspiration, joy, tenderness, anger, fear, disgust, sadness, and neutral. It comprises recordings from 123 participants, with each session captured via a 32-channel EEG system at a sampling frequency of 250 Hz. All signals were segmented into 10-second epochs for analysis, and the full cohort of 123 recordings was utilized for experimental evaluation. 
+
+Physionet-MI is a motor imagery EEG dataset encompassing four distinct movement categories—left fist, right fist, both fists, and both feet—derived from 109 participant recordings. Each recording contains 64-channel EEG signals with a sampling frequency of 160 Hz. All recordings were partitioned into 4-second epochs for analysis. Notably, subjects 38, 88, 89, 92, 100 and 104 were excluded due to incomplete channels. 
+
+## E More Details for Experimental Settings on Continual Learning 
+
+The detailed continual learning configurations and synaptic network hyper-parameters are summarized in Table 5. Table 5: Detailed continual learning configurations and hyper-parameters of the synaptic network. Continual Learning SSL Epoch 10 CL Epoch 10 SSL Learning Rate 1e-7 CL Learning Rate 1e-7 Optimizer AdamW Adam β (0.5, 0.99) Weight Decay 3e-4 Batch 32 Dropout 0.1 Synaptic Network ISRUC Connection Threshold ξ 0.1 FACED Connection Threshold ξ 0.4 Physionet-MI Connection Threshold ξ 0.5 Time Domain Weight ωt 0.9 Frequency Domain Weight ωf 1.5 Time-Frequency Domain Weight ωtf 1.2 Importance Weight α 0.2 Top-K 15 Pseudo Label confidence threshold η 0.9 Loss Function Weight β 0.7 Renormalization Decay Factor λ 30 Consolidation Factor γ 1.3 22 F Synaptic Network Visualization under Varying Connection Thresholds 
+
+Figure 6: Visualization of the expanded synaptic network in the ISRUC dataset. 
+
+Figure 7: Visualization of the expanded synaptic network in the FACED dataset. 
+
+Figure 8: Visualization of the expanded synaptic network in the Physionet-MI dataset. 23 Table 6: Overview of varying connection threshold ξ experiment performance with 30% source domain proportion.                                             
+
+> ξISRUC FACED Physionet-MI Average ACC Average MF1 Average ACC Average MF1 Average ACC Average MF1 0.1 75.5 71.1 43.7 41.8 48.7 47.86 0.2 74.9 70.7 43.9 42.0 48.8 47.92 0.3 75.0 71.0 43.6 41.5 48.6 47.75 0.4 74.1 70.0 44.2 42.3 48.6 47.71 0.5 73.4 69.4 43.7 41.5 48.9 48.11
+> 0.6 73.9 69.7 43.5 41.4 48.7 47.77
+
+We have visualized the synaptic networks derived from three datasets under varying connection thresholds ξ, as depicted in the Fig. 6, Fig. 7 and Fig. 8. In the ISRUC resting-state sleep dataset, significant inter-individual variability in initial features causes a sharp reduction in synaptic connections as the connection threshold increases. To preserve synaptic connection diversity, we configured a lower threshold (i.e., ξ = 0 .1 ). In contrast, for task-based datasets such as FACED and Physionet-MI, identical stimuli elicit initial features that result in an overabundance of redundant synaptic connections at low thresholds (i.e., ξ ≤ 0.3).Consequently, dataset-specific thresholds were established to filter low-quality synaptic connections. Detailed experimental results for the connection thresholds are summarized in Tab. 6. The results demonstrate that the SPICED framework achieves optimal performance across all datasets under these dataset-specific thresholds. Notably, visualization analyses reveal that synaptic network connection densities converge to a consistent level (i.e., the subplots highlighted by red boxes) when the optimal thresholds are applied for each dataset. 
+
+## G Hyper-parameter Analysis of Importance Weight α
+
+In this section, we investigate the importance weight α to quantify the influence of inter-node similarity and average synaptic connection strength on node importance, as formulas in Eq. (2). As shown in Fig. 9, the experimental results demonstrate that SPICED achieves superior performance across datasets with smaller α values (where inter-node similarity receives lower weighting) compared to scenarios with larger α values (where average synaptic connection strength is assigned reduced weights). To sum op, the average synaptic connection strength of target nodes exerts a greater influence on node importance compared to inter-node similarity, as evidenced by the following reasons. First, inter-node similarity is derived from individual initial features and remains unaffected by subsequent learning processes, thereby lacking the flexibility to dynamically assess node importance. Second, the average synaptic connection strength dynamically evolves through synaptic consolidation and renormalization, enabling a more accurate reflection of a node’s significance within the synaptic network. A higher average synaptic connection strength signifies greater generalizability of node samples, and activating such nodes enhances the model’s adaptability to new individuals. Based on the aforementioned analysis, we uniformly set α to 0.2 for all datasets. 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9                  
+
+> 70.5
+> 72.0
+> 73.5
+> 75.0
+> Metric Value
+> ISRUC
+> 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9
+> 40.5
+> 42.0
+> 43.5
+> FACED
+> 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9
+> 47.5
+> 48.0
+> 48.5
+> 49.0
+> Physionet-MI
+> ACC MF1
+
+Figure 9: The analysis of hyper-parameter α on different datasets with 30% source domain proportion. The horizontal axis represents the values of α, ranging from 0.1 to 0.9 with a step size of 0.1. 
+
+## H Visualization of the Synaptic Network Expansion Process 
+
+In this section, we visualize the dynamic synaptic network expansion processes across the ISRUC, FACED, and Physionet-MI datasets under varying source domain proportions, as illustrated in Fig. 10, 11 and Fig. 12. Observations from the visualizations reveal that certain critical nodes during the early stages of synaptic network expansion (i.e., larger node sizes) may gradually lose significance 24 Figure 10: Overview of the synaptic network dynamic expansion process on the ISRUC dataset. 
+
+Figure 11: Overview of the synaptic network dynamic expansion process on the FACED dataset. 
+
+Figure 12: Overview of the synaptic network dynamic expansion process on the Physionet-MI dataset. as the network expands, triggering synaptic consolidation and renormalization. Conversely, nodes 25 initially less prominent (i.e., smaller node sizes) may gain increasing importance through progressive integration and connections with newly added nodes. This finding demonstrates that the proposed synaptic network is less susceptible to source domain node initialization, while exhibiting both stability and robustness. 
+
+## I Ablation Study 
+
+To investigate the effectiveness of synaptic consolidation and synaptic renormalization in SPICED, we conducted an ablation study. The ablated methods are as follows: w/o SR: only synaptic consolidation is adopted; w/o SC: only synaptic renormalization is adopted; SPICED: the framework with all components. Experimental results demonstrate that SPICED’s performance degrades in the absence of either synaptic consolidation or synaptic renormalization. This further underscores the critical importance of synaptic homeostasis, arising from the interplay between synaptic consolidation and renormalization, to the SPICED framework—highlighting the indispensability of both mechanisms. 72.0     
+
+> 72.9
+> 73.8
+> 74.7
+> 75.6
+> 76.5
+> ACC(%)
+> ISRUC
+> 42.0
+> 42.6
+> 43.1
+> 43.7
+> 44.2
+> 44.8 FACED
+> 47.0
+> 47.4
+> 47.8
+> 48.2
+> 48.6
+> 49.0 Physionet-MI
+> 69.0
+> 69.8
+> 70.6
+> 71.4
+> 72.2
+> 73.0
+> MF1(%)
+> 39.0
+> 39.8
+> 40.6
+> 41.4
+> 42.2
+> 43.0
+> 46.0
+> 46.5
+> 47.0
+> 47.5
+> 48.0
+> 48.5
+> w/o SR w/o SC SPICED
+
+Figure 13: Overview performance comparison with ablated methods at 30% source domain pro-portions. Each ablated method was evaluated under the same dataset partitioning, with five runs conducted per method by randomly shuffling the input order of the incremental set to enable statistical evaluation. 
+
+## J Computational Cost and Resource Requirement 
+
+As shown in the Tab. 7, the reported average time per individual includes the full adaptation process: synaptic node incorporation, critical memory reactivation, model training (including synaptic consolidation and weight renormalization) and evaluation. The reported storage refers to the disk storage usage per individual. These results demonstrate that SPICED achieves efficient adaptation with manageable computational overhead. And our model is trained on a single machine equipped with an Intel Core i9 10900K CPU and eight NVIDIA RTX 3080 GPUs. Table 7: The computational and storage cost per individual. ISRUC FACED Physionet-MI Average Cost (minutes) 4.42±0.55 4.16±0.64 4.23±0.63 Storage (M) 47.1 53.7 43.7 
+
+## K Robustness Study 
+
+In this section, we evaluate the robustness of SPICED by adding Gaussian noise scaled to 1%, 5%, and 10% of the original signal’s standard deviation during training phase (i.e., progressively noisier conditions). As shown in the Tab. 8, SPICED demonstrates its robustness to such perturbations. Specifically, on ISRUC, SPICED maintains an ACC of 73.8% and MF1 of 70.1% under 10% noise 26 condition, exhibiting only marginal degradation compared to the clean setting. On FACED, the performance of SPICED remains nearly invariant across all noise levels. And on Physionet-MI, SPICED shows virtually no performance drop across all noise levels, with fluctuations well within the standard error. These results indicate that SPICED is inherently robust to noisy EEG inputs and can effectively tolerate moderate input perturbations without significant performance loss—a desirable property for real-world deployment in low-resource or ambulatory monitoring scenarios. Table 8: The robustness study of SPICED on three downstream EEG tasks under 30% source domain proportion. ISRUC FACED Physionet-MI ACC MF1 ACC MF1 ACC MF1                                                            
+
+> M0MiM0MiM0MiM0MiM0MiM0Mi
+> 1% Noise 66.8 74.0±0.24 60.5 70.2±0.21 31.7 43.1±0.41 27.2 40.8±0.40 42.2 48.7±0.14 37.9 47.8±0.12 5% Noise 66.8 74.2±0.08 60.5 70.4±0.21 31.7 43.2±0.29 27.2 40.9±0.36 42.2 48.6±0.14 37.9 47.8±0.14 10% Noise 66.8 73.8±0.26 60.5 70.1±0.24 31.7 43.0±0.21 27.2 40.8±0.24 42.2 48.7±0.05 37.9 47.8±0.08 Clean EEG 66.8 75.6±0.13 60.5 71.4±0.07 31.7 43.7±0.51 27.2 41.7±0.58 42.2 48.7±0.17 37.9 47.9±0.24
+
+## L Discussion 
+
+L.1 Implications 
+
+Our work bridges neurobiological principles with artificial continual learning through three key advances: (1) Mechanistic translation—formalizing synaptic homeostasis into a neuromor-phic framework that balance stability-plasticity dilemma via biologically grounded consolidation-renormalization dynamics; (2) BCI innovation—enabling individual-specific synaptic network ex-pansion to address inter-individual variability in EEG decoding, supporting continual individual adaptation; (3) Generalizability proof—validated across three different EEG tasks, we demonstrate that bio-inspired synaptic homeostasis mechanism enhances both plasticity for novel individuals and robustness against error accumulation. 
+
+L.2 Limitations and Future Work 
+
+In this work, we explores a synaptic homeostasis-inspired framework for unsupervised continual EEG decoding and validates its efficacy across diverse downstream EEG tasks, demonstrating promising performances. However, the following limitations remain: First, modern neuroscience is still at an early stage of understanding the brain, with many neurobiological mechanisms poorly characterized. Consequently, the proposed SPICED framework only approximates the fundamental principles of synaptic homeostasis and does not model deeper neurobiological mechanisms. Second, we adopted a unified initial feature extraction paradigm across different EEG tasks without accounting for inter-task variability in EEG features. Task-specific feature extraction strategies could potentially enable more accurate quantification of inter-individual similarity. In future work, we aim to further investigate neurobiological mechanisms and explore brain-inspired algorithms in broader domains to bridge the gap between biological neural mechanisms and artificial intelligence systems. 27

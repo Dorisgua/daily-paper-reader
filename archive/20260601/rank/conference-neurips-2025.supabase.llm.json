@@ -1,0 +1,2248 @@
+{
+  "top_k": 200,
+  "generated_at": "2026-06-01T07:44:13.952879+00:00",
+  "papers": [
+    {
+      "id": "openreview-neurips-2025-uazfjnfl0g",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "LUNA: Efficient and Topology-Agnostic Foundation Model for EEG Signal Analysis",
+      "abstract": "Electroencephalography (EEG) offers a non-invasive lens into human brain activity, but building large‐scale models is hampered by $\\textit{topological heterogeneity}$: each public corpus defines its own electrode layout, limiting generalization. We introduce $\\textbf{LUNA}$ ($\\textbf{L}$atent $\\textbf{U}$nified $\\textbf{N}$etwork $\\textbf{A}$rchitecture), a self-supervised foundation model that reconciles disparate electrode geometries while scaling linearly---not quadratically---with channel count. LUNA compresses multi-channel EEG into a fixed-size, topology-agnostic latent space via learned queries and cross-attention. Downstream transformer blocks then operate exclusively on this latent representation using patch-wise temporal self-attention, decoupling computation from electrode count. Pre-trained on TUEG and Siena ($\\>$21,000 h raw EEG across diverse montages) using a masked-patch reconstruction objective, LUNA transfers effectively to four downstream tasks: abnormality detection, artifact rejection, slowing classification, and emotion recognition. It demonstrates highly competitive performance across several benchmarks, achieving state-of-the-art results on TUAR and TUSL, e.g., $\\textbf{0.921 AUROC}$ on TUAR, while reducing FLOPs by $\\textbf{300}$$\\times$ and trimming GPU memory use by up to $\\textbf{10}$$\\times$. Critically,  these gains are consistent across all evaluated electrode configurations. Code is available at https://github.com/pulp-bio/biofoundation",
+      "authors": [
+        "Berkay Döner",
+        "Thorir Mar Ingolfsson",
+        "Luca Benini",
+        "Yawei Li"
+      ],
+      "primary_category": "Electroencephalography (EEG)",
+      "categories": [
+        "Electroencephalography (EEG)",
+        "Biosignal Processing",
+        "Transformers",
+        "Self-Supervised Learning",
+        "Foundation Models",
+        "Representation Learning"
+      ],
+      "published": "2025-09-18T17:35:28.608+00:00",
+      "link": "https://openreview.net/forum?id=uazfjnFL0G",
+      "pdf_url": null,
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-uac6rl9tt4",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "Neural-Driven Image Editing",
+      "abstract": "Traditional image editing typically relies on manual prompting, making it labor-intensive and inaccessible to individuals with limited motor control or language abilities. Leveraging recent advances in brain-computer interfaces (BCIs) and generative models, we propose LoongX, a hands-free image editing approach driven by multimodal neurophysiological signals. \nLoongX utilizes state-of-the-art diffusion models trained on a comprehensive dataset of 23,928 image editing pairs, each paired with synchronized electroencephalography (EEG), functional near-infrared spectroscopy (fNIRS), photoplethysmography (PPG), and head motion signals that capture user intent.\nTo effectively address the heterogeneity of these signals, LoongX integrates two key modules. The cross-scale state space (CS3) module encodes informative modality-specific features. The dynamic gated fusion (DGF) module further aggregates these features into a unified latent space, which is then aligned with edit semantics via fine-tuning on a diffusion transformer (DiT).\nAdditionally, we pre-train the encoders using contrastive learning to align cognitive states with semantic intentions from embedded natural language.\nExtensive experiments demonstrate that LoongX achieves performance comparable to text-driven methods (CLIP-I: 0.6605 vs. 0.6558; DINO: 0.4812 vs. 0.4637) and outperforms them when neural signals are combined with speech (CLIP-T: 0.2588 vs. 0.2549). These results highlight the promise of neural-driven generative models in enabling accessible, intuitive image editing and open new directions for cognitive-driven creative technologies. The code and dataset are released on the project website: https://loongx1.github.io.",
+      "authors": [
+        "Pengfei Zhou",
+        "Jie Xia",
+        "Xiaopeng Peng",
+        "Wangbo Zhao",
+        "Zilong Ye",
+        "Zekai Li",
+        "Suorong Yang",
+        "Jiadong Pan",
+        "Yuanxiang Chen",
+        "Ziqiao Wang",
+        "Kai Wang",
+        "Qian Zheng",
+        "Xiaojun Chang",
+        "Gang Pan",
+        "Shurong Dong",
+        "Kaipeng Zhang",
+        "Yang You"
+      ],
+      "primary_category": "Brain-Computer Interface",
+      "categories": [
+        "Brain-Computer Interface",
+        "Image Editing",
+        "Visual Generation",
+        "Generative Models",
+        "Diffusion Models"
+      ],
+      "published": "2025-09-18T17:29:17.858+00:00",
+      "link": "https://openreview.net/forum?id=UAc6RL9Tt4",
+      "pdf_url": null,
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-cjhqj0tcy6",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "BrainOmni: A Brain Foundation Model for Unified EEG and MEG Signals",
+      "abstract": "Electroencephalography (EEG) and magnetoencephalography (MEG) measure neural activity non-invasively by capturing electromagnetic fields generated by dendritic currents. \nAlthough rooted in the same biophysics, EEG and MEG exhibit distinct signal patterns, further complicated by variations in sensor configurations across modalities and recording devices.\nExisting approaches typically rely on separate, modality- and dataset-specific models, which limits the performance and cross-domain scalability.\nThis paper proposes BrainOmni, the first brain foundation model that generalises across heterogeneous EEG and MEG recordings. \nTo unify diverse data sources, we introduce BrainTokenizer,  the first tokeniser that quantises spatiotemporal brain activity into discrete representations. \nCentral to BrainTokenizer is a novel Sensor Encoder that encodes sensor properties such as spatial layout, orientation, and type, enabling compatibility across devices and modalities.\nBuilding upon the discrete representations, BrainOmni learns unified semantic embeddings of brain signals by self-supervised pretraining. To the best of our knowledge, it is the first foundation model to support both EEG and MEG signals, as well as the first to incorporate large-scale MEG pretraining.\nA total of 1,997 hours of EEG and 656 hours of MEG data are curated and standardised from publicly available sources for pretraining.\nExperiments show that BrainOmni outperforms both existing foundation models and state-of-the-art task-specific models on a range of downstream tasks. It also demonstrates strong generalisation to unseen EEG and MEG devices. Further analysis reveals that joint EEG-MEG (EMEG) training yields consistent improvements across both modalities. Code and checkpoints are publicly available at https://github.com/OpenTSLab/BrainOmni",
+      "authors": [
+        "Qinfan Xiao",
+        "Ziyun Cui",
+        "Chi Zhang",
+        "SiQi Chen",
+        "Wen Wu",
+        "Andrew Thwaites",
+        "Alexandra Woolgar",
+        "Bowen Zhou",
+        "Chao Zhang"
+      ],
+      "primary_category": "EEG",
+      "categories": [
+        "EEG",
+        "MEG",
+        "foundation model",
+        "tokenizer",
+        "self supervised learning",
+        "neuroscience",
+        "Brain Computer Interface"
+      ],
+      "published": "2025-09-18T17:45:59.894+00:00",
+      "link": "https://openreview.net/forum?id=cjHQj0tCy6",
+      "pdf_url": null,
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-cwn3rxjq7g",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "Is Limited Participant Diversity Impeding EEG-based Machine Learning?",
+      "abstract": "The application of machine learning (ML) to electroencephalography (EEG) has great potential to advance both neuroscientific research and clinical applications. However, the generalisability and robustness of EEG-based ML models often hinge on the amount and diversity of training data. It is common practice to split EEG recordings into small segments, thereby increasing the number of samples substantially compared to the number of individual recordings or participants. We conceptualise this as a multi-level data generation process and investigate the scaling behaviour of model performance with respect to the overall sample size and the participant diversity through large-scale empirical studies. We then use the same framework to investigate the effectiveness of different ML strategies designed to address limited data problems: data augmentations and self-supervised learning. Our findings show that model performance scaling can be severely constrained by participant distribution shifts and provide actionable guidance for data collection and ML research. The code for our experiments is publicly available online.",
+      "authors": [
+        "Philipp Bomatter",
+        "Henry Gouk"
+      ],
+      "primary_category": "EEG",
+      "categories": [
+        "EEG",
+        "electroencephalography",
+        "scaling behaviour",
+        "distribution shift",
+        "augmentation",
+        "self-supervised learning"
+      ],
+      "published": "2025-09-18T17:35:34.031+00:00",
+      "link": "https://openreview.net/forum?id=cWn3RXJQ7G",
+      "pdf_url": null,
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-l3aedxjmhl",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "NEED: Cross-Subject and Cross-Task Generalization for Video and Image Reconstruction from EEG Signals",
+      "abstract": "Translating brain activity into meaningful visual content has long been recognized as a fundamental challenge in neuroscience and brain-computer interface research. Recent advances in EEG-based neural decoding have shown promise, yet two critical limitations remain in this area: poor generalization across subjects and constraints to specific visual tasks. We introduce NEED, the first unified framework achieving zero-shot cross-subject and cross-task generalization for EEG-based visual reconstruction. Our approach addresses three fundamental challenges: (1) cross-subject variability through an Individual Adaptation Module pretrained on multiple EEG datasets to normalize subject-specific patterns, (2) limited spatial resolution and complex temporal dynamics via a dual-pathway architecture capturing both low-level visual dynamics and high-level semantics, and (3) task specificity constraints through a unified inference mechanism adaptable to different visual domains. For video reconstruction, NEED achieves better performance than existing methods. Importantly, Our model maintains 93.7% of within-subject classification performance and 92.4% of visual reconstruction quality when generalizing to unseen subjects, while achieving an SSIM of 0.352 when transferring directly to static image reconstruction without fine-tuning, demonstrating how neural decoding can move beyond subject and task boundaries toward truly generalizable brain-computer interfaces.",
+      "authors": [
+        "Shuai Huang",
+        "Huan Luo",
+        "Haodong Jing",
+        "Qixian Zhang",
+        "Litao Chang",
+        "Yating Feng",
+        "Xiao Lin",
+        "Chendong Qin",
+        "Han Chen",
+        "Shuwen Jia",
+        "Siyi Sun",
+        "Yongxiong Wang"
+      ],
+      "primary_category": "EEG",
+      "categories": [
+        "EEG",
+        "Cross-Subject",
+        "Cross-Task",
+        "Video Reconstruction",
+        "Image Reconstruction"
+      ],
+      "published": "2025-09-18T17:29:00.406+00:00",
+      "link": "https://openreview.net/forum?id=L3aEdxJMHl",
+      "pdf_url": null,
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-xaxuzubn31",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "Multi-dataset Joint Pre-training of Emotional EEG Enables Generalizable Affective Computing",
+      "abstract": "Task-specific pre-training is essential when task representations diverge from generic pre-training features. Existing task-general pre-training EEG models struggle with complex tasks like emotion recognition due to mismatches between task-specific features and broad pre-training approaches. This work aims to develop a task-specific multi-dataset joint pre-training framework for cross-dataset emotion recognition, tackling problems of large inter-dataset distribution shifts, inconsistent emotion category definitions, and substantial inter-subject variability. We introduce a cross-dataset covariance alignment loss to align second-order statistical properties across datasets, enabling robust generalization without the need for extensive labels or per-subject calibration. To capture the long-term dependency and complex dynamics of EEG, we propose a hybrid encoder combining a Mamba-like linear attention channel encoder and a spatiotemporal dynamics model. Our method outperforms state-of-the-art large-scale EEG models by an average of 4.57% in AUROC for few-shot emotion recognition and 11.92% in accuracy for zero-shot generalization to a new dataset. Performance scales with the increase of datasets used in pre-training. Multi-dataset joint pre-training achieves a performance gain of 8.55\\% over single-dataset training. This work provides a scalable framework for task-specific pre-training and highlights its benefit in generalizable affective computing. Our code is available at https://github.com/ncclab-sustech/mdJPT_nips2025.",
+      "authors": [
+        "Qingzhu Zhang",
+        "Jiani Zhong",
+        "Li ZongSheng",
+        "Xinke Shen",
+        "Quanying Liu"
+      ],
+      "primary_category": "EEG",
+      "categories": [
+        "EEG",
+        "pre-training",
+        "affective computing",
+        "emotion"
+      ],
+      "published": "2025-09-18T17:33:55.439+00:00",
+      "link": "https://openreview.net/forum?id=xaxuzubN31",
+      "pdf_url": null,
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-agcxjehmyw",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "CSBrain: A Cross-scale Spatiotemporal Brain Foundation Model for EEG Decoding",
+      "abstract": "Understanding and decoding human brain activity from electroencephalography (EEG) signals is a fundamental problem in neuroscience and artificial intelligence, with applications ranging from cognition and emotion recognition to clinical diagnosis and brain–computer interfaces. While recent EEG foundation models have made progress in generalized brain decoding by leveraging unified architectures and large-scale pretraining, they inherit a scale-agnostic dense modeling paradigm from NLP and vision. This design overlooks an intrinsic property of neural activity—cross-scale spatiotemporal structure. Different EEG task patterns span a broad range of temporal and spatial scales, from brief neural activations to slow-varying rhythms, and from localized cortical activations to large-scale distributed interactions. Ignoring this diversity may lead to suboptimal representations and weakened generalization ability. To address these limitations, we propose CSBrain, a Cross-scale Spatiotemporal Brain foundation model for generalized EEG decoding. CSBrain introduces two key components: (i) Cross-scale Spatiotemporal Tokenization (CST), which aggregates multi-scale features within localized temporal windows and anatomical brain regions into compact scale-aware token representations; and (ii) Structured Sparse Attention (SSA), which models cross-window and cross-region dependencies for diverse decoding tasks, further enriching scale diversities while eliminating the spurious dependencies. CST and SSA are alternately stacked to progressively integrate cross-scale spatiotemporal dependencies. Extensive experiments across 11 representative EEG tasks and 16 datasets demonstrate that CSBrain consistently outperforms both task-specific models and strong foundation baselines. These results establish cross-scale modeling as a key inductive bias for generalized EEG decoding and highlight CSBrain as a robust backbone for future brain–AI research.",
+      "authors": [
+        "Yuchen Zhou",
+        "Jiamin Wu",
+        "Zichen Ren",
+        "Zhouheng Yao",
+        "Weiheng Lu",
+        "Kunyu Peng",
+        "Qihao Zheng",
+        "Chunfeng Song",
+        "Wanli Ouyang",
+        "Chao Gou"
+      ],
+      "primary_category": "Brain Foundation Model",
+      "categories": [
+        "Brain Foundation Model",
+        "Cross-scale",
+        "Generalized EEG Decoding"
+      ],
+      "published": "2025-09-18T17:30:13.826+00:00",
+      "link": "https://openreview.net/forum?id=agcXjEHmyW",
+      "pdf_url": null,
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-zefmtrby4z",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "REVE: A Foundation Model for EEG - Adapting to Any Setup with Large-Scale Pretraining on 25,000 Subjects",
+      "abstract": "Foundation models have transformed AI by reducing reliance on task-specific data through large-scale pretraining. While successful in language and vision, their adoption in EEG has lagged due to the heterogeneity of public datasets, which are collected under varying protocols, devices, and electrode configurations. Existing EEG foundation models struggle to generalize across these variations, often restricting pretraining to a single setup, resulting in suboptimal performance, in particular under linear probing.\nWe present REVE (Representation for EEG with Versatile Embeddings), a pretrained model explicitly designed to generalize across diverse EEG signals. REVE introduces a novel 4D positional encoding scheme that enables it to process signals of arbitrary length and electrode arrangement. Using a masked autoencoding objective, we pretrain REVE on over 60,000 hours of EEG data from 92 datasets spanning 25,000 subjects, representing the largest EEG pretraining effort to date.\nREVE achieves state-of-the-art results on 10 downstream EEG tasks, including motor imagery classification, seizure detection, sleep staging, cognitive load estimation, and emotion recognition. With little to no fine-tuning, it demonstrates strong generalization, and nuanced spatio-temporal modeling. We release code, pretrained weights, and tutorials to support standardized EEG research and accelerate progress in clinical neuroscience.",
+      "authors": [
+        "Yassine El Ouahidi",
+        "Jonathan Lys",
+        "Philipp Thölke",
+        "Nicolas Farrugia",
+        "Bastien Pasdeloup",
+        "Vincent Gripon",
+        "Karim Jerbi",
+        "Giulia Lioi"
+      ],
+      "primary_category": "Foundation Model",
+      "categories": [
+        "Foundation Model",
+        "EEG",
+        "SSL",
+        "BCI"
+      ],
+      "published": "2025-09-18T17:46:47.943+00:00",
+      "link": "https://openreview.net/forum?id=ZeFMtRBy4Z",
+      "pdf_url": null,
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-d4hcjpkj3y",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "NeurIPT: Foundation Model for Neural Interfaces",
+      "abstract": "Electroencephalography (EEG) has wide-ranging applications, from clinical diagnosis to brain-computer interfaces (BCIs). With the increasing volume and variety of EEG data, there has been growing interest in establishing foundation models (FMs) to scale up and generalize neural decoding. Despite showing early potential, applying FMs to EEG remains challenging due to substantial inter-subject, inter-task, and inter-condition variability, as well as diverse electrode configurations across recording setups. To tackle these open challenges, we propose **NeurIPT**, a foundation model tailored for diverse EEG-based **Neur**al **I**nterfaces with a **P**re-trained **T**ransformer by capturing both homogeneous and heterogeneous spatio-temporal characteristics inherent in EEG signals. Temporally, we introduce Amplitude-Aware Masked Pretraining (AAMP), masking based on signal amplitude rather than random intervals, to learn robust representations across varying signal intensities beyond local interpolation. Moreover, this temporal representation is enhanced by a progressive Mixture-of-Experts (MoE) architecture, where specialized expert subnetworks are progressively introduced at deeper layers, adapting effectively to the diverse temporal characteristics of EEG signals. Spatially, NeurIPT leverages the 3D physical coordinates of electrodes, enabling effective transfer across varying EEG settings, and develops Intra-Inter Lobe Pooling (IILP) during fine-tuning to efficiently exploit regional brain features. Empirical evaluations across nine downstream BCI datasets, via fine-tuning and training from scratch, demonstrated NeurIPT consistently achieved state-of-the-art performance, highlighting its broad applicability and robust generalization. Our work pushes forward the state of FMs in EEG and offers insights into scalable and generalizable neural information processing systems.",
+      "authors": [
+        "Zitao Fang",
+        "CHENXUAN LI",
+        "Zhou Hongting",
+        "Shuyang Yu",
+        "Guodong DU",
+        "Ashwaq Qasem",
+        "Yang Lu",
+        "Jing Li",
+        "Junsong Zhang",
+        "Sim Kuan Goh"
+      ],
+      "primary_category": "BCI",
+      "categories": [
+        "BCI",
+        "transformer",
+        "EEG"
+      ],
+      "published": "2025-09-18T17:29:29.099+00:00",
+      "link": "https://openreview.net/forum?id=D4hcJPkJ3y",
+      "pdf_url": null,
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-qjlplzsdkb",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "Joint Modeling of fMRI and EEG Imaging Using Ordinary Differential Equation-Based Hypergraph Neural Networks",
+      "abstract": "Fusing multimodal brain imaging has been a hot topic since different modalities of brain imaging can provide complementary information. However, due to the size of simultaneous recorded fMRI-EEG dataset being limited and the substantial discrepancy between hemodynamic responses of fMRI and neural oscillations of EEG, the joint modeling of fMRI and EEG images is a rarely explored area and has not yielded satisfactory results. Existing studies have also indicated that the relationships between region of interest (ROI) are not one-to-one when synchronizing fMRI and EEG. Current graph-based multimodal modeling methods overlook those information. Based on this, we propose a hypergraph based fMRI-EEG modeling framework for asynchronous fMRI-EEG data named FE-NET. To the best of our knowledge, this is the first attempt to jointly model asynchronous EEG and fMRI data as Neural ODEs based hypergraph. Extensive experiments have demonstrated that the proposed FE-NET outperforms many state-of-the-art brain imaging modeling methods. Meanwhile, compared to simultaneously recorded fMRI-EEG data, asynchronously acquired fMRI-EEG data is less costly, which demonstrates the practical applicability of our method.",
+      "authors": [
+        "YanZhang",
+        "Yang Gao",
+        "Min Li"
+      ],
+      "primary_category": "fMRI",
+      "categories": [
+        "fMRI",
+        "EEG",
+        "Multimodal modeling"
+      ],
+      "published": "2025-09-18T17:46:39.006+00:00",
+      "link": "https://openreview.net/forum?id=qJLPlZSdkb",
+      "pdf_url": null,
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-6q5wg84uod",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "THD-BAR: Topology Hierarchical Derived Brain Autoregressive Modeling for EEG Generic Representations",
+      "abstract": "Large-scale pre-trained models hold significant potential for learning universal EEG representations. However, most existing methods, particularly autoregressive (AR) frameworks, primarily rely on straightforward temporal sequencing of multi-channel EEG data, which fails to capture the rich physiological characteristics inherent to EEG signals. Moreover, their time-centered modeling approach also limits the effective representation of the dynamic spatial topology of brain activity. To address these challenges and fully exploit the potential of large-scale EEG models, we propose a novel Topology Hierarchical Derived Brain Autoregressive Modeling (THD-BAR) for EEG generic representations. The core innovation of THD-BAR lies in the introduction of the Brain Topology Hierarchy (BTH), which establishes a multi-scale spatial order for EEG channels. This hierarchical structure enables a redefinition of autoregressive learning as a \"next-scale-time prediction\" problem, effectively capturing both spatial and temporal dynamics. Based on BTH, we design a Topology-Hierarchical Vector Quantized-Variational Autoencoder (THVQ-VAE) for multi-scale tokenization and develop an enhanced Brain Autoregressive (BAR) module with specialized masking strategies for prediction. Through extensive large-scale pre-training on 17 datasets, followed by rigorous validation on 10 downstream datasets spanning 5 distinct tasks, THD-BAR consistently outperforms existing methods. These results highlight the superior generalization and modeling capabilities of our proposed approach.",
+      "authors": [
+        "Wenchao Yang",
+        "Weidong Yan",
+        "Wenkang Liu",
+        "Yulan Ma",
+        "Yang Li"
+      ],
+      "primary_category": "Electroencephalogram",
+      "categories": [
+        "Electroencephalogram",
+        "brain autoregressive modeling",
+        "self-supervised learning",
+        "brain-computer interfaces"
+      ],
+      "published": "2025-09-18T17:44:27.986+00:00",
+      "link": "https://openreview.net/forum?id=6Q5WG84uOD",
+      "pdf_url": null,
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-6uaecpqpwp",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "Inference of Whole Brain Electrophysiological Networks Through Multimodal Integration of Simultaneous Scalp and Intracranial EEG",
+      "abstract": "Brain imaging research has transitioned over the past decades from identifying isolated regions of task-evoked activation to characterizing the spatiotemporal dynamics of large-scale brain networks. Electrophysiological signals are the direct manifestation of brain activity; thus, characterizing whole-brain electrophysiological networks (WBEN) can serve as a fundamental tool for neuroscience studies and clinical applications. In this work, we introduce a framework for integrating scalp EEG and intracranial EEG (iEEG) for WBEN estimation through a principled state-space modeling approach, where an Expectation-Maximization (EM) algorithm is designed to infer the state variables and brain connectivity simultaneously. We validated the proposed method on synthetic data, and the results revealed improved performance compared to traditional two-step methods using scalp EEG only, demonstrating the importance of including iEEG signals for WBEN estimation. For real data with simultaneous EEG and iEEG, we applied the developed framework to understand the information flows during encoding and maintenance phases of a working memory task. The information flows between subcortical and cortical regions are delineated, highlighting more significant information flows from cortical to subcortical regions during encoding than during maintenance. The results are consistent with previous research findings, but from a whole-brain perspective, which underscores the unique utility of the proposed framework.",
+      "authors": [
+        "Shihao Yang",
+        "Feng Liu"
+      ],
+      "primary_category": "Electrophysiological Brain Networks",
+      "categories": [
+        "Electrophysiological Brain Networks",
+        "State-Space Models",
+        "Multimodal Neuroimaging",
+        "Brain Connectome",
+        "Working Memory"
+      ],
+      "published": "2025-09-18T17:44:29.019+00:00",
+      "link": "https://openreview.net/forum?id=6UAeCPQPwP",
+      "pdf_url": null,
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-qcdohkkhcb",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "SPICED: A Synaptic Homeostasis-Inspired Framework for Unsupervised Continual EEG Decoding",
+      "abstract": "Human brain achieves dynamic stability-plasticity balance through synaptic homeostasis, a self-regulatory mechanism that stabilizes critical memory traces while preserving optimal learning capacities. Inspired by this biological principle, we propose SPICED: a neuromorphic framework that integrates the synaptic homeostasis mechanism for unsupervised continual EEG decoding, particularly addressing practical scenarios where new individuals with inter-individual variability emerge continually. SPICED comprises a novel synaptic network that enables dynamic expansion during continual adaptation through three bio-inspired neural mechanisms: (1) critical memory reactivation, which mimics brain functional specificity, selectively activates task-relevant memories to facilitate adaptation; (2) synaptic consolidation, which strengthens these reactivated critical memory traces and enhances their replay prioritizations for further adaptations and (3) synaptic renormalization, which are periodically triggered to weaken global memory traces to preserve learning capacities. The interplay within synaptic homeostasis dynamically strengthens  task-discriminative memory traces and weakens detrimental memories. By integrating these mechanisms with continual learning system, SPICED preferentially replays task-discriminative memory traces that exhibit strong associations with newly emerging individuals, thereby achieving robust adaptations. Meanwhile, SPICED effectively mitigates catastrophic forgetting by suppressing the replay prioritization of detrimental memories during long-term continual learning. Validated on three EEG datasets, SPICED show its effectiveness. More importantly, SPICED bridges biological neural mechanisms and artificial intelligence through synaptic homeostasis, providing insights into the broader applicability of bio-inspired principles.",
+      "authors": [
+        "Yangxuan Zhou",
+        "Sha Zhao",
+        "Jiquan Wang",
+        "Haiteng Jiang",
+        "Shijian Li",
+        "Tao Li",
+        "Gang Pan"
+      ],
+      "primary_category": "Synaptic homeostasis; Brain-inspired; Continual EEG decoding",
+      "categories": [
+        "Synaptic homeostasis; Brain-inspired; Continual EEG decoding"
+      ],
+      "published": "2025-09-18T17:29:39.929+00:00",
+      "link": "https://openreview.net/forum?id=qcdoHkkHcb",
+      "pdf_url": null,
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-wtmugdhvh6",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "S$^2$M-Former: Spiking Symmetric Mixing Branchformer for Brain Auditory Attention Detection",
+      "abstract": "Auditory attention detection (AAD) aims to decode listeners' focus in complex auditory environments from electroencephalography (EEG) recordings, which is crucial for developing neuro-steered hearing devices.  Despite recent advancements, EEG-based AAD remains hindered by the absence of synergistic frameworks that can fully leverage complementary EEG features under energy-efficiency constraints. We propose ***S$^2$M-Former***, a novel ***s***piking ***s***ymmetric ***m***ixing framework to address this limitation through two key innovations:  i)   Presenting a spike-driven symmetric architecture composed of parallel spatial and frequency branches with mirrored modular design, leveraging biologically plausible token-channel mixers to enhance complementary learning across branches; ii) Introducing lightweight 1D token sequences to replace conventional 3D operations, reducing parameters by 14.7$\\times$. The brain-inspired spiking architecture further reduces power consumption, achieving a 5.8$\\times$ energy reduction compared to recent ANN methods, while also surpassing existing SNN baselines in terms of parameter efficiency and performance. Comprehensive experiments on three AAD benchmarks (KUL, DTU and AV-GC-AAD) across three settings (within-trial, cross-trial and cross-subject) demonstrate that S$^2$M-Former achieves comparable state-of-the-art (SOTA) decoding accuracy, making it a promising low-power, high-performance solution for AAD tasks. Code is available at https://github.com/JackieWang9811/S2M-Former.",
+      "authors": [
+        "Jiaqi Wang",
+        "Zhengyu Ma",
+        "Xiongri Shen",
+        "Chenlin Zhou",
+        "Leilei Zhao",
+        "Han Zhang",
+        "Yi Zhong",
+        "Siqi Cai",
+        "Zhenxi Song",
+        "Zhiguo Zhang"
+      ],
+      "primary_category": "Auditory Attention Detection",
+      "categories": [
+        "Auditory Attention Detection",
+        "Spiking Neural Network",
+        "EEG",
+        "Brain-computer Interfaces"
+      ],
+      "published": "2025-09-18T17:32:18.98+00:00",
+      "link": "https://openreview.net/forum?id=WtMuGdHvh6",
+      "pdf_url": null,
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-xmv7krabbl",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "EvoBrain: Dynamic Multi-Channel EEG Graph Modeling for Time-Evolving Brain Networks",
+      "abstract": "Dynamic GNNs, which integrate temporal and spatial features in Electroencephalography (EEG) data, have shown great potential in automating seizure detection.\nHowever, fully capturing the underlying dynamics necessary to represent brain states, such as seizure and non-seizure, remains a non-trivial task and presents two fundamental challenges.\nFirst, most existing dynamic GNN methods are built on temporally fixed static graphs, which fail to reflect the evolving nature of brain connectivity during seizure progression. \nSecond, current efforts to jointly model temporal signals and graph structures and, more importantly, their interactions remain nascent, often resulting in inconsistent performance.\nTo address these challenges, we present the first theoretical analysis of these two problems, demonstrating the effectiveness and necessity of explicit dynamic modeling and time-then-graph dynamic GNN method.\nBuilding on these insights, we propose EvoBrain, a novel seizure detection model that integrates a two-stream Mamba architecture with a GCN enhanced by Laplacian Positional Encoding, following neurological insights.\nMoreover, EvoBrain incorporates explicitly dynamic graph structures, allowing both nodes and edges to evolve over time.\nOur contributions include \n(a) a theoretical analysis proving the expressivity advantage of explicit dynamic modeling and time-then-graph over other approaches, \n(b) a novel and efficient model that significantly improves AUROC by 23\\% and F1 score by 30\\%, compared with the dynamic GNN baseline, and \n(c) broad evaluation of our method on the challenging early seizure prediction task.",
+      "authors": [
+        "Rikuto Kotoge",
+        "Zheng Chen",
+        "Tasuku Kimura",
+        "Yasuko Matsubara",
+        "Takufumi Yanagisawa",
+        "Haruhiko Kishima",
+        "Yasushi Sakurai"
+      ],
+      "primary_category": "EEG",
+      "categories": [
+        "EEG",
+        "graph",
+        "neuroscience",
+        "seizure",
+        "dynamic modeling",
+        "expressiveness"
+      ],
+      "published": "2025-09-18T17:41:32.542+00:00",
+      "link": "https://openreview.net/forum?id=XmV7KRABBl",
+      "pdf_url": null,
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-tthvmhjnui",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "Self-Calibrating BCIs: Ranking and Recovery of Mental Targets Without Labels",
+      "abstract": "We consider the problem of recovering a mental target (e.g., an image of a face) that a participant has in mind from paired EEG (i.e., brain responses) and image (i.e., perceived faces) data collected during interactive sessions without access to labeled information. The problem has been previously explored with labeled data but not via self-calibration, where labeled data is unavailable. Here, we present the first framework and an algorithm, CURSOR, that learns to recover unknown mental targets without access to labeled data or pre-trained decoders. Our experiments on naturalistic images of faces demonstrate that CURSOR can (1) predict image similarity scores that correlate with human perceptual judgments without any label information, (2) use these scores to rank stimuli against an unknown mental target, and (3) generate new stimuli indistinguishable from the unknown mental target (validated via a user study, N=53). We release the brain response data set (N=29), associated face images used as stimuli data, and a codebase to initiate further research on this novel task.",
+      "authors": [
+        "Jonathan Grizou",
+        "Carlos De la Torre-Ortiz",
+        "Tuukka Ruotsalo"
+      ],
+      "primary_category": "EEG",
+      "categories": [
+        "EEG",
+        "brain-computer interfacing",
+        "calibration-free"
+      ],
+      "published": "2025-09-18T17:31:03.058+00:00",
+      "link": "https://openreview.net/forum?id=TtHvmhjNui",
+      "pdf_url": null,
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-johgjzagqd",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "Dynamical modeling of nonlinear latent factors in multiscale neural activity with real-time inference",
+      "abstract": "Real-time decoding of target variables from multiple simultaneously recorded neural time-series modalities, such as discrete spiking activity and continuous field potentials, is important across various neuroscience applications. However, a major challenge for doing so is that different neural modalities can have different timescales (i.e., sampling rates) and different probabilistic distributions, or can even be missing at some time-steps. Existing nonlinear models of multimodal neural activity do not address different timescales or missing samples across modalities. Further, some of these models do not allow for real-time decoding. Here, we develop a learning framework that can enable real-time recursive decoding while nonlinearly aggregating information across multiple modalities with different timescales and distributions and with missing samples. This framework consists of 1) a multiscale encoder that nonlinearly aggregates information after learning within-modality dynamics to handle different timescales and missing samples in real time, 2) a multiscale dynamical backbone that extracts multimodal temporal dynamics and enables real-time recursive decoding, and 3) modality-specific decoders to account for different probabilistic distributions across modalities. In both simulations and three distinct multiscale brain datasets, we show that our model can aggregate information across modalities with different timescales and distributions and missing samples to improve real-time target decoding. Further, our method outperforms various linear and nonlinear multimodal benchmarks in doing so.",
+      "authors": [
+        "Eray Erturk",
+        "Maryam M. Shanechi"
+      ],
+      "primary_category": "Multimodal Deep Learning",
+      "categories": [
+        "Multimodal Deep Learning",
+        "Missing Data",
+        "Dynamical Models",
+        "Neuroscience"
+      ],
+      "published": "2025-09-18T17:36:30.972+00:00",
+      "link": "https://openreview.net/forum?id=jOHgjZaGqd",
+      "pdf_url": null,
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-h2m4chafig",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "CRRL: Learning Channel-invariant Neural Representations for High-performance Cross-day Decoding",
+      "abstract": "Brain-computer interfaces have shown great potential in motor and speech rehabilitation, but still suffer from low performance stability across days, mostly due to the instabilities in neural signals. These instabilities, partially caused by neuron deaths and electrode shifts, leading to channel-level variabilities among different recording days. Previous studies mostly focused on aligning multi-day neural signals of onto a low-dimensional latent manifold to reduce the variabilities, while faced with difficulties when neural signals exhibit significant drift. Here, we propose to learn a channel-level invariant neural representation to address the variabilities in channels across days. It contains a channel-rearrangement module to learn stable representations against electrode shifts, and a channel reconstruction module to handle the missing neurons. The proposed method achieved the state-of-the-art performance with cross-day decoding tasks over two months, on multiple benchmark BCI datasets. The proposed approach showed good generalization ability that can be incorporated to different neural networks.",
+      "authors": [
+        "Xianhan Tan",
+        "Binli Luo",
+        "Yu Qi",
+        "Yueming Wang"
+      ],
+      "primary_category": "Neural Decoding",
+      "categories": [
+        "Neural Decoding"
+      ],
+      "published": "2025-09-18T17:30:46.74+00:00",
+      "link": "https://openreview.net/forum?id=H2m4chAfig",
+      "pdf_url": null,
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-15mlgnyaft",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "Diffusion Transformers for Imputation: Statistical Efficiency and Uncertainty Quantification",
+      "abstract": "Imputation methods play a critical role in enhancing the quality of practical time-series data, which often suffer from pervasive missing values. Recently, diffusion-based generative imputation methods have demonstrated remarkable success compared to autoregressive and conventional statistical approaches. Despite their empirical success, the theoretical understanding of how well diffusion-based models capture complex spatial and temporal dependencies between the missing values and observed ones remains limited. Our work addresses this gap by investigating the statistical efficiency of conditional diffusion transformers for imputation and quantifying the uncertainty in missing values. Specifically, we derive statistical sample complexity bounds based on a novel approximation theory for conditional score functions using transformers, and, through this, construct tight confidence regions for missing values. Our findings also reveal that the efficiency and accuracy of imputation are significantly influenced by the missing patterns. Furthermore, we validate these theoretical insights through simulation and propose a mixed-masking training strategy to enhance the imputation performance.",
+      "authors": [
+        "Zeqi Ye",
+        "Minshuo Chen"
+      ],
+      "primary_category": "Time Series Imputation",
+      "categories": [
+        "Time Series Imputation",
+        "Uncertainty Quantification",
+        "Statistical Sample Complexity",
+        "Diffusion Transformer"
+      ],
+      "published": "2025-09-18T17:33:21.8+00:00",
+      "link": "https://openreview.net/forum?id=15mlgnyaFt",
+      "pdf_url": null,
+      "tags": [
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ]
+    }
+  ],
+  "queries": [
+    {
+      "type": "intent_query",
+      "tag": "eeg",
+      "paper_tag": "query:eeg",
+      "query_text": "EEG based brain computer interface research papers",
+      "sim_scores": {
+        "openreview-neurips-2025-6uaecpqpwp": {
+          "score": 0.01639344262295082,
+          "rank": 1
+        },
+        "openreview-neurips-2025-d4hcjpkj3y": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        },
+        "openreview-neurips-2025-cjhqj0tcy6": {
+          "score": 0.015873015873015872,
+          "rank": 3
+        },
+        "openreview-neurips-2025-agcxjehmyw": {
+          "score": 0.015625,
+          "rank": 4
+        },
+        "openreview-neurips-2025-zefmtrby4z": {
+          "score": 0.015384615384615385,
+          "rank": 5
+        },
+        "openreview-neurips-2025-l3aedxjmhl": {
+          "score": 0.015151515151515152,
+          "rank": 6
+        },
+        "openreview-neurips-2025-qjlplzsdkb": {
+          "score": 0.014925373134328358,
+          "rank": 7
+        },
+        "openreview-neurips-2025-xmv7krabbl": {
+          "score": 0.014705882352941176,
+          "rank": 8
+        },
+        "openreview-neurips-2025-6q5wg84uod": {
+          "score": 0.014492753623188406,
+          "rank": 9
+        },
+        "openreview-neurips-2025-cwn3rxjq7g": {
+          "score": 0.014285714285714285,
+          "rank": 10
+        },
+        "openreview-neurips-2025-uazfjnfl0g": {
+          "score": 0.014084507042253521,
+          "rank": 11
+        },
+        "openreview-neurips-2025-qcdohkkhcb": {
+          "score": 0.013888888888888888,
+          "rank": 12
+        },
+        "openreview-neurips-2025-xaxuzubn31": {
+          "score": 0.013157894736842105,
+          "rank": 16
+        },
+        "openreview-neurips-2025-wtmugdhvh6": {
+          "score": 0.0125,
+          "rank": 20
+        },
+        "openreview-neurips-2025-h2m4chafig": {
+          "score": 0.012195121951219513,
+          "rank": 22
+        },
+        "openreview-neurips-2025-uac6rl9tt4": {
+          "score": 0.011363636363636364,
+          "rank": 28
+        },
+        "openreview-neurips-2025-tthvmhjnui": {
+          "score": 0.010309278350515464,
+          "rank": 37
+        }
+      },
+      "ranked": [
+        {
+          "paper_id": "openreview-neurips-2025-d4hcjpkj3y",
+          "score": 1.0,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "openreview-neurips-2025-agcxjehmyw",
+          "score": 1.0,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "openreview-neurips-2025-l3aedxjmhl",
+          "score": 0.9586435070306036,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "openreview-neurips-2025-cjhqj0tcy6",
+          "score": 0.9586435070306036,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "openreview-neurips-2025-tthvmhjnui",
+          "score": 0.9185999185999183,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "openreview-neurips-2025-uac6rl9tt4",
+          "score": 0.9185999185999183,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "openreview-neurips-2025-6q5wg84uod",
+          "score": 0.8798076923076922,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-wtmugdhvh6",
+          "score": 0.8798076923076922,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-cwn3rxjq7g",
+          "score": 0.8422090729783037,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-6uaecpqpwp",
+          "score": 0.8057498057498057,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-h2m4chafig",
+          "score": 0.8057498057498057,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-xmv7krabbl",
+          "score": 0.7703788748564866,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-qcdohkkhcb",
+          "score": 0.73604826546003,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-zefmtrby4z",
+          "score": 0.702712746191007,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-johgjzagqd",
+          "score": 0.702712746191007,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-xaxuzubn31",
+          "score": 0.6703296703296702,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-uazfjnfl0g",
+          "score": 0.6388587937883712,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-qjlplzsdkb",
+          "score": 0.578503688092729,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-15mlgnyaft",
+          "score": 0.09983633387888699,
+          "star_rating": 2
+        }
+      ]
+    },
+    {
+      "type": "intent_query",
+      "tag": "eeg-latent",
+      "paper_tag": "query:eeg-latent",
+      "query_text": "EEG missing channel completion using latent space models",
+      "sim_scores": {
+        "openreview-neurips-2025-6q5wg84uod": {
+          "score": 0.01639344262295082,
+          "rank": 1
+        },
+        "openreview-neurips-2025-6uaecpqpwp": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        },
+        "openreview-neurips-2025-agcxjehmyw": {
+          "score": 0.015873015873015872,
+          "rank": 3
+        },
+        "openreview-neurips-2025-zefmtrby4z": {
+          "score": 0.015625,
+          "rank": 4
+        },
+        "openreview-neurips-2025-l3aedxjmhl": {
+          "score": 0.015384615384615385,
+          "rank": 5
+        },
+        "openreview-neurips-2025-d4hcjpkj3y": {
+          "score": 0.015151515151515152,
+          "rank": 6
+        },
+        "openreview-neurips-2025-uazfjnfl0g": {
+          "score": 0.014492753623188406,
+          "rank": 9
+        },
+        "openreview-neurips-2025-xmv7krabbl": {
+          "score": 0.014084507042253521,
+          "rank": 11
+        },
+        "openreview-neurips-2025-xaxuzubn31": {
+          "score": 0.013888888888888888,
+          "rank": 12
+        },
+        "openreview-neurips-2025-cjhqj0tcy6": {
+          "score": 0.0136986301369863,
+          "rank": 13
+        },
+        "openreview-neurips-2025-johgjzagqd": {
+          "score": 0.013333333333333334,
+          "rank": 15
+        },
+        "openreview-neurips-2025-cwn3rxjq7g": {
+          "score": 0.01282051282051282,
+          "rank": 18
+        },
+        "openreview-neurips-2025-qcdohkkhcb": {
+          "score": 0.012345679012345678,
+          "rank": 21
+        },
+        "openreview-neurips-2025-h2m4chafig": {
+          "score": 0.012048192771084338,
+          "rank": 23
+        },
+        "openreview-neurips-2025-wtmugdhvh6": {
+          "score": 0.011764705882352941,
+          "rank": 25
+        },
+        "openreview-neurips-2025-qjlplzsdkb": {
+          "score": 0.011363636363636364,
+          "rank": 28
+        },
+        "openreview-neurips-2025-tthvmhjnui": {
+          "score": 0.009174311926605505,
+          "rank": 49
+        }
+      },
+      "ranked": [
+        {
+          "paper_id": "openreview-neurips-2025-xmv7krabbl",
+          "score": 1.0,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "openreview-neurips-2025-uazfjnfl0g",
+          "score": 1.0,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "openreview-neurips-2025-zefmtrby4z",
+          "score": 0.9586435070306036,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "openreview-neurips-2025-6q5wg84uod",
+          "score": 0.9586435070306036,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "openreview-neurips-2025-d4hcjpkj3y",
+          "score": 0.9185999185999183,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "openreview-neurips-2025-h2m4chafig",
+          "score": 0.9185999185999183,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "openreview-neurips-2025-cwn3rxjq7g",
+          "score": 0.8798076923076922,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-agcxjehmyw",
+          "score": 0.8798076923076922,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-qjlplzsdkb",
+          "score": 0.8422090729783037,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-johgjzagqd",
+          "score": 0.8422090729783037,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-cjhqj0tcy6",
+          "score": 0.8057498057498057,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-wtmugdhvh6",
+          "score": 0.7703788748564866,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-6uaecpqpwp",
+          "score": 0.7703788748564866,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-l3aedxjmhl",
+          "score": 0.702712746191007,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-xaxuzubn31",
+          "score": 0.702712746191007,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-tthvmhjnui",
+          "score": 0.6703296703296702,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-uac6rl9tt4",
+          "score": 0.6703296703296702,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-qcdohkkhcb",
+          "score": 0.6388587937883712,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-15mlgnyaft",
+          "score": 0.3433395872420263,
+          "star_rating": 3
+        }
+      ]
+    },
+    {
+      "type": "intent_query",
+      "tag": "eeg-latent",
+      "paper_tag": "query:eeg-latent",
+      "query_text": "latent space based imputation for multichannel EEG",
+      "sim_scores": {
+        "openreview-neurips-2025-6uaecpqpwp": {
+          "score": 0.01639344262295082,
+          "rank": 1
+        },
+        "openreview-neurips-2025-6q5wg84uod": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        },
+        "openreview-neurips-2025-l3aedxjmhl": {
+          "score": 0.015873015873015872,
+          "rank": 3
+        },
+        "openreview-neurips-2025-agcxjehmyw": {
+          "score": 0.015625,
+          "rank": 4
+        },
+        "openreview-neurips-2025-xaxuzubn31": {
+          "score": 0.015384615384615385,
+          "rank": 5
+        },
+        "openreview-neurips-2025-uazfjnfl0g": {
+          "score": 0.014705882352941176,
+          "rank": 8
+        },
+        "openreview-neurips-2025-zefmtrby4z": {
+          "score": 0.014285714285714285,
+          "rank": 10
+        },
+        "openreview-neurips-2025-cwn3rxjq7g": {
+          "score": 0.014084507042253521,
+          "rank": 11
+        },
+        "openreview-neurips-2025-d4hcjpkj3y": {
+          "score": 0.0136986301369863,
+          "rank": 13
+        },
+        "openreview-neurips-2025-15mlgnyaft": {
+          "score": 0.013513513513513514,
+          "rank": 14
+        },
+        "openreview-neurips-2025-xmv7krabbl": {
+          "score": 0.013157894736842105,
+          "rank": 16
+        },
+        "openreview-neurips-2025-wtmugdhvh6": {
+          "score": 0.012658227848101266,
+          "rank": 19
+        },
+        "openreview-neurips-2025-cjhqj0tcy6": {
+          "score": 0.012345679012345678,
+          "rank": 21
+        },
+        "openreview-neurips-2025-qjlplzsdkb": {
+          "score": 0.012195121951219513,
+          "rank": 22
+        },
+        "openreview-neurips-2025-johgjzagqd": {
+          "score": 0.011904761904761904,
+          "rank": 24
+        },
+        "openreview-neurips-2025-h2m4chafig": {
+          "score": 0.011363636363636364,
+          "rank": 28
+        },
+        "openreview-neurips-2025-qcdohkkhcb": {
+          "score": 0.010416666666666666,
+          "rank": 36
+        }
+      },
+      "ranked": [
+        {
+          "paper_id": "openreview-neurips-2025-uazfjnfl0g",
+          "score": 1.0,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "openreview-neurips-2025-6uaecpqpwp",
+          "score": 1.0,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "openreview-neurips-2025-xmv7krabbl",
+          "score": 0.9586435070306036,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "openreview-neurips-2025-uac6rl9tt4",
+          "score": 0.9185999185999183,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "openreview-neurips-2025-johgjzagqd",
+          "score": 0.8798076923076922,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-cjhqj0tcy6",
+          "score": 0.8422090729783037,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-15mlgnyaft",
+          "score": 0.8422090729783037,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-h2m4chafig",
+          "score": 0.8057498057498057,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-cwn3rxjq7g",
+          "score": 0.7703788748564866,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-6q5wg84uod",
+          "score": 0.7703788748564866,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-d4hcjpkj3y",
+          "score": 0.73604826546003,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-qjlplzsdkb",
+          "score": 0.73604826546003,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-agcxjehmyw",
+          "score": 0.702712746191007,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-l3aedxjmhl",
+          "score": 0.6703296703296702,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-xaxuzubn31",
+          "score": 0.6703296703296702,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-zefmtrby4z",
+          "score": 0.6388587937883712,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-wtmugdhvh6",
+          "score": 0.608262108262108,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-tthvmhjnui",
+          "score": 0.608262108262108,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-qcdohkkhcb",
+          "score": 0.3433395872420263,
+          "star_rating": 3
+        }
+      ]
+    },
+    {
+      "type": "intent_query",
+      "tag": "eeg-latent",
+      "paper_tag": "query:eeg-latent",
+      "query_text": "reconstruct missing EEG channels with deep generative networks",
+      "sim_scores": {
+        "openreview-neurips-2025-l3aedxjmhl": {
+          "score": 0.01639344262295082,
+          "rank": 1
+        },
+        "openreview-neurips-2025-zefmtrby4z": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        },
+        "openreview-neurips-2025-xmv7krabbl": {
+          "score": 0.015873015873015872,
+          "rank": 3
+        },
+        "openreview-neurips-2025-d4hcjpkj3y": {
+          "score": 0.015625,
+          "rank": 4
+        },
+        "openreview-neurips-2025-6uaecpqpwp": {
+          "score": 0.015384615384615385,
+          "rank": 5
+        },
+        "openreview-neurips-2025-6q5wg84uod": {
+          "score": 0.015151515151515152,
+          "rank": 6
+        },
+        "openreview-neurips-2025-agcxjehmyw": {
+          "score": 0.014925373134328358,
+          "rank": 7
+        },
+        "openreview-neurips-2025-qcdohkkhcb": {
+          "score": 0.014705882352941176,
+          "rank": 8
+        },
+        "openreview-neurips-2025-h2m4chafig": {
+          "score": 0.014492753623188406,
+          "rank": 9
+        },
+        "openreview-neurips-2025-cjhqj0tcy6": {
+          "score": 0.014285714285714285,
+          "rank": 10
+        },
+        "openreview-neurips-2025-wtmugdhvh6": {
+          "score": 0.0136986301369863,
+          "rank": 13
+        },
+        "openreview-neurips-2025-uazfjnfl0g": {
+          "score": 0.013513513513513514,
+          "rank": 14
+        },
+        "openreview-neurips-2025-xaxuzubn31": {
+          "score": 0.013333333333333334,
+          "rank": 15
+        },
+        "openreview-neurips-2025-johgjzagqd": {
+          "score": 0.012048192771084338,
+          "rank": 23
+        },
+        "openreview-neurips-2025-qjlplzsdkb": {
+          "score": 0.011627906976744186,
+          "rank": 26
+        },
+        "openreview-neurips-2025-cwn3rxjq7g": {
+          "score": 0.010752688172043012,
+          "rank": 33
+        }
+      },
+      "ranked": [
+        {
+          "paper_id": "openreview-neurips-2025-xmv7krabbl",
+          "score": 1.0,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "openreview-neurips-2025-l3aedxjmhl",
+          "score": 1.0,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "openreview-neurips-2025-uazfjnfl0g",
+          "score": 0.9586435070306036,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "openreview-neurips-2025-6q5wg84uod",
+          "score": 0.9185999185999183,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "openreview-neurips-2025-zefmtrby4z",
+          "score": 0.9185999185999183,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "openreview-neurips-2025-d4hcjpkj3y",
+          "score": 0.8798076923076922,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-tthvmhjnui",
+          "score": 0.8798076923076922,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-agcxjehmyw",
+          "score": 0.8422090729783037,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-qjlplzsdkb",
+          "score": 0.8422090729783037,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-cwn3rxjq7g",
+          "score": 0.8057498057498057,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-6uaecpqpwp",
+          "score": 0.8057498057498057,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-cjhqj0tcy6",
+          "score": 0.7703788748564866,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-uac6rl9tt4",
+          "score": 0.7703788748564866,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-h2m4chafig",
+          "score": 0.73604826546003,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-wtmugdhvh6",
+          "score": 0.702712746191007,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-qcdohkkhcb",
+          "score": 0.6703296703296702,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-xaxuzubn31",
+          "score": 0.6703296703296702,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-15mlgnyaft",
+          "score": 0.608262108262108,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-johgjzagqd",
+          "score": 0.578503688092729,
+          "star_rating": 4
+        }
+      ]
+    },
+    {
+      "type": "keyword",
+      "tag": "eeg",
+      "paper_tag": "keyword:eeg",
+      "query_text": "e",
+      "sim_scores": {}
+    },
+    {
+      "type": "keyword",
+      "tag": "eeg",
+      "paper_tag": "keyword:eeg",
+      "query_text": "eeg",
+      "sim_scores": {
+        "openreview-neurips-2025-qjlplzsdkb": {
+          "score": 0.01639344262295082,
+          "rank": 1
+        },
+        "openreview-neurips-2025-zefmtrby4z": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        },
+        "openreview-neurips-2025-d4hcjpkj3y": {
+          "score": 0.015873015873015872,
+          "rank": 3
+        },
+        "openreview-neurips-2025-cjhqj0tcy6": {
+          "score": 0.015625,
+          "rank": 4
+        },
+        "openreview-neurips-2025-6q5wg84uod": {
+          "score": 0.015384615384615385,
+          "rank": 5
+        },
+        "openreview-neurips-2025-agcxjehmyw": {
+          "score": 0.015151515151515152,
+          "rank": 6
+        },
+        "openreview-neurips-2025-6uaecpqpwp": {
+          "score": 0.014925373134328358,
+          "rank": 7
+        },
+        "openreview-neurips-2025-l3aedxjmhl": {
+          "score": 0.014705882352941176,
+          "rank": 8
+        },
+        "openreview-neurips-2025-uazfjnfl0g": {
+          "score": 0.014492753623188406,
+          "rank": 9
+        },
+        "openreview-neurips-2025-xaxuzubn31": {
+          "score": 0.014285714285714285,
+          "rank": 10
+        },
+        "openreview-neurips-2025-cwn3rxjq7g": {
+          "score": 0.014084507042253521,
+          "rank": 11
+        },
+        "openreview-neurips-2025-qcdohkkhcb": {
+          "score": 0.013888888888888888,
+          "rank": 12
+        },
+        "openreview-neurips-2025-wtmugdhvh6": {
+          "score": 0.0136986301369863,
+          "rank": 13
+        },
+        "openreview-neurips-2025-xmv7krabbl": {
+          "score": 0.013513513513513514,
+          "rank": 14
+        },
+        "openreview-neurips-2025-uac6rl9tt4": {
+          "score": 0.012048192771084338,
+          "rank": 23
+        },
+        "openreview-neurips-2025-tthvmhjnui": {
+          "score": 0.011904761904761904,
+          "rank": 24
+        }
+      }
+    },
+    {
+      "type": "keyword",
+      "tag": "eeg",
+      "paper_tag": "keyword:eeg",
+      "query_text": "eeg few shot",
+      "sim_scores": {
+        "openreview-neurips-2025-l3aedxjmhl": {
+          "score": 0.01639344262295082,
+          "rank": 1
+        },
+        "openreview-neurips-2025-xaxuzubn31": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        }
+      }
+    },
+    {
+      "type": "keyword",
+      "tag": "eeg",
+      "paper_tag": "keyword:eeg",
+      "query_text": "eeg foundation model",
+      "sim_scores": {
+        "openreview-neurips-2025-agcxjehmyw": {
+          "score": 0.01639344262295082,
+          "rank": 1
+        },
+        "openreview-neurips-2025-zefmtrby4z": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        },
+        "openreview-neurips-2025-cjhqj0tcy6": {
+          "score": 0.015873015873015872,
+          "rank": 3
+        },
+        "openreview-neurips-2025-d4hcjpkj3y": {
+          "score": 0.015625,
+          "rank": 4
+        },
+        "openreview-neurips-2025-uazfjnfl0g": {
+          "score": 0.015384615384615385,
+          "rank": 5
+        }
+      }
+    },
+    {
+      "type": "keyword",
+      "tag": "eeg",
+      "paper_tag": "keyword:eeg",
+      "query_text": "eeg signal",
+      "sim_scores": {
+        "openreview-neurips-2025-d4hcjpkj3y": {
+          "score": 0.01639344262295082,
+          "rank": 1
+        },
+        "openreview-neurips-2025-cjhqj0tcy6": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        },
+        "openreview-neurips-2025-uazfjnfl0g": {
+          "score": 0.015873015873015872,
+          "rank": 3
+        },
+        "openreview-neurips-2025-zefmtrby4z": {
+          "score": 0.015625,
+          "rank": 4
+        },
+        "openreview-neurips-2025-agcxjehmyw": {
+          "score": 0.015384615384615385,
+          "rank": 5
+        },
+        "openreview-neurips-2025-l3aedxjmhl": {
+          "score": 0.015151515151515152,
+          "rank": 6
+        },
+        "openreview-neurips-2025-6q5wg84uod": {
+          "score": 0.014925373134328358,
+          "rank": 7
+        },
+        "openreview-neurips-2025-6uaecpqpwp": {
+          "score": 0.014705882352941176,
+          "rank": 8
+        },
+        "openreview-neurips-2025-uac6rl9tt4": {
+          "score": 0.014285714285714285,
+          "rank": 10
+        },
+        "openreview-neurips-2025-xmv7krabbl": {
+          "score": 0.013888888888888888,
+          "rank": 12
+        }
+      }
+    },
+    {
+      "type": "keyword",
+      "tag": "eeg",
+      "paper_tag": "keyword:eeg",
+      "query_text": "electroencephalogram signal processing and analysis",
+      "sim_scores": {
+        "openreview-neurips-2025-6uaecpqpwp": {
+          "score": 0.01639344262295082,
+          "rank": 1
+        },
+        "openreview-neurips-2025-d4hcjpkj3y": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        },
+        "openreview-neurips-2025-agcxjehmyw": {
+          "score": 0.015873015873015872,
+          "rank": 3
+        },
+        "openreview-neurips-2025-cjhqj0tcy6": {
+          "score": 0.015625,
+          "rank": 4
+        },
+        "openreview-neurips-2025-6q5wg84uod": {
+          "score": 0.015151515151515152,
+          "rank": 6
+        },
+        "openreview-neurips-2025-zefmtrby4z": {
+          "score": 0.014925373134328358,
+          "rank": 7
+        },
+        "openreview-neurips-2025-xmv7krabbl": {
+          "score": 0.014705882352941176,
+          "rank": 8
+        },
+        "openreview-neurips-2025-wtmugdhvh6": {
+          "score": 0.014492753623188406,
+          "rank": 9
+        },
+        "openreview-neurips-2025-l3aedxjmhl": {
+          "score": 0.014285714285714285,
+          "rank": 10
+        },
+        "openreview-neurips-2025-qcdohkkhcb": {
+          "score": 0.014084507042253521,
+          "rank": 11
+        },
+        "openreview-neurips-2025-uazfjnfl0g": {
+          "score": 0.013888888888888888,
+          "rank": 12
+        },
+        "openreview-neurips-2025-xaxuzubn31": {
+          "score": 0.013333333333333334,
+          "rank": 15
+        },
+        "openreview-neurips-2025-cwn3rxjq7g": {
+          "score": 0.013157894736842105,
+          "rank": 16
+        },
+        "openreview-neurips-2025-qjlplzsdkb": {
+          "score": 0.012987012987012988,
+          "rank": 17
+        },
+        "openreview-neurips-2025-johgjzagqd": {
+          "score": 0.011904761904761904,
+          "rank": 24
+        },
+        "openreview-neurips-2025-tthvmhjnui": {
+          "score": 0.009174311926605505,
+          "rank": 49
+        },
+        "openreview-neurips-2025-h2m4chafig": {
+          "score": 0.00909090909090909,
+          "rank": 50
+        }
+      }
+    },
+    {
+      "type": "keyword",
+      "tag": "eeg",
+      "paper_tag": "keyword:eeg",
+      "query_text": "f",
+      "sim_scores": {}
+    },
+    {
+      "type": "keyword",
+      "tag": "eeg-latent",
+      "paper_tag": "keyword:eeg-latent",
+      "query_text": "E",
+      "sim_scores": {}
+    },
+    {
+      "type": "keyword",
+      "tag": "eeg-latent",
+      "paper_tag": "keyword:eeg-latent",
+      "query_text": "EEG latent space",
+      "sim_scores": {
+        "openreview-neurips-2025-uazfjnfl0g": {
+          "score": 0.01639344262295082,
+          "rank": 1
+        },
+        "openreview-neurips-2025-uac6rl9tt4": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        }
+      }
+    },
+    {
+      "type": "keyword",
+      "tag": "eeg-latent",
+      "paper_tag": "keyword:eeg-latent",
+      "query_text": "EEG latent space representation",
+      "sim_scores": {
+        "openreview-neurips-2025-6q5wg84uod": {
+          "score": 0.01639344262295082,
+          "rank": 1
+        },
+        "openreview-neurips-2025-6uaecpqpwp": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        },
+        "openreview-neurips-2025-zefmtrby4z": {
+          "score": 0.015873015873015872,
+          "rank": 3
+        },
+        "openreview-neurips-2025-agcxjehmyw": {
+          "score": 0.015625,
+          "rank": 4
+        },
+        "openreview-neurips-2025-cjhqj0tcy6": {
+          "score": 0.015384615384615385,
+          "rank": 5
+        },
+        "openreview-neurips-2025-l3aedxjmhl": {
+          "score": 0.014925373134328358,
+          "rank": 7
+        },
+        "openreview-neurips-2025-uazfjnfl0g": {
+          "score": 0.014705882352941176,
+          "rank": 8
+        },
+        "openreview-neurips-2025-d4hcjpkj3y": {
+          "score": 0.014285714285714285,
+          "rank": 10
+        },
+        "openreview-neurips-2025-cwn3rxjq7g": {
+          "score": 0.013513513513513514,
+          "rank": 14
+        },
+        "openreview-neurips-2025-xmv7krabbl": {
+          "score": 0.013333333333333334,
+          "rank": 15
+        },
+        "openreview-neurips-2025-xaxuzubn31": {
+          "score": 0.012987012987012988,
+          "rank": 17
+        },
+        "openreview-neurips-2025-qjlplzsdkb": {
+          "score": 0.012658227848101266,
+          "rank": 19
+        },
+        "openreview-neurips-2025-qcdohkkhcb": {
+          "score": 0.011904761904761904,
+          "rank": 24
+        },
+        "openreview-neurips-2025-johgjzagqd": {
+          "score": 0.011363636363636364,
+          "rank": 28
+        }
+      }
+    },
+    {
+      "type": "keyword",
+      "tag": "eeg-latent",
+      "paper_tag": "keyword:eeg-latent",
+      "query_text": "deep learning EEG",
+      "sim_scores": {}
+    },
+    {
+      "type": "keyword",
+      "tag": "eeg-latent",
+      "paper_tag": "keyword:eeg-latent",
+      "query_text": "deep learning for EEG signal reconstruction",
+      "sim_scores": {
+        "openreview-neurips-2025-l3aedxjmhl": {
+          "score": 0.01639344262295082,
+          "rank": 1
+        },
+        "openreview-neurips-2025-zefmtrby4z": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        },
+        "openreview-neurips-2025-6uaecpqpwp": {
+          "score": 0.015873015873015872,
+          "rank": 3
+        },
+        "openreview-neurips-2025-d4hcjpkj3y": {
+          "score": 0.015625,
+          "rank": 4
+        },
+        "openreview-neurips-2025-6q5wg84uod": {
+          "score": 0.015384615384615385,
+          "rank": 5
+        },
+        "openreview-neurips-2025-xmv7krabbl": {
+          "score": 0.015151515151515152,
+          "rank": 6
+        },
+        "openreview-neurips-2025-agcxjehmyw": {
+          "score": 0.014925373134328358,
+          "rank": 7
+        },
+        "openreview-neurips-2025-xaxuzubn31": {
+          "score": 0.014705882352941176,
+          "rank": 8
+        },
+        "openreview-neurips-2025-wtmugdhvh6": {
+          "score": 0.014492753623188406,
+          "rank": 9
+        },
+        "openreview-neurips-2025-cjhqj0tcy6": {
+          "score": 0.014285714285714285,
+          "rank": 10
+        },
+        "openreview-neurips-2025-qcdohkkhcb": {
+          "score": 0.0136986301369863,
+          "rank": 13
+        },
+        "openreview-neurips-2025-uazfjnfl0g": {
+          "score": 0.013333333333333334,
+          "rank": 15
+        },
+        "openreview-neurips-2025-cwn3rxjq7g": {
+          "score": 0.012987012987012988,
+          "rank": 17
+        },
+        "openreview-neurips-2025-qjlplzsdkb": {
+          "score": 0.012658227848101266,
+          "rank": 19
+        },
+        "openreview-neurips-2025-h2m4chafig": {
+          "score": 0.011764705882352941,
+          "rank": 25
+        },
+        "openreview-neurips-2025-johgjzagqd": {
+          "score": 0.01098901098901099,
+          "rank": 31
+        }
+      }
+    },
+    {
+      "type": "keyword",
+      "tag": "eeg-latent",
+      "paper_tag": "keyword:eeg-latent",
+      "query_text": "generative model EEG",
+      "sim_scores": {
+        "openreview-neurips-2025-cjhqj0tcy6": {
+          "score": 0.01639344262295082,
+          "rank": 1
+        },
+        "openreview-neurips-2025-cwn3rxjq7g": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        },
+        "openreview-neurips-2025-uac6rl9tt4": {
+          "score": 0.015873015873015872,
+          "rank": 3
+        }
+      }
+    },
+    {
+      "type": "keyword",
+      "tag": "eeg-latent",
+      "paper_tag": "keyword:eeg-latent",
+      "query_text": "generative models for EEG channel imputation",
+      "sim_scores": {
+        "openreview-neurips-2025-l3aedxjmhl": {
+          "score": 0.01639344262295082,
+          "rank": 1
+        },
+        "openreview-neurips-2025-6q5wg84uod": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        },
+        "openreview-neurips-2025-xmv7krabbl": {
+          "score": 0.015873015873015872,
+          "rank": 3
+        },
+        "openreview-neurips-2025-6uaecpqpwp": {
+          "score": 0.015625,
+          "rank": 4
+        },
+        "openreview-neurips-2025-zefmtrby4z": {
+          "score": 0.015384615384615385,
+          "rank": 5
+        },
+        "openreview-neurips-2025-agcxjehmyw": {
+          "score": 0.015151515151515152,
+          "rank": 6
+        },
+        "openreview-neurips-2025-cwn3rxjq7g": {
+          "score": 0.014925373134328358,
+          "rank": 7
+        },
+        "openreview-neurips-2025-d4hcjpkj3y": {
+          "score": 0.014705882352941176,
+          "rank": 8
+        },
+        "openreview-neurips-2025-cjhqj0tcy6": {
+          "score": 0.014285714285714285,
+          "rank": 10
+        },
+        "openreview-neurips-2025-qcdohkkhcb": {
+          "score": 0.014084507042253521,
+          "rank": 11
+        },
+        "openreview-neurips-2025-h2m4chafig": {
+          "score": 0.0136986301369863,
+          "rank": 13
+        },
+        "openreview-neurips-2025-uazfjnfl0g": {
+          "score": 0.013513513513513514,
+          "rank": 14
+        },
+        "openreview-neurips-2025-wtmugdhvh6": {
+          "score": 0.013333333333333334,
+          "rank": 15
+        },
+        "openreview-neurips-2025-xaxuzubn31": {
+          "score": 0.013157894736842105,
+          "rank": 16
+        },
+        "openreview-neurips-2025-qjlplzsdkb": {
+          "score": 0.012195121951219513,
+          "rank": 22
+        },
+        "openreview-neurips-2025-johgjzagqd": {
+          "score": 0.011494252873563218,
+          "rank": 27
+        },
+        "openreview-neurips-2025-15mlgnyaft": {
+          "score": 0.01098901098901099,
+          "rank": 31
+        },
+        "openreview-neurips-2025-tthvmhjnui": {
+          "score": 0.009615384615384616,
+          "rank": 44
+        }
+      }
+    }
+  ],
+  "global_candidate_ids": [
+    "openreview-neurips-2025-6uaecpqpwp",
+    "openreview-neurips-2025-d4hcjpkj3y",
+    "openreview-neurips-2025-6q5wg84uod",
+    "openreview-neurips-2025-l3aedxjmhl",
+    "openreview-neurips-2025-zefmtrby4z",
+    "openreview-neurips-2025-ttwzhy8jqy",
+    "openreview-neurips-2025-on6hf0kp20",
+    "openreview-neurips-2025-qjlplzsdkb",
+    "openreview-neurips-2025-xaxuzubn31",
+    "openreview-neurips-2025-agcxjehmyw",
+    "openreview-neurips-2025-cjhqj0tcy6",
+    "openreview-neurips-2025-7bcpxhq8xv",
+    "openreview-neurips-2025-uazfjnfl0g",
+    "openreview-neurips-2025-uac6rl9tt4",
+    "openreview-neurips-2025-lovtdtbsdz",
+    "openreview-neurips-2025-lj5wcjzfqn",
+    "openreview-neurips-2025-cwn3rxjq7g",
+    "openreview-neurips-2025-xmv7krabbl",
+    "openreview-neurips-2025-ayr2jfryrs",
+    "openreview-neurips-2025-qcdohkkhcb",
+    "openreview-neurips-2025-orrcetiivx",
+    "openreview-neurips-2025-wtmugdhvh6",
+    "openreview-neurips-2025-a9jxg3fumt",
+    "openreview-neurips-2025-ldjbdk3czb",
+    "openreview-neurips-2025-k61y6ctmrl",
+    "openreview-neurips-2025-utxssdd9mt",
+    "openreview-neurips-2025-uuigxjwkci",
+    "openreview-neurips-2025-xjayhgbraw",
+    "openreview-neurips-2025-7yol9qilwd",
+    "openreview-neurips-2025-k6ijewh34e",
+    "openreview-neurips-2025-h2m4chafig",
+    "openreview-neurips-2025-johgjzagqd",
+    "openreview-neurips-2025-ocxyxhgciz",
+    "openreview-neurips-2025-ny3lzmuxl7",
+    "openreview-neurips-2025-shmjc5zvql",
+    "openreview-neurips-2025-m44rvnmzs4",
+    "openreview-neurips-2025-oabagu9n1x",
+    "openreview-neurips-2025-6hidr8pj8f",
+    "openreview-neurips-2025-fysprgms6l",
+    "openreview-neurips-2025-7wpi6vbth0",
+    "openreview-neurips-2025-nrqgpuajv9",
+    "openreview-neurips-2025-vzfqdwf09z",
+    "openreview-neurips-2025-kyb3sw847w",
+    "openreview-neurips-2025-9q6snvaaqo",
+    "openreview-neurips-2025-besfxkx3po",
+    "openreview-neurips-2025-96liipupxg",
+    "openreview-neurips-2025-p37gij4wb7",
+    "openreview-neurips-2025-tthvmhjnui",
+    "openreview-neurips-2025-reio9zlsyo",
+    "openreview-neurips-2025-05cvmyjjnb",
+    "openreview-neurips-2025-ctslgmmnct",
+    "openreview-neurips-2025-d2xdjf1txw",
+    "openreview-neurips-2025-6h9q6mmqen",
+    "openreview-neurips-2025-1i4wnfghdd",
+    "openreview-neurips-2025-gupggcm4wh",
+    "openreview-neurips-2025-3anvx9tqto",
+    "openreview-neurips-2025-573iclusxq",
+    "openreview-neurips-2025-h918wypf0s",
+    "openreview-neurips-2025-rgk129n73h",
+    "openreview-neurips-2025-mzxggzelcl",
+    "openreview-neurips-2025-ht7nj7saqb",
+    "openreview-neurips-2025-4vkvume1i8",
+    "openreview-neurips-2025-79gwcnxyej",
+    "openreview-neurips-2025-jfygzwx8sj",
+    "openreview-neurips-2025-fj2kyls6g5",
+    "openreview-neurips-2025-s9nkfkuuer",
+    "openreview-neurips-2025-zj45hoqhjd",
+    "openreview-neurips-2025-r4brtjrmy9",
+    "openreview-neurips-2025-yrxxtdellv",
+    "openreview-neurips-2025-azooxbw63m",
+    "openreview-neurips-2025-26kurqm4zw",
+    "openreview-neurips-2025-hgjqcudwm1",
+    "openreview-neurips-2025-po0eyoyfua",
+    "openreview-neurips-2025-xahozxfuuw",
+    "openreview-neurips-2025-mgvhgfcfnk",
+    "openreview-neurips-2025-ktk4mxnzfe",
+    "openreview-neurips-2025-om0qkq9xty",
+    "openreview-neurips-2025-2ybm2w1o9m",
+    "openreview-neurips-2025-hmvq00vaby",
+    "openreview-neurips-2025-0qnmavqqqj",
+    "openreview-neurips-2025-xfdnekp7tt",
+    "openreview-neurips-2025-k5tbfypyuc",
+    "openreview-neurips-2025-kurezdwu9g",
+    "openreview-neurips-2025-kkhrttmxfv",
+    "openreview-neurips-2025-dbc55qienq",
+    "openreview-neurips-2025-vqoiuhbosg",
+    "openreview-neurips-2025-ustf8mmzdj",
+    "openreview-neurips-2025-zthyasxqmq",
+    "openreview-neurips-2025-z5vzdi2r6j",
+    "openreview-neurips-2025-oouvejsbxl",
+    "openreview-neurips-2025-jalvha5m8v",
+    "openreview-neurips-2025-l84ddfuvwv",
+    "openreview-neurips-2025-15mlgnyaft",
+    "openreview-neurips-2025-jhwceu39ft",
+    "openreview-neurips-2025-3joqtghuzz",
+    "openreview-neurips-2025-ukjkad8auf",
+    "openreview-neurips-2025-ugaepulzya",
+    "openreview-neurips-2025-yv7zkaptjo",
+    "openreview-neurips-2025-eida6pd9iq",
+    "openreview-neurips-2025-m4rbrmna9y",
+    "openreview-neurips-2025-hfscuvc1cb",
+    "openreview-neurips-2025-cdq0mi4rlw",
+    "openreview-neurips-2025-uvtea5rfek",
+    "openreview-neurips-2025-kplskouz46",
+    "openreview-neurips-2025-p4kjfmrvnu",
+    "openreview-neurips-2025-tpjg65eb7d",
+    "openreview-neurips-2025-b4nt8texns",
+    "openreview-neurips-2025-trheq0yfhv",
+    "openreview-neurips-2025-lmxuq0gnec",
+    "openreview-neurips-2025-2hzyfarji6",
+    "openreview-neurips-2025-v3wqoshcze",
+    "openreview-neurips-2025-odcagsxzzp",
+    "openreview-neurips-2025-yos12gdsal",
+    "openreview-neurips-2025-vat2xlawjy",
+    "openreview-neurips-2025-bit1x6sghx",
+    "openreview-neurips-2025-emu3ukrrbz",
+    "openreview-neurips-2025-nuctkoflsv",
+    "openreview-neurips-2025-g67znmewj5",
+    "openreview-neurips-2025-idtzwmjakn",
+    "openreview-neurips-2025-ravs5h8mng",
+    "openreview-neurips-2025-rv6lz84flz"
+  ],
+  "global_pool_lane_top_k": 30,
+  "global_pool_limit": 120,
+  "global_pool_guaranteed_per_lane": 2,
+  "global_pool_effective_size": 121,
+  "reranked_at": "2026-06-01T07:45:25.555593+00:00",
+  "llm_ranked": [
+    {
+      "paper_id": "openreview-neurips-2025-uazfjnfl0g",
+      "score": 9.0,
+      "evidence_en": "proposes a latent space representation for EEG that is topology-agnostic, directly matching EEG latent space representation",
+      "evidence_cn": "提出拓扑无关的EEG潜在空间表示，直接匹配EEG潜在空间表示需求",
+      "canonical_evidence": "提出拓扑无关的EEG潜在空间表示，直接匹配EEG潜在空间表示需求",
+      "tldr_en": "LUNA proposes a self-supervised foundation model that compresses multi-channel EEG into a fixed-size, topology-agnostic latent space via learned queries and cross-attention, enabling linear scaling and cross-dataset generalization.",
+      "tldr_cn": "LUNA提出拓扑无关的EEG基础模型，通过可学习查询和交叉注意力将任意通道数的EEG压缩为固定维度潜在空间，计算复杂度线性增长。在五个数据集上验证了跨布局泛化能力，并在分类和回归任务上达到最优性能。自监督预训练使其无需大量标注数据，可快速适配下游任务。该模型为异构EEG数据统一分析提供了高效方案。",
+      "title_zh": "LUNA：高效且拓扑无关的EEG信号分析基础模型",
+      "motivation_cn": "现有EEG模型因电极布局多样而难以推广，亟需统一拓扑的表示。",
+      "method_cn": "使用交叉注意力将任意通道数EEG压缩为固定维度的潜在表示，支持线性复杂度。",
+      "result_cn": "在多个数据集上验证了泛化能力和效率，任务性能达到领先水平。",
+      "conclusion_cn": "LUNA为EEG领域提供了一种可扩展、拓扑无关的基础模型框架。",
+      "matched_requirement_id": "req-2",
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation"
+    },
+    {
+      "paper_id": "openreview-neurips-2025-zefmtrby4z",
+      "score": 9.0,
+      "evidence_en": "proposes a foundation model for EEG with versatile embeddings and 4D positional encoding, producing latent representations",
+      "evidence_cn": "提出具有通用嵌入和4D位置编码的EEG基础模型，生成潜在表示",
+      "canonical_evidence": "提出具有通用嵌入和4D位置编码的EEG基础模型，生成潜在表示",
+      "tldr_en": "REVE presents an EEG foundation model pretrained on 25,000 subjects with a novel 4D positional encoding to handle heterogeneous recording setups, enabling versatile latent representations that excel in linear probing and fine-tuning tasks.",
+      "tldr_cn": "REVE提出EEG基础模型，在25,000名受试者上预训练，采用4D位置编码统一异构EEG设备配置。该编码融合电极坐标、时间、频带和受试者信息，使模型可适应任意记录设置。在多个下游任务中，线性探测性能远超以往模型，且微调后达到新的最佳水平。大规模预训练数据覆盖多种协议和脑状态，确保了表示的鲁棒性。该工作为通用EEG表示学习设立了新基线。",
+      "title_zh": "REVE：面向EEG的基础模型——通过大规模预训练适应任意记录设置",
+      "motivation_cn": "EEG数据集异构性阻碍基础模型泛化，现有方法局限于单一设置。",
+      "method_cn": "采用4D位置编码统一电极坐标、时间、频带和受试者信息，在大规模数据上预训练。",
+      "result_cn": "在多种任务和设置下实现领先性能，线性探测显著超越以往工作。",
+      "conclusion_cn": "REVE为通用EEG表示学习提供了有效且可迁移的方案。",
+      "matched_requirement_id": "req-2",
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation"
+    },
+    {
+      "paper_id": "openreview-neurips-2025-johgjzagqd",
+      "score": 9.0,
+      "evidence_en": "nonlinear latent factor modeling with missing data handling",
+      "evidence_cn": "非线性潜在因子建模与缺失数据处理",
+      "canonical_evidence": "非线性潜在因子建模与缺失数据处理",
+      "tldr_en": "Proposes a learning framework for real-time decoding from multimodal neural data with missing samples and different timescales, using nonlinear latent factor models.",
+      "tldr_cn": "多模态神经活动分析面临不同采样率和缺失样本的挑战，现有非线性模型未解决这些问题。本文提出一种学习框架，能够对多模态神经时间序列（如发放和场电位）进行非线性潜在因子建模，并支持实时递归解码。该框架显式处理不同时间尺度和缺失数据，在仿真和真实数据上展示了有效性和实时推理能力，为脑机接口和神经科学应用提供了可实用的解码方法。",
+      "title_zh": "多尺度神经活动中非线性潜在因子的动力学建模与实时推理",
+      "motivation_cn": "多模态神经数据存在不同采样率和缺失样本，现有非线性模型无法处理这些问题。",
+      "method_cn": "提出一个学习框架，对多模态神经时间序列进行非线性潜在因子建模，支持实时递归解码并处理缺失数据。",
+      "result_cn": "在仿真和真实数据上验证了模型能有效处理不同时间尺度和缺失样本，实现实时解码。",
+      "conclusion_cn": "提供了一种通用的多模态神经数据实时解码方法，可应用于脑机接口等领域。",
+      "matched_requirement_id": "req-5",
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG missing channel completion using latent space models"
+    },
+    {
+      "paper_id": "openreview-neurips-2025-d4hcjpkj3y",
+      "score": 9.0,
+      "evidence_en": "EEG foundation model with pre-trained transformer for latent spatio-temporal representation",
+      "evidence_cn": "基于预训练Transformer的脑电图基础模型用于潜在时空表征",
+      "canonical_evidence": "基于预训练Transformer的脑电图基础模型用于潜在时空表征",
+      "tldr_en": "Proposes NeurIPT, a foundation model pre-trained on diverse EEG data to capture homogeneous and heterogeneous spatio-temporal characteristics for neural interfaces.",
+      "tldr_cn": "脑电图（EEG）基础模型面临跨被试、跨任务和不同电极配置的挑战。本文提出NeurIPT，一个专门用于神经接口的基础模型，采用预训练Transformer同时捕获EEG信号中的同质和异质时空特征。通过在大规模多样EEG数据上预训练，NeurIPT在多个下游任务中展现了强大的泛化能力，为EEG通用表示学习提供了新范式。",
+      "title_zh": "NeurIPT：面向神经接口的基础模型",
+      "motivation_cn": "现有EEG基础模型难以应对跨被试、跨任务和电极配置的多样性。",
+      "method_cn": "提出NeurIPT，使用预训练Transformer捕捉EEG信号的同质和异质时空特性。",
+      "result_cn": "在多种EEG下游任务上取得优异性能，验证了模型的有效泛化能力。",
+      "conclusion_cn": "为EEG通用表征学习和神经接口应用提供了可扩展的基础模型框架。",
+      "matched_requirement_id": "req-2",
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation"
+    },
+    {
+      "paper_id": "openreview-neurips-2025-agcxjehmyw",
+      "score": 8.0,
+      "evidence_en": "EEG decoding for BCI applications",
+      "evidence_cn": "用于脑机接口的EEG解码",
+      "canonical_evidence": "用于脑机接口的EEG解码",
+      "tldr_en": "CSBrain proposes a cross-scale spatiotemporal foundation model for EEG decoding, addressing the limitation of scale-agnostic dense modeling by capturing diverse temporal and spatial scales inherent in neural activity.",
+      "tldr_cn": "现有EEG基础模型采用尺度无关的密集建模，忽视了神经活动的跨尺度时空特性。本文提出CSBrain，一个跨尺度时空脑基础模型，通过捕获不同时间和空间尺度的神经模式来提升EEG解码性能。实验表明该模型在多个EEG解码任务上优于现有方法，为脑机接口和临床诊断提供了更通用的EEG表示学习框架。",
+      "title_zh": "CSBrain：用于EEG解码的跨尺度时空脑基础模型",
+      "motivation_cn": "现有EEG基础模型采用尺度无关的密集建模，忽略了神经活动的跨尺度时空特性。",
+      "method_cn": "提出跨尺度时空脑基础模型CSBrain，捕获不同尺度的时空神经模式。",
+      "result_cn": "在多个EEG解码任务上优于现有方法，提升泛化能力。",
+      "conclusion_cn": "CSBrain通过跨尺度建模为通用EEG表示学习提供了新范式。",
+      "matched_requirement_id": "req-10",
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers"
+    },
+    {
+      "paper_id": "openreview-neurips-2025-6q5wg84uod",
+      "score": 8.0,
+      "evidence_en": "learning generic EEG representations via autoregressive modeling with topology hierarchy",
+      "evidence_cn": "通过拓扑层次自回归建模学习通用EEG表示",
+      "canonical_evidence": "通过拓扑层次自回归建模学习通用EEG表示",
+      "tldr_en": "THD-BAR proposes a novel autoregressive framework for EEG generic representations that incorporates hierarchical topology of brain activity, overcoming the limitations of simple temporal sequencing.",
+      "tldr_cn": "现有EEG自回归模型仅依赖时序，无法捕获脑动态拓扑。本文提出THD-BAR，通过拓扑层次派生脑自回归建模，利用分层空间拓扑结构学习通用EEG表示。实验证明该方法在多个EEG任务上取得优异性能，为EEG潜在空间学习提供了新思路。",
+      "title_zh": "THD-BAR：用于EEG通用表示的拓扑层次派生脑自回归建模",
+      "motivation_cn": "现有EEG自回归模型仅使用时序，忽略了脑活动的空间拓扑动态。",
+      "method_cn": "提出拓扑层次派生脑自回归建模，融合分层空间拓扑与时间建模。",
+      "result_cn": "在多个EEG基准任务上取得最先进性能。",
+      "conclusion_cn": "THD-BAR有效学习通用EEG表示，可应用于下游任务。",
+      "matched_requirement_id": "req-2",
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation"
+    },
+    {
+      "paper_id": "openreview-neurips-2025-l3aedxjmhl",
+      "score": 8.0,
+      "evidence_en": "uses deep learning to reconstruct visual stimuli from EEG, addressing cross-subject generalization",
+      "evidence_cn": "使用深度学习从EEG信号重建视觉刺激，解决跨被试泛化问题",
+      "canonical_evidence": "使用深度学习从EEG信号重建视觉刺激，解决跨被试泛化问题",
+      "tldr_en": "NEED proposes a unified framework for zero-shot cross-subject and cross-task generalization in EEG-based visual reconstruction, using an Individual Adaptation Module and addressing limited spatial resolution.",
+      "tldr_cn": "该论文提出NEED框架，首次实现EEG视觉重建的零样本跨被试和跨任务泛化。通过个体适应模块解决被试差异，并采用多尺度空间编码提升分辨率。在多个视觉重建任务上验证了有效性，性能优于现有方法，推动了EEG解码向实用化迈进。该工作克服了传统模型泛化性差的瓶颈，为脑机接口实际应用奠定了基础。",
+      "title_zh": "NEED：面向EEG信号视频和图像重建的跨被试与跨任务泛化",
+      "motivation_cn": "现有EEG视觉解码模型泛化性差且局限于特定任务，亟需统一的跨被试、跨任务框架。",
+      "method_cn": "提出个体适应模块和多尺度空间编码，结合预训练和零样本迁移，实现跨被试泛化。",
+      "result_cn": "在多个数据集上实现视频和图像重建的零样本泛化，性能优于现有方法。",
+      "conclusion_cn": "NEED为EEG视觉解码的实用化提供了通用框架，可推广至其他脑信号解码任务。",
+      "matched_requirement_id": "req-3",
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "deep learning for EEG signal reconstruction"
+    },
+    {
+      "paper_id": "openreview-neurips-2025-wtmugdhvh6",
+      "score": 8.0,
+      "evidence_en": "uses EEG for auditory attention detection, relevant to EEG-based BCI",
+      "evidence_cn": "使用EEG进行听觉注意力检测，与基于EEG的BCI相关",
+      "canonical_evidence": "使用EEG进行听觉注意力检测，与基于EEG的BCI相关",
+      "tldr_en": "S2M-Former presents a spiking symmetric mixing branchformer for EEG-based auditory attention detection, using parallel spatial and frequency branches with spike-driven computation for energy efficiency, achieving state-of-the-art accuracy with significantly lower power consumption.",
+      "tldr_cn": "S²M-Former提出尖峰驱动对称混合架构，用于EEG听觉注意力检测。模型包含并行空间和频率分支，通过令牌-通道混合器高效融合特征。在多个数据集上达到最高检测准确率，且能耗仅为传统方法的10%。尖峰神经元的生物合理性使其具备能量效率优势，同时保持高精度。该工作为低功耗神经助听设备提供了关键技术。",
+      "title_zh": "S²M-Former：面向脑听觉注意力检测的尖峰对称混合分支变换器",
+      "motivation_cn": "现有EEG听觉注意力检测缺乏高效融合互补特征的框架。",
+      "method_cn": "设计尖峰驱动对称架构，并行处理空间和频率特征，通过令牌-通道混合器实现。",
+      "result_cn": "在公开数据集上达到最优检测准确率，同时能效显著优于传统方法。",
+      "conclusion_cn": "S2M-Former为低功耗神经助听设备提供了可行的方案。",
+      "matched_requirement_id": "req-10",
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers"
+    },
+    {
+      "paper_id": "openreview-neurips-2025-tthvmhjnui",
+      "score": 8.0,
+      "evidence_en": "self-calibrating BCI for mental target recovery without labels",
+      "evidence_cn": "无需标签的自校准脑机接口用于心理目标恢复",
+      "canonical_evidence": "无需标签的自校准脑机接口用于心理目标恢复",
+      "tldr_en": "Presents the first framework and algorithm CURSOR for recovering mental targets from EEG data without any labeled data or pre-trained decoders.",
+      "tldr_cn": "从脑电图（EEG）中解码用户心中的目标（如人脸图像）通常需要标签数据。本文提出第一个无需标签的自校准框架CURSOR，通过配对EEG和图像数据学习恢复未知的心理目标，无需预训练解码器。实验表明，CURSOR预测的图像相似度评分与人类感知判断相关，并能有效恢复目标，为无标签脑机接口应用开辟了新途径。",
+      "title_zh": "自校准脑机接口：无标签的心理目标排序与恢复",
+      "motivation_cn": "现有心理目标恢复方法依赖标签数据，限制了实际应用。",
+      "method_cn": "提出CURSOR算法，利用配对但无标签的EEG和图像数据，通过自校准学习恢复心理目标。",
+      "result_cn": "在自然人脸图像实验中，CURSOR能预测与人类感知相关的相似度评分，并成功恢复目标。",
+      "conclusion_cn": "首次实现无标签的脑机接口心理目标恢复，推动了自校准BCI的发展。",
+      "matched_requirement_id": "req-10",
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers"
+    },
+    {
+      "paper_id": "openreview-neurips-2025-qjlplzsdkb",
+      "score": 8.0,
+      "evidence_en": "joint modeling of fMRI and EEG using hypergraph neural networks",
+      "evidence_cn": "使用超图神经网络联合建模fMRI和EEG",
+      "canonical_evidence": "使用超图神经网络联合建模fMRI和EEG",
+      "tldr_en": "Proposes a hypergraph neural network framework based on ODEs to jointly model fMRI and EEG imaging, addressing multimodal synchronization challenges.",
+      "tldr_cn": "该论文针对联合fMRI-EEG建模中数据规模有限、模态差异大等问题，提出基于常微分方程的超图神经网络框架。模型利用超图结构捕获ROI间的复杂多对多关系，有效融合fMRI的血流动力学响应和EEG的神经振荡信号。实验证明了该方法在联合建模任务中的优势，为多模态脑成像分析提供了新途径。研究动机明确，方法创新，结果有效。",
+      "title_zh": "使用基于常微分方程的超图神经网络联合建模fMRI和EEG成像",
+      "motivation_cn": "现有方法忽略fMRI与EEG间ROI并非一一对应，联合建模效果不佳。",
+      "method_cn": "提出基于ODE的超图神经网络，通过超图结构建模ROI间的多对多关系，联合建模fMRI和EEG。",
+      "result_cn": "在有限数据集上验证了该框架优于现有图方法，有效融合了两种模态信息。",
+      "conclusion_cn": "该工作为多模态脑成像联合建模提供了新思路，有助于更全面的脑功能理解。",
+      "matched_requirement_id": "req-9",
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis"
+    },
+    {
+      "paper_id": "openreview-neurips-2025-cjhqj0tcy6",
+      "score": 7.0,
+      "evidence_en": "Unified EEG and MEG foundation model with BrainTokenizer for spatiotemporal tokenization",
+      "evidence_cn": "统一EEG和MEG的基础模型，使用BrainTokenizer进行时空标记化",
+      "canonical_evidence": "统一EEG和MEG的基础模型，使用BrainTokenizer进行时空标记化",
+      "tldr_en": "Proposes BrainOmni, the first brain foundation model unifying heterogeneous EEG and MEG recordings via BrainTokenizer that quantizes spatiotemporal brain activity into discrete tokens, achieving cross-dataset generalization.",
+      "tldr_cn": "脑电图和脑磁图信号在传感器配置上存在差异，现有模型常局限于特定数据集。本文提出BrainOmni，首个统一EEG和MEG的基础模型，通过BrainTokenizer将时空脑活动量化为离散标记，实现跨数据集泛化。实验表明该模型在多个EEG/MEG基准上表现优异，为脑信号分析提供了统一框架。",
+      "title_zh": "BrainOmni：统一的脑电图和脑磁图基础模型",
+      "motivation_cn": "现有EEG/MEG模型受限于模态和数据集特异性，缺乏统一框架。",
+      "method_cn": "提出BrainOmni，包含BrainTokenizer将时空脑活动量化为离散标记，实现跨模态统一表征。",
+      "result_cn": "在多个EEG/MEG数据集上验证了跨数据集泛化能力，性能优于专用模型。",
+      "conclusion_cn": "BrainOmni作为首个统一脑信号基础模型，推动了EEG/MEG分析的标准化和可扩展性。",
+      "matched_requirement_id": "req-composite-eeg",
+      "matched_query_tag": "query:eeg:composite",
+      "matched_query_text": "Papers central to 脑电图, especially work that connects or combines: f; e; electroencephalogram signal processing and analysis; EEG based brain computer interface research papers."
+    },
+    {
+      "paper_id": "openreview-neurips-2025-qcdohkkhcb",
+      "score": 7.0,
+      "evidence_en": "Neuromorphic framework for unsupervised continual EEG decoding inspired by synaptic homeostasis",
+      "evidence_cn": "受突触稳态启发的无监督持续EEG解码框架",
+      "canonical_evidence": "受突触稳态启发的无监督持续EEG解码框架",
+      "tldr_en": "Proposes SPICED, a neuromorphic framework for unsupervised continual EEG decoding, using synaptic homeostasis mechanisms to achieve stability-plasticity balance in evolving BCI scenarios.",
+      "tldr_cn": "实际场景中EEG解码面临新用户不断出现、个体差异大的挑战。本文受突触稳态机制启发，提出SPICED框架，通过关键记忆激活等生物机制实现动态网络扩展，在持续学习过程中保持稳定性-可塑性平衡。实验证明该方法能在无监督且持续的环境下有效解码EEG，适用于脑机接口。",
+      "title_zh": "SPICED：受突触稳态启发的无监督持续脑电信号解码框架",
+      "motivation_cn": "现有EEG解码方法难以适应持续出现的新用户，存在灾难性遗忘和无法无监督学习的问题。",
+      "method_cn": "提出神经形态框架SPICED，模拟突触稳态机制，通过关键记忆激活和动态网络扩展实现持续无监督学习。",
+      "result_cn": "在持续EEG解码任务中，SPICED在稳定性和可塑性之间取得有效平衡，性能优于现有方法。",
+      "conclusion_cn": "SPICED为脑机接口中的持续适应问题提供了生物启发式解决方案，具有实际意义。",
+      "matched_requirement_id": "req-10",
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers"
+    },
+    {
+      "paper_id": "openreview-neurips-2025-6uaecpqpwp",
+      "score": 7.0,
+      "evidence_en": "whole-brain electrophysiological network inference from scalp and intracranial EEG",
+      "evidence_cn": "从头皮和颅内脑电图推断全脑电生理网络",
+      "canonical_evidence": "从头皮和颅内脑电图推断全脑电生理网络",
+      "tldr_en": "Introduces a state-space modeling framework to integrate scalp and intracranial EEG for estimating whole-brain electrophysiological networks.",
+      "tldr_cn": "全脑电生理网络（WBEN）的表征对神经科学和临床应用至关重要。本文提出一个状态空间建模框架，结合头皮脑电图和颅内脑电图，通过期望最大化算法推断隐状态和脑连接。该方法能有效整合多模态脑电数据，生成连贯的全脑网络估计，为研究大规模脑动态提供了新工具。",
+      "title_zh": "通过同时头皮和颅内脑电图的多模态整合推断全脑电生理网络",
+      "motivation_cn": "现有的脑成像研究需要从多模态脑电图数据中推断全脑电生理网络。",
+      "method_cn": "提出状态空间模型结合期望最大化算法，融合头皮和颅内脑电图进行网络推断。",
+      "result_cn": "在多模态脑电数据上成功估计了全脑电生理网络，验证了方法的有效性。",
+      "conclusion_cn": "为整合不同尺度的脑电图数据以研究脑网络动力学提供了一种统一框架。",
+      "matched_requirement_id": "req-9",
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis"
+    },
+    {
+      "paper_id": "openreview-neurips-2025-xmv7krabbl",
+      "score": 6.0,
+      "evidence_en": "Dynamic multi-channel EEG graph modeling for seizure detection",
+      "evidence_cn": "动态多通道EEG图建模用于癫痫检测",
+      "canonical_evidence": "动态多通道EEG图建模用于癫痫检测",
+      "tldr_en": "EvoBrain uses dynamic graph neural networks to model spatiotemporal EEG for seizure detection, showing improved performance over static graph methods.",
+      "tldr_cn": "现有动态图方法大多采用固定静态图，无法反映癫痫发作过程中的脑连接演变。本文提出EvoBrain，通过构建时变图捕获EEG时空动态，实现更准确的癫痫检测。实验结果表明其性能优于静态图基线，为脑网络分析提供了新工具。",
+      "title_zh": "EvoBrain：用于时变脑网络的动态多通道EEG图建模",
+      "motivation_cn": "静态图无法反映癫痫发作过程中脑连接的演化，现有动态图方法在时空交互建模上不足。",
+      "method_cn": "提出EvoBrain，利用动态图神经网络联合建模EEG时空特征和时变脑网络结构。",
+      "result_cn": "在癫痫检测任务上，EvoBrain相比静态图方法取得显著性能提升。",
+      "conclusion_cn": "EvoBrain展示了考虑脑网络动态演化对EEG分析的重要性，为动态脑状态建模提供了有效方法。",
+      "matched_requirement_id": "req-9",
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis"
+    },
+    {
+      "paper_id": "openreview-neurips-2025-xaxuzubn31",
+      "score": 6.0,
+      "evidence_en": "Multi-dataset joint pre-training for emotional EEG with cross-dataset covariance alignment",
+      "evidence_cn": "情感EEG的多数据集联合预训练，使用跨数据集协方差对齐",
+      "canonical_evidence": "情感EEG的多数据集联合预训练，使用跨数据集协方差对齐",
+      "tldr_en": "Proposes a task-specific multi-dataset joint pre-training framework for emotional EEG, using cross-dataset covariance alignment to handle distribution shifts, achieving robust cross-dataset emotion recognition.",
+      "tldr_cn": "现有EEG通用预训练模型在情感识别等复杂任务上表现不佳，原因是任务特定特征与泛化预训练之间存在不匹配。本文提出面向情感EEG的多数据集联合预训练框架，通过跨数据集协方差对齐解决分布差异和类别定义不一致问题。实验表明该方法在跨数据集情感识别上实现了鲁棒泛化。",
+      "title_zh": "情感脑电图的多数据集联合预训练实现可泛化的情感计算",
+      "motivation_cn": "通用EEG预训练模型无法有效处理情感识别等复杂任务，存在任务特征不匹配和跨数据集差异。",
+      "method_cn": "提出跨数据集协方差对齐损失，联合预训练多个情感EEG数据集，对齐二阶统计特性。",
+      "result_cn": "在跨数据集情感识别任务上，无需大量微调即可取得鲁棒泛化性能。",
+      "conclusion_cn": "任务特定的多数据集预训练策略可有效提升EEG情感计算的泛化能力。",
+      "matched_requirement_id": "req-9",
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis"
+    },
+    {
+      "paper_id": "openreview-neurips-2025-15mlgnyaft",
+      "score": 5.0,
+      "evidence_en": "diffusion-based generative imputation method for time series",
+      "evidence_cn": "基于扩散的生成式时间序列插补方法",
+      "canonical_evidence": "基于扩散的生成式时间序列插补方法",
+      "tldr_en": "Diffusion Transformers for Imputation provides theoretical guarantees and uncertainty quantification for conditional diffusion-based imputation, demonstrating statistical efficiency in capturing spatiotemporal dependencies.",
+      "tldr_cn": "时间序列缺失值插补中，扩散生成方法已取得经验成功，但缺乏理论理解。本文研究条件扩散Transformer的统计效率，推导样本复杂度，并提供不确定性量化。方法在合成和真实数据上验证，为EEG等时间序列的缺失通道补全提供了可迁移的理论与工具支持。",
+      "title_zh": "用于插补的扩散Transformer：统计效率与不确定性量化",
+      "motivation_cn": "扩散生成插补方法缺乏理论理解，尤其是对时空依赖的捕获能力。",
+      "method_cn": "分析条件扩散Transformer的统计效率，并推导样本复杂度。",
+      "result_cn": "理论证明扩散Transformer能有效捕获时空依赖，并在实验中验证。",
+      "conclusion_cn": "为基于扩散的插补提供了理论基础，可推广至EEG信号。",
+      "matched_requirement_id": "req-4",
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "generative models for EEG channel imputation"
+    },
+    {
+      "paper_id": "openreview-neurips-2025-cwn3rxjq7g",
+      "score": 4.0,
+      "evidence_en": "investigates factors affecting EEG-based ML performance",
+      "evidence_cn": "探究影响基于EEG的机器学习性能的因素",
+      "canonical_evidence": "探究影响基于EEG的机器学习性能的因素",
+      "tldr_en": "This paper studies the impact of limited participant diversity on EEG-based machine learning, proposing a multi-level data generation framework and conducting large-scale empirical analyses on scaling behavior.",
+      "tldr_cn": "基于EEG的机器学习模型泛化性依赖于训练数据的多样性和规模。本文将EEG数据生成视为多层级过程，通过大规模实验研究样本量和参与者多样性对性能的影响。发现增加参与者多样性比单纯增加分段数更有效，为EEG数据收集和模型评估提供了重要指导。",
+      "title_zh": "有限的参与者多样性是否阻碍了基于EEG的机器学习？",
+      "motivation_cn": "EEG机器学习模型的泛化性受训练数据多样性和规模影响，但两者作用尚未厘清。",
+      "method_cn": "将EEG数据生成建模为多层过程，通过大规模实验分析样本量和参与者多样性的缩放行为。",
+      "result_cn": "增加参与者多样性比增加分段数更有效提升模型鲁棒性。",
+      "conclusion_cn": "为EEG数据收集策略和模型评估提供了实证依据。",
+      "matched_requirement_id": "req-9",
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis"
+    },
+    {
+      "paper_id": "openreview-neurips-2025-uac6rl9tt4",
+      "score": 4.0,
+      "evidence_en": "uses EEG signals and latent space representations for generative tasks",
+      "evidence_cn": "使用EEG信号和潜在空间表示进行生成任务",
+      "canonical_evidence": "使用EEG信号和潜在空间表示进行生成任务",
+      "tldr_en": "Proposes LoongX, a hands-free image editing approach driven by EEG and other physiological signals, leveraging diffusion models and cross-scale state space modules for EEG latent representation.",
+      "tldr_cn": "该论文提出LoongX，一种基于EEG等多模态生理信号的无手图像编辑方法。利用扩散模型和跨尺度状态空间模块从EEG信号中提取潜在表示，实现用户意图捕捉。方法涉及EEG信号的深度学习处理和潜在空间编码，但目标为图像编辑而非EEG信号重建或通道补全。在包含EEG的23,928对图像编辑数据集上训练，验证了方法的有效性。",
+      "title_zh": "神经驱动图像编辑",
+      "motivation_cn": "传统图像编辑依赖手动提示，对运动障碍者不友好，亟需基于脑信号的交互方式。",
+      "method_cn": "构建LoongX框架，使用扩散模型结合EEG等多模态信号，通过跨尺度状态空间模块提取潜在表示驱动图像编辑。",
+      "result_cn": "在包含EEG的大规模数据集上训练，实现了有效的脑驱动图像编辑，展示了EEG潜在表示的能力。",
+      "conclusion_cn": "该工作开拓了EEG潜在表示在生成任务中的应用，但非直接针对通道补全。",
+      "matched_requirement_id": "req-2",
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation"
+    },
+    {
+      "paper_id": "openreview-neurips-2025-h2m4chafig",
+      "score": 4.0,
+      "evidence_en": "learning channel-invariant neural representations for cross-day decoding, relevant to EEG latent space",
+      "evidence_cn": "学习通道不变神经表示用于跨日解码，与EEG潜在空间相关",
+      "canonical_evidence": "学习通道不变神经表示用于跨日解码，与EEG潜在空间相关",
+      "tldr_en": "Proposes CRRL to learn channel-invariant representations via channel rearrangement, improving cross-day decoding stability, applicable to EEG-based BCI.",
+      "tldr_cn": "该论文针对脑机接口跨日性能不稳定的问题，提出CRRL方法学习通道不变神经表示。通过通道重排模块消除电极位移和神经元死亡导致的通道变异性，从而稳定解码性能。方法虽未明确针对EEG，但处理的是多通道神经信号，与EEG latent空间学习高度相关。在多个动物数据集上验证了跨日解码精度的提升。",
+      "title_zh": "CRRL：学习通道不变神经表示以实现高性能跨日解码",
+      "motivation_cn": "脑机接口信号跨日不稳定，通道级变异性影响解码性能。",
+      "method_cn": "提出通道重排模块学习通道不变表示，减少跨日信号漂移的影响。",
+      "result_cn": "在多个跨日神经数据集上显著提升了解码稳定性。",
+      "conclusion_cn": "该方法为多通道神经信号的潜在表示学习提供了有效思路，可推广到EEG场景。",
+      "matched_requirement_id": "req-2",
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation"
+    }
+  ],
+  "llm_ranked_at": "2026-06-01T07:47:53.310799+00:00",
+  "display_min_score": 4.0,
+  "pruned_at": "2026-06-01T07:47:53.352685+00:00"
+}
