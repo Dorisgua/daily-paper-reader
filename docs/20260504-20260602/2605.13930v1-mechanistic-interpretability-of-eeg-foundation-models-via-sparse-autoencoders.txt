@@ -1,0 +1,369 @@
+Title: Mechanistic Interpretability of EEG Foundation Models via Sparse Autoencoders
+
+URL Source: https://arxiv.org/pdf/2605.13930v1
+
+Published Time: Fri, 15 May 2026 00:06:13 GMT
+
+Number of Pages: 14
+
+Markdown Content:
+# Mechanistic Interpretability of EEG Foundation Models via Sparse Autoencoders 
+
+William Lehn-Schiøler 1,2,3 Magnus Ruud Kjær 2 Rahul Thapa 4, 5 
+
+Magnus Guldberg Pedersen 1,3 Anton Storgaard Mosquera 1,3 Nick Williams 6
+
+Radu G˘ atej 1 Tue Lehn-Schiøler 1 Sándor Beniczky 7,8 Sadasivan Puthusserypady 2
+
+James Zou 4,5 Lars Kai Hansen 3
+
+> 1
+
+BrainCapture, Kongens Lyngby, Denmark 
+
+> 2
+
+DTU Health Tech, Technical University of Denmark, Kongens Lyngby, Denmark 
+
+> 3
+
+DTU Compute, Technical University of Denmark, Kongens Lyngby, Denmark 
+
+> 4
+
+Department of Biomedical Data Science, Stanford University, Stanford, CA, USA 
+
+> 5
+
+Department of Computer Science, Stanford University, Stanford, CA, USA 
+
+> 6
+
+Seer Medical, Melbourne, Australia 
+
+> 7
+
+Filadelfia Epilepsy Hospital, Dianalund, Denmark 
+
+> 8
+
+University Hospital of Copenhagen, Copenhagen, Denmark 
+
+## Abstract 
+
+EEG foundation models achieve state-of-the-art clinical performance, yet the in-ternal computations driving their predictions remain opaque: a barrier to clinical trust. We apply TopK Sparse Autoencoders (SAEs) across three architecturally distinct EEG transformers: SleepFM, REVE, and LaBraM to extract sparse feature dictionaries from their embeddings. By grounding these features in a clinical taxon-omy (abnormality, age, sex, and medication), we benchmark monosemanticity and entanglement across architectures. A single hyperparameter procedure, driven by an intrinsic dictionary health audit, transfers robustly across all three architectures. Via concept steering, we introduce a "target vs. off-target" probe area metric to quantify steering selectivity and reveal three operational regimes: selectively steer-able, encoded but entangled, and non-encoded. This framework exposes critical representational failures: "wrecking-ball" interventions that collapse global model performance, and clinical entanglements, such as age–pathology confounding, where it is impossible to suppress one concept without corrupting the other. Finally, a spectral decoder maps these interventions back to the amplitude spectrum, trans-lating latent manipulations into physiologically interpretable frequency signatures, such as pathological slow-wave suppression and α-band restoration. 
+
+## 1 Introduction 
+
+EEG foundation models pre-trained on large corpora achieve strong performance across a range of tasks: sleep staging, pathology detection, and brain-computer interface decoding [ 1– 5 ]. Yet the internal computations that produce these predictions remain opaque. Unlike image models, where attention maps already give a coarse visual story, EEG models operate on multichannel time-series whose clinically relevant events: spindles, K-complexes, δ waves, epileptiform discharges, are transient, channel-distributed, and defined by decades of human expert knowledge [ 6]. Understanding 
+
+what an EEG foundation model has learned, and where it has learned it, is both a scientific question and a clinical-trust requirement. 
+
+> Preprint.
+> arXiv:2605.13930v1 [cs.LG] 13 May 2026
+
+Mechanistic interpretability [ 7 , 8] addresses this by reverse-engineering the functional roles of indi-vidual directions inside a network. The central obstacle is superposition [8]: a transformer layer with 
+
+d dimensions can represent up to N ≫ d features by co-activating them sparsely, making individual neurons uninterpretable. Sparse Autoencoders (SAEs) [ 9– 11 ] have emerged as the dominant tool for recovering these features in language models. A small but growing literature ports the toolkit to medical imaging [ 12 , 13 ], protein language models [ 14 ], and transformers trained on neural signals [ 15 , 16 ]. Despite this progress, EEG foundation models remain unaddressed; no prior work has bridged the full path from a frozen EEG encoder to sparse feature dictionaries, clinical concept attribution, and spectrum-level mechanistic explanation across architectures. 
+
+Contributions. We make the following contributions: 1. A Cross-Architecture Interpretability Pipeline: We introduce a unified framework for interpreting EEG transformers that bridges the gap between high-dimensional embeddings and clinical physiology. The pipeline integrates layer-wise TopK SAEs, concept attribution via Testing with Concept Activation Vectors (TCAV), and concept steering, utilizing a single hyperparameter-selection procedure that remains robust across three distinct architectures: SleepFM, REVE, and LaBraM. The interactive framework is available at 
+
+https://ai.braincapture.dk/mechanistic-interpretability/ 
+
+2. The Clinical Semanticity Taxonomy: We propose a taxonomy to audit encoder repre-sentations by partitioning clinical features into three regimes: Separable (monosemantic), Entangled (polysemantic co-activations), and Dead (semantically uninformative/inactive). This serves as a tool to identify latent clinical biases where labels like age or medication co-activate with pathology. 3. Selectivity via Concept Steering: We formalize a probe-based selectivity metric; calcu-lating the area between target and off-target "steering curves" to evaluate the fidelity of model interventions. This allows us to distinguish between selective concept removal and "wrecking-ball" interventions, where feature suppression inadvertently collapses the entire embedding space. 4. Mechanistic Spectral Explanations: By re-decoding steered activations through a spectral decoder, we transform abstract latent embedding into human interpretable space. This provides mechanistic evidence for model attributions, allowing experts to verify that a pathology prediction is driven by physiologically relevant features. 
+
+The Code is available and openly accessible at https://github.com/BrainCapture/ mechanistic-interpretability-for-eeg-foundation-models/tree/preprint .
+
+## 2 Background 
+
+2.1 EEG Foundation Models 
+
+We study three architecturally distinct EEG transformer models spanning two different self-supervised pretraining objectives (multi-modal contrastive learning and masked-token prediction); these are summarized in Table 1. All three encoders are subsequently finetuned end-to-end on the same binary normal/abnormal classification target which is later used as a clinical concept. Performance metrics can be found in Table 2. 
+
+2.2 TopK Sparse Autoencoders 
+
+A TopK SAE [17] trained on activations a ∈ Rd learns 
+
+z = TopK 
+
+
+
+Wenc 
+
+a − μℓ
+
+σℓ
+
+, k 
+
+
+
+, ˆa = Wdec z + bdec , (1) where z ∈ RN and Wdec ∈ Rd×N has unit-norm columns (decoder directions wi ∈ Rd); N ≜ d · E
+
+and E is the expansion rate. The conventional SAE formulation uses an L1 sparsity penalty [ 18 ], 2which encourages but does not guarantee sparsity. We instead use the TopK hard constraint [ 10 ]: pre-activations are computed for all N features (after standardizing the input using μℓ and σℓ, the per-dimension mean and standard deviation computed over the training-split activations at layer ℓ), then all but the k largest are set to zero. Exactly k features fire per token by construction, making sparsity directly controllable. Table 1: Encoder overview. Three architecturally distinct EEG transformers spanning different SSL objectives: multi-modal contrastive learning (SleepFM), masked-token reconstruction (REVE), and masked spectrum prediction (LaBraM) are inspected. SleepFM is pretrained on PSG data (EEG, ECG, EMG, and respiratory) with a multi-modal contrastive objective, while REVE and LaBraM are pretrained on EEG alone. All three are subsequently finetuned end-to-end on the same binary normal/abnormal target.                             
+
+> Encoder Architecture dLayers Token length SSL objective Modality ≈Hours
+> SleepFM [1] SetTransformer 128 31 sec MMC (InfoNCE) [19] PSG 585,000 REVE [2] Transformer 512 22 1 sec MAE [20] EEG 60,000 LaBraM [3] BERT-style 200 12 1 sec MSP (VQ / BEiT) [21] EEG 2,500
+
+2.3 TCAV and Concept Attribution 
+
+Concept Activation Vectors [ 22 ] define a concept C via a linear classifier separating XC from X¬C
+
+in representation space, yielding a unit-norm direction vC ∈ Rd. We additionally train a linear probe 
+
+w on SAE activations z ∈ RN , assigning each example a sensitivity SC (x) = w⊤z(x). The TCAV score is the fraction of concept examples with positive sensitivity: 
+
+TCAV C = |{ x ∈ XC : SC (x) > 0}| |XC | , (2) with significance assessed against Nrand = 50 random-label null CAVs. 
+
+## 3 Methodology 
+
+The pipeline (Figure 1) runs in four stages on a frozen encoder. Stages I–III use established inter-pretability components (linear probing [ 23 , 24 ], dictionary learning [ 18 ], concept attribution [ 25 ]); the novel contribution is Stage IV (concept steering), which uses the dictionary and the spectral decoder to produce mechanistic, spectrum-level explanations of any TCAV attribution. 
+
+3.1 Dataset and Preprocessing 
+
+We use a clinical 27-lead EEG dataset collected using BrainCapture’s BC-1 comprising 3,036 subjects [ 26 ]. The cohort is 57 .8% male and includes both pediatric and adult populations. Recordings averaged 33 .8 minutes, with 30 .2% (917 sessions) identified as abnormal; of these, 76 .4% showed epileptiform discharges. EEG signals are preprocessed using an evolved version of [ 27 ]. The pipeline applies band-pass (0.5-70Hz) and notch (50Hz) filtering before resampling to the encoder’s native frequency: 128 Hz for SleepFM and 200 Hz for REVE and LaBraM. Recordings are segmented into non-overlapping 60-second windows. Subjects are partitioned into 80% train/10% validation/10% test sets via scikit-learn’s GroupShuffleSplit with random seed 42. 
+
+3.2 Stage I: Spectral Decoder 
+
+The spectral decoder (SD) is a shallow MLP that maps a frozen encoder token embedding t ∈ Rd to amplitude and phase for each frequency bin: 
+
+ˆAν , (cos ˆϕν , sin ˆϕν ) = SD( t), ν = 1 , . . . , F. (3) 
+
+F = 64 bins, 0–64 Hz, for all encoders (consistent with the 70 Hz low-pass filter applied in prepro-cessing; Section 3.1). Phase is parameterised as a unit-vector pair to eliminate the 2π discontinuity. SleepFM tokens are channel-averaged; REVE and LaBraM tokens are per-channel-per-second. The spectral decoder serves two roles: (i) it provides a physiological vocabulary for interpreting any direction w ∈ Rd via SD( w), and (ii) it is the final stage of concept steering (Section 3.5). 3Figure 1: Pipeline overview. Starting from a frozen EEG foundation model: (Stage I) A shallow MLP spectral decoder translates token embeddings back into a human interpretable space. (Stage II) For each transformer layer, a TopK SAE recovers a sparse, over-complete feature dictionary from normalized encoder activations. (Stage III) SAE features are mapped to known clinical concepts using TCAV. (Stage IV) Concept steering substitutes the top-n concept-enriched feature activations with the target-group centroid, decoding the intervention through the SAE and spectral decoder to produce a mechanistically grounded, spectrum-level explanation. 
+
+3.3 Stage II: Layer-wise SAE Training 
+
+For each encoder layer ℓ we collect all available training-split token activations, normalise per-dimension, and train a TopK SAE with E · d features, where d is the encoder embedding dimension and E is the expansion ratio controlling dictionary size relative to the encoder. We scale the sparsity budget with the dictionary size, k = k0 · E with k0 = 8 , so that the per-token active fraction k/N = k0/d is constant per encoder across the expansion sweep. This couples the two hyperparameters into a single E-axis and ensures that comparisons across E are at matched relative sparsity rather than at matched absolute k. The reconstruction objective is MSE on normalised activations; dead neurons (never firing in 500 steps) are periodically resampled following [10]. 
+
+3.4 Stage III: Concept Attribution via TCAV 
+
+For each concept C ∈ { abnormality, age group, sex, medication (psychiatric), medication (ASM) },we obtain vC via Kfold = 10 -fold L2-regularised logistic regression on dense layer-ℓ activations a,then fit probe w on z and compute TCAV C per Eq. 2. For feature enrichment, we apply a one-sided 
+
+z-test with Benjamini–Hochberg correction ( q < 0.05 , N simultaneous hypotheses) to identify concept-enriched SAE features, which form the ranking pool for Stage IV. 43.5 Stage IV: Concept Steering 
+
+Concept steering provides interventional evidence for the representational fidelity of the SAE dictio-nary, evaluated against a model-agnostic selectivity criterion. Given a target clinical concept C (e.g., age) and a secondary off-target concept (e.g., abnormality), the protocol includes: 1. Rank by CAV alignment. The concept direction is mapped onto the sparse dictionary by projecting it onto each SAE decoder direction wi ∈ Rd, giving the alignment-based ranking 
+
+rank C (i) = |vC · wi| (4) 2. Compute the target-concept centroid. We define the centroid ctarget ∈ RN as the empirical mean of the SAE feature activations across the target dataset Xtarget (e.g., the mean of the “normal” pool when steering abnormal → normal): 
+
+ctarget = 1
+
+|Xtarget |
+
+X
+
+> x∈Xtarget
+
+z(x) (5) 3. Clamping features. For a given intervention fraction f ∈ [0 , 1] and a source sample with SAE activations z, we clamp the activations of the top n ≜ ⌊f ·N ⌋ TCAV-aligned features to their corresponding scalar values in the target centroid ctarget . This produces the intervened sparse activation z∗(f ), which is then decoded back into embedding space: 
+
+ˆa∗(f ) = Wdec z∗(f ) + bdec (6) 
+
+3.6 Evaluating "steerability" 
+
+4. Frozen probe evaluation. We score the decoded embeddings ˆa∗(f ) using two linear probes (target and off-target). Crucially, these probes are fit once on clean ( f = 0 ) decoded embeddings and held frozen across the sweep; they act solely as measurement instruments to read out the result of the clamp, completely isolated from the substitution loop. 5. Excess Selectivity Scalar. We quantify the quality of the intervention by the integrated area between the off-target and target performance curves: 
+
+∆( rank ) = 
+
+Z 10
+
+(AUROC off-target (f ) − AUROC target (f )) d f (7) To account for random feature suppression which may degrade one probe faster than the other, we report the excess selectivity ˜∆ as the difference between the TCAV-ranked area and the expected area under uniformly random feature permutations π:
+
+˜∆ = ∆( TCAV ) − Eπ [∆( π)] (8) A value of ˜∆ > 0 indicates a selective push that successfully erases the target concept while sparing off-target axes. Conversely, a value of ˜∆ ≈ 0 diagnoses a "wrecking-ball" regime: the intervention is no more selective than random noise, implying that the target concept is so entangled with the global embedding structure that it cannot be independently manipulated. This protocol operationalizes the selectivity criteria used in closed-form concept erasure [ 28 ] and amnesic probing [ 29 ] for the SAE latent space. Finally, decoding the intervened embedding ˆa∗(f ) through the spectral decoder (Section 3.2) yields domain-readable spectral signatures of the intervention (Figure 6). 
+
+3.7 Choosing the operating point per model 
+
+We identify an optimal layer ℓ∗ and SAE expansion ratio E∗ for Stages II–IV by sweeping all transformer layers and E ∈ { 1, 2, 4, 8, 16 , 32 , 64 }. To match the active feature fraction across scales, sparsity scales linearly as k = 8 E. We select the configuration that maximizes monosemanticity while penalizing dead features: 
+
+(ℓ∗, E ∗) = arg max 
+
+> ℓ,E
+
+ separable ℓ,E − dead ℓ,E 
+
+ , (9) constrained to layers where target concepts achieve model-level TCAV significance ( p < 0.05 ). This taxonomy-driven metric efficiently isolates the model’s most transparent regime (Figure 3). While this identifies the optimal single coordinate, our computational capacity allows us to fix E = E∗ and explore various layers in subsequent interventional analyses to map the encoder’s full representational trajectory. 54 Results 
+
+4.1 Binary finetune performance and SAE faithfulness 
+
+All three encoders separate the binary normal/abnormal target after end-to-end finetuning. We finetune each encoder under 5-fold subject-disjoint cross-validation and report the native classifier head’s test performance, that is, the predictor we would actually deploy. As a faithfulness check on the SAE, we replace the encoder’s layer-ℓ∗ activations with the TopK-SAE reconstruction and re-evaluate the same head on the same test windows: classification AUROC is preserved within 0.017 
+
+on all three encoders (Table 2), confirming that the SAE captures the task-relevant structure of the representation rather than discarding it. Table 2: Layer-averaged SAE-faithfulness summary (5-fold CV). All values are mean ± std across 5 subject-disjoint folds. Baseline metrics (Balanced Accuracy, F1-Score, and AUROC) are computed for the baseline (no-SAE) linear probe. Mean AUROC (SAE) is the per-layer test AUROC averaged across all transformer blocks of the encoder ( ± is the mean per-fold std averaged across layers, so the unit matches the no-SAE column). Mean ∆ is the average AUROC drop from baseline across all layers, with the std taken over layers; Max ∆ is the worst-layer drop. The same 5-fold protocol underlies Figure 2.                                                             
+
+> Encoder # L Balanced Acc. F1-Score AUROC (no SAE) AUROC (SAE) Mean ∆Max ∆
+> SleepFM 30.901 ±0.019 0.866 ±0.047 0.954 ±0.013 0.951 ±0.015 0.003 ±0.002 0.005
+> REVE 22 0.890 ±0.018 0.857 ±0.044 0.944 ±0.009 0.944 ±0.009 0.000 ±0.001 0.006
+> LaBraM 12 0.875 ±0.019 0.835 ±0.045 0.939 ±0.017 0.933 ±0.020 0.006 ±0.006 0.017
+
+The faithfulness check generalises beyond the operating layer. Figure 2 sweeps the SAE-substitution AUROC across every layer of every encoder: SleepFM stays within 0.005 of its no-SAE baseline at all 3 layers, REVE within 0.006 across all 22 layers, and LaBraM within 0.017 across all 12 layers. Interestingly, we see an increase in performance over LaBraM’s 12 layers, but from the fourth layer of LaBraM, and for all layers of SleepFM and REVE, the SAE substitution is statistically indistinguishable from the intact encoder regardless of where it is inserted; not just at ℓ∗.
+
+Figure 2: SAE-faithfulness layer sweep. Test AUROC of a linear probe trained via 5-fold cross-validation on mean-pooled embeddings of each finetuned encoder. During inference, layer-ℓ activa-tions are replaced by their TopK-SAE reconstructions as ℓ sweeps through every transformer block. Shaded bands represent 95% confidence intervals across the CV folds; the dotted horizontal lines indicate the no-SAE baseline mean. The SAE substitution consistently remains within the baseline performance envelope across all layers and architectures. 
+
+4.2 Spectral decoder reconstruction. 
+
+The spectral decoder reliably recovers token-level amplitude spectra from frozen embeddings across all architectures. Overall amplitude R2 reaches 0.816 ± 0.004 for SleepFM, 0.783 ± 0.004 for REVE, and 0.772 ± 0.004 for LaBraM. Conversely, phase remains unrecoverable across all models (cosine similarity ≤ 0.22 ), directly reflecting the time-translation invariance inherent to their self-supervised pretraining objectives. All margins represent 95% bootstrap intervals. 6Figure 3: Monosemanticity taxonomy across SAE expansion and encoder depth. Each cell reports the fraction of concept-enriched SAE features in one of three taxonomy classes (Separable: monosemantic; Entangled: polysemantic co-activations; Dead: semantically uninformative/inactive). Columns represent encoders (SleepFM, LaBraM, REVE), with x-axes indexing the encoder layer and y-axes indexing expansion factor E ∈ { 1, 2, 4, 8, 16 , 32 , 64 }. For each layer, we highlight the expansion factor that maximizes the difference between separable and dead feature fractions. The optimum (ℓ∗, E ∗) is golden. Find an overview of how E translates to dictionary size in Figure 7. 
+
+Figure 4: Concept encoding strength and steering selectivity. Top: Encoding strength ( AUROC 0)measured via per-layer linear probes fit to the clean SAE-decoded reconstructions. Bottom: Excess selectivity ( ˜∆), quantifying the integrated asymmetry between target and off-target probe degradation under TCAV-ranked clamping (Section 3.5). For abnormality as target, we use age as off-target. For all other targets, we use abnormality as off-target. Together, these metrics map the representational landscape of each model, distinguishing selectively steerable features from highly entangled ones. Exactly how excess selectivity ˜∆ is computed is illustrated in Figure 5 through examples. 
+
+4.3 Operating points transfer across encoders 
+
+Figure 3 shows the per-encoder operating points (ℓ∗, E ∗) selected by the procedure of Section 3.7. Despite the three encoders differing in depth (3/12/22 transformer blocks), embedding dimension (128/200/512) and training objective, the recipe converges on a common modal expansion across each network: E∗ = 8 wins at 15/22 REVE layers, 3/12 LaBraM layers, and 2/3 SleepFM layers. High separation at low E concentrates at the boundaries: the encoders’ first and last transformer blocks collapse to a smaller dictionary (LaBraM L1, L3, L12 and REVE L2, L22 at E∗ = 1 ; LaBraM L2, L10, L11 and REVE L2 at E∗ = 2 ), consistent with the classification block compressing representations into a low-dimensional task-aligned subspace. SleepFM, with only three transformer blocks, does not compress the representations. 7Figure 5: Steering sweeps across the encoding–selectivity landscape. Nine representative configu-rations from Figure 4 arranged by encoding strength (rows) and selectivity ˜∆ (columns). Panels track target (red) and off-target (blue: abnormality ) AUROC as clamping fraction f increases. Green shad-ing highlights the TCAV-driven selectivity gain while grey shading highlights the random-clamping baseline. The grid contrasts canonical selective steering (top-left: target collapses, off-target is spared) with the “wrecking-ball” failure mode (top two cells in the right column: both concepts degrade through entanglement, ˜∆ ≈ 0). Encoder colors match Figure 4. 
+
+4.4 Cross-model concept selectivity 
+
+We apply the substitution-sweep protocol of Section 3.5 to every (encoder, layer, concept) triplet and report excess selectivity ˜∆ alongside the clean-baseline encoding strength (Figure 4). The two rows together discriminate three regimes: • Encoded and steerable: High AUROC 0 + high ˜∆.• Encoded but not steerable: High AUROC 0 + ˜∆ ≈ 0.• Weakly encoded: AUROC 0 < 0.7.To better illustrate the underlying probe-AUROC sweeps that compute excess selectivity ( ˜∆), in Figure 5, we unpack nine representative cells from the cross-model summary in Figure 4. To understand this grid, the axes should be read as two distinct constraints on the intervention: 
+
+Rows define the interventional headroom. The baseline encoding strength dictates the maximum possible impact of the clamp. If a concept is weakly encoded, there is no signal to erase; the target probe is already near random guessing, rendering the sweep flat and uninformative. 
+
+Columns map the selectivity regimes. This axis illustrates the continuum from surgical concept removal to unselective collapse. We categorize this into three distinct behaviors: • Strong selectivity: The target probe (red) degrades rapidly under TCAV-ranked clamping while the off-target probe (blue) remains robust. Crucially, the target degrades much faster than the random-clamping baseline, yielding a large selectivity area (green) while the random-area expectation (grey) is insignificant. • Moderate selectivity: TCAV ranking isolates the concept faster than random noise, but the off-target probe is dragged down alongside it, indicating partial entanglement. • Weak selectivity: The green area shrinks to or below the grey area. Target and off-target representations degrade in lockstep. The intervention removes signal, but it acts as a global “wrecking ball” rather than a targeted push. 8Ultimately, this grid provides the qualitative, mechanistic proof for the scalar ˜∆ summaries in Figure 4. It allows the reader to visually verify that a high ˜∆ truly guarantees an asymmetric, concept-aligned steering effect, rather than a uniform collapse of the layer’s representation. Looking at Figures 4 and 5, examples of encoded and steerable concepts are abnormality and age in SleepFM L2/L3 and ASM in LaBraM L12. An example of an encoded but non steerable concept is 
+
+abnormality across all representative REVE layers. Finally, an example of a weakly encoded concept is sex across all encoders; which functions as the implicit negative control. Two "wrecking-ball" examples can be found in Figure 5 in the two top cells in the right column ( psychiatric medicine in SleepFM L1 and age in LaBraM L4): both concepts degrade through entanglement. 
+
+4.5 A worked spectrum-level example 
+
+Figure 6 grounds the abstract selectivity metrics (Figure 4) in domain-readable signatures. Steering a representative abnormal adult EEG toward a normal target corrects canonical pathological markers: clamping the top TCAV-aligned features actively collapses the elevated pathological δ and θ power while restoring the suppressed α peak. By n = 164 , the intervened spectrum fully merges into the healthy reference band across the entire 0.5–45 Hz range, providing clinical experts with physical proof of targeted concept manipulation. 
+
+Figure 6: Spectrum-level concept steering (abnormal → normal). SleepFM layer 2 ( E = 8 ). Shading denotes 95% bootstrap CIs on the target mean. Left: Baseline abnormal source vs. normal target centroid. Centre & Right: The decoded spectrum after clamping the top n = 104 and n = 164 
+
+TCAV-aligned features, respectively, to the target centroid. 
+
+## 5 Discussion and limitations 
+
+Decoder limitations. Our spectral decoder recovers amplitude but cannot reconstruct phase, as current pretraining objectives discard precise temporal morphology in favor of time-translation invariance. Consequently, while we can steer broad frequency distributions, we cannot generate exact time-domain waveforms (e.g., specific spike-wave morphologies). High-fidelity time-domain steering will ultimately require phase-aware foundation models or significantly more expressive decoders. 
+
+Separability vs. selectivity. Using observational monosemanticity, we assume that separable features provide clean interventional handles. However, separability does not guarantee selectivity: clamping an observationally pure feature can still trigger a collapse. Future work should evaluate whether optimizing directly for interventional metrics ( ˜∆) yields safer operating points. 
+
+Concept taxonomy is investigator-defined. Because our steering protocol (Section 3.5) requires pre-specified concepts, our evaluation is strictly bounded by available cohort metadata. The pipeline verifies rather than discovers. Although inherent to all probe-based methods, this restricts how comprehensively a label-poor dataset can audit a model’s latent space. 96 Conclusion 
+
+We propose a model-agnostic interpretability framework for auditing the representational health of EEG foundation models. By integrating Sparse Autoencoders, concept steering, and spectral decoding across three architecturally distinct encoders, the pipeline maps the semantic taxonomy of transformer blocks; isolating where clinical concepts consolidate into selectively steerable features, and where persistent entanglement triggers “wrecking-ball” failures during intervention. By decoding latent representations back into domain-readable spectral signatures, such as focal slowing or alpha-band suppression, we bridge the gap between abstract embedding spaces and clinical physiology, grounding model attributions in mechanistic, frequency-level explanations. 
+
+Broader Impact. This framework is intended as a diagnostic tool to increase transparency and clinical trust in EEG foundation models. By surfacing representational failures such as age–pathology entanglement, it can help practitioners identify and mitigate latent demographic biases. As with all medical AI, frameworks like this should be rigorously validated. 10 References 
+
+[1] Rahul Thapa, Magnus Ruud Kjaer, Bryan He, Ian Covert, Hyatt Moore IV, Umaer Hanif, Gauri Ganjoo, M. Brandon Westover, Poul Jennum, Andreas Brink-Kjaer, Emmanuel Mignot, and James Zou. A multimodal sleep foundation model for disease prediction. Nature Medicine , 32: 752–762, 2026. doi: 10.1038/s41591-025-04133-4. [2] Yassine El Ouahidi, Jonathan Lys, Philipp Thölke, Nicolas Farrugia, Bastien Pasdeloup, Vincent Gripon, Karim Jerbi, and Giulia Lioi. REVE: A foundation model for EEG: Adapting to any setup with large-scale pretraining on 25,000 subjects. Advances in Neural Information Processing Systems , 2025. URL https://brain-bzh.github.io/reve/ .[3] Wei-Bang Jiang, Li-Ming Zhao, and Bao-Liang Lu. Large brain model for learning generic representations with tremendous EEG data in BCI. In International Conference on Learning Representations (ICLR) , 2024. [4] Demetres Kostas, Stéphane Aroca-Ouellette, and Frank Rudzicz. BENDR: Using transformers and a contrastive self-supervised learning task to learn from massive amounts of EEG data. 
+
+Frontiers in Human Neuroscience , 15, 2021. [5] William Lehn-Schiøler, Magnus Ruud Kjær, Phillip Hempel, Magnus Guldberg Pedersen, Rahul Thapa, Bryan He, Nicolai Spicher, Andreas Brink-Kjaer, Lars Kai Hansen, and Em-manuel Mignot. Pretraining on sleep data improves non-sleep biosignal tasks. arXiv preprint arXiv:2605.02500 , 2026. [6] Sándor Beniczky, Harald Aurlien, Jan C Brøgger, Lawrence J Hirsch, Donald L Schomer, Eugen Trinka, et al. Standardized computer-based organized reporting of EEG: SCORE – second version. Clinical Neurophysiology , 128(11):2334–2346, 2017. doi: 10.1016/j.clinph.2017.07. 418. [7] Nelson Elhage, Neel Nanda, Catherine Olsson, Tom Henighan, Nicholas Joseph, Ben Mann, Amanda Askell, Yuntao Bai, Anna Chen, Tom Conerly, Nova DasSarma, Dawn Drain, Deep Ganguli, Zac Hatfield-Dodds, Danny Hernandez, Andy Jones, Jackson Kernion, Liane Lovitt, Kamal Ndousse, Dario Amodei, Tom Brown, Jack Clark, Jared Kaplan, Sam McCandlish, and Chris Olah. A mathematical framework for transformer circuits. Transformer Circuits Thread ,2021. URL https://transformer-circuits.pub/2021/framework/index.html .[8] Nelson Elhage et al. Toy models of superposition. Transformer Circuits Thread , 2022. [9] Trenton Bricken et al. Towards monosemanticity: Decomposing language models with dictio-nary learning. Transformer Circuits Thread , 2023. [10] Adly Templeton et al. Scaling monosemanticity: Extracting interpretable features from claude 3 sonnet. Transformer Circuits Thread , 2024. URL https://transformer-circuits.pub/ 2024/scaling-monosemanticity/ .[11] Tom Lieberum et al. Gemma scope: Open sparse autoencoders everywhere all at once on Gemma 2. arXiv preprint arXiv:2408.05147 , 2024. [12] Riccardo Renzulli, Colas Lepoutre, Enrico Cassano, and Marco Grangetto. Medsae: Dissecting medclip representations with sparse autoencoders. arXiv preprint arXiv:2510.26411 , 2025. [13] Krishna Kanth Nakka. Mammo-sae: Interpreting breast cancer concept learning with sparse autoencoders, 2025. [14] Elana Simon and James Zou. Interplm: discovering interpretable features in protein language models via sparse autoencoders. Nature Methods , 22(10):2107–2117, 2025. [15] Laurence Freeman, Philip Shamash, Vinam Arora, Caswell Barry, Tiago Branco, and Eva Dyer. Beyond black boxes: Enhancing interpretability of transformers trained on neural data, 2025. [16] Mat ¯ıss Kaln ¯are, Sofoklis Kitharidis, Thomas Bäck, and Niki van Stein. Mechanistic inter-pretability for transformer-based time series classification. In Computational Intelligence. IJCCI 2025 , volume 2829 of Communications in Computer and Information Science . Springer, 2026. doi: 10.1007/978-3-032-15638-9_15. 11 [17] Alireza Makhzani and Brendan Frey. k-sparse autoencoders. In International Conference on Learning Representations (ICLR) , 2014. [18] Hoagy Cunningham et al. Sparse autoencoders find highly interpretable features in language models. arXiv preprint arXiv:2309.08600 , 2023. [19] Aaron van den Oord, Yazhe Li, and Oriol Vinyals. Representation learning with contrastive predictive coding. arXiv preprint arXiv:1807.03748 , 2018. [20] Kaiming He, Xinlei Chen, Saining Xie, Yanghao Li, Piotr Dollár, and Ross Girshick. Masked autoencoders are scalable vision learners. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 2022. [21] Hangbo Bao, Li Dong, Songhao Piao, and Furu Wei. BEiT: BERT pre-training of image transformers. In International Conference on Learning Representations (ICLR) , 2022. [22] Been Kim, Martin Wattenberg, Justin Gilmer, Carrie Cai, Jesse Wexler, Fernanda Viegas, and Rory Sayres. Interpretability beyond classification accuracy: Quantitative testing with concept activation vectors (TCAV). In Proceedings of the 35th International Conference on Machine Learning (ICML) , 2018. [23] Guillaume Alain and Yoshua Bengio. Understanding intermediate layers using linear classifier probes. arXiv preprint arXiv:1610.01644 , 2017. [24] Yonatan Belinkov. Probing classifiers: Promises, shortcomings, and advances. Computational Linguistics , 48(1):207–219, 2022. doi: 10.1162/coli_a_00422. [25] Anders Gjølbye Madsen, William Theodor Lehn-Schiøler, Áshildur Jónsdóttir, Bergdís Arnardóttir, and Lars Kai Hansen. Concept-based explainability for an eeg transformer model. In 2023 IEEE 33rd International Workshop on Machine Learning for Signal Pro-cessing (MLSP) , pages 1–6. IEEE, September 2023. doi: 10.1109/mlsp55844.2023.10285992. URL http://dx.doi.org/10.1109/MLSP55844.2023.10285992 .[26] Nomin Enkhtsetseg, William Lehn-Schiøler, Anton Storgaard Mosquera, Magnus Guldberg Ped-ersen, Dylan Rice, George Wambugu, Nshimiyimana Jules Fidele, Melita Cacic Hribljan, Anca Alina Arbune, Sidsel Armand Larsen, Sandor Beniczky, and Farrah J. Mateen. Clinical utility and feasibility of smartphone-based EEG in kenya: A multicenter observational study. 
+
+arXiv preprint arXiv:2605.08157 , 2026. [27] Anders Gjølbye, Lina Skerath, William Lehn-Schiøler, Nicolas Langer, and Lars Kai Hansen. SPEED: Scalable preprocessing of EEG data for self-supervised learning. In Proceedings of the 2024 IEEE International Workshop on Machine Learning for Signal Processing , 2024. [28] Nora Belrose, David Schneider-Joseph, Shauli Ravfogel, Ryan Cotterell, Edward Raff, and Stella Biderman. LEACE: Perfect linear concept erasure in closed form. In Advances in Neural Information Processing Systems (NeurIPS) , 2023. [29] Yanai Elazar, Shauli Ravfogel, Alon Jacovi, and Yoav Goldberg. Amnesic probing: Behavioral explanation with amnesic counterfactuals. Transactions of the Association for Computational Linguistics , 9:160–175, 2021. 12 A Technical appendices and supplementary material 
+
+Table 3: Notation reference. 
+
+Symbol Type / shape Definition First used 
+
+Encoder 
+
+d scalar ∈ Z+ Embedding dimension (128 / 200 / 512 for SleepFM / LaBraM / REVE) Eq. 1 
+
+a vector ∈ Rd Layer activation extracted from the frozen encoder Eq. 1 
+
+t vector ∈ Rd Token embedding passed to the spectral decoder Eq. 3 
+
+ℓ scalar ∈ Z+ Transformer layer index Sec. 3.3 
+
+ℓ∗ scalar ∈ Z+ Optimal layer selected by Eq. 9 Eq. 9 
+
+SAE architecture 
+
+E scalar ∈ Z+ Expansion ratio Sec. 3.3 
+
+N ≜ d · E scalar ∈ Z+ Dictionary size (number of SAE features) Eq. 1 
+
+k scalar ∈ Z+ TopK sparsity budget; k = k0 · E, k0 = 8 Eq. 1 
+
+k0 scalar ∈ Z+ Base sparsity constant; k0 = 8 , so k/N = k0/d is constant Sec. 3.3 
+
+Wenc matrix ∈ RN ×d SAE encoder weight matrix Eq. 1 
+
+Wdec matrix ∈ Rd×N SAE decoder; columns wi ∈ Rd are unit-norm directions Eq. 1 
+
+wi vector ∈ Rd i-th column of Wdec ; unit-norm decoder direction Eq. 1 
+
+bdec vector ∈ Rd SAE decoder bias Eq. 1 
+
+μℓ, σ ℓ vectors ∈ Rd Per-dimension mean and std used to normalise activations Eq. 1 
+
+z vector ∈ RN Sparse SAE feature activation (exactly k non-zero entries) Eq. 1 
+
+ˆa vector ∈ Rd SAE reconstruction of the encoder activation Eq. 1 
+
+E∗ scalar ∈ Z+ Optimal expansion ratio selected by Eq. 9 Eq. 9 
+
+Spectral decoder 
+
+SD Rd → RF ×R2F Shallow MLP mapping a token embedding to amplitude and phase Eq. 3 
+
+F scalar ∈ Z+ Number of frequency bins ( F = 64 ) Eq. 3 
+
+ˆAν scalar ∈ R Predicted amplitude at frequency bin ν Eq. 3 
+
+ˆφν scalar ∈ [0 , 2π) Phase at bin ν; parameterised as (cos ˆ φν , sin ˆ φν ) Eq. 3 
+
+Concept attribution (TCAV) 
+
+C label Clinical concept (abnormality, age group, sex, medication) Sec. 3.4 
+
+vC vector ∈ Rd Concept Activation Vector; unit-norm direction in activation space Sec. 2.3 
+
+SC (x) scalar ∈ R TCAV sensitivity score for example x under concept C Eq. 2 
+
+TCAV C scalar ∈ [0 , 1] Fraction of concept examples with SC (x) > 0; above 0.5 ⇒ encoded Eq. 2 
+
+Nrand scalar ∈ Z+ Number of random-label null CAVs for significance testing; Nrand = 50 Sec. 2.3 
+
+Kf old scalar ∈ Z+ Cross-validation folds for CAV training; Kf old = 10 Sec. 3.4 
+
+Concept steering 
+
+rank C (i) function Z+ → R CAV-alignment score for feature i: |vC · wi| Eq. 4 
+
+Xtarget dataset Target pool for the steering intervention Eq. 5 
+
+ctarget ∈ RN vector ∈ RN Target-concept centroid; mean SAE activations over Xtarget Eq. 5 
+
+f scalar ∈ [0 , 1] Clamping fraction Eq. 6 
+
+n ≜ ⌊f · N ⌋ scalar ∈ Z+ Number of features clamped (also used bare in Section 4.5 / Fig. 6) Eq. 6 
+
+z∗(f ) vector ∈ RN Intervened activation after clamping top-n features Eq. 6 
+
+ˆa∗(f ) vector ∈ Rd SAE-decoded embedding of z∗(f ) Eq. 6 
+
+∆( rank ) scalar ∈ R Raw selectivity area Eq. 7 
+
+˜∆ scalar ∈ R Excess selectivity = ∆( TCAV ) − Eπ [∆( π)] Eq. 8 
+
+Hyperparameter selection 
+
+separable ℓ,E scalar ∈ [0 , 1] Fraction of features classified as separable at layer ℓ, expansion E Eq. 9 dead ℓ,E scalar ∈ [0 , 1] Fraction of features classified as dead at layer ℓ, expansion E Eq. 9 
+
+13 Table 4: Encoder architectures and binary fine-tuning hyperparameters. All three encoders are finetuned end-to-end on the binary (normal vs. abnormal) label using AdamW with two-phase training: a head-only warm-up phase followed by full unfreezing. Learning rate is dropped when the encoder is unfrozen and the weight decay is increased. 
+
+SleepFM REVE-Base LaBraM-Base 
+
+Where can I find the encoder? Github Hugging Face braindecode and Github 
+
+Architecture 
+
+Backbone SetTransformer ViT NeuralTransformer Embed. dim 128 512 200 Transformer layers 3 22 12 Attention heads 8 8 10 Head dim 16 64 20 MLP ratio 16 2.66 (GeGLU) 4.0 Patch size (samples) 128 200 200 Tokens per window 60 19 × 66 (overlapping) 19 × 60 
+
+Token receptive field 1.00 s 1.00 s 1.00 s Token stride 1.00 s 0.90 s 1.00 s 
+
+Input data 
+
+Dataset Binary (normal/abnormal) Binary (normal/abnormal) Binary (normal/abnormal) Sample rate (Hz) 128 200 200 Window length 60 60 60 Channels 27 (10-20) 27 (10-20) 19 (10-20) 
+
+Finetuning 
+
+Pooling temporal_pooling mean over C ·S tokens mean over patch tokens Head Linear(128,1) Linear(512,1) Linear(200,1) 
+
+Loss BCE BCE BCE 
+
+Optimisation 
+
+Optimiser AdamW AdamW AdamW Total epochs 12 10 15 Head-only w/u ep. 2 2 3Batch size 32 8 8LR (head phase) 10 −3 10 −3 10 −3
+
+LR (full phase) 10 −4 10 −4 10 −4
+
+WD (head/full) 0.01 / 0.05 0.01 / 0.05 0.01 / 0.05 Grad-norm clip 1.0 1.0 1.0 
+
+Figure 7: SAE dictionary size across encoders and expansion rates. Each cell gives the number of learned SAE features, which equals the encoder’s embedding dimension ( denc = 128 for SleepFM, 
+
+200 for LaBraM, 512 for REVE) times the expansion rate E. Because REVE is 4× wider than SleepFM, an E=1 REVE SAE already exceeds the size of an E=4 SleepFM SAE, and the E=64 
+
+REVE configuration spans 32 ,768 features. This asymmetry should be kept in mind when comparing taxonomy fractions (Fig. 3) across encoders at matched E: equal E does not mean equal capacity. 14

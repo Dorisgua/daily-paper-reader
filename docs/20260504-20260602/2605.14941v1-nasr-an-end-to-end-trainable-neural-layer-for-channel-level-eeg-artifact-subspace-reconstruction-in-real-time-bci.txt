@@ -1,0 +1,317 @@
+Title: nASR: An End-to-End Trainable Neural Layer for Channel-Level EEG Artifact Subspace Reconstruction in Real-Time BCI
+
+URL Source: https://arxiv.org/pdf/2605.14941v1
+
+Published Time: Fri, 15 May 2026 01:36:11 GMT
+
+Number of Pages: 8
+
+Markdown Content:
+# nASR: An End-to-End Trainable Neural Layer for Channel-Level EEG Artifact Subspace Reconstruction in Real-Time BCI 
+
+Shantanu Sarkar 1 and Jose L. Contreras-Vidal 2
+
+Abstract — Electroencephalogram (EEG) signals are highly susceptible to artifacts, resulting in a low signal-to-noise ratio which makes extraction of meaningful neural information challenging. Artifact Subspace Reconstruction (ASR) is one of the most widely used artifact filtering techniques in EEG-based BCI applications, owing to its real-time applicability. ASR reconstructs artifact-free signals by operating in Principal Component (PC) space within sliding windows. However, ASR performance is critically sensitive to its threshold parameter – an incorrect threshold risks removing task-relevant neural features alongside artifacts. Furthermore, since PCs are linear combinations of all channels, subspace reconstruction in PC space may alter the underlying data structure, potentially discarding essential neural information. To address these limitations, we propose nASR, a novel end-to-end trainable Keras layer that jointly optimizes artifact rejection and downstream decoding. nASR introduces two trainable threshold parameters: K, which governs artifact detection in PC variance space, and L, which quantifies eigen-spread to pinpoint the primary artifact–contributing channels, enabling selective channel-level reconstruction that preserves clean channel information. An ablation study comprising five model variants (m01–m05), evaluated across two subjects from the BCI Competition IV Dataset 1, confirms that nASR variants consistently outperform traditional ASR on test classification metrics, while achieving a 6–8 × reduction in inference time, making nASR a strong candidate for real-time BCI applications demanding both low latency and high decoding performance. 
+
+I. INTRODUCTION Electroencephalography (EEG) is a non-invasive technique used to record brain activity via scalp electrodes, employing a high-gain amplifier to detect spontaneous electrical potentials and provide spatial, temporal and spectral patterns related to sensory and cognitive processes [1], [2]. This method is commonly employed in clinical, neuroscience, cognitive, and psychiatric research due to its non-invasive nature, safety, affordability, and ability to directly measure neuronal electrical activity in real-time. The real-time capabilities of EEG make it popular for brain-computer interface (BCI) applications [3]–[5]. However, EEG recordings are influenced by a wide range of artifacts, including physiological sources such as eye movements and muscle activity, as well as non-physiological sources such as electromagnetic interference and powerline                
+
+> *This work was supported by NSF IUCRC BRAIN
+> 1Shantanu Sarkar is aDoctoral Candidate of Electrical &Computer Engineering, Univ. of Houston, Houston, TX, USA
+
+shantanu75@gmail.com                
+
+> 2Jose L. Contreras-Vidal is with Faculty of Electrical &Computer Engineering, Univ. of Houston, Houston, TX, USA,
+
+jlcontreras-vidal@uh.edu 
+
+noise. These artifacts reduce the signal-to-noise ratio (SNR), making the EEG data difficult to interpret and limiting the reliability of subsequent analyses [5]–[9]. Improving EEG quality, therefore, requires effective denoising to remove un-wanted noise, and this process is highly dependent on careful filtering, particularly when artifact frequencies overlap with those of meaningful EEG activity [9]. Substantial efforts have been devoted to developing al-gorithms for EEG artifact removal, each offering distinct advantages and limitations [4], [6]–[8]. Typically, EEG de-noising approaches fall into three main categories: frequency-based filtering, adaptive filtering, and blind source separation (BSS). Each category targets noise differently, depending on whether the artifacts can be isolated by their frequency content, modeled adaptively, or separated into independent underlying sources. In frequency-based filtering, we suppress or isolate specific frequency bands using tools such as band-pass filter (BPF), low-pass filter (LPF), high-pass filter (HPF), or wavelet-based methods. Because this approach targets frequencies rather than sources, it can only remove artifacts whose spec-tral content is distinct and well separated from the underlying EEG activity. As a result, when an artifact occupies the same frequency range as meaningful neural signals, filtering it out inevitably removes or distorts those EEG features as well. Notch filtering is an effective method for removing narrow-band artifacts, such as environmental line noise (50/60 Hz interference) [6]. An example of wavelet-based EEG denois-ing using adaptive thresholding, which introduces sparsity in time–frequency regions identified as artifacts, is discussed in the work by G. Geetha et al. [10]. To enable dynamic artifact removal for real-time decoding, early methods relied on channel-wise statistical thresholding to detect and suppress abnormal activity patterns or adaptive filtering using additional reference channels for artifact re-gression [11]. Adaptive filtering methods, such as H-Infinity filters, have shown strong potential for real-time artifact removal [12], [13]. However, their broader use is constrained by the requirement for a reference noise signal, which is not always available in practical EEG setups. Blind source separation (BSS) methods, such as Indepen-dent Component Analysis (ICA) and Principal Component Analysis (PCA)-based algorithms, estimate artifact sources by decomposing multichannel EEG signals into components in a transformed space under a linear mixing model [6]–[8]. ICA is one of the most widely used techniques; however, it incurs significant computational overhead, is less effective in removing transient artifacts, and often requires manual 
+
+> arXiv:2605.14941v1 [eess.SP] 14 May 2026
+
+intervention for component selection and artifact rejection [7], [8], [11]. The Artifact Subspace Reconstruction (ASR) method identi-fies and suppresses artifacts by projecting EEG data within sliding windows into a principal component (PC) space de-rived from the covariance of clean reference data, removing components that exhibit abnormally high variance [11], [14]. The ASR algorithm is well-suited for real-time applications due to its low computational overhead and the fact that it requires no manual intervention other than the thresholding parameter. However, ASR performance is highly sensitive to the thresholding parameter. An incorrect threshold can strip meaningful EEG features along with artifacts, thereby undermining downstream analysis [11], [15], [16]. Addi-tionally, since PCs are linear combinations of all channels, reconstructing the artifact subspace in PC space may alter the data structure, potentially losing essential features [17]. No existing method jointly optimizes artifact rejection thresholds and downstream decoding within a single train-able framework. To address these limitations, we propose nASR – a Neural Network layer based on a novel EEG artifact subspace reconstruction algorithm that reimagines EEG artifact subspace reconstruction as a learnable process. The proposed nASR layer introduces trainable thresholding in the PC space, followed by eigen-spread thresholding [18] to detect and reconstruct artifact-contaminated channel subspaces, leveraging volume conduction [1], [19]. The key insight is that not all channels are equally affected by artifacts – nASR learns to pinpoint the primary artifact-contributing channels and reconstructs only those, leaving clean channels untouched and preserving the task-relevant neural dynamics. Most importantly, by embedding artifact rejection directly into the neural network pipeline, nASR allows the artifact-detection threshold and the downstream decoder to be optimized jointly – removing the need for a separate, hand-tuned offline preprocessing stage altogether. The key contributions of this paper are: (1) a novel end-to-end trainable layer for channel-level EEG artifact subspace reconstruction with learnable dual thresholds; (2) channel-level artifact identification and selective reconstruction pre-serving clean channel integrity; (3) a comprehensive ablation study validating each design component; and (4) a Pareto analysis demonstrating 6–8 × inference time reduction over traditional ASR. II. MATERIALS AND METHODS 
+
+A. Dataset 
+
+Our goal is to reconstruct contaminated EEG subspaces in real-time to improve motor imagery decoding. Hence, to develop the algorithm, we used the BCI Competition IV (Dataset 1) [20]. The dataset contains 59-channel EEG recordings from seven subjects performing binary MI tasks (‘a’ , ‘b’, ‘g’, and ‘f’ are from healthy subjects, and the remaining ‘c’, ‘d’, and ‘e’ are synthetically generated data). For each subject, binary classes of motor imagery were selected from one of three different options: left hand, right hand, and foot (selected by the subject). The dataset is   
+
+> Fig. 1. EEG electrode layout illustrating the 28 selected channels grouped into nine ROIs. Unused channels ( n= 31 ) are shown in gray.
+
+available in two different sets – labeled (calibration) and unlabeled (evaluation), in two forms: the original 1000 Hz recordings, which were band-pass filtered between 0.05 and 200 Hz, and a down-sampled 100 Hz version derived through low-pass filtering and block averaging. For this study, we used labeled data from two human subjects (‘a’ and ‘f’), who exhibited the least improvement during downstream analysis in our previous work using a generative model for the reconstruction of EEG sliding windows (EE-GReXferNet) [21]. In that study, downstream performance was evaluated using EEGNet [22], in which misclassified windows were replaced with reconstructed EEG windows generated by EEGReXferNet via cross-subject transfer learn-ing and channel-aware embeddings that take advantage of volume conduction. For our study, we used the 100 Hz sampled dataset. Of the 59 available EEG channels, we used 28 channels from 9 regions of interest (ROI) as shown in Fig. 1. We mainly excluded ROIs from the outer edge, such as Anterior Frontal, Occipi-tal, and Left/Right Temporal to limit EMG contamination, as EMG contamination increases with distance from the vertex [23]. 
+
+B. Preprocessing 
+
+We further preprocessed the channel-wise EEG data us-ing a zero-phase-shift 6th-order Butterworth BPF with low and high cutoffs of 0.5 Hz and 30 Hz, respectively. We selected the high cutoff frequency of 30 Hz to suppress the gamma band, thereby reducing high-frequency noise and, more specifically, minimizing EMG contamination. EMG artifacts are known to progressively dominate EEG signals at frequencies above ∼ 25 Hz [23]. This choice was made to ensure that the decoding process reflects neural activity rather than inadvertent EMG contributions arising during actual hand or leg movements. From the continuous EEG recordings, we generated sliding windows of 256 samples (2.56 s) with a step size of 20 sam-ples (200 ms). The 256-sample window length was chosen because it provides a minimum resolvable frequency of ap-proximately 0.39 Hz, ensuring that all frequency components above ∼ 0.5 Hz are preserved in the spectral representation. For the baseline, we applied traditional Artifact Subspace Re-construction (ASR) using the asrpy Python package (version 0.0.8). The ASR was initialized with the dataset’s sampling rate and a standard cutoff threshold of 20. We calibrated the ASR model using 60 seconds of resting-state data (20 seconds repeated three times), consistent with the recom-mended minimum calibration duration of approximately 1 minute of clean resting EEG data [14]. After calibration, the fitted ASR model was used to transform all sliding windows of the EEG recording, producing the baseline cleaned signal used for comparisons. 
+
+C. Neural Artifact Subspace Reconstruction (nASR) 
+
+Here, we propose a neural network–based ASR (nASR) layer, with the novel capability of identifying artifact-contributing channels, implemented as a trainable Keras layer that operates directly within the computational graph, with thresholding parameters learned as weights. These trainable thresholding parameters enable optimal thresholding, ensur-ing that important neural features are not removed. Addi-tionally, in nASR, we reconstruct the contaminated channel rather than the subspace in PC space, thereby retaining the features in good channels intact. Given an EEG input shaped (B, C, W), where B is the batch size, C is the total number of channels, and W is the number of samples in the sliding window, the input is first channel-wise Z-score normalized using clean reference statistics ( μ
+
+and σ per channel), such that each channel has zero mean and unit variance. The nASR layer then computes a mean-centered covariance matrix over the non-overlapping portion of each sliding window, producing a (B, C, C) estimate of the multichannel signal’s spatial structure. By performing an eigen decomposition, the model identifies how variance is distributed across the data’s directions. A learnable threshold, bounded below by a fixed offset KOf f set , is applied to the per-channel eigenvalue projections to identify channels ex-hibiting artifact-like activity. These binary artifact decisions are implemented via a Straight-Through Estimator (STE), which produces hard binary masks for the forward pass, while propagating gradients through the threshold during training, enabling end-to-end optimization. To identify the clean reference segments, we first computed the minimum and maximum thresholds as μ±3.5σ across all sliding windows. A window is identified as clean only if the EEG signals of all channels remained within this bounded range; windows violating this criterion in even a single channel were discarded. From the retained clean windows, channel-wise reference statistics ( μ and σ per channel) were then computed, serving as the baseline for subsequent artifact reconstruction. In contrast to traditional ASR, we introduced an additional thresholding step to identify channels exhibiting excessive noise spread. Channels flagged as noisy via a second train-able threshold parameter are reconstructed solely using a weighted average of their spatially proximate clean neigh-bors. If all neighboring channels are also identified as noisy, the reconstruction falls back to a weighted mean computed from the remaining artifact-free channels. Each component of the proposed algorithm is described in Section III, where the full nASR architecture is presented in detail. 
+
+D. Ablation Study - Downstream MI Classification 
+
+To assess the contribution of each component within the nASR framework, an ablation study was conducted using motor imagery classification with EEGNet [22] as the down-stream decoder. Five experimental conditions were evaluated: a baseline pipeline (m01: conventional ASR followed by av-erage re-referencing) and four ablation variants (m02–m05), each systematically toggling a specific design choice within the nASR framework. Three key design elements were ex-amined: (1) artifact reconstruction using spatially proximate clean neighboring channels versus the weighted mean of all artifact-free channels, (2) covariance estimation over the full sliding window versus only the non-overlapping seg-ment, and (3) fixed versus learnable weighted reconstruction of artifact-contaminated channels. Table I summarizes the configuration settings for each experimental condition. This design isolates the contribution of each module and reveals how individual components interact within the complete nASR pipeline.                             
+
+> TABLE I ABLATION STUDY CONFIGURATION
+> Model ASR Vs. Reconstruct Covariance Reconstruct Variants nASR (Neighbors) (Full Win.) (Weighted)
+> m01 ASR –––m02 nASR False False True m03 nASR True False True m04 nASR True True True m05 nASR True False False Note: Five experimental conditions – m01 serves as the traditional ASR baseline; m02–m05 are nASR variants with specific components toggled to isolate their individual contributions.
+
+E. Training & Validation Strategy 
+
+For model training, we used the ‘Adam’ optimizer with an initial learning rate of 0.001 and gradient clipping (clipnorm = 1.0). A 20% dropout rate was applied to all applicable layers of the EEGNet decoder during training. Training was conducted for up to 250 epochs with a batch size of 64. A combined loss function was employed, using Binary Cross-Entropy (BCE) and Dice Loss. The Dice Loss complements BCE by directly optimizing the overlap between predicted and true class distributions, improving robustness under class imbalance. Both loss components are integrated via equal-weighted sum: 
+
+Lcombined = 0 .5 · LBCE + 0 .5 · LDice (1) 
+
+To address loss plateaus during training, the learning rate was halved whenever the validation loss failed to improve for 5 consecutive epochs, subject to a minimum floor of 
+
+1 × 10 −7. If the validation loss failed to improve for 50 consecutive epochs, training was terminated early and the best weights observed during training were restored. Model selection was based on the minimum validation loss achieved throughout training. The dataset was partitioned sequentially into training (80%), validation (10%), and test (10%) subsets based on the temporal order of the sliding windows, ensuring minimum data leakage across splits. 
+
+F. Experimental Platform 
+
+All experiments were conducted on a workstation running Ubuntu Linux (kernel 6.5.0, x86 64), equipped with a 32-core (64 logical threads) CPU clocked at 3.0 GHz, 270 GB of system RAM, and dual NVIDIA RTX 6000 Ada Generation GPUs, each with 48 GB of VRAM (96 GB total GPU memory), under driver version 545.23.08. Model training and inference were performed using Python 3.11.15, TensorFlow 2.16.1, and Keras 3.14.0. III. nASR : A RCHITECTURE AND ALGORITHM 
+
+A. Covariance Estimation and Eigen Decomposition 
+
+Given sliding windows of EEG input X ∈ RB×C×W ,where B, C, and W denote batch size, channels, and window length, respectively. The nASR layer first computes a mean-centered sliding window covariance matrix over the non-overlapping S samples of the sliding window. For each slid-ing window in the batch, the covariance matrix is computed as: Cov S = XS · XTS
+
+S − 1 (2) 
+
+Where,  
+
+> •
+
+XS ∈ RC×S : Mean-centered EEG of a non-overlapping segment.  
+
+> •
+
+Cov S ∈ RC×C : Channel-by-channel covariance matrix. Eigen decomposition of Cov S yields eigenvalues D and eigenvectors V, which together characterize the directional variance structure of the multichannel signal. 
+
+Cov S = V · D · V T (3) 
+
+Where,  
+
+> •
+
+D ∈ RC×C : Diagonal matrix of eigenvalues.  
+
+> •
+
+V ∈ RC×C : Orthogonal matrix of eigenvectors. 
+
+B. Artifact Threshold and Component Rejection 
+
+Since the EEG input is channel-wise Z-score normalized using clean reference statistics, all channels are transformed to zero mean and unit variance ( μ = 0, σ2 = 1) in the normalized space. Consequently, the per-channel artifact threshold simplifies to a single learnable scalar, eliminating dimensional inconsistency between the mean and variance terms. The threshold is computed as: 
+
+Th = K + KOffset (Under μ = 0 , σ 2 = 1) (4) 
+
+Where,  
+
+> •
+
+KOffset ≥ 0.1: Fixed lower bound (default 0.1).  
+
+> •
+
+K ≥ 0: Learnable scalar initialized at Kinit ≈ 0.71 .The learnable parameter K is initialized as Kinit = (0 .9) 2 −
+
+KOffset , corresponding to 90% of the normalized standard deviation ( σ = 1), providing a conservative initial sensitivity to artifact-like variance prior to training. Eigenvector projections onto the threshold are computed as: 
+
+Check c = X
+
+> j
+
+Th · V(c,j ) (5) 
+
+Components whose normalized eigenvalue difference ex-ceeds the learned threshold are flagged as artifact con-taminated. To keep the operation differentiable, a Straight Through Estimator (STE) is applied. The STE enables hard binary decisions during the forward pass while allowing gradients to flow through a smooth sigmoid approximation during backpropagation. The discard mask is computed as: 
+
+Diff = D − Check (6) NormDiff = Diff max (mean( |Diff |), ϵ ) (7) Discard s = Sigmoid ( τD · NormDiff) (8) Discard h = round (Discard s) (9) Discard = Discard s + sg (Discard h − Discard s) (10) 
+
+Where,  
+
+> •
+
+Diff ∈ RB×C 
+
+> •
+
+NormDiff ∈ RB×C 
+
+> •
+
+Discard s ∈ [0 , 1]  
+
+> •
+
+Discard h ∈ { 0, 1} 
+
+> •
+
+sg( ·) denotes the stop-gradient operator  
+
+> •
+
+τD = 20  
+
+> •
+
+ϵ = 10 −6
+
+C. Channel-Level Noise Classification 
+
+Channel-Level Noise Classification is done via an addi-tional learnable threshold L. Each channel’s artifact spread is defined as the sum of squared projections onto discarded eigenvectors: 
+
+Spread c = X
+
+> j
+
+ Discard j · V(c,j )
+
+2 (11) Noise s,c = Sigmoid ( τL (Spread c − L)) (12) Noise h = round (Noise s) (13) Noise = Noise s + sg (Noise h − Noise s) (14) 
+
+Where,  
+
+> •
+
+Spread c ∈ [0 , 1]  
+
+> •
+
+Noise s ∈ [0 , 1]  
+
+> •
+
+Noise h ∈ { 0, 1} 
+
+> •
+
+sg( ·) denotes the stop-gradient operator  
+
+> •
+
+τL = 20 D. Subspace Reconstruction 
+
+As channels with Noise c ≈ 1 are classified as artifact-contaminated, we defined the clean-channel mask as: 
+
+Good c = 1 − Noise c (15) 
+
+The safe number of clean channels to compute average is computed as: 
+
+nGood safe = max X
+
+> c
+
+Good c, 1
+
+!
+
+(16) 
+
+The noisy channels are replaced using the average of the clean channels as: 
+
+CleanAv = 
+
+P 
+
+> c
+
+(Xc · Good c)nGood safe 
+
+(17) ˜Xc = Xc · Good c + CleanAv · Noise c (18) 
+
+For the neighborhood-based reconstruction, we used a pre-computed spatial neighborhood adjacency matrix A ∈
+
+RC×C , derived from electrode proximity [21]. This neigh-borhood adjacency matrix maps each EEG channel to its nearest neighbors (L2 distance < 0.05) in the 10–20 sys-tem [24]. The neighborhood mask ( A) used in this study is illustrated in Fig. 2 as a heatmap, along with a table showing each channel and its corresponding neighboring channels. If neighborhood-based reconstruction is enabled, with adjacency matrix A, the reconstruction is refined as: 
+
+Recon c = Good c · ˜Xc + Noise c ·
+
+P
+
+> k
+
+
+
+A(c,k ) · ˜Xk
+
+
+
+max  P  
+
+> k
+
+A(c,k ), 1 (19) 
+
+The two learnable parameters, K and L, are jointly optimized with the classification objective, allowing artifact rejection thresholds to adapt for optimal model performance. Along with the filtered signal, the Boolean noise mask: Noise h ∈{0, 1}B×C×1 is also returned for optional downstream use. 
+
+E. Additional Preprocessing Layers 
+
+Post-nASR, we added two custom layers: the Weighted Reconstruction Layer and the Average Re-Referencing Layer, which are discussed below. 
+
+1) Weighted Reconstruction Layer: To refine the re-constructed EEG signals, a channel-wise learnable scaling weight is applied exclusively to the artifact-contaminated channels identified by the noise mask. Let ˆX ∈ RC×W
+
+denote the reconstructed EEG for a single window, and 
+
+M ∈ { 0, 1}C×1 the binary noise mask identifying artifact-contaminated channels. A trainable non-negative scaling weight vector ScalingW ∈ RC 
+
+> +
+
+is introduced to scale the contributions of masked (reconstructed) channels. The mask-gated scaling weight is computed as: 
+
+ScalingW M = M ⊙ ScalingW (20) 
+
+The final reconstructed signal combines the original clean channels (unmasked) with the weighted reconstructed chan-nels (masked): 
+
+Xfinal = ˆX ⊙ (1 − M ) + ˆX ⊙ ScalingW M (21)    
+
+> Fig. 2. Neighborhood mask for the 28-channel EEG configuration. (Left) Binary heatmap where blue cells indicate neighboring channel pairs (L2 distance <0.05) and white cells indicate non-neighbors. (Right) Channel-wise neighbor list showing each channel index, label, number of neighbors (N), and corresponding neighbor channel labels in the 10–20 system.
+
+2) Average Re-Referencing Layer: To improve signal con-sistency across channels, an average re-referencing operation is applied — the most widely adopted referencing technique in EEG analysis. The advantage of average reference is that, over a closed spherical surface, the outward positive and negative currents cancel, yielding a net potential near zero [25]. The reference signal is computed as the mean across all C channels at each time point: 
+
+rt = 1
+
+C + 1 
+
+> C
+
+X
+
+> c=1
+
+x(c,t ) (22) 
+
+The re-referenced signal is then obtained by subtracting the common reference from each channel: 
+
+˜x(c,t ) = x(c,t ) − rt (23) 
+
+Where, x(c,t ) denotes the EEG potential of channel c at time 
+
+t, and ˜x(c,t ) is the corresponding re-referenced signal. IV. RESULTS 
+
+A. Ablation Study: Classification Performance 
+
+The validation and test performance of all five models across two subjects (‘a’ and ‘f’) in terms of Balanced Accu-racy, F1-Score, and Accuracy is shown in Fig. 3. For Sub-ject ‘a’, the baseline model m01 (Traditional ASR, Th:20) achieved the highest validation Balanced Accuracy (0.688), Fig. 3. Rank-based performance heatmap across validation and test splits for two subjects (‘a’ & ‘f’). Cell color indicates within-column rank from Rank 1 (blue, best) to Rank 5 (red, worst). Metrics reported are Balanced Accuracy, F1-Score, and Accuracy.    
+
+> Fig. 4. Best training epoch per model for Subject ‘a’ (circle) and Subject ‘f’ (square). Bubble size encodes test accuracy. Background shading indicates convergence zones: Early ( <5), Good (5–15), and Late ( >15 epochs). Annotated values show best epoch(test accuracy).
+
+however its test performance was notably lower (0.624), suggesting overfitting to the preprocessing stage. Among the nASR variants, m05 (nASR without Reconstruction Weights) achieved the highest test Balanced Accuracy (0.677) and test Accuracy (0.680), followed closely by m02 (nASR without Neighborhood, 0.675/0.676). For Subject ‘f’, m02 consis-tently achieved the best test performance across all three metrics (Balanced Accuracy: 0.618, F1-Score: 0.660, Ac-curacy: 0.623), with m03 and m04 performing comparably. Notably, m01 ranked worst on test metrics for both subjects despite its competitive validation performance, indicating that traditional ASR does not generalize as effectively as the learnable nASR variants. 
+
+B. Training Convergence 
+
+Fig. 4 illustrates the best epoch per model with bubble size encoding test accuracy. For Subject ‘a’, m01 converged late at epoch 22, while all nASR variants (m02–m05) converged within the zone (5–15), with m02 and m03 converging at epoch 7 and m04 at epoch 4 (early zone). For Subject ‘f’,   
+
+> Fig. 5. Test accuracy vs. inference time for five ablation models across two subjects. A hybrid linear-log x-axis separates nASR variants (m02–m05, 1.0–1.3 ms) from the traditional ASR baseline (m01, ∼8–9 ms). Pareto-optimal points are highlighted with a shaded ring.
+
+m01 converged at epoch 10, while nASR models converged between epochs 6–8. The bubble sizes reveal that despite m01’s late convergence for Subject ‘a’, its test accuracy (0.632) was lower than nASR models (0.676–0.680), con-firming that earlier convergence of nASR variants is not achieved at the expense of accuracy. 
+
+C. Accuracy–Efficiency Trade-off: Pareto Analysis 
+
+Fig. 5 evaluates the trade-off between test accuracy and inference time per window using Pareto Frontier plot. The total inference time for m01 includes both the traditional Fig. 6. Channel-wise noise map (N = 4790 noisy windows) for Subject ‘a’. Each row = EEG channel; each column = sliding window. Red = reconstructed; Gray = passthrough. For m01, a channel is flagged if the absolute difference between raw and ASR-reconstructed signal exceeds 1e − 5 at any time point. (Left) Traditional ASR (m01); (Right) nASR (m02). 
+
+ASR processing time ( ∼8.5–7.8 ms) and the EEGNet in-ference time, resulting in a total of ∼8.9 ms and ∼8.1 ms for Subjects ‘a’ and ‘f’ respectively. In contrast, all nASR variants (m02–m05) operate within 1.0–1.3 ms, representing a 6–8 × reduction in inference time. For Subject ‘a’, both m02 and m05 lie on the Pareto frontier – m02 offers the fastest inference (1.0 ms) while m05 achieves the highest accuracy (0.680) at a marginally higher cost (1.1 ms). For Subject ‘f’, m02 alone constitutes the Pareto frontier, being simultaneously the fastest and most accurate nASR model. These results demonstrate that m02 (nASR without Neighborhood) provides the best accuracy–efficiency balance across both subjects, while m05 offers a marginal accuracy gain at comparable speed for Subject ‘a’. V. DISCUSSION The consistently lower test performance of m01 relative to its validation performance suggests that traditional ASR, while effective at suppressing artifacts during preprocessing, may over-correct EEG signals and discard task-relevant neural information. In contrast, the learnable nASR variants demonstrated more balanced validation-to-test performance, indicating that end-to-end optimization of the artifact rejec-tion threshold allows the model to preserve discriminative signal components. As shown in Fig. 6, the noise mask comparison for Subject ‘a’ clearly highlights the limitations of traditional ASR (with the threshold fixed at 20), m01 reconstructed above 30% of noisy windows across all channels, leading to excessive signal modification and loss of valuable task-relevant neural features. In contrast, the nASR variant m02 identifies only a small subset of windows as noisy, and within those windows, only the primary artifact-contributing channels are flagged for reconstruction. This demonstrates that nASR is capable of identifying an optimal threshold and isolating the main artifact sources at the channel level, thereby preserving task-relevant neural dynamics. The convergence behavior of nASR variants within the good zone (5–15 epochs) across both subjects demonstrates that the learnable threshold and STE-based binary masking facilitate stable and efficient gradient flow during training. Furthermore, the 6–8× reduction in inference time achieved by all nASR variants relative to m01 is a practically signifi-cant result, confirming nASR as a strong candidate for real-time BCI applications where both decoding accuracy and low latency are critical. The ablation results provide further insight into individual component contributions. Covariance estimation over the full overlapping window (m04) underperformed consistently across both subjects, confirming that incorporating over-lapping segments into covariance estimation is not only redundant but detrimental to performance. The removal of learnable reconstruction weights (m05) yielded the highest test accuracy for Subject ‘a’, suggesting that the weighted reconstruction may introduce unnecessary complexity under certain recording conditions – an aspect that warrants more thorough investigation. The neighborhood-based reconstruction (m03) showed marginal underperformance relative to the global mean re-construction (m02), suggesting that spatially proximate clean neighbors may still carry correlated residual noise, thereby limiting the benefit of locality-constrained reconstruction over a broader channel average. This observation motivates our future work, which aims to replace simple channel averaging with an intelligent reconstruction strategy based on a Generative AI architecture, similar to EEGReXferNet [21], to better recover artifact-contaminated channels while preserving task-relevant neural dynamics. The present evaluation is limited to two subjects from a single motor imagery dataset. While the results are consistent across both subjects, broader validation across a larger co-hort, multiple datasets, and diverse BCI paradigms is needed to confirm the generalizability of the nASR framework. VI. CONCLUSIONS This paper presented nASR, a novel end-to-end trainable neural layer for channel-level EEG artifact subspace recon-struction with learnable dual thresholds. Ablation results confirm that nASR consistently outperforms traditional ASR on classification accuracy while achieving a 6–8 × reduction in inference time, making it a strong candidate for real-time BCI deployment. ACKNOWLEDGMENT 
+
+This work was supported by the NSF IUCRC BRAIN Center. The authors thank the BCI Competition IV organizers for providing the publicly available dataset used in this study. REFERENCES [1] M. X. Cohen, “Where does EEG come from and what does it mean?,” 
+
+Trends in Neurosciences , vol. 40, no. 4, pp. 208–218, Apr. 2017, doi: 10.1016/j.tins.2017.02.004. [2] S. Siuly, Y. Li, and Y. Zhang, “Electroencephalogram (EEG) and its background,” in EEG Signal Analysis and Classification: Techniques and Applications , Cham, Switzerland: Springer International Publish-ing, 2016, pp. 3–21, doi: 10.1007/978-3-319-47653-7 1. [3] R. J. Sugden, V.-L. L. Pham-Kim-Nghiem-Phu, I. Campbell, A. Leon, and P. Diamandis, “Remote collection of electrophysiological data with brain wearables: Opportunities and challenges,” Bioelectronic Medicine , vol. 9, no. 1, p. 12, 2023, doi: 10.1186/s42234-023-00114-5. [4] A. Craik, Y. He, and J. L. Contreras-Vidal, “Deep learning for electroencephalogram (EEG) classification tasks: A review,” Jour-nal of Neural Engineering , vol. 16, no. 3, p. 031001, 2019, doi: 10.1088/1741-2552/ab0ab5. [5] A. Craik et al. , “Design and validation of a low-cost mobile EEG-based brain–computer interface,” Sensors , vol. 23, no. 13, 2023, doi: 10.3390/s23135930. [6] J. A. Uriguen and B. Garcia-Zapirain, “EEG artifact removal—state-of-the-art and guidelines,” Journal of Neural Engineering , vol. 12, no. 3, p. 031001, 2015, doi: 10.1088/1741-2560/12/3/031001. [7] X. Jiang, G.-B. Bian, and Z. Tian, “Removal of artifacts from EEG signals: A review,” Sensors , vol. 19, no. 5, p. 987, 2019, doi: 10.3390/s19050987. [8] C. R. Rashmi and C. P. Shantala, “EEG artifacts detection and removal techniques for brain–computer interface applications: A systematic review,” 2022, doi: 10.19101/IJATEE.2021.874883. [9] A. Kilicarslan and J. L. Contreras-Vidal, “Neuro-robotics: Rehabili-tation and restoration of walking using exoskeletons via non-invasive brain–machine interfaces,” in Neuroprosthetics and Brain-Computer Interfaces in Spinal Cord Injury , G. M¨ uller-Putz and R. Rupp, Eds. Cham, Switzerland: Springer International Publishing, 2021, pp. 143– 166, doi: 10.1007/978-3-030-68545-4 6. [10] G. Geetha and S. N. Geethalakshmi, “EEG de-noising using SURE thresholding based on wavelet transforms,” International Journal of Computer Applications , vol. 24, no. 6, pp. 29–33, Jun. 2011, doi: 10.5120/2948-3935. [11] C.-Y. Chang, S.-H. Hsu, L. Pion-Tonachini, and T.-P. Jung, “Evaluation of artifact subspace reconstruction for automatic artifact components removal in multi-channel EEG recordings,” IEEE Transactions on Biomedical Engineering , vol. 67, no. 4, pp. 1114–1121, 2020, doi: 10.1109/TBME.2019.2930186. [12] A. Kilicarslan, R. G. Grossman, and J. L. Contreras-Vidal, “A robust adaptive denoising framework for real-time artifact removal in scalp EEG measurements,” Journal of Neural Engineering , vol. 13, no. 2, p. 026013, Feb. 2016, doi: 10.1088/1741-2560/13/2/026013. [13] A. Kilicarslan and J. L. Contreras-Vidal, “Characterization and real-time removal of motion artifacts from EEG signals,” Journal of Neural Engineering , vol. 16, no. 5, p. 056027, Sep. 2019, doi: 10.1088/1741-2552/ab2b61. [14] T. R. Mullen et al. , “Real-time neuroimaging and cognitive mon-itoring using wearable dry EEG,” IEEE Transactions on Biomed-ical Engineering , vol. 62, no. 11, pp. 2553–2567, 2015, doi: 10.1109/TBME.2015.2481482. [15] P. Anders, H. M¨ uller, N. Skjæret-Maroni, B. Vereijken, and J. Baumeister, “The influence of motor tasks and cut-off parameter selection on artifact subspace reconstruction in EEG recordings,” 
+
+Medical & Biological Engineering & Computing , vol. 58, no. 11, pp. 2673–2683, Nov. 2020, doi: 10.1007/s11517-020-02252-3. [16] M. Plechawska-W´ ojcik, P. Augustynowicz, M. Kaczorowska, E. Zabielska-Mendyk, and D. Zapała, “The influence assessment of artifact subspace reconstruction on the EEG signal characteristics,” 
+
+Applied Sciences , vol. 13, no. 3, 2023, doi: 10.3390/app13031605. [17] A. Oladipupo Ibraheem, “Correlation of data reconstruction error and shrinkages in pair-wise distances under principal component analysis (PCA),” arXiv preprint arXiv:1412.6752 , Dec. 2014, doi: 10.48550/arXiv.1412.6752. [18] A. Dapena, H. J. P´ erez-Iglesias, and V. Zarzoso, “Blind channel estimation based on maximizing the eigenvalue spread of cumulant matrices in (2 × 1) Alamouti’s coding schemes,” Wireless Commu-nications and Mobile Computing , vol. 12, no. 6, pp. 516–528, Apr. 2012, doi: 10.1002/wcm.992. [19] T. D. Lagerlund, D. I. Rubin, and J. R. Daube, “Volume conduction,” in Clinical Neurophysiology , 4th ed., New York, NY, USA: Oxford University Press, 2016, pp. 929–946, doi: 10.1093/med/9780190259631.003.0054. [20] B. Blankertz, G. Dornhege, M. Krauledat, K. R. M¨ uller, and G. Curio, “The non-invasive Berlin brain–computer interface: Fast acquisition of effective performance in untrained subjects,” NeuroImage , vol. 37, no. 2, pp. 539–550, Aug. 2007, doi: 10.1016/j.neuroimage.2007.01.051. [21] S. Sarkar, P. Nabrzyski, S. Prasad, and J. L. Contreras-Vidal, “EEGReXferNet: A lightweight Gen-AI framework for EEG sub-space reconstruction via cross-subject transfer learning and channel-aware embedding,” in NeurIPS 2025 Workshop on Foundation Models for the Brain and Body , 2025. [Online]. Available: https://openreview.net/forum?id=TOW1by49Ec [22] V. J. Lawhern, A. J. Solon, N. R. Waytowich, S. M. Gordon, C. P. Hung, and B. J. Lance, “EEGNet: A compact convolutional neural network for EEG-based brain–computer interfaces,” Journal of Neural Engineering , vol. 15, no. 5, p. 056013, Jul. 2018, doi: 10.1088/1741-2552/aace8c. [23] K. J. Pope et al. , “Managing electromyogram contamination in scalp recordings: An approach identifying reliable beta and gamma EEG features of psychoses or other disorders,” Brain and Behavior , vol. 12, no. 9, p. e2721, 2022, doi: 10.1002/brb3.2721. [24] K. B. E. B¨ ocker, J. A. G. van Avermaete, and M. M. C. van den Berg-Lenssen, “The international 10–20 system revisited: Cartesian and spherical coordinates,” Brain Topography , vol. 6, no. 3, pp. 231– 235, 1994, doi: 10.1007/BF01187714. [25] D. Yao, Y. Qin, S. Hu, L. Dong, M. L. Bringas Vega, and P. A. Vald´ es Sosa, “Which reference should we use for EEG and ERP practice?,” Brain Topography , vol. 32, no. 4, pp. 530–549, 2019, doi: 10.1007/s10548-019-00707-x.

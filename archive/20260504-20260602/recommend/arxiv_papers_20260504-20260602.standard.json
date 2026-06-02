@@ -1,0 +1,732 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-02T03:58:15.588546+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 24,
+    "deep_cap": 6,
+    "deep_selected": 6,
+    "quick_candidates": 34,
+    "quick_skim_target": 11,
+    "quick_selected": 11
+  },
+  "deep_dive": [
+    {
+      "id": "2605.06018v1",
+      "source": "arxiv",
+      "title": "I see artifacts: ICA-based EEG artifact removal does not improve deep network decoding across three BCI tasks",
+      "abstract": "In this paper, we conduct a detailed investigation on the effect of independent component (IC)-based noise rejection methods in neural network classifier-based decoding of electroencephalography (EEG) data in different task datasets. We apply a pipeline matrix of two popular different independent component (IC) decomposition methods (Infomax and Adaptive Mixture Independent Component Analysis (AMICA)) with three different component rejection strategies (none, ICLabel, and multiple artifact rejection algorithm [MARA]) on three different EEG datasets (motor imagery, long-term memory formation, and visual memory). We cross-validate processed data from each pipeline with three architectures commonly used for EEG classification (two convolutional neural networks and one long short-term memory-based model. We compare decoding performances on within-participant and within-dataset levels.Our results show that the benefit from using IC-based noise rejection for decoding analyses is at best minor, as component-rejected data did not show consistently better performance than data without rejections; especially given the significant computational resources required for independent component analysis (ICA) computations.",
+      "authors": [
+        "Taeho Kang",
+        "Yiyu Chen",
+        "Christian Wallraven"
+      ],
+      "primary_category": "cs.HC",
+      "categories": [
+        "cs.HC"
+      ],
+      "published": "2026-05-07T11:14:17+00:00",
+      "link": "https://arxiv.org/pdf/2605.06018v1",
+      "tags": [
+        "keyword:eeg",
+        "query:eeg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Investigation of artifact removal methods on BCI decoding performance",
+      "llm_evidence_cn": "探究伪迹去除方法对BCI解码性能的影响",
+      "llm_evidence": "探究伪迹去除方法对BCI解码性能的影响",
+      "canonical_evidence": "探究伪迹去除方法对BCI解码性能的影响",
+      "llm_tldr_en": "Systematically evaluates ICA-based artifact removal on three BCI tasks with multiple architectures, finding no consistent improvement in decoding accuracy.",
+      "llm_tldr_cn": "针对脑电伪迹去除是否提升BCI解码性能的争议，本文在运动想象、记忆形成和视觉记忆三个任务上系统评估了独立成分分析结合不同去除策略。结果发现伪迹去除并未显著改善三种常用神经网络的解码精度，提示BCI预处理可能需重新考虑。",
+      "llm_tldr": "针对脑电伪迹去除是否提升BCI解码性能的争议，本文在运动想象、记忆形成和视觉记忆三个任务上系统评估了独立成分分析结合不同去除策略。结果发现伪迹去除并未显著改善三种常用神经网络的解码精度，提示BCI预处理可能需重新考虑。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.10337v1",
+      "source": "arxiv",
+      "title": "CORTEG: Foundation Models Enable Cross-Modality Representation Transfer from Scalp to Intracranial Brain Recordings",
+      "abstract": "Intracranial electrocorticography (ECoG) offers high-signal-to-noise access to cortical activity for brain-computer interfaces, yet limited per-patient data has led most prior work to rely on small, subject-specific decoders that neglect information shared across patients. We investigate whether large pretrained scalp-EEG foundation models (EEG FMs) can be adapted to ECoG, enabling cross-patient learning and competitive decoding performance while calibrating to a held-out patient in 10-30 minutes on a single GPU. We introduce CORTEG, a cross-modality transfer framework that combines a pretrained EEG FM backbone, an electrode-aware KNNSoftFourier spatial adapter, a dual-stream tokenizer for low-frequency and high-gamma activity, and a leave-one-subject-out fine-tuning strategy. We evaluate CORTEG on two challenging regression tasks: public finger trajectory regression (n=9) and private audio envelope regression (n=16). CORTEG matches or exceeds the strongest task-specific baselines on both tasks: it reaches the highest mean correlation among compared methods on the public finger benchmark (gain not statistically significant on n=9 subjects), with larger and statistically significant gains on the audio task and in low-data per-patient calibration. Feature analyses align with neurophysiology, and latent manifolds capture low-dimensional finger-movement structure. CORTEG provides systematic evidence that scalp-EEG pretraining can be repurposed for ECoG decoding, enabling data-efficient intracranial BCIs that can adapt to new patients.",
+      "authors": [
+        "Liuyin Yang",
+        "Qiang Sun",
+        "Bob Van Dyck",
+        "Eva Calvo Merino",
+        "Marc M. Van Hulle"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "eess.SP"
+      ],
+      "published": "2026-05-11T10:40:42+00:00",
+      "link": "https://arxiv.org/pdf/2605.10337v1",
+      "tags": [
+        "keyword:eeg",
+        "query:eeg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Cross-modality transfer from scalp EEG to ECoG using foundation models and latent representations",
+      "llm_evidence_cn": "利用基础模型和潜在表示实现头皮脑电到皮层脑电的跨模态迁移",
+      "llm_evidence": "利用基础模型和潜在表示实现头皮脑电到皮层脑电的跨模态迁移",
+      "canonical_evidence": "利用基础模型和潜在表示实现头皮脑电到皮层脑电的跨模态迁移",
+      "llm_tldr_en": "Adapts pretrained scalp EEG foundation models to ECoG via CORTEG framework, using electrode-aware spatial adapter and dual-stream tokenizer for fast cross-patient calibration.",
+      "llm_tldr_cn": "针对ECoG数据有限且依赖患者特定解码器的问题，本文提出CORTEG框架，将预训练头皮脑电基础模型适配到ECoG。通过电极感知空间适配器和双流分词器，在10-30分钟内完成新患者校准，实现竞争性解码性能，展示了脑电基础模型的跨模态潜力。",
+      "llm_tldr": "针对ECoG数据有限且依赖患者特定解码器的问题，本文提出CORTEG框架，将预训练头皮脑电基础模型适配到ECoG。通过电极感知空间适配器和双流分词器，在10-30分钟内完成新患者校准，实现竞争性解码性能，展示了脑电基础模型的跨模态潜力。",
+      "llm_tags": [
+        "query:eeg-latent:composite"
+      ],
+      "matched_query_tag": "query:eeg-latent:composite",
+      "matched_query_text": "Papers central to EEG论文，latent space缺失通道补全, especially work that connects or combines: E; EEG latent space representation; deep learning for EEG signal reconstruction; generative models for EEG channel imputation; EEG missing channel completion using latent space models; latent space based imputation for multichannel EEG; reconstruct missing EEG channels with deep generative networks.",
+      "matched_requirement_id": "req-composite-eeg-latent",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.07212v1",
+      "source": "arxiv",
+      "title": "Same Brain, Different Prediction: How Preprocessing Choices Undermine EEG Decoding Reliability",
+      "abstract": "Electroencephalography (EEG) is a cornerstone of brain-computer interfaces and clinical neuroscience, yet deep learning models are typically trained and evaluated under a single, unreported preprocessing pipeline. We formalize preprocessing choices as a counterfactual intervention space and show that EEG predictions are surprisingly unstable under this space: across six datasets spanning four paradigms, up to 42% of trial-level predictions flip when only the preprocessing changes, a variability that standard uncertainty methods do not explicitly quantify because they condition on a fixed preprocessing pipeline. We provide three tools to make this instability measurable, decomposable, and reducible. First, a Walsh-Hadamard decomposition of the 2^7 pipeline space reveals that sensitivity is near-additive in practice under the binary intervention design, enabling efficient step-by-step optimization. Second, we introduce Preprocessing Uncertainty (PU), a per-trial diagnostic that captures a dimension of instability complementary to model-based confidence. Third, we study Normalized Adaptive PGI (NA-PGI), a graph-structured regularizer that exploits the compositional structure of preprocessing interventions as one mitigation strategy with clear scope conditions.",
+      "authors": [
+        "Dengzhe Hou",
+        "Zihao Wu",
+        "Lingyu Jiang",
+        "Zirui Li",
+        "Fangzhou Lin",
+        "Kazunori D. Yamada"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.HC",
+        "cs.NE",
+        "eess.SP"
+      ],
+      "published": "2026-05-08T03:58:58+00:00",
+      "link": "https://arxiv.org/pdf/2605.07212v1",
+      "tags": [
+        "keyword:eeg",
+        "query:eeg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "preprocessing instability in EEG decoding",
+      "llm_evidence_cn": "脑电解码中的预处理不稳定性",
+      "llm_evidence": "脑电解码中的预处理不稳定性",
+      "canonical_evidence": "脑电解码中的预处理不稳定性",
+      "llm_tldr_en": "Formalizes preprocessing choices as counterfactual intervention space, showing up to 42% trial-level prediction flips across datasets, and provides tools to measure and reduce this instability.",
+      "llm_tldr_cn": "该论文揭露了EEG深度学习中预处理选择对预测稳定性的显著影响，将预处理流程形式化为反事实干预空间，在六个数据集上发现仅改变预处理即可导致最高42%的试次级预测翻转。提出的Walsh-Hadamard分解等工具能够量化、分解并减少这种变异性，强调预处理报告和不确定性量化对提高EEG解码可靠性的关键作用。",
+      "llm_tldr": "该论文揭露了EEG深度学习中预处理选择对预测稳定性的显著影响，将预处理流程形式化为反事实干预空间，在六个数据集上发现仅改变预处理即可导致最高42%的试次级预测翻转。提出的Walsh-Hadamard分解等工具能够量化、分解并减少这种变异性，强调预处理报告和不确定性量化对提高EEG解码可靠性的关键作用。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.08495v1",
+      "source": "arxiv",
+      "title": "NeuralBench: A Unifying Framework to Benchmark NeuroAI Models",
+      "abstract": "Deep learning and large public datasets have recently catalyzed the proliferation of AI models for processing brain recordings. However, systematically evaluating these models remains a challenge: not only do the preprocessing pipelines, training and finetuning approaches largely vary across studies, but their downstream evaluation is often limited to small sets of tasks and/or datasets. Here, we present NeuralBench: a unified framework for benchmarking AI models of brain activity. We accompany this framework with NeuralBench-EEG v1.0 -- a large EEG benchmark that includes 36 electroencephalography (EEG) tasks and 14 deep learning architectures, and is evaluated on 94 datasets accessed through a standardized interface. This first EEG-focused release already highlights two main findings. First, current foundation models only marginally outperform task-specific models. Second, a large set of tasks (e.g. cognitive decoding, clinical predictions) remain highly challenging, even for the best models. Critically, NeuralBench is designed for the integration of new tasks, datasets, models, and neuroimaging modalities, as illustrated by preliminary extensions to MEG and fMRI datasets and models. Through this white paper, we invite the community to expand this open-source framework and work together toward a unified benchmarking standard for neuroimaging models.",
+      "authors": [
+        "Hubert Banville",
+        "Stéphane d'Ascoli",
+        "Simon Dahan",
+        "Jérémy Rapin",
+        "Marlène Careil",
+        "Yohann Benchetrit",
+        "Jarod Lévy",
+        "Saarang Panchavati",
+        "Antoine Ratouchniak",
+        "Mingfang",
+        "Zhang",
+        "Elisa Cascardi",
+        "Katelyn Begany",
+        "Teon Brooks",
+        "Jean-Rémi King"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "q-bio.NC"
+      ],
+      "published": "2026-05-08T21:19:57+00:00",
+      "link": "https://arxiv.org/pdf/2605.08495v1",
+      "tags": [
+        "keyword:eeg",
+        "query:eeg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Unified benchmark for EEG model evaluation with 36 tasks",
+      "llm_evidence_cn": "统一的EEG模型评估基准，包含36个任务",
+      "llm_evidence": "统一的EEG模型评估基准，包含36个任务",
+      "canonical_evidence": "统一的EEG模型评估基准，包含36个任务",
+      "llm_tldr_en": "NeuralBench provides a unified framework and large EEG benchmark (36 tasks, 94 datasets) to systematically evaluate AI models for brain recordings, addressing preprocessing and evaluation inconsistencies.",
+      "llm_tldr_cn": "该论文提出NeuralBench框架，用于统一评估脑活动AI模型，并发布包含36个EEG任务、94个数据集的大规模基准。通过标准化接口，解决了预处理和评估不一致的问题，推动EEG模型的可重复比较。",
+      "llm_tldr": "该论文提出NeuralBench框架，用于统一评估脑活动AI模型，并发布包含36个EEG任务、94个数据集的大规模基准。通过标准化接口，解决了预处理和评估不一致的问题，推动EEG模型的可重复比较。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.10121v1",
+      "source": "arxiv",
+      "title": "Explainability of Recurrent Neural Networks for Enhancing P300-based Brain-Computer Interfaces",
+      "abstract": "Brain-Computer Interfaces (BCIs) based on P300 event-related potentials offer promising applications in health, education, and assistive technologies. However, challenges related to inter- and intra-subject variability and the explainability of Deep Learning (DL) models limit their practical deployment. In this work, we present the Post-Recurrent Module (PRM), an additional layer designed to improve both performance and transparency, incorporated into a Recurrent Neural Network (RNN) architecture for classifying P300 signals from EEG data. Our approach enables a dual analysis of spatio-temporal signals through both global and local explainability techniques, allowing us not only to identify the most relevant brain regions and critical time intervals involved in classification, but also to interpret model decisions in terms of spatio-temporal EEG patterns consistent with well-stablished neurophysiological descriptions of the P300. Experimental results show a 9\\% improvement in performance over state of the art, while also revealing the importance of inter- and intra-subject variability, in alignment with established neuroscience literature. By making model decisions transparent and efficient, we present a framework for explainable EEG-based models. This framework is not limited to more efficient P300 detection, but can be generalized to a wide range of EEG-based tasks. Its ability to identify key spatial and temporal features makes it suitable for applications such as motor imagery, steady-state visual evoked potentials, and even cognitive workload assessment.",
+      "authors": [
+        "Christian Oliva",
+        "Vinicio Changoluisa",
+        "Francisco B Rodríguez",
+        "Luis F Lago-Fernández"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.HC"
+      ],
+      "published": "2026-05-11T07:36:03+00:00",
+      "link": "https://arxiv.org/pdf/2605.10121v1",
+      "tags": [
+        "keyword:eeg",
+        "query:eeg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "P300-based BCI classification and explainability",
+      "llm_evidence_cn": "基于P300的脑机接口分类与可解释性研究",
+      "llm_evidence": "基于P300的脑机接口分类与可解释性研究",
+      "canonical_evidence": "基于P300的脑机接口分类与可解释性研究",
+      "llm_tldr_en": "Proposes Post-Recurrent Module for improving RNN performance and transparency in P300 BCI, using global/local explainability to identify relevant brain regions.",
+      "llm_tldr_cn": "针对P300脑机接口中深度模型可解释性不足和个体差异大的问题，本文提出后递归模块（PRM）嵌入循环神经网络，通过全局和局部可解释性双分析增强分类性能与透明性。实验表明该方法能有效识别关键脑区，提升BCI系统实用部署潜力。",
+      "llm_tldr": "针对P300脑机接口中深度模型可解释性不足和个体差异大的问题，本文提出后递归模块（PRM）嵌入循环神经网络，通过全局和局部可解释性双分析增强分类性能与透明性。实验表明该方法能有效识别关键脑区，提升BCI系统实用部署潜力。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.10688v1",
+      "source": "arxiv",
+      "title": "DANCE: Detect and Classify Events in EEG",
+      "abstract": "Event identification in continuous neural recordings is a critical task in neuroscience. Decoding in EEG is dominated by classifying windows aligned to known event onsets. However, while available in controlled experiments, such onsets are absent in continuous real-world monitoring. Here, we introduce DANCE, a deep learning pipeline that frames neural decoding as a set-prediction problem and jointly detects and classifies events directly from raw, unaligned signals. Evaluated separately on ten datasets curated from the literature with a wide variety of event types (ranging from milliseconds to minutes in duration), our model outperforms existing methods on a broad range of cognitive, clinical and BCI tasks. This single architecture establishes a new state of the art in the competitive task of seizure monitoring and matches the accuracy of onset-informed models for BCI tasks. Overall, our method marks a step towards end-to-end asynchronous neural decoding models",
+      "authors": [
+        "Jarod Lévy",
+        "Hubert Banville",
+        "Jérémy Rapin",
+        "Jean-Remi King",
+        "Thomas Moreau",
+        "Stéphane d'Ascoli"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "eess.SP"
+      ],
+      "published": "2026-05-11T15:01:17+00:00",
+      "link": "https://arxiv.org/pdf/2605.10688v1",
+      "tags": [
+        "keyword:eeg",
+        "query:eeg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Unified detection and classification of EEG events",
+      "llm_evidence_cn": "统一的EEG事件检测与分类",
+      "llm_evidence": "统一的EEG事件检测与分类",
+      "canonical_evidence": "统一的EEG事件检测与分类",
+      "llm_tldr_en": "DANCE frames EEG event detection as set prediction, jointly detecting and classifying events from raw signals without aligned onsets, achieving SOTA on ten diverse datasets.",
+      "llm_tldr_cn": "该论文提出DANCE，将EEG事件检测转换为集合预测问题，直接从原始未对齐信号中联合检测和分类事件。在10个具有毫秒至分钟时长事件的多样化数据集上，DANCE超越了现有方法，为连续监测中的脑电解码提供了新范式。",
+      "llm_tldr": "该论文提出DANCE，将EEG事件检测转换为集合预测问题，直接从原始未对齐信号中联合检测和分类事件。在10个具有毫秒至分钟时长事件的多样化数据集上，DANCE超越了现有方法，为连续监测中的脑电解码提供了新范式。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2605.12408v1",
+      "source": "arxiv",
+      "title": "From EEG Cleaning to Decoding: The Role of Artifact Rejection in MI-based BCIs",
+      "abstract": "Motor imagery (MI) BCIs are sensitive to EEG artifacts, yet the practical impact of automated artifact rejection on downstream MI decoding performance remains unclear. While most work focuses on decoder design, the contribution of data curation, particularly automated rejection policies, has received comparatively less attention, despite its importance for robust ML pipelines. Here, we propose Fast Automatic Artifact Rejection (FAAR), a lightweight method that computes a compact set of artifact-sensitive features, derives an epoch-level Signal Quality Index, adaptively selects rejection thresholds, and automatically rejects contaminated epochs without requiring prior knowledge of artifact types or manual threshold tuning. We evaluate FAAR on 13 publicly available MI datasets and compare it to a no-rejection baseline, AutoReject, and Isolation Forest. We show rejection effects are strongly subject- and regime-dependent, with the largest gains in low-baseline/low-SNR conditions, so it should be used adaptively. FAAR reduces inter-subject performance variability, an important property for MI-BCI reliability and BCI-illiteracy, without aggressive data removal. Finally, FAAR's lightweight and fully automated thresholding yields consistent rejection behavior across offline curation, training, and online filtering, and supports real-time BCI constraints.",
+      "authors": [
+        "Davoud Hajhassani",
+        "Bruno Aristimunha",
+        "Paul-Adrien Graignic",
+        "Apolline Mellot",
+        "Lionel Kusch",
+        "Arnaud Delorme",
+        "Thomas Semah",
+        "Arnault H. Caillet"
+      ],
+      "primary_category": "eess.SP",
+      "categories": [
+        "eess.SP"
+      ],
+      "published": "2026-05-12T17:05:13+00:00",
+      "link": "https://arxiv.org/pdf/2605.12408v1",
+      "tags": [
+        "keyword:eeg",
+        "query:eeg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Artifact rejection for motor imagery BCI",
+      "llm_evidence_cn": "运动想象BCI的伪影去除",
+      "llm_evidence": "运动想象BCI的伪影去除",
+      "canonical_evidence": "运动想象BCI的伪影去除",
+      "llm_tldr_en": "FAAR is a lightweight automatic artifact rejection method for MI-BCI that adaptively thresholds epoch-level signal quality, tested on 13 datasets without manual tuning.",
+      "llm_tldr_cn": "该论文提出FAAR，一种轻量级自动伪影去除方法，计算伪影敏感特征并自适应选择拒绝阈值，无需人工干预。在13个MI-BCI数据集上评估，表明有效的伪影拒绝能显著提升解码性能。",
+      "llm_tldr": "该论文提出FAAR，一种轻量级自动伪影去除方法，计算伪影敏感特征并自适应选择拒绝阈值，无需人工干预。在13个MI-BCI数据集上评估，表明有效的伪影拒绝能显著提升解码性能。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2605.04680v1",
+      "source": "arxiv",
+      "title": "Multi-Level Bidirectional Biomimetic Learning for EEG-Based Visual Decoding",
+      "abstract": "EEG-based visual neural decoding aims to align neural responses with visual stimuli for tasks such as image retrieval. However, limited paired data and a fundamental mismatch between high-fidelity digital images and biological visual perception - distorted by retinotopic mapping and subject-specific neuroanatomy - severely impede cross-modal alignment. To address this, we propose MB2L, a Multi-Level Bidirectional Biomimetic Learning framework that incorporates structured physiological inductive biases into representation learning. Specifically, we propose Adaptive Blur with Visual Priors to mitigate perceptual-structural mismatch by reweighting visual inputs according to retinotopic priors. We further propose Biomimetic Visual Feature Extraction to learn multi-level visual representations consistent with hierarchical cortical processing, enhancing subject-invariant encoding. These modules are jointly optimized via Multi-level Bidirectional Contrastive Learning, which aligns EEG and visual features in a shared semantic space through bidirectional contrastive objectives. Experiments show MB2L achieves 80.5% Top-1 and 97.6% Top-5 accuracy on zero-shot EEG-to-image retrieval, significantly outperforming prior methods and demonstrating strong generalization across subjects and experimental settings.",
+      "authors": [
+        "Jingtao Liu",
+        "Peiliang Gong",
+        "Chuhang Zheng",
+        "Yiheng Liu",
+        "Qi Zhu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-05-06T09:31:35+00:00",
+      "link": "https://arxiv.org/pdf/2605.04680v1",
+      "tags": [
+        "keyword:eeg",
+        "query:eeg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "multi-level biomimetic learning for EEG visual decoding",
+      "llm_evidence_cn": "多级仿生学习用于EEG视觉解码",
+      "llm_evidence": "多级仿生学习用于EEG视觉解码",
+      "canonical_evidence": "多级仿生学习用于EEG视觉解码",
+      "llm_tldr_en": "MB2L introduces a multi-level bidirectional biomimetic learning framework with adaptive blur and biomimetic feature extraction to address perception-structure mismatch in EEG visual decoding.",
+      "llm_tldr_cn": "该论文针对EEG视觉解码中数字图像与生物视觉感知之间的失配问题，提出多级双向仿生学习框架（MB2L），通过自适应模糊视觉先验和仿生视觉特征提取将生理结构先验融入表示学习。实验表明该方法有效缓解了感知结构差异，提升了EEG-图像跨模态检索性能。",
+      "llm_tldr": "该论文针对EEG视觉解码中数字图像与生物视觉感知之间的失配问题，提出多级双向仿生学习框架（MB2L），通过自适应模糊视觉先验和仿生视觉特征提取将生理结构先验融入表示学习。实验表明该方法有效缓解了感知结构差异，提升了EEG-图像跨模态检索性能。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.03085v1",
+      "source": "arxiv",
+      "title": "Adaptive Data Compression and Reconstruction for Memory-Bounded EEG Continual Learning",
+      "abstract": "Electroencephalography (EEG) signals provide millisecond-level temporal resolution but their analysis is limited by remarkable noise and inter-subject variability, making robust personalization difficult under limited annotations. Unsupervised Individual Continual Learning (UICL) has been proposed to address this practical challenge, where a model pretrained on a labeled cohort must adapt online to unlabeled subject streams under strict memory constraints. However, existing UICL methods typically store full past samples, which undermine the continual learning goal of avoiding retraining. Observing that EEG signals exhibit well-structured morphologies to be exploited via morphology-aware selection, compression, and reconstruction, here we propose Adaptive Data Compression and Reconstruction (ADaCoRe) for UICL. This is a memory-efficient pipeline composed of saliency-driven keyframe protection, rational polyphase compression, adjoint reconstruction with verbatim overwrite on protected indices, and prototype-confidence selection for adaptive exemplar maintenance. Across three representative benchmarks, ADaCoRe consistently outperforms recent strong baselines under tight buffer regimes (eg., the performance gains are at least +2.7 and +15.3 ACC on ISRUC and FACED datasets, respectively). Ablation studies quantify compression-fidelity trade-offs and highlight the contribution of each design, while visualizations confirm the preservation of key EEG morphology during compression and reconstruction.",
+      "authors": [
+        "Chengcheng Xie"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-05-04T18:59:35+00:00",
+      "link": "https://arxiv.org/pdf/2605.03085v1",
+      "tags": [
+        "keyword:eeg",
+        "query:eeg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "EEG signal compression and reconstruction for continual learning",
+      "llm_evidence_cn": "脑电信号压缩与重建用于持续学习",
+      "llm_evidence": "脑电信号压缩与重建用于持续学习",
+      "canonical_evidence": "脑电信号压缩与重建用于持续学习",
+      "llm_tldr_en": "Proposes morphology-aware adaptive compression and reconstruction for memory-bounded EEG continual learning, reducing stored samples while preserving task performance.",
+      "llm_tldr_cn": "针对无监督个体持续学习中存储全部样本违背持续学习目标的问题，本文利用脑电形态结构进行感知选择、压缩与重建，在严格内存约束下实现自适应数据压缩。实验表明该方法在保持性能的同时大幅减少存储需求。",
+      "llm_tldr": "针对无监督个体持续学习中存储全部样本违背持续学习目标的问题，本文利用脑电形态结构进行感知选择、压缩与重建，在严格内存约束下实现自适应数据压缩。实验表明该方法在保持性能的同时大幅减少存储需求。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.14698v1",
+      "source": "arxiv",
+      "title": "NeuroAtlas: Benchmarking Foundation Models for Clinical EEG and Brain-Computer Interfaces",
+      "abstract": "Foundation models (FMs) promise to extract unified representations that generalize across downstream tasks. They have emerged across fields, including electroencephalography (EEG), but it is less clear how effective they are in this particular field. Published evaluations differ in datasets, in the EEG-specific preprocessing that might influence reported results, and in the reported metrics, frequently obscuring the clinical relevance in EEG. We introduce NeuroAtlas, the largest EEG benchmark to date: 42 datasets and 260k hours covering clinical EEG (epilepsy, sleep medicine, brain age estimation) and brain-computer interfaces, and include multiple datasets per task along with bespoke clinical evaluation metrics. Besides evaluating EEG-FMs with respect to supervised baselines, we present results from generic time-series FMs. We report three findings. First, EEG-specific FMs do not consistently outperform time-series FMs, which have neither EEG-focused architectures nor been pretrained on EEG. Second, standard machine learning metrics are insufficient to assess clinical utility: thus, we thoroughly evaluate more appropriate measures such as the quality of event-level decision-making, hypnogram-derived features, and the brain-age gap in the domains of epilepsy, sleep, and brain age, respectively. Third, model rankings and performance can vary substantially within domains. We conclude that pretrained models perform largely on par, with only narrow advantages for a few, and that current models do not yet deliver on the promise of an out-of-the-box unified EEG model. NeuroAtlas exposes this gap and provides the datasets and metrics for the next generation of unified EEG FMs.",
+      "authors": [
+        "Konstantinos Kontras",
+        "Trui Osselaer",
+        "Stylianos G. Mouslech",
+        "Angeliki-Ilektra Karaiskou",
+        "Guido Gagliardi",
+        "Thomas Strypsteen",
+        "Mohammad Hossein Badiei",
+        "Anku Rani",
+        "Maarten Vanmarcke",
+        "Miguel Bhagubai",
+        "Chanakya Ekbote",
+        "Jaedong Hwang",
+        "Christos Chatzichristos",
+        "Paul Pu Liang",
+        "Maarten De Vos"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-05-14T11:13:41+00:00",
+      "link": "https://arxiv.org/pdf/2605.14698v1",
+      "tags": [
+        "keyword:eeg",
+        "query:eeg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Large-scale benchmark for clinical EEG and BCI foundation models",
+      "llm_evidence_cn": "大规模临床EEG和BCI基础模型基准",
+      "llm_evidence": "大规模临床EEG和BCI基础模型基准",
+      "canonical_evidence": "大规模临床EEG和BCI基础模型基准",
+      "llm_tldr_en": "NeuroAtlas introduces the largest EEG benchmark with 42 datasets and 260k hours, covering clinical tasks and BCI, with standardized preprocessing and clinical metrics.",
+      "llm_tldr_cn": "该论文提出NeuroAtlas，是目前最大的EEG基准，包含42个数据集、26万小时数据，覆盖临床（癫痫、睡眠等）和BCI任务。通过标准化预处理和定制临床评估指标，系统评估了多种基础模型，揭示了现有评估的不足。",
+      "llm_tldr": "该论文提出NeuroAtlas，是目前最大的EEG基准，包含42个数据集、26万小时数据，覆盖临床（癫痫、睡眠等）和BCI任务。通过标准化预处理和定制临床评估指标，系统评估了多种基础模型，揭示了现有评估的不足。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2605.11410v1",
+      "source": "arxiv",
+      "title": "What Do EEG Foundation Models Capture from Human Brain Signals?",
+      "abstract": "Clinical electroencephalogram (EEG) analysis rests on a hand-crafted feature catalog refined over decades, \\emph{e.g.,} band power, connectivity, complexity, and more. Modern EEG foundation models bypass this catalog, learn directly from raw signals via self-supervised pretraining, and match or outperform feature-engineered baselines on most clinical benchmarks. Whether the two representations align is an open question, which we decompose into three sub-questions: \\emph{what does the model learn}, \\emph{what does the model use}, and \\emph{how much can be explained}. We answer them with layer-wise ridge probing, LEACE-style cross-covariance subspace erasure, and a transparent classifier benchmarked against a random-feature baseline. The audit covers three foundation models (CSBrain, CBraMod, LaBraM), five clinical tasks (MDD, Stress, ISRUC-Sleep, TUSL, Siena), and a 6-family 63-feature lexicon. Of the $945$ (model, task, feature) units, $648$ ($68.6\\%$) are representation-causal and $199$ ($21.1\\%$) are encoded-only. Across tasks, $50$ features qualify as universal candidates with strong support (all three architectures RC) in two or more tasks. Frequency-domain features dominate, but the other five families each contribute substantial causal mass. Confirmed features recover, on average, $79.3\\%$ of the foundation model's advantage over the random baseline, with a clean task gradient (MDD $\\approx 0.99$ down to Stress $\\approx 0.56$): tasks near ceiling are almost fully recovered by the lexicon, while harder tasks leave a non-trivial residual that pinpoints a concrete target for future concept discovery.",
+      "authors": [
+        "Ling Tang",
+        "Qian Chen",
+        "Jilin Mei",
+        "Houshi Xu",
+        "Quanshi Zhang",
+        "Jing Shao",
+        "Na Zou",
+        "Xia Hu",
+        "Dongrui Liu"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-05-12T01:57:53+00:00",
+      "link": "https://arxiv.org/pdf/2605.11410v1",
+      "tags": [
+        "keyword:eeg",
+        "query:eeg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "analyzing representations of EEG foundation models",
+      "llm_evidence_cn": "分析脑电基础模型的表示内容",
+      "llm_evidence": "分析脑电基础模型的表示内容",
+      "canonical_evidence": "分析脑电基础模型的表示内容",
+      "llm_tldr_en": "Probes three EEG foundation models with ridge regression and subspace erasure to understand what features they capture compared to hand-crafted clinical metrics.",
+      "llm_tldr_cn": "该论文系统探究了EEG基础模型内部表示与传统手工临床特征之间的关系，通过层状岭回归探测、LEACE交叉协方差距阵擦除和透明分类器基准，对三个基础模型进行审计。结果显示模型捕捉的信息与特征库部分一致但存在差异，为理解EEG基础模型的学习内容和局限性提供了分析框架。",
+      "llm_tldr": "该论文系统探究了EEG基础模型内部表示与传统手工临床特征之间的关系，通过层状岭回归探测、LEACE交叉协方差距阵擦除和透明分类器基准，对三个基础模型进行审计。结果显示模型捕捉的信息与特征库部分一致但存在差异，为理解EEG基础模型的学习内容和局限性提供了分析框架。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.11885v1",
+      "source": "arxiv",
+      "title": "From Clever Hans to Scientific Discovery: Interpreting EEG Foundational Transformers with LRP",
+      "abstract": "Emerging foundation models (FMs) in electroencephalography (EEG) promise a path to scale deep learning in diagnostics and brain-computer interfaces despite data scarcity, yet their opaque nature remains a barrier to wider adoption. We investigate attention-aware Layer-wise relevance propagation (LRP) as a post-hoc attribution method for EEG-FMs, extending LRP's use on convolutional neural network (CNN)-based EEG models to the Transformer architectures that current FMs are based on. We find that LRP can both verify EEG-FM decisions and surface novel, biologically plausible hypotheses from them. In motor imagery, it unmasks 'Clever Hans' behavior where models prioritize task correlated ocular signals over the intended motor correlates. In a naturalistic paradigm for affect prediction, it reveals a recurring reliance on a central electrode cluster, suggesting a candidate sensorimotor signature of arousal. Though heatmap interpretation remains ambiguous in this complex domain, the results position LRP as a tool for both verification and exploration of EEG-FMs, a role that will grow in both importance and discovery potential as the underlying models mature.",
+      "authors": [
+        "Justus Meyer zu Bexten",
+        "Nico Scherf",
+        "Bogdan Franczyk",
+        "Simon M. Hofmann"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "q-bio.NC"
+      ],
+      "published": "2026-05-12T09:59:14+00:00",
+      "link": "https://arxiv.org/pdf/2605.11885v1",
+      "tags": [
+        "keyword:eeg",
+        "query:eeg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Interpretability of EEG foundation transformers using LRP",
+      "llm_evidence_cn": "使用LRP解释EEG基础Transformer",
+      "llm_evidence": "使用LRP解释EEG基础Transformer",
+      "canonical_evidence": "使用LRP解释EEG基础Transformer",
+      "llm_tldr_en": "This work extends Layer-wise Relevance Propagation (LRP) to EEG foundation transformers, enabling post-hoc attribution and revealing Clever Hans behavior in motor imagery tasks.",
+      "llm_tldr_cn": "该论文将逐层相关性传播（LRP）应用于EEG基础Transformer模型，实现了事后归因解释。在运动想象任务中，LRP揭示了模型依赖于眼动伪影而非运动信号的“聪明的汉斯”行为，有助于验证模型决策并发现新的生物学假设。",
+      "llm_tldr": "该论文将逐层相关性传播（LRP）应用于EEG基础Transformer模型，实现了事后归因解释。在运动想象任务中，LRP揭示了模型依赖于眼动伪影而非运动信号的“聪明的汉斯”行为，有助于验证模型决策并发现新的生物学假设。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.14883v1",
+      "source": "arxiv",
+      "title": "BCI-Based Assessment of Ocular Response Time Using Dynamic Time Warping Leveraging an RDWT-Driven Deep Neural Framework",
+      "abstract": "Mild traumatic brain injury (mTBI) is a prevalent condition that remains difficult to diagnose in its early stages. Oculomotor dysfunction is a well-established marker of mTBI, motivating the development of portable tools that capture both eye-movement behavior and underlying neurophysiology. In this work, we present an initial framework that integrates electroencephalogram (EEG) with augmented-reality (AR)-based Vestibular/Ocular Motor Screening (VOMS) tasks to estimate subject-specific ocular response times. Pre-processed EEG signals, obtained through band-pass filtering and average referencing, are analyzed using a Redundant Discrete Wavelet Transform (RDWT)-driven deep neural framework. The RDWT coefficients are subjected to trainable zero-phase convolutional filtering and reconstructed into the time domain via inverse RDWT, followed by channel-wise temporal and spatial filtering using 2D convolution layers and convolutional-LSTM-based decoding. An ablation study demonstrates that wavelet-domain filtering serves as an effective denoising strategy, improving prediction performance. Sliding-window predictions were validated using Pearson correlation (>= 0.5), and Dynamic Time Warping (DTW) was subsequently used to estimate ocular response times. DTW-derived metrics revealed significant inter-subject differences across all VOM tasks, supported by Mann-Whitney U tests. Cross-correlation analysis further revealed task-dependent temporal behaviors: pursuit tasks exhibited reactive tracking, whereas saccades showed anticipatory responses. Overall, the results highlight pursuit tasks as particularly informative for distinguishing timing differences and demonstrate the potential of RDWT-based EEG features combined with DTW metrics for multimodal mTBI assessment.",
+      "authors": [
+        "Shantanu Sarkar",
+        "Sai Shashank Gandavarapu",
+        "Jeff Feng",
+        "Saurabh Prasad",
+        "Reza Khanbabaie",
+        "Jose L. Contreras-Vidal"
+      ],
+      "primary_category": "eess.SP",
+      "categories": [
+        "eess.SP",
+        "cs.HC",
+        "cs.LG"
+      ],
+      "published": "2026-05-14T14:28:11+00:00",
+      "link": "https://arxiv.org/pdf/2605.14883v1",
+      "tags": [
+        "keyword:eeg",
+        "query:eeg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "BCI-based assessment using EEG and dynamic time warping",
+      "llm_evidence_cn": "基于脑机接口的评估：结合脑电与动态时间规整",
+      "llm_evidence": "基于脑机接口的评估：结合脑电与动态时间规整",
+      "canonical_evidence": "基于脑机接口的评估：结合脑电与动态时间规整",
+      "llm_tldr_en": "Introduces an EEG-AR combined framework for estimating ocular response times in mTBI assessment, using RDWT-driven deep neural network and dynamic time warping.",
+      "llm_tldr_cn": "针对轻度创伤性脑损伤早期诊断困难，本文提出整合脑电与增强现实的框架，结合冗余离散小波变换深度神经网络和动态时间规整估计个性化眼部响应时间。在初步实验中证明了该系统区分mTBI患者的潜力。",
+      "llm_tldr": "针对轻度创伤性脑损伤早期诊断困难，本文提出整合脑电与增强现实的框架，结合冗余离散小波变换深度神经网络和动态时间规整估计个性化眼部响应时间。在初步实验中证明了该系统区分mTBI患者的潜力。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2605.11410v2",
+      "source": "arxiv",
+      "title": "What Do EEG Foundation Models Capture from Human Brain Signals?",
+      "abstract": "Clinical electroencephalogram (EEG) analysis rests on a hand-crafted feature catalog refined over decades, \\emph{e.g.,} band power, connectivity, complexity, and more. Modern EEG foundation models bypass this catalog, learn directly from raw signals via self-supervised pretraining, and match or outperform feature-engineered baselines on most clinical benchmarks. Whether the two representations align is an open question, which we decompose into three sub-questions: \\emph{what does the model learn}, \\emph{what does the model use}, and \\emph{how much can be explained}. We answer them with layer-wise ridge probing, LEACE-style cross-covariance subspace erasure, and a transparent classifier benchmarked against a random-feature baseline. The audit covers three foundation models (CSBrain, CBraMod, LaBraM), five clinical tasks (MDD, Stress, ISRUC-Sleep, TUSL, Siena), and a 6-family 63-feature lexicon. Of the $945$ (model, task, feature) units, $648$ ($68.6\\%$) are representation-causal and $199$ ($21.1\\%$) are encoded-only. Across tasks, $50$ features qualify as universal candidates with strong support (all three architectures RC) in two or more tasks. Frequency-domain features dominate, but the other five families each contribute substantial causal mass. Confirmed features recover, on average, $79.3\\%$ of the foundation model's advantage over the random baseline, with a clean task gradient (MDD $\\approx 0.99$ down to Stress $\\approx 0.56$): tasks near ceiling are almost fully recovered by the lexicon, while harder tasks leave a non-trivial residual that pinpoints a concrete target for future concept discovery.",
+      "authors": [
+        "Ling Tang",
+        "Qian Chen",
+        "Jilin Mei",
+        "Houshi Xu",
+        "Quanshi Zhang",
+        "Jing Shao",
+        "Na Zou",
+        "Xia Hu",
+        "Dongrui Liu"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-05-12T01:57:53+00:00",
+      "link": "https://arxiv.org/pdf/2605.11410v2",
+      "tags": [
+        "keyword:eeg",
+        "query:eeg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Analysis of EEG foundation models' latent representations",
+      "llm_evidence_cn": "分析脑电基础模型的潜在表示",
+      "llm_evidence": "分析脑电基础模型的潜在表示",
+      "canonical_evidence": "分析脑电基础模型的潜在表示",
+      "llm_tldr_en": "Audits EEG foundation models using layer-wise probing and subspace erasure to understand what they learn from raw signals, finding alignment with hand-crafted features.",
+      "llm_tldr_cn": "针对脑电基础模型学到的表征是否与传统手工特征对齐的疑问，本文使用逐层岭回归探测和协方差子空间擦除等方法审计三个主流脑电基础模型。结果表明模型捕获了与频带功率、连接性等经典特征部分重叠的信息，为理解脑电潜在空间提供了机理视角。",
+      "llm_tldr": "针对脑电基础模型学到的表征是否与传统手工特征对齐的疑问，本文使用逐层岭回归探测和协方差子空间擦除等方法审计三个主流脑电基础模型。结果表明模型捕获了与频带功率、连接性等经典特征部分重叠的信息，为理解脑电潜在空间提供了机理视角。",
+      "llm_tags": [
+        "query:eeg-latent:composite"
+      ],
+      "matched_query_tag": "query:eeg-latent:composite",
+      "matched_query_text": "Papers central to EEG论文，latent space缺失通道补全, especially work that connects or combines: E; EEG latent space representation; deep learning for EEG signal reconstruction; generative models for EEG channel imputation; EEG missing channel completion using latent space models; latent space based imputation for multichannel EEG; reconstruct missing EEG channels with deep generative networks.",
+      "matched_requirement_id": "req-composite-eeg-latent",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.13930v2",
+      "source": "arxiv",
+      "title": "Mechanistic Interpretability of EEG Foundation Models via Sparse Autoencoders",
+      "abstract": "EEG foundation models achieve state-of-the-art clinical performance, yet the internal computations driving their predictions remain opaque: a barrier to clinical trust. We apply TopK Sparse Autoencoders (SAEs) across three architecturally distinct EEG transformers: SleepFM, REVE, and LaBraM to extract sparse feature dictionaries from their embeddings. By grounding these features in a clinical taxonomy (abnormality, age, sex, and medication), we benchmark monosemanticity and entanglement across architectures. A single hyperparameter procedure, driven by an intrinsic dictionary health audit, transfers robustly across all three architectures. Via concept steering, we introduce a \"target vs. off-target\" probe area metric to quantify steering selectivity and reveal three operational regimes: selectively steerable, encoded but entangled, and non-encoded. This framework exposes critical representational failures: \"wrecking-ball\" interventions that collapse global model performance, and clinical entanglements, such as age-pathology confounding, where it is impossible to suppress one concept without corrupting the other. Finally, a spectral decoder maps these interventions back to the amplitude spectrum, translating latent manipulations into physiologically interpretable frequency signatures, such as pathological slow-wave suppression and $α$-band restoration.",
+      "authors": [
+        "William Lehn-Schiøler",
+        "Magnus Ruud Kjær",
+        "Rahul Thapa",
+        "Magnus Guldberg Pedersen",
+        "Anton Mosquera Storgaard",
+        "Nick Williams",
+        "Radu Gatej",
+        "Tue Lehn-Schiøler",
+        "Sándor Beniczky",
+        "Sadasivan Puthusserypady",
+        "James Zou",
+        "Lars Kai Hansen"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.HC",
+        "cs.NE"
+      ],
+      "published": "2026-05-13T16:02:56+00:00",
+      "link": "https://arxiv.org/pdf/2605.13930v2",
+      "tags": [
+        "keyword:eeg",
+        "query:eeg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Mechanistic interpretability of EEG FMs via sparse autoencoders",
+      "llm_evidence_cn": "通过稀疏自编码器进行EEG基础模型的可解释性分析",
+      "llm_evidence": "通过稀疏自编码器进行EEG基础模型的可解释性分析",
+      "canonical_evidence": "通过稀疏自编码器进行EEG基础模型的可解释性分析",
+      "llm_tldr_en": "This paper applies TopK sparse autoencoders to extract interpretable features from EEG foundation models, benchmarking monosemanticity across architectures and introducing concept steering metrics.",
+      "llm_tldr_cn": "该论文使用TopK稀疏自编码器从三种不同的EEG Transformer基础模型（SleepFM、REVE、LaBraM）中提取稀疏特征字典，基于临床分类体系评估单义性和纠缠度，并提出概念引导度量以量化特征选择精度。",
+      "llm_tldr": "该论文使用TopK稀疏自编码器从三种不同的EEG Transformer基础模型（SleepFM、REVE、LaBraM）中提取稀疏特征字典，基于临床分类体系评估单义性和纠缠度，并提出概念引导度量以量化特征选择精度。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.14941v1",
+      "source": "arxiv",
+      "title": "nASR: An End-to-End Trainable Neural Layer for Channel-Level EEG Artifact Subspace Reconstruction in Real-Time BCI",
+      "abstract": "Electroencephalogram (EEG) signals are highly susceptible to artifacts, resulting in a low signal-to-noise ratio which makes extraction of meaningful neural information challenging. Artifact Subspace Reconstruction (ASR) is one of the most widely used artifact filtering techniques in EEG-based BCI applications, owing to its real-time applicability. ASR reconstructs artifact-free signals by operating in Principal Component (PC) space within sliding windows. However, ASR performance is critically sensitive to its threshold parameter - an incorrect threshold risks removing task-relevant neural features alongside artifacts. Furthermore, since PCs are linear combinations of all channels, subspace reconstruction in PC space may alter the underlying data structure, potentially discarding essential neural information.   To address these limitations, we propose nASR, a novel end-to-end trainable Keras layer that jointly optimizes artifact rejection and downstream decoding. nASR introduces two trainable threshold parameters: K, which governs artifact detection in PC variance space, and L, which quantifies eigen-spread to pinpoint the primary artifact--contributing channels, enabling selective channel-level reconstruction that preserves clean channel information.   An ablation study comprising five model variants (m01 - m05), evaluated across two subjects from the BCI Competition IV Dataset 1, confirms that nASR variants consistently outperform traditional ASR on test classification metrics, while achieving a 6-8x reduction in inference time, making nASR a strong candidate for real-time BCI applications demanding both low latency and high decoding performance.",
+      "authors": [
+        "Shantanu Sarkar",
+        "Jose L. Contreras-Vidal"
+      ],
+      "primary_category": "eess.SP",
+      "categories": [
+        "eess.SP",
+        "cs.HC",
+        "cs.LG"
+      ],
+      "published": "2026-05-14T15:15:57+00:00",
+      "link": "https://arxiv.org/pdf/2605.14941v1",
+      "tags": [
+        "keyword:eeg",
+        "query:eeg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "artifact subspace reconstruction in PC space for EEG signal cleaning",
+      "llm_evidence_cn": "通道级伪影子空间重建用于脑电信号去噪",
+      "llm_evidence": "通道级伪影子空间重建用于脑电信号去噪",
+      "canonical_evidence": "通道级伪影子空间重建用于脑电信号去噪",
+      "llm_tldr_en": "End-to-end trainable neural layer for channel-level EEG artifact subspace reconstruction in PC space, offering real-time artifact removal for BCI.",
+      "llm_tldr_cn": "该论文针对脑电信号伪影污染问题，提出nASR——一种端到端可训练的神经层，在滑动窗口主成分空间中执行通道级伪影子空间重建。相比传统ASR方法，nASR消除了对阈值参数的敏感依赖，在实时脑机接口应用中表现出更鲁棒的伪影去除效果，同时更好地保留了任务相关神经特征。",
+      "llm_tldr": "该论文针对脑电信号伪影污染问题，提出nASR——一种端到端可训练的神经层，在滑动窗口主成分空间中执行通道级伪影子空间重建。相比传统ASR方法，nASR消除了对阈值参数的敏感依赖，在实时脑机接口应用中表现出更鲁棒的伪影去除效果，同时更好地保留了任务相关神经特征。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2605.13930v1",
+      "source": "arxiv",
+      "title": "Mechanistic Interpretability of EEG Foundation Models via Sparse Autoencoders",
+      "abstract": "EEG foundation models achieve state-of-the-art clinical performance, yet the internal computations driving their predictions remain opaque: a barrier to clinical trust. We apply TopK Sparse Autoencoders (SAEs) across three architecturally distinct EEG transformers: SleepFM, REVE, and LaBraM to extract sparse feature dictionaries from their embeddings. By grounding these features in a clinical taxonomy (abnormality, age, sex, and medication), we benchmark monosemanticity and entanglement across architectures. A single hyperparameter procedure, driven by an intrinsic dictionary health audit, transfers robustly across all three architectures. Via concept steering, we introduce a \"target vs. off-target\" probe area metric to quantify steering selectivity and reveal three operational regimes: selectively steerable, encoded but entangled, and non-encoded. This framework exposes critical representational failures: \"wrecking-ball\" interventions that collapse global model performance, and clinical entanglements, such as age-pathology confounding, where it is impossible to suppress one concept without corrupting the other. Finally, a spectral decoder maps these interventions back to the amplitude spectrum, translating latent manipulations into physiologically interpretable frequency signatures, such as pathological slow-wave suppression and $α$-band restoration.",
+      "authors": [
+        "William Lehn-Schiøler",
+        "Magnus Ruud Kjær",
+        "Rahul Thapa",
+        "Magnus Guldberg Pedersen",
+        "Anton Storgaard Mosquera",
+        "Nick Williams",
+        "Radu Gatej",
+        "Tue Lehn-Schiøler",
+        "Sándor Beniczky",
+        "Sadasivan Puthusserypady",
+        "James Zou",
+        "Lars Kai Hansen"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.HC",
+        "cs.NE"
+      ],
+      "published": "2026-05-13T16:02:56+00:00",
+      "link": "https://arxiv.org/pdf/2605.13930v1",
+      "tags": [
+        "keyword:eeg",
+        "query:eeg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "sparse autoencoders for interpreting EEG foundation models",
+      "llm_evidence_cn": "稀疏自编码器用于解释EEG基础模型",
+      "llm_evidence": "稀疏自编码器用于解释EEG基础模型",
+      "canonical_evidence": "稀疏自编码器用于解释EEG基础模型",
+      "llm_tldr_en": "Uses TopK sparse autoencoders to extract sparse feature dictionaries from EEG foundation models, enabling mechanistic interpretability and concept steering analysis.",
+      "llm_tldr_cn": "该论文针对EEG基础模型内部计算不透明的问题，采用TopK稀疏自编码器从SleepFM、REVE和LaBraM三种Transformer架构中提取稀疏特征字典。通过在临床分类基准上评估特征的单义性和纠缠度，并引入概念引导方法，揭示了不同架构的内部表示特性，为增强EEG模型的可解释性和临床可信度提供了分析框架。",
+      "llm_tldr": "该论文针对EEG基础模型内部计算不透明的问题，采用TopK稀疏自编码器从SleepFM、REVE和LaBraM三种Transformer架构中提取稀疏特征字典。通过在临床分类基准上评估特征的单义性和纠缠度，并引入概念引导方法，揭示了不同架构的内部表示特性，为增强EEG模型的可解释性和临床可信度提供了分析框架。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

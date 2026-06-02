@@ -1,0 +1,272 @@
+Title: From EEG Cleaning to Decoding: The Role of Artifact Rejection in MI-based BCIs
+
+URL Source: https://arxiv.org/pdf/2605.12408v1
+
+Published Time: Wed, 13 May 2026 01:41:43 GMT
+
+Number of Pages: 5
+
+Markdown Content:
+# From EEG Cleaning to Decoding: The Role of Artifact Rejection in MI-based BCIs 
+
+Davoud Hajhassani 1, Bruno Aristimunha 1, Paul-Adrien Graignic 1, Apolline Mellot 1, Lionel Kusch 1,Arnaud Delorme 2, Thomas Semah 1, Arnault H. Caillet 1,* 
+
+> 1
+
+Yneuro , Paris, France 
+
+> 2
+
+SCCN, INC, SDSC, University of California San Diego , La Jolla, USA 
+
+> *
+
+arnault@yneuro.com 
+
+Abstract —Motor imagery (MI) BCIs are sensitive to EEG artifacts, yet the practical impact of automated artifact rejection on downstream MI decoding performance remains unclear. While most work focuses on decoder design, the contribution of data curation, particularly automated rejection policies, has received comparatively less attention, despite its importance for robust ML pipelines. Here, we propose Fast Automatic Artifact Rejec-tion (FAAR), a lightweight method that computes a compact set of artifact-sensitive features, derives an epoch-level Signal Quality Index, adaptively selects rejection thresholds, and automatically rejects contaminated epochs without requiring prior knowledge of artifact types or manual threshold tuning. We evaluate FAAR on 13 publicly available MI datasets and compare it to a no-rejection baseline, AutoReject, and Isolation Forest. We show rejection effects are strongly subject- and regime-dependent, with the largest gains in low-baseline/low-SNR conditions, so it should be used adaptively. FAAR reduces inter-subject performance variability, an important property for MI-BCI reliability and BCI-illiteracy, without aggressive data removal. Finally, FAAR’s lightweight and fully automated thresholding yields consistent rejection behavior across offline curation, training, and online filtering, and supports real-time BCI constraints. 
+
+Index Terms —Electroencephalography, Artifact rejection, Brain-computer interface, Motor imagery classification 
+
+I. I NTRODUCTION 
+
+Motor imagery (MI) is a central paradigm in brain–computer interface (BCI) research because it enables users to control external devices solely by imagining movement, without engaging peripheral nerves [1]. This has enabled health applications ranging from motor rehabilitation to assistive control [2], [3], and also motivates AR/VR BCI use cases where decoding user intent in-the-loop can support frictionless interactions, including authentication-oriented scenarios in augmented environments [4]. MI-based BCIs are commonly built from electroencephalography (EEG), which offers high temporal resolution with relatively low-cost, non-invasive and portable acquisition [5]. Yet, EEG recordings are often contaminated by non-cerebral electrical activity ( i.e. , artifacts) originating from physiological sources (e.g. , eye movements, muscle and cardiac activity) and from instrumental or environmental factors ( e.g. , impedance mismatches and electromagnetic interference) [6]. Artifacts can substantially degrade signal-to-noise ratio (SNR), which is particularly detrimental in MI where dis-criminative rhythms can be subtle. In practice, artifacts can mask task-relevant modulations and induce false-positive pre-dictions, reducing the reliability of MI-based BCIs. Moreover, because artifacts are nonlinear and nonstationary, handling them without distorting neuronal activity remains challenging [7]. This motivates integrating, into EEG analysis pipelines, artifact-handling stages that are effective while remaining op-erationally compatible with real-time BCI constraints. Artifact handling is commonly framed as artifact correction (suppress artifacts while preserving EEG) versus artifact rejection (ex-clude contaminated epochs from subsequent analysis) [8]. A wide range of correction methods has been proposed [7], [9], [10], and several studies have investigated how artifact correction influences downstream performance in MI-based BCIs, including trade-offs between denoising and distortion of task-relevant neural rhythms [11], [12], [13], [14], [15]. By contrast with correction, the impact of artifact rejection 
+
+on MI-based BCI performance has been less systematically characterized. In practice, artifact rejection methods have shifted from manual expert review [16] (time-consuming, subjective, and incompatible with scale and real time [17]) to automated pipelines (e.g., EEGLAB, EEGPrep, MNE) [18], [19], [20], that reduce manual efforts and improve scalability and re-producibility. Most semi-automated implementations rely on fixed epoch-rejecting thresholds on signal-quality metrics (e.g., peak-to-peak amplitude), as in FASTER [21]. However, EEG and artifact statistics vary widely across subjects, sessions, and datasets, so fixed thresholds rarely transfer and usually require dataset-specific recalibration, limiting scalable curation and real-time use. Autoreject (AR) automates threshold selection via cross-validation and Bayesian optimization [22], but at higher computational cost that limits large-scale processing or online use. Isolation Forest (IF) provides a faster automated alternative [23], but can be aggressive in epoch removal. We include AR and IF as reference methods in our comparisons. A complementary family of approaches uses Riemannian geometry: epochs are mapped to covariance matrices and scored by a Signal Quality Index (SQI) relative to a clean reference set [24], [25]. Reference-based SQIs with adaptive thresholding can outperform AR and IF in P300 settings [8], [26], but transferring across contexts remains difficult because the definition of the reference set and the quality representation often depend on montage, artifact structure, and task-specific 
+
+> arXiv:2605.12408v1 [eess.SP] 12 May 2026
+
+choices. In this paper, we propose Fast Automatic Artifact Rejection (FAAR) , a lightweight, real-time compatible artifact rejection method designed to generalize across EEG recordings and be compatible with online settings. We evaluate FAAR on 13 public MI datasets and compare it to AutoReject (AR), Isolation Forest (IF), and a no-rejection baseline, reporting decoding performance, rejection rate, and robustness across subjects. II. M ETHODS AND MATERIALS 
+
+A. Fast Automatic Artifact Rejection 
+
+FAAR is a lightweight artifact rejection method that com-putes an epoch-level Signal Quality Index (SQI) from (i) a compact set of artifact-sensitive features and (ii) a subject-specific clean reference estimated from the recording itself, then (iii) selects an adaptive SQI threshold from the SQI dis-tribution to automatically label epochs as retained or rejected. 
+
+1) Signal Quality Features: FAAR computes five com-plementary descriptors that equally contribute to the SQI computation and jointly capture major artifact signatures by being broadly sensitive to common EEG artifact families, complementary across time/frequency/statistics, and analytic and low-cost to compute for real-time use [27]. For each channel and short window we compute:  
+
+> •
+
+Band-limited spectral magnitude (8–32 Hz). Targets ab-normal power elevation in MI-relevant α/β bands; com-puted as mean |FFT | coefficients in-band.  
+
+> •
+
+RMS amplitude. Targets global amplitude/variance out-liers (e.g., pops, saturation, ocular/motion); computed as window RMS [28].  
+
+> •
+
+Maximum temporal gradient. Targets sharp transients/step changes missed by band-power (i.e., high-amplitude/-frequency artifacts, motion transients, electrode shifts); computed as max |∆x| between consecutive samples.  
+
+> •
+
+Zero-crossing rate. Coarse frequency proxy for low-high-frequency content (e.g., EMG ↑, drift ↓); computed as sign-change rate [29].  
+
+> •
+
+Kurtosis. Targets non-Gaussian impulsive/bursty outliers not well captured by variance alone; computed as nor-malized 4th central moment [30], [31]. 
+
+2) Reference Data Extraction (self-calibration): To avoid manually defining dataset-specific thresholds, FAAR derives a subject/session-specific clean reference directly from the recording itself. To do so, FAAR quantifies channel-wise signal variance by computing RMS values over short windows (e.g., 1-s) and standardizing them per channel (z-scoring across windows). A subset of clean windows is then automatically selected as reference by modeling the standardized RMS distribution with a truncated-Gaussian inlier criterion [32]. To remain usable in noisy recordings, reference selection retains windows with a small fraction of outlier ( bad ) channels, ensur-ing sufficient reference data even under degraded acquisition conditions. The resulting reference distribution is used to normalize subsequent feature values; this self-calibration method avoids  
+
+> Fig. 1. A visual overview of the MI datasets included in this study. Hexagon clusters indicate the relative number of trials per dataset, while shading encodes the number of recording sessions. All datasets are publicly available through the MOABB framework [35].
+
+manual recalibration of SQI normalization and relying on fixed simulated reference data, which can be suboptimal given inter-subject variability [27]. In online deployment, this reference can be initialized from an initial warm-up buffer (e.g., the first seconds), or from a previously learned subject/device reference (e.g., enrollment or prior sessions); it can then be maintained as a rolling (or exponentially-forgetting) estimate and updated incrementally in real time as new clean windows are observed. 
+
+3) Scoring and adaptive thresholding: Rather than apply-ing fixed hand-set thresholds to each signal quality feature, FAAR adaptively scores feature deviations relative to the sub-ject/session clean reference (c.f. previous section). Concretely, for each feature and channel, values are standardized with respect to the reference distribution (z-scoring) and mapped to an ordinal severity score (e.g., four levels from “within reference” indicating clean EEG to “strong outlier” indicating high likelihood of artifact contamination) [33]. Channel-wise scores are then aggregated into an epoch-level Signal Quality Index (SQI), with larger SQI indicating lower signal quality. FAAR then achieves adaptive thresholding as it selects the rejection threshold automatically from the empirical SQI distribution using a knee-detection algorithm [34]. This yields a data-driven threshold that adapts to recording quality across subjects and sessions, avoids manual recalibration, and re-moves the cross-validation/optimization overhead of methods such as AutoReject. 
+
+B. Datasets 
+
+We evaluate FAAR across 13 publicly available MI datasets accessed through MOABB [35]. The datasets span multiple paradigms, session counts, and recording conditions; a sum-mary is provided in Fig. 1. When the cross-session analysis is performed in this study, only subjects with at least two record-ing sessions were retained. We rely on MOABB’s standardized dataset access and protocol definitions to ensure consistent cross-dataset evaluation. 
+
+C. Evaluation Pipeline 
+
+Evaluation of FAAR on downstream MI decoding perfor-mance follows a cross-session and cross-subject decoding Balanced Accuracy F1-Score Precision         
+
+> 0
+> 25
+> 50
+> 75
+> 100
+> Score (%)
+> A
+> 65.4
+> 60.2
+> 68.6
+> 61.6
+> 51.6
+> 61.2 62.5
+> 54.9
+> 63.5 65.3
+> 59.1
+> 68.9
+> Baseline IF AR FAAR
+> Balanced Accuracy F1-Score Precision
+> 0
+> 25
+> 50
+> 75
+> 100
+> Score (%)
+> B
+> Baseline
+> IF
+> AR
+> FAAR
+> 0
+> 25
+> 50
+> 75
+> 100
+> Baseline Balanced Accuracy (%)
+> 0
+> 25
+> 50
+> 75
+> 100
+> Method's Balanced Accuracy (%)
+> CFAAR/AR/IF vs Baseline
+> FAAR
+> AR
+> IF
+> 0
+> 25
+> 50
+> 75
+> 100
+> Baseline F1-Score (%)
+> 0
+> 25
+> 50
+> 75
+> 100
+> Method's F1-Score (%)
+> DFAAR/AR/IF vs Baseline
+> FAAR
+> AR
+> IF
+> 0
+> 25
+> 50
+> 75
+> 100
+> Baseline Precision (%)
+> 0
+> 25
+> 50
+> 75
+> 100
+> Method's Precision (%)
+> EFAAR/AR/IF vs Baseline
+> FAAR
+> AR
+> IF
+
+Fig. 2. Comparison of artifact rejection methods (AR, IF, and FAAR) against the baseline on the Lee2019 MI dataset under cross-session evaluation. (A) Mean performance across subjects and (B) subject-level distributions. (C)–(E) Per-subject comparison of FAAR, AR and IF versus baseline for balanced accuracy, F1-score, and precision. In the scatter plots, each point corresponds to a subject, with marker size proportional to 1/ECE (inverse expected calibration error), allowing performance changes to be interpreted jointly with calibration; subjects with larger markers correspond to better-calibrated models. 
+
+paradigm protocol. For each dataset, signals are band-pass filtered in the MI band (8–32 Hz) and epoched according to the cognitive event region of interest [35]. Artifact handling is applied within each training fold under four compared conditions: no artifact handling (baseline), AutoReject (AR), Isolation Forest (IF), and our proposed FAAR. Rejected epochs are excluded from training/testing. Decoding is performed with K-fold cross-validation, hold-ing out one session (cross-session) or one subject (cross-subject) per fold, training on the remaining data, and aver-aging scores across folds. To isolate the effect of rejection, all conditions use the same downstream decoder: covariance estimation, tangent-space projection, and logistic regression [36], [37], a robust and state-of-the-art method according to a recent benchmark. Performance is reported with balanced accuracy (BA), F1-score, and precision. To characterize deployment-relevant be-havior beyond mean accuracy, we also report: (i) win rate (fraction of subjects improved vs. baseline and other methods), (ii) inter-subject variability (standard deviation of balanced accuracy across subjects, averaged per dataset/paradigm), (iii) epoch rejection rate, and (iv) calibration via expected cali-bration error (ECE), jointly capturing performance, reliability, and the aggressiveness of each rejection strategy. To fairly benchmark the operational cost, we measured single-thread CPU wall-time per second of EEG on a representative dataset (same machine for all methods). III. R ESULTS 
+
+We report cross-session and cross-subject decoding results across 13 MI datasets (MOABB), comparing four artifact-handling conditions: no rejection (baseline), AutoReject (AR), Isolation Forest (IF), and FAAR. 
+
+Aggregate decoding performance. A representative example (Lee2019 MI, cross-session) is shown in Fig. 2: beyond mean performance, it shows that subject-level dispersion differs markedly across artifact handling methods. 
+
+Subject-level regime dependence (win-rate vs. baseline). 
+
+Fig. 3 summarizes the win rate (fraction of subjects improved vs. baseline) as a function of baseline BA aggregated across datasets. It shows that artifact rejection does not yield uniform gains in MI-BCI decoding: for low baseline performance (BA 
+
+< 0.6), cleaning improves the majority of subjects for FAAR and AR by 60 %, 55 % respectively. On the contrary, for high baseline performance (BA > 0.7), cleaning more often degrades performance. 
+
+Robustness across users. Fig. 4 reports how artifact han-dling methods impact inter-subject variability (standard devi-ation of BA across subjects, averaged per dataset/paradigm). FAAR reduces inter-subject dispersion relative to baseline by 
+
+∆σBA = 0.008 (motor imagery) and 0.013 (LR imagery), and is lower than AR/IF by 0.008 /0.013 on average. 
+
+Rejection rate (operating point). Fig. 5 shows that FAAR operates in a conservative regime, rejecting ≤ 2.3 % of epochs on average (by paradigm), comparable to AR ( ≤ 1.5 %), while IF rejects substantially more (e.g., 45–52 %). <0.3 0.3 0.5 
+
+> 0.5 0.6
+> 0.6 0.7
+> 0.7 0.8
+> 0.8 0.9
+> 0.9 1.0
+> 0
+> 20
+> 40
+> 60 Win Rate (%)
+> FARR (n=57) <0.3 0.3 0.5
+> 0.5 0.6
+> 0.6 0.7
+> 0.7 0.8
+> 0.8 0.9
+> 0.9 1.0
+> 0
+> 20
+> 40
+> 60
+> AutoReject (n=56) <0.3 0.3 0.5
+> 0.5 0.6
+> 0.6 0.7
+> 0.7 0.8
+> 0.8 0.9
+> 0.9 1.0
+> 0
+> 20
+> 40
+> 60
+> IsolationForest (n=54)
+
+Fig. 3. Win rate for Left-Right Imagery, percentage of subjects for whom cleaning improves balanced accuracy (BA) as a function of baseline performance. For baseline BA < 0.5, all methods improve performance for > 65% of subjects; for baseline BA > 0.7, all methods degrade performance for > 70% of subjects. The 50% chance level is shown as a dashed reference line. Left/Right Imagery Motor Imagery  
+
+> 0.00
+> 0.02
+> 0.04
+> 0.06
+> 0.08
+> 0.10
+> Mean Inter-Subject Std(BA)  0.102
+> 0.086 0.089
+> 0.078
+> 0.095 0.089
+> 0.112
+> 0.082
+> Baseline
+> FARR
+> AutoReject
+> IsolationForest
+
+Fig. 4. Effect of cleaning on inter-subject variability. Mean inter-subject standard deviation of BA across datasets, reported by paradigm (LR imagery, motor imagery) and method (baseline, FAAR, AR, and IF). Lower values indicate more consistent performance across subjects. Left/Right Imagery Motor Imagery     
+
+> 0
+> 10
+> 20
+> 30
+> 40
+> 50
+> Mean Epochs Rejected (%)
+> 1.7% 2.3%
+> 0.8% 1.5%
+> 45.9%
+> 51.9%
+> FARR AutoReject IsolationForest
+
+Fig. 5. Mean percentage of epochs rejected for LR imagery, motor imagery. IF rejects a substantially larger fraction of data (45-52%) than FAAR ( ≤2.3%) and AutoReject ( ≤1.5%). 
+
+IV. D ISCUSSION AND FUTURE CONSIDERATIONS 
+
+Our results support several deployment-relevant takeaways. 
+
+Artifact rejection is subject- and regime-dependent, so it should be used adaptively. The win-rate curve (Fig. 3) shows that rejection helps mainly in low-baseline/low-SNR regimes, especially for FAAR and AR, and can hurt when baseline decoding is already strong (e.g., by removing usable trials and reducing effective sample size). Practically, rejection should be treated as a conditional quality intervention layer (triggered or tuned by the operating regime), not a default pre-processing step. This is a key point for cross-session deployment across subjects where artifact statistics drift over time. 
+
+FAAR improves robustness across users by reducing inter-subject variability. FAAR consistently reduces subject-to-subject dispersion relative to baseline and typically vs. AR/IF (Fig. 4), yielding more consistent MI decoding across par-ticipants. This is particularly valuable for cross-session BCI operation and downstream systems where predictable user-level behavior matters as much as marginal mean gains. 
+
+FAAR, like AR, is conservative and avoids IF’s data-loss failure mode. FAAR rejects only a small fraction of epochs (Fig. 5), whereas IF can remove a large share of trials, which reduces effective sample size, and can destabilize training/testing and amplify variance, potentially degrading performance (see Fig. 2) in high-baseline regimes. By pre-serving statistical power, and reducing latency to accumulate usable trials, FAAR is better suited to data-limited and real-time settings. 
+
+FAAR removes threshold calibration burden while remain-ing lightweight for real-time use. FAAR avoids user-specified and dataset-specific threshold calibration by (i) normalizing features to a self-derived reference and (ii) selecting the rejection threshold automatically (knee detection), yielding an adaptive threshold that transfers across subjects/sessions at low compute cost. In contrast, AR relies on cross-validation and optimization, which is heavier. With a runtime benchmark, FAAR, like IF, is real-time compatible (i.e., processing faster than signal duration) and substantially cheaper than AR while typically yielding stronger decoding than IF under comparable efficiency constraints (Fig. 2). 
+
+FAAR provides a repeatable quality decision layer from offline curation to real-time deployment. FAAR uses a fixed SQI definition and deterministic, reference-normalized knee thresholding. Therefore, “clean enough” is defined consistently during dataset construction, model training, and live inference. This reduces train-deploy mismatch and simplifies integration and monitoring, whereas AR’s data-dependent threshold selec-tion and IF’s non-reference-anchored behavior can yield less stable rejection behavior across offline vs. online contexts. 
+
+FAAR is interpretable, diagnosable, and easy to adapt. 
+
+FAAR’s SQI is built from simple analytical features, so rejec-tion decisions can be inspected and explained. This makes it easier to understand why epochs are rejected and to adjust the feature set or thresholding strategy when transferring across datasets/devices, a practical advantage over black-box anomaly detectors such as IF and over heavier calibration pipelines such as AR. 
+
+Limitations. This study uses public MI datasets and a standardized tangent-space classifier to isolate rejection ef-fects. Future work should stress-test robustness under con-trolled noise injections, and extend evaluation to real-world recordings with higher density of artifacts (e.g., dry electrodes, motion-heavy and uncontrolled settings), where FAAR’s arti-fact rejection may yield clearer gains over the no-cleaning baseline. Additional decoders, including deep models, should also be assessed, but the present results already establish clear operating-regime guidance and an operationally efficient rejection baseline for cross-session MI pipelines. 
+
+Acknowledgements. This project was supported with com-pute and storage resources by GENCI at IDRIS under grant 2025-A0201016987 on the A100 and H100 partitions of the Jean Zay supercomputer. REFERENCES [1] J. R. Wolpaw, D. J. McFarland, G. W. Neat, and C. A. Forneris, “An EEG-based brain-computer interface for cursor control,” Electroencephalogra-phy and Clinical Neurophysiology , 1991. [2] M. A. Khan, R. Das, H. K. Iversen, and S. Puthusserypady, “Review on motor imagery based BCI systems for upper limb post-stroke neurore-habilitation: From designing to application,” Computers in Biology and Medicine , 2020. [3] H. Pan, B. Teng, Z. Liu, S. Tong, X. Yu, and Z. Li, “Five-class motor imagery BCI classification and its application to brain-controlled wheelchairs,” Cognitive Neurodynamics , 2026. [4] A. H. Caillet, A. Shtarbanov, and T. Semah, “Adaptable Neuro-physiological Biometric Authentication System and Method,” Patent WO2025219294, published Oct. 22, 2025; filing no. WO2025EP60157 (Apr. 11, 2025). [5] R. Abiri, S. Borhani, E. W. Sellers, Y. Jiang, and X. Zhao, “A comprehen-sive review of EEG-based brain-computer interface paradigms,” J. Neural Eng. , 2019. [6] A. Bashashati, M. Fatourechi, R. K. Ward, and G. E. Birch, “A survey of signal processing algorithms in brain-computer interfaces based on electrical brain signals,” J. Neural Eng. , 2007. [7] W. Mumtaz, S. Rasheed, and A. Irfan, “Review of challenges associated with the EEG artifact removal methods,” Biomedical Signal Processing and Control , 2021. [8] D. Hajhassani, Q. Barth´ elemy, J. Mattout, and M. Congedo, “Improved Riemannian potato field: An automatic artifact rejection method for EEG,” 
+
+Biomedical Signal Processing and Control , 2026. [9] M. K. Islam, A. Rastegarnia, and Z. Yang, “Methods for artifact detection and removal from scalp EEG: A review,” Neurophysiologie Clinique/Clinical Neurophysiology , 2016. [10] X. Jiang, B. G. Bin, and Z. Tian, “Removal of artifacts from EEG signals: a review,” Sensors (Basel) , 2019. [11] L. Frølich, I. Winkler, K.-R. M¨ uller, and W. Samek, “Investigating effects of different artefact types on motor imagery BCI,” in Proc. 2015 37th Annu. Int. Conf. IEEE Eng. Med. Biol. Soc. (EMBC) , 2015. [12] A. Adolf, C. M. K¨ oll˝ od, G. M´ arton, W. Fadel, and I. Ulbert, “The effect of processing techniques on the classification accuracy of brain-computer interface systems,” Brain Sciences , 2024. [13] X. Geng, D. Li, H. Chen, P. Yu, H. Yan, and M. Yue, “An improved feature extraction algorithms of EEG signals based on motor imagery brain-computer interface,” Alexandria Engineering Journal , 2022. [14] M. Mohammadi and M. R. Mosavi, “Comparison of two methods of removing EOG artifacts for use in a motor imagery-based brain computer interface,” Evolving Systems , 2021. [15] M. Tob´ on-Henao, A. ´Alvarez-Meza, and G. Castellanos-Dom´ ınguez, “Subject-dependent artifact removal for enhancing motor imagery classi-fier performance under poor skills,” Sensors , 2022. [16] T.-P. Jung, S. Makeig, C. Humphries, T.-W. Lee, M. J. McKeown, V. Iragui, and T. J. Sejnowski, “Removing electroencephalographic ar-tifacts by blind source separation,” Psychophysiology , 2000. [17] A. Delorme, “EEG is better left alone,” Sci. Rep. , 2023. [18] A. Delorme and S. Makeig, “EEGLAB: an open source toolbox for analysis of single-trial EEG dynamics including independent component analysis,” J. Neurosci. Methods , 2004. [19] T. R. Mullen, C. A. Kothe, Y. M. Chi, A. Ojeda, T. Kerth, S. Makeig, T.-P. Jung, and G. Cauwenberghs, “Real-time neuroimaging and cognitive monitoring using wearable dry EEG,” IEEE Transactions on Biomedical Engineering , vol. 62, no. 11, pp. 2553–2567, 2015. [20] A. Gramfort, M. Luessi, E. Larson, D. A. Engemann, D. Strohmeier, C. Brodbeck, et al. , “MEG and EEG data analysis with MNE-Python,” 
+
+Front. Neurosci. , 2013. [21] H. Nolan, R. Whelan, and R. B. Reilly, “FASTER: fully automated statistical thresholding for EEG artifact rejection,” J. Neurosci. Methods ,2010. [22] M. Jas, D. A. Engemann, Y. Bekhti, F. Raimondo, and A. Gramfort, “Autoreject: automated artifact rejection for MEG and EEG data,” Neu-roImage , 2017. [23] R. Zhang, R. Rong, J. Q. Gan, Y. Xu, H. Wang, and X. Wang, “Reliable and fast automatic artifact rejection of long-term EEG recordings based on Isolation Forest,” Med. Biol. Eng. Comput. , 2024. [24] A. Barachant, A. Andreev, and M. Congedo, “The Riemannian Potato: an automatic and adaptive artifact detection method for online experiments using Riemannian geometry,” in Proc. TOBI Workshop IV , 2013. [25] Q. Barth´ elemy, L. Mayaud, D. Ojeda, and M. Congedo, “The Rieman-nian potato field: a tool for online signal quality index of EEG,” IEEE Trans. Neural Syst. Rehabil. Eng. , 2019. [26] D. Hajhassani, J. Mattout, and M. Congedo, “An automatic Riemannian artifact rejection method for P300-based BCIs,” in Proc. 2024 32nd Eur. Signal Process. Conf. (EUSIPCO) , 2024. [27] S. D. Fickling, C. C. Liu, R. C. N. D’Arcy, S. Ghosh Hajra, and X. Song, “Good data? The EEG Quality Index for automated assessment of signal quality,” in Proc. 2019 IEEE 10th Annu. Inf. Technol., Electron. Mobile Commun. Conf. (IEMCON) , 2019. [28] E. S. Kappenman and S. J. Luck, “The effects of electrode impedance on data quality and statistical significance in ERP recordings,” Psychophys-iology , 2010. [29] J. Sun, B. Wang, Y. Niu, Y. Tan, C. Fan, N. Zhang, J. Xue, J. Wei, J. Xiang, “Complexity analysis of EEG, MEG, and fMRI in mild cognitive impairment and Alzheimer’s disease: A review,” Entropy (Basel) , 2020. [30] K. Najim et al. , Stochastic Processes: Estimation, Optimisation and Analysis . Elsevier Ltd., 2004. [31] A. Delorme, T. Sejnowski, and S. Makeig, “Enhanced detection of arti-facts in EEG data using higher-order statistics and independent component analysis,” NeuroImage , 2007. [32] C.-Y. Chang, S.-H. Hsu, L. Pion-Tonachini, and T.-P. Jung, “Evaluation of artifact subspace reconstruction for automatic artifact components removal in multi-channel EEG recordings,” IEEE Trans. Biomed. Eng. ,2020. [33] S. Ghosh Hajra et al. , “Developing brain vital signs: Initial framework for monitoring brain function changes over time,” Front. Neurosci. , 2016. [34] V. Satopaa, J. Albrecht, D. Irwin, and B. Raghavan, “Finding a ‘Kneedle’ in a haystack: Detecting knee points in system behavior,” in Proc. 2011 31st Int. Conf. Distributed Computing Systems Workshops (ICDCSW) ,2011. [35] B. Aristimunha et al. , Mother of All BCI Benchmarks (MOABB) ,ver. 1.4.3. Zenodo, 2025. [36] A. Barachant, S. Bonnet, M. Congedo, and C. Jutten, “Multiclass brain-computer interface classification by Riemannian geometry,” IEEE Trans. Biomed. Eng. , 2012. [37] S. Chevallier, I. Carrara, B. Aristimunha, P. Guetschel, B. Jun-queira Lopes, S. Velut, S. Khazem, and T. Moreau, “The largest EEG-based BCI reproducibility study for open science: the MOABB bench-mark,” HAL , working paper, hal-04537061, 2024.

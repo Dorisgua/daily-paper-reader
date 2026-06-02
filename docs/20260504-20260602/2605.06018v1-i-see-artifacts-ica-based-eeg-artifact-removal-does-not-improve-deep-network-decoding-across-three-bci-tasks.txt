@@ -1,0 +1,1191 @@
+Title: I see artifacts: ICA-based EEG artifact removal does not improve deep network decoding across three BCI tasks
+
+URL Source: https://arxiv.org/pdf/2605.06018v1
+
+Published Time: Fri, 08 May 2026 01:14:50 GMT
+
+Number of Pages: 24
+
+Markdown Content:
+# I See Artifacts: ICA-based EEG Artifact Removal Does Not Improve Deep Network Decoding Across Three BCI Tasks 
+
+Taeho Kang 1, Yiyu Chen 2, Christian Wallraven 2,3 * 
+
+> 1
+
+Institute of Management Science, Technical University Wien, Vienna, Austria  
+
+> 2
+
+Department of Department of Artificial Intelligence, Korea University, Seoul, South Korea  
+
+> 3
+
+Department of Brain and Cognitive Engineering, Korea University, Seoul, South Korea E-mail: wallraven@korea.ac.kr 
+
+Abstract. 
+
+Objective. In this paper, we conduct a detailed investigation on the effect of IC-based noise rejection methods in neural network classifier-based decoding of electroencephalography (EEG) data in different task datasets. Approach. 
+
+We apply a pipeline matrix of two popular different Independent Component (IC) decomposition methods (Infomax, AMICA) with three different component rejection strategies (none, ICLabel, and MARA) on three different EEG datasets (Motor imagery, long-term memory formation, and visual memory). We cross-validate processed data from each pipeline with three architectures commonly used for EEG classification (two convolutional neural networks (CNN) and one long short term memory (LSTM) based model. We compare decoding performances on within-participant and within-dataset levels. Main Results. Our results show that the benefit from using IC-based noise rejection for decoding analyses is at best minor, as component-rejected data did not show consistently better performance than data without rejections—especially given the significant computational resources required for ICA computations. Significance. With ever growing emphasis on transparency and reproducibility, as well as the obvious benefits arising from streamlined processing of large-scale datasets, there has been an increased interest in automated methods for pre-processing EEG data. One prominent part of such pre-processing pipelines consists of identifying and potentially removing artifacts arising from extraneous sources. This is typically done via Independent Component (IC) based correction for which numerous methods have been proposed, differing not only in the decomposition of the raw data into ICs, but also in how they reject the computed ICs. While the benefits of these methods are well established in univariate statistical analyses, it is unclear whether they help in multivariate scenarios, and specifically in neural network based decoding studies. As computational costs for pre-processing large-scale datasets are considerable, it is important to consider whether the tradeoff between model performance and available resources is worth the effort. 
+
+Note : This preprint is an outdated version from the final revision, as submitted by the author to Journal of Neuroal Engineering. IOP Publishing Ltd is not responsible for any errors or omissions in this version of the manuscript or any version derived from it. The Recent Version of Record is available online at https://doi.org/10.1088/1741-2552/ad788e . Please cite the article from this DOI link instead of the preprint. 
+
+> arXiv:2605.06018v1 [cs.HC] 7 May 2026
+
+I See Artifacts: ICA-based EEG Artifact Removal Does Not Improve Deep Network Decoding Across Three BCI Tasks 2
+
+1. Introduction 
+
+While many specific methods for pre-processing and artifact-removal of EEG data have been proposed, and guidelines for applying these methods do exist [1– 5], the practical process and specifics of applying these methods have been left to the discretion of individual researchers, either through trial and error or by learning from examples made by their peers. It is an understandably challenging problem; new methods are created and published regularly, and it is a huge undertaking to compare and measure the effects different pre-processing methods have on the analysis result. Considering the configurable parameters that come with each method combined with the possible permutations of pre-processing methods chain one could employ in a pipeline, it is no wonder that creating a thorough, quantitative comparison between the different ensemble orchestrations of these methods so far has not been undertaken. To make matters worse, there exists no one true authoritative pre-processing pipeline, and it makes the already daunting task of comparing and replicating existing EEG study results even more difficult, as one must first figure out the specific pre-processing steps authors have employed. Several studies have attempted to tackle these issues to an extent by comparing the effects of several pre-processing methods on select datasets [6–11]. More recently, concerted efforts have been made to create a streamlined, automated and standardized process for data cleaning to pave way for a more reproducible research environment [5, 12–16]. In general, pre-processing in EEG is performed with the intent of improving the signal to noise ratio (SNR) of the data for analysis. This is especially common practice for analyses involving univariate statistical testing, such as event-related potential analyses of signals from different conditions. Scalp electrode measurements can be considered a mixture of signals whose sources are at a relative distance due to the structures between the cortex and the skin, and are much more susceptible to noise from movements such as ocular, muscular and cardiac activity than invasive measurements. It is also often subject to external noise such as those from electrical systems nearby (often referred to as power line noise), spurious physical contact of an object with electrodes, or even slow neurophysical activities and drifts [17] that are usually not of interest. Filtering is one of the more common ways to deal with a number of different sources of noise, as well as enhancing features of brain signatures more apparent in certain frequencies depending on the topic of investigation. Notch filtering is common for removing powerline noise and its harmonics [18], and high pass filtering at a frequency around 1Hz is also common for removing slow components drifts [19]. For artifact removal, one of the simpler ways of removing noise is to visually inspect epochs and exclude channels and trials that are deemed too noisy. A similar outcome of labeling noisy epochs and channels can also be achieved via automatic methods such as thresholding [20], although exclusion of data usually leads to loss of information and reduced amount of for analyses [21]. Blind source separation based methods alleviate this issue to an extent, via unmixing the sensor data into independent signals of estimated sources. Artifact removal algorithms based on initial user annotations [22] have also been found to improve signal quality with minimal distortions. For a deeper look into filtering for EEG and biomodical signals, see Zhang et al. [23], as well as Cheveigne and Nelken [19]. For a general introduction into removal of artifacts in EEG, see [24] Meanwhile, in d ecoding and classification analysis studies, the benefits gained from various pre-processing methods are not be as clear. Findings from conven-tional EEG univariate statistical analysis methods are not always consistent with results from multivariate decoding analysis methods; as the latter often consid-ers nonlinear effects on top of the linear, activation based data relationships of the univariate methods, information that may be considered as noise in uni-variate methods may not be so in decoding and clas-sification tasks [25–27]. Such notion raises the ques-tion of whether the complex data cleaning and pre-processing procedures employed in classical brain sig-nal analysis are actually also beneficial in classifica-tion studies. In this context, Meisler et al. investi-gated the effect of initial pre-processing steps on clas-sification performance: data rereferencing (bipolar and common average), noisy epoch exclusion (manual and statistics based automatic), channel exclusion (manual and automatic) on classification of a free recall task trained with logistic regression with intracranial EEG data (iEEG) - interestingly, results were varied and found to yield only minor improvements in classifier performance from channel or epoch exclusions [28]. Independent Component Analysis (ICA) is an-other method of reducing noise, which works by sepa-rating signals from multichannel data into time courses that are maximally independent from one another – it assumes that by decomposing the signals it becomes possible to isolate the noise artifacts from brain sig-nals (for a more technical overview of ICA in EEG analysis and BCI systems, see [29, 30]). ICA com-putation has long been used in EEG data analysis for noisy artifact detection and removal in EEG sig-nals [31–36] and is one of the core functionalities of-fered in several scripting-based EEG analysis soft-ware packages [37–39]. In addition, there are multi-ple implementations of different ICA-type algorithms I See Artifacts: ICA-based EEG Artifact Removal Does Not Improve Deep Network Decoding Across Three BCI Tasks 3available in these libraries alone: this includes Info-max [40], extended Infomax [41] (both Infomax algo-rithms form the implementation runICA in EEGLAB), FastICA [42], AMUSE [43], ERICA [44], and AM-ICA [45]. To illustrate the complexities inherent in the pre-processing pipeline, and also considering the significant computational cost for computing indepen-dent components in large EEG data compared to other methods, the present work focuses on the most com-mon methods of ICA for artifact removal. Given the large variety of ICA algorithms alone, one may ask if and how the varying pre-processing pipelines for the same purpose of cleaning data affect the subsequent analysis results. To investigate this question, Bigdely et al. [6] used fully automated pre-processing pipelines and observed changes in channel amplitude dispersion from ICA-based ocular artifact rejections. Robbins et al. [46] studied the different data features and EEG signal characteristics yielded by several different data pre-processing methods (LARG [6] and MARA [47]) and two artifact subspace reconstruction-based (ASR) [48] artifact removal methods on a total of 17 different datasets. Their findings show that the general characteristics of results from different pipelines of the same dataset were quite similar (though significantly different from the baseline of skipping the pipeline), reflected in significant correlations between ERP values; they also noted that LARG removed relevant EEG components as well while the other methods did not remove enough blink-related artifacts. Delorme’s recent work reported a lack of improvements in the number of statistically significant ERP channels after automated ICA rejections were performed [49]. As demonstrated from these studies, not only does the application of a pre-processing step affect the resulting analysis, but different pre-processing pipelines serving the same purpose introduce some variance into the specifics of the resultant data. In studies with classical machine learning meth-ods, utilization of pre-processing methods that makes use of ICA computation has been reported to improve classifier performance. For example, Kim et al. have reported that the removal of ocular artifacts using ICA leads to increased classification accuracy in MI tasks (and leading to more improvements upon combining the method with specific filters) [50]. Another study by Kim and Kim has reported noise component re-moval on P300 oddball data leading not only to de-creased variability in P300 amplitudes, but also to in-creased Brain-Computer Interface (BCI) classification accuracy when trained with support vector machines (SVM) [51]. Winkler et al. observed pre-filtering the data with high-pass filter at low frequencies and apply-ing ICA-based noise rejection afterwards with MARA resulted in improved signal-to-noise ratio (SNR) and linear discriminant analysis (LDA) classifier perfor-mance on auditory oddball task data [52]. Recently there has been an influx of studies uti-lizing deep neural networks for brain state classifica-tions (see [53, 54] for review). Here, the question of whether applying pre-processing methods result in better analysis, or classifier performance, is becoming more frequently raised, and the results are not as clear as in classical machine learning. In an end-to-end deep learning study with data from a Stroop task, Fahimi et al. reported pre-processing EEG data by applying narrower pass band filters resulted in decreased decod-ing accuracy levels in convolutional neural networks (CNNs) [55]. In a review of deep learning classifi-cation methods for Motor Imagery (MI) signals, Al-taheri et al. discusses the possible effects of several pre-processing methods on network classifier perfor-mance in MI data [54]: Xu et al. [56] reported filtering for narrower frequency ranges results in better CNN performance in MI, whereas studies such as Riyad et al. [57], Avilov et al. [58], and Shajil et al. [59] re-port wider frequency bands yield higher classification accuracy. Zhu et al. [60] observed that having a large number of channels regardless of assumed relevance to spatial brain region of interest results in higher clas-sifier performance in CNN and LSTM based models. Pfurtscheller et al. [61] reported reducing the number of input EEG channels resulted in higher classifier per-formance in some deep-belief network (DBN) models, while yielding reduced performance in other models of similar design. The same study also reported that arti-fact removal with synchrosqueezed wavelet transforms (SWT) resulted in improved decoding performance in some participants, but reduced performance in others, suggesting EEG artifact removal may need to be revis-ited for deep network model classifiers. Among the standard different pre-processing methods available for EEG data, ICA-computation is a computational and time resource intensive process [62], especially as the number of samples and participants increase. For efficient use of valuable computation time, especially in multi-dataset classification study use cases where univariate statistical testing of epoched data may not be necessary, knowing whether apre-processing step is really necessary could save a significant amount of resource. In light of the considerations for decoding studies, as well as the opposing findings on the benefit of noise correction methods between studies performed with classical machine learning algorithms and those performed with deep networks, the goal of the present study was to investigate whether ICA-based noise correction methods do result in improved deep network model classification performance for BCI tasks. The objective I See Artifacts: ICA-based EEG Artifact Removal Does Not Improve Deep Network Decoding Across Three BCI Tasks 4of this study is twofold: First, to investigate the effect of automated ICA-component rejection based EEG noise cleaning methods on classifier performance - at the same time we take care to minimize the variance in other pre-processing methods between datasets as well as to keep explicit feature extraction to a minimum by applying an otherwise standardized automated pre-processing pipeline. Second, to investigate whether the effect of such methods are generalizable across different datasets and different network architectures. Given the findings in prior deep networks studies where mixed results were reported regarding the benefit of pre-processing methods, we hypothesized that ICA-based noise rejection methods may not necessarily benefit classification performance in deep networks. We tested this notion on three different BCI task databases; first, a dataset from the BCI-competition IV-2a (abbreviated as BCIC-IV2a) dataset for Motor Imagery (MI) that is a standard benchmark dataset for EEG decoding tasks, and second, a long-term memory prediction dataset that we created in a separate paper [63], and third, a visual memory prediction dataset that is to be published from a study comparing the effect of different EEG pipelines on analysis results [64]. For a comparison between different ICA noise correction strategies (and to minimize human bias in the process of noise correction), we used a combination of two different methods of independent component (IC) computation (RunICA of InfoMax, and AMICA), and two different automated IC based noise rejection methods (MARA, ICLabel). Combined with the baseline pipeline in which no ICA-based noise correction was performed, we created a total of 5 different ICA-noise pipelines for each dataset. And to test whether the resultant effect on network performance was not architecture dependent, we trained and optimized hyperparameters for each participant of each dataset for each ICA pipeline on 3 different network designs: ShallowNet, MLSTM-FCN, and EEGNetV4. We performed analyses on classifier performance metrics on participant individual level across pipelines, as well as on a per-dataset level. With such automated methods, we designed the study to have minimal human experimenter input in the actual noise rejection, in order to not only minimize human bias, but also in the interest of keeping the study reproducible. 
+
+1.1. Independent Component Analysis 
+
+Blind source separation refers to the process of which individual sources of signals are separated from measured data that contains mixtures of both noise and signals of interest. Independent Component Analysis (ICA) is one such method used to perform this task, and is commonly applied in the processing of biomedical data [65–67] such as EEG signals [68–70] where observed data usually involves multi-channel data that is a variable mix of multiple signal sources. The general idea of ICA is that signals are separated in an unsupervised manner, under the assumption that sources of original signals are statistically independent and have non-Gaussian distributions, and that each of these original and independent sources derive from different underlying physical processes. In EEG, observations of these signals come from spatially distributed sensors, each measuring a different mixture of source signals coming from supposedly separate neural processes. Here, the matrix containing observed signals from the different sensors can be described as a product of an unknown matrix (commonly termed the mixing matrix in this context) and the matrix of the original source signals. Assuming the unknown mixing matrix is invertible, and by estimating the inversion of the mixing matrix (dubbed the unmixing matrix), an approximation of the source signals can be calculated as a product of the measured data and the unmixing matrix. This is the general process in which approximated source signals are calculated through ICA. For a fundamental overview on ICA, see [71]. For an in-depth analysis of comparing different ICA methods on EEG signals, see [72, 73]. While there are numerous ICA methods to achieve signal separation such as Infomax [40], FastICA [42], SOBI [74], ERICA [44], JADE [75], and AMICA [45, 76], in this paper we utilize implementations of two methods to compute independent components in EEG: RunICA (Infomax) and Adaptive Mixture ICA (AMICA). These two methods have been compared regarding their effect in terms of reduction of mutual information between components [73] and a measure of SNR [77]. Specifically, in Delorme et al., of the multiple ICA algorithms compared for the amount of reduction in mutual information in EEG the two algorithms had the highest values [73]. Leutheuser et al. reported a higher measure of SNR from data that were processed with AMICA instead of Infomax [77]. 
+
+1.2. Infomax 
+
+The Infomax method of IC decomposition is based on the algorithm by Bell and Sejnowski [40], in which the unmixing matrix is optimized via gradient ascent so that the joint entropy between approximated source signals is maximized with the goal of minimizing mutual information between measured data and estimated source. RunICA is the implementation of Infomax ICA computation method provided by EEGLAB [37] that also optionally incorporates findings from Lee et al. [78] and Amari et al. [79]. Amari that were et al.’instead of applies natural gradient descent, which is the standard gradient I See Artifacts: ICA-based EEG Artifact Removal Does Not Improve Deep Network Decoding Across Three BCI Tasks 5multiplied by the inverse of the Fisher information matrix, with the reported advantage that fewer iterations are needed compared to the traditional gradient method [80,81]. Lee et al.’s extended Infomax method incorporates two learning rules to allow for signals with super-Gaussian and and sub-Gaussian distributions [78]. 
+
+1.3. Adaptive Mixture ICA (AMICA) 
+
+Adaptive Mixture ICA takes a probabilistic approach to compute independent component by the use of mixture models (a group of methods also known as ICAMM), with the advantage that frequency components in the source data are allowed to be dependent while at the same time preserving independence between sources [76, 82–84]. Specifically, AMICA utilizes Gaussian scale mixture (GSM) [85] with the incorporation of stability analysis from Amari et al. [86], allowing to potentially construct multiple models for ICA and choose for more accurate source density models [76]. Implementation is available in EEGLAB. 
+
+1.4. Automatic EEG pre-processing and IC based noise rejection methods 
+
+Over recent years, several methodological frameworks to introduce automation and standardization into the pre-processing steps of EEG data have been introduced. Different methods span varying portions of the EEG data handling process, with some incorporating most of the pre-processing steps that are commonly performed, while others are designed strictly for more specific pre-processing operations such as artifact rejection. Here we look at such examples: HAPPE, PREP, Faster, MARA, and ICLabel. The Harvard Automated pre-processing Pipeline for EEG (HAPPE) [12] is an integrated framework that incorporates different open-source EEG processing method implementations to provide a standardized pipeline for easier replication of studies. At the time of its original publication the framework supported processing of multi-channel EEG data with at least 64 channels, and the framework involves most of the pre-processing steps in EEG; filtering, channel selection, line-noise removal, channel rejection, ICA and component rejection through MARA [15]. The PREP pipeline [5] provides a basic and standardized framework for earlier stages of EEG pre-processing such as line-noise removal, detrending, re-referencing, and channel interpolation for noisy data. Fully Automated Statistical Thresholding for EEG artifact Rejection (FASTER) is an automated framework that focuses on noise removal from data during pre-processing based on statistical estimations of data characteristics [21]. At different levels of the data (channels, epochs, independent components, channels in epochs, and grand average), statistical parameters of the data such as variance, mean correlation, Hurst exponent are calculated. Based on the thresholds of z-scores for each computed parameter, data with noise are identified and removed, interpolated, or subtracted depending on the level of the data under inspection. Both MARA and ICLabel are classifier-based methods for independent component identification and rejection of noise in EEG. The former, Multiple Artifact Rejection Algorithm [15,47] computes a set of features from the computed independent components, such as current density norm, logarithmic range within pattern, mean local skewness, logarithmic alpha band power, and fit error. A supervised linear binary classifier pre-trained on aforementioned features of 840 expert-labeled EEG independent components is used on said features of input data to determine noise components. ICLabel [16] is another classifier-based noisy independent component rejection method that utilizes artificial neural networks. The classifier is trained on over 200,000 independent components extracted from 6300+ recordings of EEG from various channel number setups between 32 and 256. Inference is made by assigning probability values between 7classes for each component: Brain, Muscle, Eye, Heart, Line-noise, Channel-Noise, and Other. Components with classes other than Brain are considered noise signals, and the user may set probability threshold values for noise classes to reject components post-inference. In this paper, we make use of the PREP pipeline to process data through the initial pre-processing steps, then compute independent components through two methods: AMICA and RunICA (Infomax). Finally, we reject components by the two classifier based methods MARA and ICLabel. We applied PREP beforehand in order to keep pre-processing steps before ICA across datasets as consistent as possible, with minimum manual input, chose the two ICA computation methods based on existing ICA method studies which used them [73, 77]. We also selected the two automated ICA-based rejection methods after considering the number of citations on the papers, the download counts in EEGLAB’s add-on feature menu, and their usage in published automated pre-processing pipeline studies [12, 87]. 
+
+2. Methods and Materials 
+
+2.1. Used datasets, data pre-processing pre-ICA component rejection pipelines 
+
+To compare the effect of ICA noise rejection pipelines on EEG datasets underlying different tasks and brain I See Artifacts: ICA-based EEG Artifact Removal Does Not Improve Deep Network Decoding Across Three BCI Tasks 6 
+
+> Figure 1. Study overview
+
+dynamics as well as to investigate the possibility of a generalized result, the BCI competition dataset IV 2a (Motor Imagery ) [88], a long-term memory prediction dataset [63], and a visual memory dataset from EEGManyPipelines [64, 89] were used. The BCI competition dataset IV 2a consists of 9 participants worth of data recorded with 22-EEG channels (+3 EOG), with one training session and one test session for classifier validation. A non-epoched format of the BCIC-IV2a dataset was available for us to apply the automated pre-processing steps appropriate for our purpose (note that this data is already bandpass-filtered, however, as the raw data is not available). The long-term memory dataset consisted of 15 participants (1 additional participant was added after the publication of the original dataset paper) with 62-channel EEG (+1 EOG) data, each with 15 sessions of experiment performed across 5 consecutive days. The visual memory dataset consisted of 64-channel EEG data from 33 participants who performed recognition tasks on 600 images of scenery. We selected these datasets to encompass a reasonable variety of tasks with different levels of complexity in involved neural processes without overwhelming our time and compute resources, with a preference for public availability, as well as considerable sample size which is strongly preferred in machine learning models. First, data files from each dataset were pre-processed through the automated PREP pipeline from EEGLAB [5] for a standardized pre-processing step using the default running option parameters. Specifically, detrending was performed on all EEG channels with a high-pass cutoff of 1Hz. Powerline noise and its harmonic frequencies were notch filtered, and based on robustly-referenced signals noisy channels were automatically removed and interpolated from the remainder. The BCIC-IV2a dataset was downsampled to 250Hz, the long-term memory dataset and the visual memory dataset were downsampled to 100Hz. Next, data files were epoched in relation to the markers of interest in the respective datasets: in the BCIC-IV2a dataset, time series epochs of -500ms pre-stimulus and 5000ms post-stimulus were created in relation to the stimulus onset. In the long-term memory dataset, feedback-locked epochs from -200ms to 1000ms in relation to feedback onset were used for epoching, as it was in line with the reference paper of the dataset [63]. For the visual memory dataset, stimulus onset locked epochs from -200ms to 1000ms were extracted. Including a raw no-ICA pipeline where no component rejection was performed as control, a total of five ICA-related artifact removal pipelines were created, using combinations of two prominent ICA methods in EEG and two automatic classifier-based artifact component rejection methods: AMICA [45], and the runICA implementation of Infomax ICA [40] for ICA computation, and MARA [47], and ICLabel [16] for automated classifier based component rejections. Independent component computations were performed independently for each EEG recording session worth of data. Automated component rejection methods were used to minimize human experimenter bias in noise, as well as in the interest of reproducibility of the study. As ICLabel is a multi-class classifier that predicts probability values for several different types of artifact signals as well as the brain signal, we I See Artifacts: ICA-based EEG Artifact Removal Does Not Improve Deep Network Decoding Across Three BCI Tasks 7chose a probability threshold of 80% for artifacts as the rejection criteria. That is, if a given component’s class probability for labels other than ”brain” and ”other” was above 80%, it was marked as an artifact and rejected. It should be noted however, that there is no definitive way to reach the final decision using the ICLabel’s results, such that our choice of threshold was based on best practices (see, for example, [90–92], but contrast with [93]). The full summary of the study pipeline can be seen in Figure 1. 
+
+2.2. Classifier training and comparison 
+
+While a certain amount of pre-stimulus (and pre-feedback) portion of the data were included in the epoch for ICA computations and noise rejections, only the post-stimulus and post-feedback onset portion of the data were used in the classifier training segment of the study. In order to investigate whether any effect to classifier performance was observable across different neural network designs, we utilized three different network architectures separately for each dataset and pipeline: ShallowNet [94], EEGNetV4 [95], and MLSTM-FCN [96]. ShallowNet and EEGNetV4 were developed specifically for EEG signal classification purposes, whereas MLSTM-FCN was developed for time-series classification in general. For all networks, the Pytorch [97] implementation was used. Specifically, for EEGNetV4 and ShallowNet implementations, Pytorch-based instances from Braindecoding [94] version 0.6 were used. To ensure observed results could be reproducible and comparable across different pipeline settings, we pre-configured several options in Pytorch as well as in Python: Before hyperparameter optimization code corresponding to each dataset’s ICA pipeline ran, Numpy’s randomness seed, as well as base Python’s and Pytorch’s randomness seed values were all locked into a specific value (4224). Further-more, the backend determinism option of pytorch (torch.backends.cudnn.deterministic) was set to True. For each participant data, a holdout test-set was de-fined for final performance evaluation metric. In the BCIC-IV2a dataset, the test session data for each par-ticipant was used for this. In the long-term memory dataset, 10% of the data were set aside as a hold-out test set using scikit-learn’s Stratified Shuffle split func-tion. The remaining data was split into training and validation sets using stratified split to be used for gen-eral hyperparameter optimization in a 5-fold cross val-idation grid search scheme. To account for possible class imbalance in data, weighted cross entropy loss was weighted in regards to        
+
+> All networks, NoICA BCICIV-2A only
+> Parameter Values Initial learning rate .3, .1, .01, .005, .001
+> cos -annealing LR scheduler parameter T0 10, 20, 30
+> cos -annealing LR scheduler parameter Tm2, 4, 6 Early stopping epoch patience 20, 40, 120, 240 Total parameter space 180
+
+Table 1. Network agnostic hyperparameter search                                                     
+
+> ShallowNet, all ICA pipelines
+> Parameter BCIC IV2A Memory (both) filter time length 15, 25, 35 4, 8, 16 n filters spat 20, 40 20, 40 n filters time 20, 40 20, 40 pool time length 20, 40, 75, 80 4, 8, 12 pool time stride 5, 10, 15 2, 4, 8 Total parameter space 144 108
+> MLSTM-FCN, all ICA pipelines
+> Parameter BCIC IV2A Memory (both) conv1 size 64, 128 64, 128 conv2 size 128, 256 128, 256 conv1 kernel 8, 24, 32 6, 12, 24 conv2 kernel 5, 15 4, 8 conv31 kernel 3, 9 3, 6 lstm hidden size 8, 16, 24 8, 16, 24 lstm num layers 1, 2 1, 2 Total parameter space 288 288
+> EEGNetv4, all ICA pipelines
+> Parameter BCIC IV2A Memory (both) F1 4, 8, 16 4, 8, 16 D2, 4, 8 2, 4, 8 F2 8, 16, 24 8, 16, 24 kernel length 16, 32, 64 8, 16, 24 third kernel size [2,4], [4,2], [8,4] [2,4], [4,2], [8,4] Total parameter space 243 243
+> Network/Data non-specific parameters, locked
+> Parameter Values (Common) Initial learning rate 0.001 Cosine annealing T0 10 Cosine annealing Tm6Early stopping patience 240
+
+Table 2. Network and dataset dependent hyperparameter space 
+
+ratio of classes within the dataset: 
+
+Wi = 1 − Ni
+
+P Ni
+
+where Wi denotes the weight for a given class i,and Ni denotes the trial sample size of the class 
+
+i. No data augmentation schemes, or balancing by under/oversampling of either numerous or fewer class were used. All 3 networks were optimized with the AdamW optimizer [98]. Hyperparameter optimization was performed in two stages: one preliminary stage for setting general network non-specific hyperparameters with a single pipeline of a single dataset (BCIC-IV2a, NoICA), and the main hyperparameter optimization stage, in which network-specific parameters were optimized for each network in each participant of datasets pre-processed through each ICA rejection pipeline. In the preliminary stage, we performed gridsearch to set common hyperparameters to be shared across the 3 different architectures: the initial learning I See Artifacts: ICA-based EEG Artifact Removal Does Not Improve Deep Network Decoding Across Three BCI Tasks 8rate, parameters Tm, T 0 for the cosine annealing LR scheduler with warm restarts [99], and the patience epoch value for triggering early stopping when validation loss did not improve for a certain amount of epochs. Specific hyperparameter space values for the above can be found in Table 1. Gridsearch for these parameters were done in a separate preliminary level, trained with only one pipeline of a single dataset under the assumption that the optimal parameters for these would not vary as much as the network specific parameters, as well as to save on optimization time as combining these with network specific hyperparameter space would create too large of a search space. Only the training and validation sets were used in this stage, as the final performance comparison was to be performed after the main hyperparameter optimization process. In the main hyperparameter optimization stage, we tuned each instance of individual networks for each dataset-participant and for each ICA-rejection pipeline separately. The specific hyperparameter search space for each network can be found in Table 2. Validation F1-score metrics were used to find the best performing hyperparameter set, and once the best performing model was chosen, the holdout-test sets were predicted for the final performance measurement (Test-set F1 score). The gridsearch procedure was implemented with Skorch [100]. In each parameter set, training was terminated early once there was no validation loss improvement for epochs equal to the set early stopping patience value. Neural network optimizations were performed on 6 NVIDIA 3090 and one 3090Ti machines. Across all participants and all pipelines, 360 iterations of gridsearch spanning a total search space of 78,300 parameter combinations were performed. Implementations and code for the general study pipeline can be found at https://github.com/ 52bloo/eeg_icacomparison .
+
+2.3. Statistical Analysis 
+
+Statistical analyses of the main hyperparameter opti-mization result were performed in two stages: on in-dividual dataset-participant level for the entire grid-search space, and on across-participant level for each network using performance evaluation metrics of best-performing validation F1 and test-set F1 scores. On individual-participant-level analysis, one-way analysis of variance (ANOVA) was performed for each partici-pant’s results from a given network design comparing validation F1 scores from the entire gridsearch pro-cess between the 5 different ICA rejection pipelines: NoICA, RunICA+MARA, RunICA+ICLabel, AM-ICA+MARA, AMICA+ICLabel with an α threshold of 0.05. Post-hoc Tukey’s HSD tests were adminis-tered for each participant to determine if there were specific pairs of pipelines that yielded significant dif-ference in performance metrics. Correlation matrices were computed for the best-performing validation F1 score and test F1 score across pipelines and networks. On the cross-participant-level analysis, repeated mea-sure analysis of variance (RM-ANOVA) was performed across pipelines for each network and dataset, using re-sults from each participant as a repeated measure and pipelines as the group variable. Post-hoc tests on this level were performed with pairwise T-tests, in which the p-values were corrected for multiple comparison with Bonferroni correction. As we counted ANOVA runs from different networks and datasets as separate from multiple comparison, the Bonferroni correction multiplier was computed as the total number of com-parisons across pipelines (combinations of 2 from 5 = 10). ANOVA and post-hoc Tukey tests used imple-mentations from the statsmodel library [101]. 
+
+3. Results 
+
+3.1. Component Rejections 
+
+In the BCI Competition IV-2A dataset, an average of 0.1 artifact components were rejected from AMICA component data rejected with ICLabel, while an average of 4.9 artifacts components were rejected through MARA. In data processed with RunICA, an average of 0.1 components were rejected through ICLabel, and 5.1 through MARA. As the number of rejected components did not follow a normal distribution, non-parametric Mann Whitney U tests were performed to test for differences in the number of components rejected. A significant difference in the number of components rejected between MARA-based and ICLabel-based pipelines were found (p < 1e−13 , z = −7.660), while there were no significant differences between data processed through the same rejection algorithms but different component calculation methods(RunICA, AMICA) ( p = .971 , z =
+
+.0355). Specifics for the component rejections can be found in Supplementary Materials Table 1. In the AMICA-processed components of the long-term memory dataset, an average of 4.9 components were rejected with ICLabel, while an average of 36.6 components were rejected by MARA. A similar pattern of rejected component counts were observed in the RunICA pipeline; 5.2 components in ICLabel and 35.1 components in MARA. Similar patterns of difference in rejected component counts were also visible on Mann-Whitney U Test results: a significant difference between MARA-based and ICLabel-based rejections (p < 1e−149 , z = −25 .976), and a non-significant difference between RunICA and AMICA ( p = .719 , z =
+
+.359). Specifics for the component rejections can be found in Supplementary Materials Table 2,3,4, and 5. For the visual memory dataset, an average of I See Artifacts: ICA-based EEG Artifact Removal Does Not Improve Deep Network Decoding Across Three BCI Tasks 95.7 components were rejected through ICLabel on components computed with AMICA, while an average of 33.4 components were rejected from the same component computations with MARA. In component data processed with RunICA, an average of 5.8 components were rejected through ICLabel, while an average of 35.5 components were rejected through MARA. Again, Mann-Whitney U tests of the rejected component counts showed similar findings: there were observed significant differences between the component rejection methods ( log (p) < −23, z = −9.92) while no such observations were made in comparisons of values between ICA computation methods ( p > . 5, z = −.52). The detailed values of component rejections can be seen in Supplementary Materials Table 6. 
+
+3.2. Preliminary network non-specific hyperparameter search 
+
+Detailed results for the optimization of network non-specific parameters (learning rate, cosine-annealing learning rate scheduler parameters T0 and TM, early stopping patience epoch) can be found in the Supplementary Figures 1 (ShallowNet), Figure 2 (MSLTM-FCN), and Figure 3 (EEGNet). Overall, we found that the lowest candidate learning rate and the highest early stopping patience value were similar across all three networks. The learning rate scheduling parameters did not appear to noticeably impact the validation performance within participants. Considering the apparent advantage of lower learning rates and higher early stopping patience, and of introducing resetting of the learning rate early on in the epochs while gradually decreasing its frequency, we chose the following parameters for the main hyperparameter optimization procedure across all 3 networks: an initial learning rate of 0.001, Cosine annealing LR scheduler T0 of 10, Tm of 6, and an early stopping patience value of 240 epochs. 
+
+3.3. Main hyperparameter search: individual level comparison of classification accuracy across pipelines 
+
+A detailed, participant-individual-level visualization of the main hyperparameter search is shown in Supplementary Figure 4(BCIC-IV2a), Supplementary Figure 5 (Long-term memory), and Supplementary Figure 6 (Visual memory) for each dataset. In all participants across all networks and pipelines in each dataset, holdout test-set performance was sufficiently above chance when compared to confidence-level upper limit of simulated chance levels using [102]’s method. In the BCIC-IV2a dataset, one-way ANOVA performed on each participant’s all validation F1 scores from the gridsearch space in each network across pipelines found significant p-values lower than 0.05 in 5 out of 9 participants in Shallownet ( p > . 05 in ptc. 1, 3, 6, 9), 7 out of 9 for MLSTM-FCN (p > . 05 in ptc. 6, 9), and 7 out of 9 for EEGNet (p > . 05 in ptc. 6, 9). Interestingly, ANOVA results were not significant in all 3 networks for participant 6 and 9. In the same analysis performed on the long-term memory dataset, 14 out of 15 participants had p values lower than 0.05 in EEGNet ( p > . 05 in ptc. 14) and Shallownet ( p > . 05 in ptc. 10), while all 15 participants had significant p-values in MLSTM-FCN. As can be seen in the circos plots, the chosen best performing parameters were highly variable between participants (and somewhat even across pipelines in same participant) for MLSTM-FCN and ShallowNet, while they were somewhat consistent for EEGNetV4 in both datasets. For EEGNet, the chosen parameters were more consistent across pipelines for the same participant as well. In results from the visual-memory dataset, ANOVA from every participant in each network showed significant p-values ( p < .05) from the F1 scores in the gridsearch space. Further look into the best performing hyperparameters can be found in discussions. Post-hoc Tukey’s HSD tests showed significant dif-ferences in line with the initial one-way ANOVA re-sults (Figure 2 for the BCIC-IV2a dataset, Figure 3 for the long-term memory , Figure 4 for the visual memory dataset). Notably in the BCIC-IV2a dataset results, for all networks and participants with signif-icant p values, differences were consistently present on all comparison pairs between ICLabel vs. MARA pipelines, and comparisons between NoICA vs MARA pipelines. In the long-term memory dataset, there was no such seemingly apparent pattern of consis-tently significant pipeline pairs. However, in post-hoc results from ShallowNet, significant differences were present across nearly all the participants with significant ANOVA results in comparisons of (AM-ICA+MARA vs. RunICA+ICLabel; 12 out of 15 participants) and (AMICA+MARA vs. NoICA; 12 out of 15). In MLSTM-FCN, similar consistently apparent significance was found (RunICA+MARA vs. AMICA+ICLabel; 13 out of 15 participants), (RunICA+MARA vs. NoICA; 15 out of 15), (AM-ICA+MARA vs. AMICA+ICLabel; 13 out of 15), (AMICA+MARA vs. NoICA; 13 out of 15 par-ticipants) as well. In EEGNetV4, highly consis-tently significant difference was found between (AM-ICA+ICLabel vs. AMICA+MARA; 13 out of 15 par-ticipants), (AMICA+ICLabel vs. RUNICA+MARA; 12 out of 15), and (AMICA+MARA vs. NoICA; 12 out of 15). In all architectures, it appeared the strongest apparently significant differences were be-tween some form of MARA-processed pipelines and the other pipelines. Post-hoc results from the visual-I See Artifacts: ICA-based EEG Artifact Removal Does Not Improve Deep Network Decoding Across Three BCI Tasks 10 a) amica_iclabel & amica_mara 
+
+> amica_iclabel & noica
+> amica_iclabel & runica_iclabel
+> amica_iclabel & runica_mara
+> amica_mara & noica
+> amica_mara & runica_iclabel
+> amica_mara & runica_mara
+> noica & runica_iclabel
+> noica & runica_mara
+> runica_iclabel & runica_mara
+> 0
+> 1
+> 2
+> 3
+> 4
+> 5
+> 6
+> 7
+> 8
+> Ptc.num
+
+Tukey HSD P, bcic2a_hpsearch, shallownet  
+
+> 20
+> 40
+> 60
+> 80
+> 100
+> -log10(P), p<0.05
+
+b) amica_iclabel & amica_mara 
+
+> amica_iclabel & noica
+> amica_iclabel & runica_iclabel
+> amica_iclabel & runica_mara
+> amica_mara & noica
+> amica_mara & runica_iclabel
+> amica_mara & runica_mara
+> noica & runica_iclabel
+> noica & runica_mara
+> runica_iclabel & runica_mara
+> 0
+> 1
+> 2
+> 3
+> 4
+> 5
+> 6
+> 7
+> 8
+> Ptc.num
+
+Tukey HSD P, bcic2a_hpsearch, mlstm_fcn  
+
+> 2
+> 4
+> 6
+> 8
+> 10
+> 12
+> -log10(P), p<0.05
+
+c) amica_iclabel & amica_mara 
+
+> amica_iclabel & noica
+> amica_iclabel & runica_iclabel
+> amica_iclabel & runica_mara
+> amica_mara & noica
+> amica_mara & runica_iclabel
+> amica_mara & runica_mara
+> noica & runica_iclabel
+> noica & runica_mara
+> runica_iclabel & runica_mara
+> 0
+> 1
+> 2
+> 3
+> 4
+> 5
+> 6
+> 7
+> 8
+> Ptc.num
+
+Tukey HSD P, bcic2a_hpsearch, eegnet 
+
+> 2
+> 4
+> 6
+> 8
+> 10
+> 12
+> -log10(P), p<0.05
+
+Figure 2. Visualization of post-hoc Tukey’s HSD test performed on each participant’s entire gridsearch space validation F1 for a) Shallownet, b) MLSTM-FCN, c) EEGNet architectures on the BCIC-IV2a dataset. Each row denotes individual participant in the dataset, while each column represents a single comparison pair among the 5 ICA component rejection pipelines. Cells are shaded in gray if the pair comparison did not yield p < 0.05. For pairs with significant p-values, cells are shaded by colors representing the negative base-10 logarithmic values of the p. 
+
+a) amica_iclabel & amica_mara 
+
+> amica_iclabel & noica
+> amica_iclabel & runica_iclabel
+> amica_iclabel & runica_mara
+> amica_mara & noica
+> amica_mara & runica_iclabel
+> amica_mara & runica_mara
+> noica & runica_iclabel
+> noica & runica_mara
+> runica_iclabel & runica_mara
+> 0
+> 1
+> 2
+> 3
+> 4
+> 5
+> 6
+> 7
+> 8
+> 9
+> 10
+> 11
+> 12
+> 13
+> 14
+> Ptc.num
+
+Tukey HSD P, memorylang_hpsearch, shallownet  
+
+> 2
+> 4
+> 6
+> 8
+> 10
+> 12
+> -log10(P), p<0.05
+
+b) amica_iclabel & amica_mara 
+
+> amica_iclabel & noica
+> amica_iclabel & runica_iclabel
+> amica_iclabel & runica_mara
+> amica_mara & noica
+> amica_mara & runica_iclabel
+> amica_mara & runica_mara
+> noica & runica_iclabel
+> noica & runica_mara
+> runica_iclabel & runica_mara
+> 0
+> 1
+> 2
+> 3
+> 4
+> 5
+> 6
+> 7
+> 8
+> 9
+> 10
+> 11
+> 12
+> 13
+> 14
+> Ptc.num
+
+Tukey HSD P, memorylang_hpsearch, mlstm_fcn  
+
+> 2
+> 4
+> 6
+> 8
+> 10
+> 12
+> -log10(P), p<0.05
+
+c) amica_iclabel & amica_mara 
+
+> amica_iclabel & noica
+> amica_iclabel & runica_iclabel
+> amica_iclabel & runica_mara
+> amica_mara & noica
+> amica_mara & runica_iclabel
+> amica_mara & runica_mara
+> noica & runica_iclabel
+> noica & runica_mara
+> runica_iclabel & runica_mara
+> 0
+> 1
+> 2
+> 3
+> 4
+> 5
+> 6
+> 7
+> 8
+> 9
+> 10
+> 11
+> 12
+> 13
+> 14
+> Ptc.num
+
+Tukey HSD P, memorylang_hpsearch, eegnet 
+
+> 2
+> 4
+> 6
+> 8
+> 10
+> 12
+> -log10(P), p<0.05
+
+Figure 3. Visualization of post-hoc Tukey’s HSD test performed on each participant’s entire gridsearch space validation F1 for a) Shallownet, b) MLSTM-FCN, c) EEGNet architectures on the long-term memory dataset. Each row denotes individual participant in the dataset, while each column represents a single comparison pair among the 5 ICA component rejection pipelines. Cells are shaded in gray if the pair comparison did not yield p < 0.05. For pairs with significant p-values, cells are shaded by colors representing the negative base-10 logarithmic values of the p. 
+
+memory dataset showed a similar pattern in which comparison of scores from component rejection meth-ods other than MARA (noICA, ICLabel) with itself yielded more significant difference than otherwise, with their difference being more pronounced in MLSTM-FCN than in other networks. Supplementary Material Table 7 and 8 show correlation matrices between the pipelines for each network and dataset of all validation F1 scores from the entire grid search. Table 3 shows the calculated correlation between Validation F1 scores from the best performing hyperparameter set and the final hold-out test-set F1 scores (df=6 for BCIC-IV2a dataset, df=12 for long-term memory dataset). Evidently the validation scores and the final test-set scores were highly correlated. Figure 5, 6, and 7 show correlation matrices for each dataset across ICA pipelines as well as across different networks. Classifier performance from individual participant data was again highly correlated for different pipelines and even different networks. In the BCIC-IV2a dataset, alternating patterns in which the MARA-based rejection pipelines I See Artifacts: ICA-based EEG Artifact Removal Does Not Improve Deep Network Decoding Across Three BCI Tasks 11 a) amica_iclabel & amica_mara  
+
+> amica_iclabel & noica
+> amica_iclabel & runica_iclabel
+> amica_iclabel & runica_mara
+> amica_mara & noica
+> amica_mara & runica_iclabel
+> amica_mara & runica_mara
+> noica & runica_iclabel
+> noica & runica_mara
+> runica_iclabel & runica_mara
+> 0
+> 1
+> 2
+> 3
+> 4
+> 5
+> 6
+> 7
+> 8
+> 9
+> 10
+> 11
+> 12
+> 13
+> 14
+> 15
+> 16
+> 17
+> 18
+> 19
+> 20
+> 21
+> 22
+> 23
+> 24
+> 25
+> 26
+> 27
+> 28
+> 29
+> 30
+> 31
+> 32
+> Ptc.num
+> Tukey HSD P, vismem_hpsearch, shallownet
+> 2
+> 4
+> 6
+> 8
+> 10
+> 12
+> -log10(P), p<0.05
+
+b) amica_iclabel & amica_mara  
+
+> amica_iclabel & noica
+> amica_iclabel & runica_iclabel
+> amica_iclabel & runica_mara
+> amica_mara & noica
+> amica_mara & runica_iclabel
+> amica_mara & runica_mara
+> noica & runica_iclabel
+> noica & runica_mara
+> runica_iclabel & runica_mara
+> 0
+> 1
+> 2
+> 3
+> 4
+> 5
+> 6
+> 7
+> 8
+> 9
+> 10
+> 11
+> 12
+> 13
+> 14
+> 15
+> 16
+> 17
+> 18
+> 19
+> 20
+> 21
+> 22
+> 23
+> 24
+> 25
+> 26
+> 27
+> 28
+> 29
+> 30
+> 31
+> 32
+> Ptc.num
+> Tukey HSD P, vismem_hpsearch, mlstm_fcn
+> 2
+> 4
+> 6
+> 8
+> 10
+> 12
+> -log10(P), p<0.05
+
+c) amica_iclabel & amica_mara 
+
+> amica_iclabel & noica
+> amica_iclabel & runica_iclabel
+> amica_iclabel & runica_mara
+> amica_mara & noica
+> amica_mara & runica_iclabel
+> amica_mara & runica_mara
+> noica & runica_iclabel
+> noica & runica_mara
+> runica_iclabel & runica_mara
+> 0
+> 1
+> 2
+> 3
+> 4
+> 5
+> 6
+> 7
+> 8
+> 9
+> 10
+> 11
+> 12
+> 13
+> 14
+> 15
+> 16
+> 17
+> 18
+> 19
+> 20
+> 21
+> 22
+> 23
+> 24
+> 25
+> 26
+> 27
+> 28
+> 29
+> 30
+> 31
+> 32
+> Ptc.num
+> Tukey HSD P, vismem_hpsearch, eegnet
+> 2
+> 4
+> 6
+> 8
+> 10
+> 12
+> -log10(P), p<0.05
+
+Figure 4. Visualization of post-hoc Tukey’s HSD test performed on each participant’s entire gridsearch space validation F1 for a) Shallownet, b) MLSTM-FCN, c) EEGNet architectures on the visual memory dataset. Each row denotes individual participant in the dataset, while each column represents a single comparison pair among the 5 ICA component rejection pipelines. Cells are shaded in gray if the pair comparison did not yield p < 0.05. For pairs with significant p-values, cells are shaded by colors representing the negative base-10 logarithmic values of the p. 
+
+had comparably lower correlation to other pipelines can be see in both validation F1 and Test F1 correlation matrices. Correlations within F1 scores of EEGNetV4 were higher than the network’s correlations with other architectures. In the long-term memory dataset, the difference of correlations with EEGNet and other architectures was especially pronounced in the pipelines rejected with ICLabel for the validation F1, although the pattern was less apparent in the Test F1 correlations. In both validation and test F1, pipeline results within Shallownet architecture had the highest correlations compared to across and within other networks for both validation and test F1. In the visual memory dataset as well, correlations between performances of different networks showed EEGNet architecture being the least correlated, although the baseline was much higher than in results from the BCIC-IV2a dataset. Supplementary Figures 16 (BCIC-IV2a dataset), 17 (long-term memory dataset), and 18 (visual-memory dataset) show best-parameter validation F1 and final test-set F1 scores of different pipelines side by side, grouped for each participant. Based on the one-way ANOVA and the post-hoc Tukey tests performed on individual participant level, while the majority of participants had significantly different validation set performance across different hyperparameter setups, it can be seen that the best validation performance, along with the final holdout test-set performance do not seem to vary much between different pipelines in the same network. This data shows that performance from the same participant in reasonably optimized networks is largely consistent across pipelines, and in fact origin (the participant) of the data seems to have a much stronger influence on performance compared to the pre-processing pipelines themselves. 
+
+3.4. Comparison of classification accuracy across pipelines: Group level 
+
+Figure 8 shows the comparison of pipeline perfor-mances on a whole-dataset level across participants. In this analysis, only holdout test-set F1 scores 
+
+were considered for a repeated-measure analysis of variance (RM-ANOVA) where each participant was counted as a repeated measure. Compared to one-way ANOVAs performed on the participant individ-ual level, observed differences between the pipelines were much weaker. In the initial RM-ANOVA, p-values were lower than 0.05 for ShallowNet and EEG-NetV4 while not in MLSTM-FCN, for both BCIC-IV2a (ShallowNet F( df grp 4, df rm 32)=2.728, p=.046; MLSTM-FCN F=1.150, p=.351; EEGNetV4 F=3.096, I See Artifacts: ICA-based EEG Artifact Removal Does Not Improve Deep Network Decoding Across Three BCI Tasks 12 
+
+Best Validation F1 & Test F1 correlation R(P val, CI) Dataset—Networks ShallowNet MLSTM-FCN EEGNetV4 BCIC-IV2A .931( p < 1e−19 , CI : [ .878 , . 962]) .897( p < 1e−16 , CI : [ .819 , . 942]) .683( p < 1e−6, CI : [ .487 , . 813]) Long-Term Memory .976( p < 1e−49 , CI : [ .963 , . 985]) .923( p < 1e−31 , CI : [ .880 , . 951]) .935( p < 1e−33 , CI : [ .899 , . 959]) Visual Memory .943( p < 1e−80 , CI : [ .924 , . 958]) .913( p < 1e−65 , CI : [ .884 , . 935]) .853( p < 1e−48 , CI : [ .806 , . 890]) 
+
+Table 3. Correlation between best performing validation set’s F1 scores and the final holdout test set F1 scores, for each dataset and network. NoICA 
+
+> R_MARA
+> R_ICLabel
+> A_MARA
+> A_ICLabel
+> NoICA
+> R_MARA
+> R_ICLabel
+> A_MARA
+> A_ICLabel
+> NoICA
+> R_MARA
+> R_ICLabel
+> A_MARA
+> A_ICLabel
+
+NoICA 
+
+R_MARA 
+
+R_ICLabel 
+
+A_MARA 
+
+A_ICLabel 
+
+NoICA 
+
+R_MARA 
+
+R_ICLabel 
+
+A_MARA 
+
+A_ICLabel 
+
+NoICA 
+
+R_MARA 
+
+R_ICLabel 
+
+A_MARA 
+
+A_ICLabel 
+
+> Shallownet Shallownet MLSTM-FCN MLSTM-FCN EEGNetV4 EEGNetV4
+
+Shallownet Shallownet MLSTM-FCN MLSTM-FCN EEGNetV4 EEGNetV4 
+
+0.75 
+
+0.80 
+
+0.85 
+
+0.90 
+
+0.95 
+
+1.00 
+
+(a) Best Param Validation F1 NoICA 
+
+> R_MARA
+> R_ICLabel
+> A_MARA
+> A_ICLabel
+> NoICA
+> R_MARA
+> R_ICLabel
+> A_MARA
+> A_ICLabel
+> NoICA
+> R_MARA
+> R_ICLabel
+> A_MARA
+> A_ICLabel
+
+NoICA 
+
+R_MARA 
+
+R_ICLabel 
+
+A_MARA 
+
+A_ICLabel 
+
+NoICA 
+
+R_MARA 
+
+R_ICLabel 
+
+A_MARA 
+
+A_ICLabel 
+
+NoICA 
+
+R_MARA 
+
+R_ICLabel 
+
+A_MARA 
+
+A_ICLabel 
+
+> Shallownet Shallownet MLSTM-FCN MLSTM-FCN EEGNetV4 EEGNetV4
+
+Shallownet Shallownet MLSTM-FCN MLSTM-FCN EEGNetV4 EEGNetV4 
+
+0.4 
+
+0.5 
+
+0.6 
+
+0.7 
+
+0.8 
+
+0.9 
+
+1.0 (b) Test F1 
+
+Figure 5. Across network and pipelines correlational matrix of the best-parameter validation F1 scores (green) and holdout test-set F1 scores (red) for the BCIC-IV2a dataset. Pipeline labels are abbreviated for space. NoICA 
+
+> R_MARA
+> R_ICLabel
+> A_MARA
+> A_ICLabel
+> NoICA
+> R_MARA
+> R_ICLabel
+> A_MARA
+> A_ICLabel
+> NoICA
+> R_MARA
+> R_ICLabel
+> A_MARA
+> A_ICLabel
+
+NoICA 
+
+R_MARA 
+
+R_ICLabel 
+
+A_MARA 
+
+A_ICLabel 
+
+NoICA 
+
+R_MARA 
+
+R_ICLabel 
+
+A_MARA 
+
+A_ICLabel 
+
+NoICA 
+
+R_MARA 
+
+R_ICLabel 
+
+A_MARA 
+
+A_ICLabel 
+
+> Shallownet Shallownet MLSTM-FCN MLSTM-FCN EEGNetV4 EEGNetV4
+
+Shallownet Shallownet MLSTM-FCN MLSTM-FCN EEGNetV4 EEGNetV4 
+
+0.9825 
+
+0.9850 
+
+0.9875 
+
+0.9900 
+
+0.9925 
+
+0.9950 
+
+0.9975 
+
+1.0000 
+
+(a) Best Param Validation F1 NoICA 
+
+> R_MARA
+> R_ICLabel
+> A_MARA
+> A_ICLabel
+> NoICA
+> R_MARA
+> R_ICLabel
+> A_MARA
+> A_ICLabel
+> NoICA
+> R_MARA
+> R_ICLabel
+> A_MARA
+> A_ICLabel
+
+NoICA 
+
+R_MARA 
+
+R_ICLabel 
+
+A_MARA 
+
+A_ICLabel 
+
+NoICA 
+
+R_MARA 
+
+R_ICLabel 
+
+A_MARA 
+
+A_ICLabel 
+
+NoICA 
+
+R_MARA 
+
+R_ICLabel 
+
+A_MARA 
+
+A_ICLabel 
+
+> Shallownet Shallownet MLSTM-FCN MLSTM-FCN EEGNetV4 EEGNetV4
+
+Shallownet Shallownet MLSTM-FCN MLSTM-FCN EEGNetV4 EEGNetV4 
+
+0.84 
+
+0.86 
+
+0.88 
+
+0.90 
+
+0.92 
+
+0.94 
+
+0.96 
+
+0.98 
+
+1.00 (b) Test F1 
+
+Figure 6. Across network and pipelines correlational matrix of the best-parameter validation F1 scores (green) and holdout test-set F1 scores (red) for the long-term memory dataset. Pipeline labels are abbreviated for space. I See Artifacts: ICA-based EEG Artifact Removal Does Not Improve Deep Network Decoding Across Three BCI Tasks 13 NoICA   
+
+> R_MARA
+> R_ICLabel
+> A_MARA
+> A_ICLabel
+> NoICA
+> R_MARA
+> R_ICLabel
+> A_MARA
+> A_ICLabel
+> NoICA
+> R_MARA
+> R_ICLabel
+> A_MARA
+> A_ICLabel
+> NoICA
+> R_MARA
+> R_ICLabel
+> A_MARA
+> A_ICLabel
+> NoICA
+> R_MARA
+> R_ICLabel
+> A_MARA
+> A_ICLabel
+> NoICA
+> R_MARA
+> R_ICLabel
+> A_MARA
+> A_ICLabel
+> Shallownet Shallownet MLSTM-FCN MLSTM-FCN EEGNetV4 EEGNetV4
+> Shallownet Shallownet MLSTM-FCN MLSTM-FCN EEGNetV4 EEGNetV4
+> 0.96
+> 0.97
+> 0.98
+> 0.99
+> 1.00
+
+(a) Best Param Validation F1 NoICA    
+
+> R_MARA
+> R_ICLabel
+> A_MARA
+> A_ICLabel
+> NoICA
+> R_MARA
+> R_ICLabel
+> A_MARA
+> A_ICLabel
+> NoICA
+> R_MARA
+> R_ICLabel
+> A_MARA
+> A_ICLabel
+> NoICA
+> R_MARA
+> R_ICLabel
+> A_MARA
+> A_ICLabel
+> NoICA
+> R_MARA
+> R_ICLabel
+> A_MARA
+> A_ICLabel
+> NoICA
+> R_MARA
+> R_ICLabel
+> A_MARA
+> A_ICLabel
+> Shallownet Shallownet MLSTM-FCN MLSTM-FCN EEGNetV4 EEGNetV4
+> Shallownet Shallownet MLSTM-FCN MLSTM-FCN EEGNetV4 EEGNetV4
+> 0.70
+> 0.75
+> 0.80
+> 0.85
+> 0.90
+> 0.95
+> 1.00
+
+(b) Test F1 
+
+Figure 7. Across network and pipelines correlational matrix of the best-parameter validation F1 scores (green) and holdout test-set F1 scores (red) for the visual memory dataset. Pipeline labels are abbreviated for space. 
+
+p=.029) and long-term memory dataset (Shal-lowNet F( df grp 4, df rm 56)=5.432, p=.001; MLSTM-FCN F=1.151, p=.338, EEGNetV4 F=3.203, p=.019). In a post-hoc analysis with paired T-tests corrected by Bonferroni correction (N comparisons = 10), the difference was found to be only significant between RunICA+ICLabel and AMICA+MARA pipelines in results trained from EEGNetV4 for the BCIC-IV2a dataset, while in the long-term memory dataset signif-icant differences were found between RunICA+MARA and AMICA+ICLabel for ShallowNet, and between NoICA and AMICA+MARA in EEGNetV4. In re-sults from the visual-memory dataset, no significant differences were observed from the RM ANOVA at all. See Supplementary Tables 10 for BCIC-IV2a dataset, 11 for the long-term memory dataset, and 12 for the visual memory dataset in specific post-hoc T-test re-sults. 
+
+3.5. Number of rejected components and classifier performance 
+
+To see whether the number of rejected components correlate to changes in classifier performance, we next performed a correlation analysis between the rejected component counts from each pipeline-participant to the test-set F1 scores from the best-performing mod-els of each architecture. Figure 9 shows a scatter-plot of individual participant test-F1 values from dif-ferent pipelines for each network and dataset setup, plotted against the number of components rejected. In each dataset-architecture combination, Pearson’s R values were also calculated, shown on the plot subtitles. The displayed p-values are not multiple-comparison corrected, and none of the p-values survived Bonfer-roni correction. In the BCIC-IV2a dataset, a close-to-significant negative correlation was found between the number of rejected components and test-set F1 scores (R(Shallow ) = −.364 , p uncorr = .014; R(M LST M ) = 
+
+−.233 , p uncorr = .124; R(EEGN et ) = −.262 , p uncorr =
+
+.082). Building up from the above consideration of the number of components rejected in all datasets, we see a further interesting pattern: In the BCIC-IV2a dataset, there was a difference of 5 rejected components on av-erage between the MARA and AMICA pipeline out of 22 independent components. In the long-term memory dataset, the difference was even more stark with up to 30 components difference between the two rejection pipelines out of 62 independent components. Com-parable differences in rejected components between MARA and ICLabel were found in the visual memory dataset as well. Importantly, however, despite the large gap in remaining components between the component rejection methods, we found no consistent, similar dif-ference in classifier performance. Combined with the observation that performance metrics between differ-ent pipelines were highly correlated, it seems possible that while noise does exist in the different datasets (es-pecially in the long-term memory dataset, which had a much longer recording time), this does not seem to affect the deep neural networks performance in high-lighting the features relevant to the task, nor are noise features recognized as relevant to the classification at all. Even in participants with larger performance differences between pipelines (e.g. participant 5in BCIC-IV2a dataset, participant 15 in long-term memory dataset, participant 2 in visual memory I See Artifacts: ICA-based EEG Artifact Removal Does Not Improve Deep Network Decoding Across Three BCI Tasks 14 a) noica runica_mara runica_iclabel amica_mara amica_iclabel           
+
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0 F1 score
+> shallownet noica runica_mara runica_iclabel amica_mara amica_iclabel
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0 F1 score
+> mlstm_fcn noica runica_mara runica_iclabel amica_mara amica_iclabel
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0 F1 score
+> eegnet
+> **posthoc t-test p<0.005 (N. comparisons = 10)
+
+b) noica runica_mara runica_iclabel amica_mara amica_iclabel            
+
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0 F1 score
+> shallownet noica runica_mara runica_iclabel amica_mara amica_iclabel
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0 F1 score
+> mlstm_fcn noica runica_mara runica_iclabel amica_mara amica_iclabel
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0 F1 score
+> eegnet
+> **Post-hoc t-test p<0.005 N. comparisons =10
+> **Post-hoc t-test p<0.005 N.Comparisons = 10
+
+c) noica runica_mara runica_iclabel amica_mara amica_iclabel         
+
+> 0.4
+> 0.6
+> 0.8
+> 1.0 F1 score shallownet noica runica_mara runica_iclabel amica_mara amica_iclabel
+> 0.4
+> 0.6
+> 0.8
+> 1.0 F1 score mlstm_fcn noica runica_mara runica_iclabel amica_mara amica_iclabel
+> 0.4
+> 0.6
+> 0.8
+> 1.0 F1 score eegnet
+
+Figure 8. Overall test-set F1 score boxplots for each pipeline for each network for a) BCIC-IV2a, b) Long-term memory, c) Visual memory datasets. Significance markings of pipeline comparisons are based on post-hoc paired T-tests corrected with Bonferroni correction where the corrected p-value was lower than 0.05. Whiskers are defined as higher and lower quantiles of the data, and the center line denotes the median. Outlier values are denoted with circles. 
+
+dataset), we were unable to pinpoint a consistently best-performing pipeline. Additionally, the NoICA pipeline (in which no component rejection was performed at all) is not the worst performing pipeline in these comparisons. Furthermore, for several participants displaying clear performance differences (such as participant 2, 5, 7 in the BCIC-IV2a dataset), pipelines processed with MARA resulted in worst overall performance. Although this may be due to the significantly larger number of components rejected in the MARA pipeline overall, the fact that the performance dip is more apparent in the BCIC-IV2a dataset (with a generally smaller number of components rejected regardless of the pipeline) compared to the long-term memory dataset is noteworthy. 
+
+4. Discussion 
+
+In this study, we pre-processed 3 datasets of epoched EEG signals purposed for BCI classification through a total of 4 (+1 control) different ICA-based automatic pipelines for rejecting artifact components, to investigate whether such pre-processing procedures affect general classifier performance in neural network-based architectures. To see whether the results would be generalizable, we chose 3 different network architectures, including two specifically designed for brain signal classification. Furthermore we optimized hyperparameters in two stages: first parameters that could be shared across different architectures (such as learning rate) were optimized for all 3 networks on one benchmark dataset (Motor Imagery dataset from the BCI competition). Then we optimized network-specific hyperparameters individually for each participant in each dataset, for each network, for each ICA component rejection pipeline, each with a predefined network and dataset-specific parameter search space (that was identical across participants and pipelines) - this resulted in over 800 separate runs of the hyperparameter grid search, each run with a search space of at least a hundred possible combination of parameters. While one-way ANOVA results did reveal some significant differences in classifier performance between ICA pipelines for each individual participant, and more weakly in an across-participant level RM-ANOVA as well, questions remain on whether the ICA based component rejection process is truly beneficial in BCI classifier performance improvement. 
+
+4.1. Is ICA component rejection really beneficial for classifier performance boost? 
+
+Despite the observed significant performance difference between different input pipeline data apparent in the majority of participants across networks and datasets on an individual participant level, the overall benefit from different ICA component rejection pipelines is not as clear when it comes to final performance defining metrics. While the difference between ICA pipelines was pronounced for less-optimized hyperparameter setups of individual participants, once a reasonably I See Artifacts: ICA-based EEG Artifact Removal Does Not Improve Deep Network Decoding Across Three BCI Tasks 15 5 0 5 10 15 20                                         
+
+> comp_rej
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0
+> test_f1
+> bcic_shallownet (R=-0.364, p=0.014)
+> 50510 15 20
+> comp_rej
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0
+> test_f1
+> bcic_mlstm-fcn (R=-0.233, p=0.124)
+> 50510 15 20
+> comp_rej
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0
+> test_f1
+> bcic_eegnetv4 (R=-0.262, p=0.082)
+> pipeline
+> noica
+> runica-mara
+> runica-iclabel
+> amica-mara
+> amica-iclabel
+> pname
+> noica
+> MARA
+> ICLabel
+> 010 20 30 40 50
+> comp_rej
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0
+> test_f1
+> langmem_shallownet (R=-0.040, p=0.732)
+> 010 20 30 40 50
+> comp_rej
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0
+> test_f1
+> langmem_mlstm-fcn (R=0.055, p=0.640)
+> 010 20 30 40 50
+> comp_rej
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0
+> test_f1
+> langmem_eegnetv4 (R=0.063, p=0.590)
+> 010 20 30 40 50
+> comp_rej
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0
+> test_f1
+> vismem_shallownet (R=-0.066, p=0.402)
+> 010 20 30 40 50
+> comp_rej
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0
+> test_f1
+> vismem_mlstm-fcn (R=-0.036, p=0.648)
+> 010 20 30 40 50
+> comp_rej
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0
+> test_f1
+> vismem_eegnetv4 (R=-0.063, p=0.419)
+> Nr. of components rejected to F1
+
+Figure 9. Scatterplots of number of components rejected and the test-F1 scores in each dataset-model combination given for each participant in dataset. X-axis shows the number of components rejected as a result of ICA-based noise rejections, Y-axis shows the test-F1 scores of each participant. The X-values are slightly jittered for visual readability as noICA pipelines all have 0 for component rejection values. Row orders denote the dataset: the BCIC-IV2a dataset, lanugage-memory dataset, and the visual memory dataset. Column orders denote model architecture: ShallowNet, MLSTM-FCN, and EEGNetV4. The denoted p-values are not multiple comparison corrected. 
+
+well performing parameter was found, the resultant test performance was largely dissimilar. This is observable in Figure 8, as well as in Supplementary Figures 16, 17, 18. Considering the results so far, we suggest that there is little to no benefit to be gained from utilizing ICA-based noise removal in EEG data: this is true both at the individual participant-dependent level classification, and especially more so on across-participant level. Based on the results of comparing rejected number of components with actual test-set F1 performance, it appears that removing components even for noise rejection purposes has little benefit for network performance and may sometimes be detrimental. ICA computations are generally regarded as computationally expensive in comparison to other methods in the pre-processing pipeline. Especially in multi-dataset prediction studies where the focus is on training inference models rather than performing univariate statistical analysis of EEG epochs, it may be worth reconsidering whether it’s truly necessary to apply such methods for a rather inconsistent and possibly marginal boost to prediction performance. It should also be noted that at the participant-dependent level, the degree of freedom in one-way ANOVA was in the hundreds, likely amplifying what statistical power there was despite the small effect size. This was much less an issue in dataset-representative level RM-ANOVA, as the degree of freedom was limited to the number of participants available in the dataset. In fact, overall performance appears to be more influenced by the data source (the participant) rather than whichever pipelines. When participant order is re-arranged for test-F1 values of a one pipeline (see Figure 10 for participants sorted by NoICA F1 scores), the rest of the pipelines seem to more or less follow a similar pattern as that pipeline. This is also evidenced by the high F1 correlations between pipelines and architectures, as I See Artifacts: ICA-based EEG Artifact Removal Does Not Improve Deep Network Decoding Across Three BCI Tasks 16  
+
+> Figure 10. Participant F1 scores for all pipelines, with participant number re-sorted by NoICA pipeline F1 scores.
+
+seen in Figures 5, 6, 7. Are these findings transferable to standard machine learning models? Figure 11 shows individual participant validation and test-f1 scores of LDA models trained on the BCIC-IV2a dataset raw waveforms. Here as well, there is no pipeline that consistently outperforms the others. However, we deem it insufficient to reach similar conclusions as in network models, largely because LDA severely unperforms, with some results close to chance levels. The neural network models that were used in our study, namely the ShallowNet, are reported to have designed intermediate layers after certain feature extraction methods such as filter bank common spatial patterns (FBCSP) [94]. They take raw time-series format EEG as input, and no separate feature extraction methods are necessary for reasonable performance. In standard ML models however, feature extraction is more often performed beforehand rather than using raw waveforms as input, especially in MI datasets. We suspect this may explain the much lower LDA performance with raw data, but also realize adding the feature extraction step for the standard ML models will complicate establishing equal comparison with the network models, as the data technically undergoes an additional layer of processing through feature extraction. As such, we believe extending the findings to standard ML is out of the current scope of the study. It is worth noting that so far our study has investigated three different datasets of brain data. In a related study of evaluating the effect of various data cleaning methods on general classification tasks with multiple datasets (not specifically limited to EEG or time series), Li et al. notes that not only is the impact of data cleaning on classifiers hardly consistent across models, but also the impact strongly depends on the dataset: as different datasets have different error distributions, no one cleaning method seems to be consistently superior [103]. From our current results, however, while clear differences in the number of artifact components can be observed in the number of rejected components across the three datasets, the improvement of performance from ICA rejection methods were negligible in terms of effect size. While standard ERP-based analysis results are outside the purview of our study, the lack of benefit from employing ICA based rejection methods appear to be also apparent in such studies. Recent results from Delorme suggest that automated rejection methods for removing muscle and eye movement components do not lead to more channels with statistical significance in ERP [49]. Regardless, We believe extending our study to more datasets of different BCI tasks will help to get an even clearer picture of whether ICA noise rejection is actually beneficial for classification purposes. 
+
+4.2. Network activation maps across pipelines and EEG waveforms 
+
+While performance across different pipelines was similar for the same dataset participant, the question remains whether the instances of the same network model from the different pipelines were utilizing similar features for a given sample. Furthermore, there is merit in observing whether output EEG waveforms from the different ICA pipelines were similar in the first place, and how they match up to the class activations of networks. As a preliminary analysis of this question, we extracted Gradient-weighted Class Activation Maps (GradCAM) [104] values from the ”separable-depth” I See Artifacts: ICA-based EEG Artifact Removal Does Not Improve Deep Network Decoding Across Three BCI Tasks 17  
+
+> Figure 11. LDA results of the BCICIV2a dataset, performed on raw EEG waveforms without additional feature extraction that are standard for motor imagery.
+
+convolutional layer of the best performing EEGNetV4 ‡
+
+models from each pipeline using the test-set data of the first participant in the BCIC-IV2a dataset. The averaged CAM heatmap of the test-set for each pipeline can be found in Figure 12. GradCAM is a visualization method to assess highlighted features in individual layers, and as such it is not immediately intuitive as to what features are deemed important for time series. Next, we tried to see how the class activation maps were reflected on EEG trial waveforms. For longer duration epochs, it is rather uncommon to average raw waveforms across trials, and as such we chose a sample trial from a given participant. We superimposed the CAM values to the waveforms in each pipeline, and the result can be seen in Figure 13. While we are not aware of measures to quantifiably compare different class activation maps, as CAM results (and to an extent EEG data) can be interpreted as a single-channel 2 dimensional image, we computed structural similarity index values (SSIM) [105] for each pipeline to determine how similar the activations, as well as the output waveforms from individual ICA pipelines were to one another. Table 4 shows the SSIM values from EEG epochs of the entire test-set of participant 1 from the BCIC dataset in each pipeline, as well as that of the CAM values from the same data in EEGNetV4. In the EEG waveforms, we see that NoICA and the two ICLabel pipelines produce very similar values to each other, and the two MARA pipelines are                 
+
+> ‡Usually, activations from the final convolutional layers are used for CAM visualization, and we chose EEGNetV4 for the preliminary analysis, as the top convolutional layer of the Shallownet already has different spatial channel information combined into a single dimension, and MLSTM-FCN’s 1D-CNN layer activations seemed to highlight most time dimensions of a given spatial channel as a whole.
+
+also similar to each other. This is expected given the number of rejected components were the same for ICLabel and NoICA in the BCIC dataset, and the two MARA pipelines having similar number of component rejections. Interestingly however, the resultant GradCAM values from the best performing networks are quite dissimilar, and pipelines with similar number of components do not necessarily result in higher CAM similarity. One possible explanation for this could be related to a common criticism of GradCam for visual recognition tasks, in which the activations often do not fully encapsulate the target object [106]. Motor imagery is largely attributed to activity in the premotor, parietal, as well as the sensorymotor area. While activations from each pipeline denote some combinations of channels close to these cortical areas, it is still rather inconsistent, and the temporal highlight of these seem to be even more so. With scalp EEG usually the sensor measurements are already mixtures of signals from these sources, but nonetheless the variety in network activations are rather perplexing. In computer vision, neural networks have been known to implicitly learn features [107– 109], and often different architectures would form similar filter structures even across different tasks. Evidence from study of CNN filters also suggests filters of trained networks can serve as a proxy of data distribution, and that often similar models have little shifts in the filters across different tasks [110]. While the network activations show a somewhat different patterns between pipelines, it is possible that the filters themselves may be more similar. Regardless, our current results are not sufficient to posit whether noise features are implicitly being ignored by the network models. For a clearer verdict on the necessity of ICA-based noise rejection methods in classification tasks, we I See Artifacts: ICA-based EEG Artifact Removal Does Not Improve Deep Network Decoding Across Three BCI Tasks 18  
+
+> Figure 12. Averaged GradCAM values from the BCICIV2a dataset, participant 1, test set from the EEGNetV4’s best parameter model of each pipeline. Values from the conv-separable-depth layer were computed.
+
+a) 
+
+SSIM-EEG NoICA RunICA-MARA RunICA-ICLabel AMICA-MARA AMICA-ICLabel NoICA 1 0.8031 0.9374 0.7989 1RunICA-MARA 0.8031 1 0.7772 0.9695 0.8031 RunICA-ICLabel 0.9374 0.7772 1 0.7716 0.9374 AMICA-MARA 0.7989 0.9695 0.7716 1 0.7989 AMICA-ICLabel 1 0.8031 0.9374 0.7989 1b) 
+
+SSIM-CAM NoICA RunICA-MARA RunICA-ICLabel AMICA-MARA AMICA-ICLabel NoICA 1 0.4167 0.4417 0.4015 0.4036 RunICA-MARA 0.4167 1 0.4580 0.4660 0.4610 RunICA-ICLabel 0.4417 0.4580 1 0.4754 0.4655 AMICA-MARA 0.4015 0.4660 0.4754 1 0.4591 AMICA-ICLabel 0.4036 0.4610 0.4655 0.4591 1   
+
+> Table 4. Structural similarity index (SSIM) [105] between pipelines of all test set EEG trials from BCIC-IV2a dataset participant 1, and of averaged GradCAM results from test set of BCIC-IV2a, participant 1. For GradCAM, the best performing model of EEGNetV4 was used to extract activation maps of the separable depth convolutional layer. Note that a SSIM of 1 does not necessarily indicate the two matrices are identical, but that they are structurally extremely similar.
+
+believe further work analyzing the intermediate weight and output of the networks, as well as their connection to the output of ICA based rejection methods are necessary. 
+
+4.3. Network performance: is it comparable to reference papers and results? 
+
+In the interest of attempting to generalize findings across different datasets, we largely kept pre-processing pipelines before classification as consistent as possible throughout the study. Possibly as a result of this, the final prediction performance was not necessarily at state-of-the-art levels - especially for the more widely-I See Artifacts: ICA-based EEG Artifact Removal Does Not Improve Deep Network Decoding Across Three BCI Tasks 19 a) b) 
+
+c) d) 
+
+e)  
+
+> Figure 13. Comparison of Raw EEG waveforms of a test set trial from the BCICIV2a dataset, participant 1, for each pipeline. GradCAM values of the best performing EEGNetV4 model are shown as color gradients on the waveforms.
+
+tested BCIC-IV2a dataset. Considering that many recent SOTA studies in motor imagery classification have used task-specific feature extraction methods [111–114] (see [115] for review), this is not too surprising. We, however, believe this does not invalidate our findings in that ICA pipelines have not necessarily made a considerable impact in classifier performance: taking note of the classifier performance in the reference paper of ShallowNet by Schirrmeister et al. [94], in which the same BCIC-IV2a dataset was trained with the same network but on the same network parameter across all participants, the overall performance difference is relatively minor: the reference paper reports an average accuracy of slightly below 70%, while our results report an overall average test F1-score of .65. In the long-term memory dataset however, the final performance reported in our study was generally higher overall than both the dataset reference paper [63] as well as the follow-up study using Transformer based networks [116]. It should be noted that a lot of the specifics leading up to classification were very different, such as the use of balancing of samples across classes by undersampling the numerous class, as well as the addition of an additional, 15th participant that was not present at the time when the reference paper was published. Because replication of the dataset reference paper results nor SOTA results were not the core focus of this study, and because there are differences in implementation details among the different existing studies, it is difficult to draw a conclusion on whether the classifier was truly optimized enough. At the time of writing this manuscript, the original paper for the visual memory dataset is not yet available, making any comparison I See Artifacts: ICA-based EEG Artifact Removal Does Not Improve Deep Network Decoding Across Three BCI Tasks 20 to reference results difficult. However, a hypothesis preprint is available at [64, 89]. Based on the breadth of pipelines as well as the size of the hyperparameter space, combined with the fact that we optimized parameters for each participant within the dataset, and the consistency of results across these networks, participants and datasets, we can only reiterate our conclusion that the benefits gained from using ICA based noise rejections are rather minimal at best for classification. We also believe the discrepancies in the implementation details warrant the need for sharing of transparent study implementation details in order to further facilitate reproduction studies to validate the findings by other scholars. 
+
+4.4. Hyperparameter choice: How well optimized were the networks? 
+
+In the preliminary network-non-specific parameter search portion of our study, we found clear trends for optimal values of learning rate and early stopping parameters that for the BCIC-IV2a dataset. When assessing the impact of further, dataset-specific fine-tuning of these parameters, studies have indicated that using default hyperparameter values may not adversely affect performance compared to optimized ones, especially given the trade-off between model performance and computational resources [117, 118]. Hyperparameter tuning on a proxy dataset can also yield reasonable results [119], but in general the proxy datasets share more than some similar properties; as in, they are usually subsets of a larger main dataset. For a clearer conclusion on the effect of pre-processing pipelines on model performance, it may be necessary in the future to fully optimize for a larger range of hyper-parameters of the models. In the main network-specific model parameter optimization portion of our study, it appeared that no specific parameter was preferred across the different folds and configurations. The figures in the supplementary material (Figures 7,8,9 for BCIC-IV2a dataset; Figures 10,11,12 for long-term memory dataset; Figures 13,14,15 for the Visual Memory dataset) show the optimized parameters from each participant in each pipelines among the search space, plotted against their respective final test-set F1 scores. While in some parameters (e.g. pool time length of ShallowNet, conv1 kernel of MLSTM-FCN, and F1 and third kernel size of EEGNetv4 for the BCIC-IV2a dataset; filter time length and pool time length of ShallowNet, lstm num layers of MLSTM-FCN, F1 and D in EEGNetV4 for the long-term memory dataset; lstm num layers of MLSTM-FCN, F1 of EEGNetv4 for the visual memory dataset), there were indeed trends towards the optimal parameter, the picture is less clear in the network-specific parameter optimization. It can be seen that there were certain parameters of the same network in which the parameter space was different between the two datasets, especially for parameters related to filter sizes. This was due to the consideration of dataset time series epoch length itself; the BCIC-IV2a datset epochs span 5 seconds, while the long-term memory dataset epochs and the visual memory dataset are one second in length. This not only affects considerations for layer kernel sizes, but the characteristics of the underlying brain signals of interest as well; language long-term memory formation was best predicted on the feedback locked portion of the long-term memory dataset in which the signal of interest was within the second (partially also due to study design), whereas it is common for motor imagery signal epochs to span multiple seconds. In the context of the main goal of our study however, it appears that there are no hyperparameters in the space that are specifically favored by data from specific ICA rejection pipelines. While the actual possible search space for hyperparameters is much larger compared to the scale of our study, this finding may be relevant to our previous observation that ICA component rejections do not make notably impactful contributions to classifier performance, and therefore no preferred hyperparameter specific to specific pipelines can be found. 
+
+4.5. Future work 
+
+Based on our experiments, we have failed to identify a clear advantage from utilizing ICA-based artifact removal methods on EEG data in neural-network based decoding studies. However, additional investigations are necessary to further strengthen this conclusion: while our work did attempt to make a cross-participant and dataset-representative level analysis of the effect of ICA rejection pipelines on classifier performance, for a more thorough conclusion, training and hyperparameter optimization on a cross-participant, participant-independent level is also necessary. Furthermore, in order to generalize our findings so far to the general space of brain signal classification, we believe the analysis should be expanded to cover more datasets spanning different cognitive tasks. We could possibly expand the analysis to tasks such as P300-based paradigms (e.g. Spellers), lie-detection, risk-taking, and visual/short term memory. We also believe it’s worth investigating whether the lack of effect would also be observable in a simulated EEG dataset. The choice of model architecture in our study was largely based on network models that have seen extensive use within EEG data classification tasks. Such models are overwhelmingly CNN-based architectures, although we have added an LSTM-I See Artifacts: ICA-based EEG Artifact Removal Does Not Improve Deep Network Decoding Across Three BCI Tasks 21 based model to our considerations. Based on the current state-of-the-art in the literature, future work will need to extend our analyses to other model architectures, such as models based on self-supervised pre-training or transformers. It is still unclear whether the findings can be extended to non-neural network methods, specifically conventional machine learning algorithms such as Support Vector Machines (SVM), Linear Discriminant Analysis (LDA), and decision trees. While we attempted a preliminary test with LDAs, we failed to achieve reasonable performance of the models to conduct the comparison in the first place, possibly due to a lack of explicit feature extraction methods in the interest of keeping the pre-processing consistent to our main study. For conventional machine learning methods, we believe a separate study with explicit feature extraction pipelines would be more helpful in discerning whether our observations extend to such methods as well. 
+
+5. Acknowledgments 
+
+This study was supported by the National Re-search Foundation of Korea under project BK21 FOUR and grants NRF-2022R1A2C2092118, NRF-2022R1H1A2092007, NRF-2019R1A2C2007612, as well as by Institute of Information & Communica-tions Technology Planning & Evaluation (IITP) grants funded by the Korea government (No. 2017-0-00451, Development of BCI based Brain and Cognitive Com-puting Technology for Recognizing User’s Intentions using Deep Learning; No. RS-2019-II190079, De-partment of Artificial Intelligence, Korea University; No. RS-2021-II212068, Artificial Intelligence Innova-tion Hub). This research was also funded in part by the Austrian Science Fund (FWF) 10.55776/I6222. 
+
+6. References 
+
+[1] A. Keil, S. Debener, G. Gratton, M. Jungh¨ ofer, E. S. Kappenman, S. J. Luck, P. Luu, G. A. Miller, and C. M. Yee, “Committee report: publication guidelines and recommendations for studies using electroencephalography and magnetoencephalography,” 
+
+Psychophysiology , vol. 51, no. 1, pp. 1–21, 2014. [2] A. Ortiz-Rosario and H. Adeli, “Brain-computer interface technologies: from signal to action,” Reviews in the Neurosciences , vol. 24, no. 5, pp. 537–552, 2013. [3] J. Gross, S. Baillet, G. R. Barnes, R. N. Henson, A. Hillebrand, O. Jensen, K. Jerbi, V. Litvak, B. Maess, R. Oostenveld et al. , “Good practice for conducting and reporting meg research,” Neuroimage , vol. 65, pp. 349– 363, 2013. [4] S.-P. Kim, “Preprocessing of eeg,” in Computational EEG Analysis . Springer, 2018, pp. 15–33. [5] N. Bigdely-Shamlo, T. Mullen, C. Kothe, K.-M. Su, and K. A. Robbins, “The PREP pipeline: Standardized preprocessing for large-scale EEG analysis,” Frontiers in Neuroinformatics , vol. 9, p. 16, 2015. [6] N. Bigdely-Shamlo, J. Touryan, A. Ojeda, C. Kothe, T. Mullen, and K. Robbins, “Automated eeg mega-analysis i: Spectral and amplitude characteristics across studies,” NeuroImage , vol. 207, p. 116361, 2020. [7] Z. Cashero, “Comparison of eeg preprocessing methods to improve the classification of p300 trials,” Master of Science Thesis, Colorado State University , 2011. [8] M. Murugappan, R. Nagarajan, and S. Yaacob, “Compar-ison of different wavelet features from eeg signals for classifying human emotions,” in 2009 IEEE symposium on industrial electronics & applications , vol. 2. IEEE, 2009, pp. 836–841. [9] X. Wu, B. Zhou, Z. Lv, and C. Zhang, “To explore the potentials of independent component analysis in brain-computer interface of motor imagery,” IEEE Journal of Biomedical and Health Informatics , vol. 24, no. 3, pp. 775–787, 2019. [10] S. Hoffmann and M. Falkenstein, “The correction of eye blink artefacts in the eeg: a comparison of two prominent methods,” PloS one , vol. 3, no. 8, p. e3004, 2008. [11] T.-P. Jung, C. Humphries, T.-W. Lee, S. Makeig, M. J. McKeown, V. Iragui, and T. J. Sejnowski, “Removing electroencephalographic artifacts: comparison between ica and pca,” in Neural Networks for Signal Processing VIII. Proceedings of the 1998 IEEE Signal Processing Society Workshop (Cat. No. 98TH8378) . IEEE, 1998, pp. 63–72. [12] L. J. Gabard-Durnam, A. S. Mendez Leal, C. L. Wilkin-son, and A. R. Levin, “The Harvard Automated Pro-cessing Pipeline for Electroencephalography (HAPPE): Standardized processing software for developmental and high-artifact data,” Frontiers in Neuroscience , vol. 12, p. 97, 2018. [13] J. R. da Cruz, V. Chicherov, M. H. Herzog, and P. Figueiredo, “An automatic pre-processing pipeline for EEG Analysis (APP) based on robust statistics,” 
+
+Clinical Neurophysiology , vol. 129, no. 7, pp. 1427–1437, 2018. [14] A. Pedroni, A. Bahreini, and N. Langer, “Automagic: Standardized preprocessing of big EEG data,” Neu-roImage , 2019. [15] I. Winkler, S. Brandl, F. Horn, E. Waldburger, C. Allefeld, and M. Tangermann, “Robust artifactual independent component classification for BCI practitioners,” Jour-nal of Neural Engineering , vol. 11, no. 3, p. 035013, 2014. [16] L. Pion-Tonachini, K. Kreutz-Delgado, and S. Makeig, “Iclabel: An automated electroencephalographic inde-pendent component classifier, dataset, and website,” 
+
+NeuroImage , vol. 198, pp. 181–197, 2019. [17] E. Huigen, A. Peper, and C. Grimbergen, “Investigation into the origin of the noise of surface electrodes,” 
+
+Medical and biological engineering and computing ,vol. 40, pp. 332–338, 2002. [18] M. Ferdjallah and R. E. Barr, “Adaptive digital notch filter design on the unit circle for the removal of powerline noise from biomedical signals,” IEEE transactions on biomedical engineering , vol. 41, no. 6, pp. 529–536, 1994. [19] A. de Cheveign´ e and I. Nelken, “Filters: when, why, and how (not) to use them,” Neuron , vol. 102, no. 2, pp. 280–293, 2019. [20] V. Krishnaveni, S. Jayaraman, L. Anitha, and K. Ra-madoss, “Removal of ocular artifacts from eeg using adaptive thresholding of wavelet coefficients,” Journal of neural engineering , vol. 3, no. 4, p. 338, 2006. [21] H. Nolan, R. Whelan, and R. B. Reilly, “Faster: fully automated statistical thresholding for eeg artifact rejection,” Journal of neuroscience methods , vol. 192, I See Artifacts: ICA-based EEG Artifact Removal Does Not Improve Deep Network Decoding Across Three BCI Tasks 22 
+
+no. 1, pp. 152–162, 2010. [22] B. Somers, T. Francart, and A. Bertrand, “A generic eeg artifact removal algorithm based on the multi-channel wiener filter,” Journal of neural engineering , vol. 15, no. 3, p. 036007, 2018. [23] G. Zhang, D. R. Garrett, and S. J. Luck, “Optimal filters for erp research i: A general approach for selecting filter settings,” Psychophysiology , p. e14531, 2024. [24] J. A. Urig¨ uen and B. Garcia-Zapirain, “Eeg artifact removal—state-of-the-art and guidelines,” Journal of neural engineering , vol. 12, no. 3, p. 031001, 2015. [25] M. L. Davidson, “Univariate versus multivariate tests in repeated-measures experiments.” Psychological Bul-letin , vol. 77, no. 6, p. 446, 1972. [26] M. N. Hebart and C. I. Baker, “Deconstructing multivariate decoding for the study of brain function,” 
+
+Neuroimage , vol. 180, pp. 4–18, 2018. [27] K. G¨ orgen, M. N. Hebart, C. Allefeld, and J.-D. Haynes, “The same analysis approach: Practical protection against the pitfalls of novel neuroimaging analysis methods,” Neuroimage , vol. 180, pp. 19–30, 2018. [28] S. L. Meisler, M. J. Kahana, and Y. Ezzyat, “Does data cleaning improve brain state classification?” Journal of neuroscience methods , vol. 328, p. 108421, 2019. [29] A. Kachenoura, L. Albera, L. Senhadji, and P. Comon, “Ica: a potential tool for bci systems,” IEEE Signal Processing Magazine , vol. 25, no. 1, pp. 57–68, 2007. [30] A. Delorme, J. Plamer, R. Oostenveld, J. Onton, and S. Makeig, “Comparing results of algorithms implementing blind source separation of eeg data,” 
+
+Swartz foundation and NIH grant , 2007. [31] J. Iriarte, E. Urrestarazu, M. Valencia, M. Alegre, A. Malanda, C. Viteri, and J. Artieda, “Independent component analysis as a tool to eliminate artifacts in eeg: a quantitative study,” Journal of clinical neurophysiology , vol. 20, no. 4, pp. 249–257, 2003. [32] R. N. Vig´ ario, “Extraction of ocular artefacts from eeg using independent component analysis,” Electroen-cephalography and clinical neurophysiology , vol. 103, no. 3, pp. 395–404, 1997. [33] A. Delorme, T. Sejnowski, and S. Makeig, “Enhanced detection of artifacts in eeg data using higher-order statistics and independent component analysis,” 
+
+Neuroimage , vol. 34, no. 4, pp. 1443–1449, 2007. [34] R. Vig´ ario, J. Sarela, V. Jousmiki, M. Hamalainen, and E. Oja, “Independent component approach to the analysis of eeg and meg recordings,” IEEE transactions on biomedical engineering , vol. 47, no. 5, pp. 589–593, 2000. [35] N. P. Castellanos and V. A. Makarov, “Recovering eeg brain signals: Artifact suppression with wavelet enhanced independent component analysis,” Journal of neuroscience methods , vol. 158, no. 2, pp. 300–312, 2006. [36] S. Makeig, A. J. Bell, T.-P. Jung, and T. J. Sejnowski, “Independent component analysis of electroencephalo-graphic data,” in Advances in neural information pro-cessing systems , 1996, pp. 145–151. [37] A. Delorme and S. Makeig, “Eeglab: an open source toolbox for analysis of single-trial eeg dynamics including independent component analysis,” Journal of neuroscience methods , vol. 134, no. 1, pp. 9–21, 2004. [38] R. Oostenveld, P. Fries, E. Maris, and J.-M. Schoffelen, “Fieldtrip: Open source software for advanced analysis of meg, eeg, and invasive electrophysiological data,” 
+
+Computational Intelligence and Neuroscience , vol. 2011, p. 1, 2011. [39] A. Gramfort, M. Luessi, E. Larson, D. A. Engemann, D. Strohmeier, C. Brodbeck, L. Parkkonen, and M. S. H¨ am¨ al¨ ainen, “Mne software for processing meg and eeg data,” Neuroimage , vol. 86, pp. 446–460, 2014. [40] A. J. Bell and T. J. Sejnowski, “An information-maximization approach to blind separation and blind deconvolution,” Neural computation , vol. 7, no. 6, pp. 1129–1159, 1995. [41] T.-W. Lee, M. Girolami, A. J. Bell, and T. J. Sejnowski, “A unifying information-theoretic framework for inde-pendent component analysis,” Computers & Mathemat-ics with Applications , vol. 39, no. 11, pp. 1–21, 2000. [42] A. Hyv¨ arinen and E. Oja, “Independent component anal-ysis: algorithms and applications,” Neural networks ,vol. 13, no. 4-5, pp. 411–430, 2000. [43] A. Cichocki and S.-i. Amari, Adaptive blind signal and image processing: learning algorithms and applications .John Wiley & Sons, 2002. [44] S. Cruces, L. Castedo, and A. Cichocki, “Robust blind source separation algorithms using cumulants,” 
+
+Neurocomputing , vol. 49, no. 1-4, pp. 87–118, 2002. [45] J. A. Palmer, K. Kreutz-Delgado, and S. Makeig, “Amica: An adaptive mixture of independent component analyzers with shared components,” Swartz Center for Computatonal Neursoscience, University of California San Diego, Tech. Rep , 2012. [46] K. A. Robbins, J. Touryan, T. Mullen, C. Kothe, and N. Bigdely-Shamlo, “How sensitive are eeg results to preprocessing methods: a benchmarking study,” 
+
+IEEE transactions on neural systems and rehabilitation engineering , vol. 28, no. 5, pp. 1081–1090, 2020. [47] I. Winkler, S. Haufe, and M. Tangermann, “Automatic classification of artifactual ica-components for artifact removal in eeg signals,” Behavioral and brain functions ,vol. 7, no. 1, pp. 1–15, 2011. [48] C. A. E. Kothe and T.-P. Jung, “Artifact removal techniques with signal reconstruction,” Apr. 28 2016, uS Patent App. 14/895,440. [49] A. Delorme, “Eeg is better left alone,” Scientific reports ,vol. 13, no. 1, p. 2372, 2023. [50] C. S. Kim, J. Sun, D. Liu, Q. Wang, and S. G. Paek, “Removal of ocular artifacts using ica and adaptive filter for motor imagery-based bci,” IEEE/CAA journal of automatica sinica , 2017. [51] M. Kim and S.-P. Kim, “A comparsion of artifact rejection methods for a bci using event related potentials,” in 
+
+2018 6th International Conference on Brain-Computer Interface (BCI) . IEEE, 2018, pp. 1–4. [52] I. Winkler, S. Debener, K.-R. M¨ uller, and M. Tangermann, “On the influence of high-pass filtering on ICA-based artifact reduction in EEG-ERP,” in 2015 37th Annual International Conference of the IEEE Engineering in Medicine and Biology Society (EMBC) . IEEE, 2015, pp. 4101–4105. [53] A. Craik, Y. He, and J. L. Contreras-Vidal, “Deep learning for electroencephalogram (EEG) classification tasks: A review,” Journal of Neural Engineering , vol. 16, no. 3, p. 031001, 2019. [54] H. Altaheri, G. Muhammad, M. Alsulaiman, S. U. Amin, G. A. Altuwaijri, W. Abdul, M. A. Bencherif, and M. Faisal, “Deep learning techniques for classification of electroencephalogram (eeg) motor imagery (mi) signals: a review,” Neural Computing and Applications , pp. 1– 42, 2021. [55] F. Fahimi, Z. Zhang, W. B. Goh, T.-S. Lee, K. K. Ang, and C. Guan, “Inter-subject transfer learning with an end-to-end deep convolutional neural network for EEG-based ,” Journal of neural engineering , vol. 16, no. 2, p. 026007, 2019. [56] M. Xu, J. Yao, Z. Zhang, R. Li, B. Yang, C. Li, J. Li, and J. Zhang, “Learning eeg topographical representation for classification via convolutional neural network,” 
+
+Pattern Recognition , vol. 105, p. 107390, 2020. I See Artifacts: ICA-based EEG Artifact Removal Does Not Improve Deep Network Decoding Across Three BCI Tasks 23 
+
+[57] M. Riyad, M. Khalil, and A. Adib, “Mi-eegnet: Anovel convolutional neural network for motor imagery classification,” Journal of Neuroscience Methods , vol. 353, p. 109037, 2021. [58] O. Avilov, S. Rimbert, A. Popov, and L. Bougrain, “Op-timizing motor intention detection with deep learn-ing: towards management of intraoperative awareness,” 
+
+IEEE Transactions on Biomedical Engineering , vol. 68, no. 10, pp. 3087–3097, 2021. [59] N. Shajil, S. Mohan, P. Srinivasan, J. Arivudaiyanambi, and A. Arasappan Murrugesan, “Multiclass classifica-tion of spatially filtered motor imagery eeg signals us-ing convolutional neural network for bci based applica-tions,” Journal of Medical and Biological Engineering ,vol. 40, no. 5, pp. 663–672, 2020. [60] K. Zhu, S. Wang, D. Zheng, and M. Dai, “Study on the effect of different electrode channel combinations of motor imagery eeg signals on classification accuracy,” 
+
+The Journal of Engineering , vol. 2019, no. 23, pp. 8641– 8645, 2019. [61] G. Pfurtscheller, C. Brunner, A. Schl¨ ogl, and F. L. Da Silva, “Mu rhythm (de) synchronization and eeg single-trial classification of different motor imagery tasks,” NeuroImage , vol. 31, no. 1, pp. 153–159, 2006. [62] V. Laparra, G. Camps-Valls, and J. Malo, “Iterative gaussianization: from ica to random rotations,” IEEE transactions on neural networks , vol. 22, no. 4, pp. 537– 549, 2011. [63] T. Kang, Y. Chen, S. Fazli, and C. Wallraven, “Eeg-based prediction of successful memory formation during vocabulary learning,” IEEE Transactions on Neural Systems and Rehabilitation Engineering , vol. 28, no. 11, pp. 2377–2389, 2020. [64] D. Tr¨ ubutschek, Y.-F. Yang, C. Gianelli, E. Cesnaite, N. L. Fischer, M. C. Vinding, T. Marshall, J. Algermissen, A. Pascarella, T. Puoliv¨ ali et al. , “Eegmanypipelines: A large-scale, grass-root multi-analyst study of eeg analysis practices in the wild,” 2022. [65] G. R. Naik, W. Wang et al. , “Blind source separation,” 
+
+Berlin: Springer , vol. 10, pp. 978–3, 2014. [66] C. Ye, B. V. Kumar, and M. T. Coimbra, “Heartbeat classification using morphological and dynamic features of ecg signals,” IEEE Transactions on Biomedical Engineering , vol. 59, no. 10, pp. 2930–2941, 2012. [67] H. Li, N. M. Correa, P. A. Rodriguez, V. D. Calhoun, and T. Adali, “Application of independent component analysis with adaptive density model to complex-valued fmri data,” IEEE Transactions on biomedical engineering , vol. 58, no. 10, pp. 2794–2803, 2011. [68] C. J. James and O. J. Gibson, “Temporally constrained ica: an application to artifact rejection in electromag-netic brain signal analysis,” IEEE Transactions on biomedical engineering , vol. 50, no. 9, pp. 1108–1116, 2003. [69] T.-P. Jung, S. Makeig, C. Humphries, T.-W. Lee, M. J. Mckeown, V. Iragui, and T. J. Sejnowski, “Removing electroencephalographic artifacts by blind source separation,” Psychophysiology , vol. 37, no. 2, pp. 163–178, 2000. [70] R. R. V´ azquez, H. Velez-Perez, R. Ranta, V. L. Dorr, D. Maquin, and L. Maillard, “Blind source separation, wavelet denoising and discriminant analysis for eeg artefacts and noise cancelling,” Biomedical signal processing and control , vol. 7, no. 4, pp. 389–400, 2012. [71] G. R. Naik and D. K. Kumar, “An overview of independent component analysis and its applications,” Informatica ,vol. 35, no. 1, 2011. [72] L. Albera, A. Kachenoura, P. Comon, A. Karfoul, F. Wendling, L. Senhadji, and I. Merlet, “Ica-based eeg denoising: a comparative analysis of fifteen methods,” 
+
+Bulletin of the Polish Academy of Sciences: Technical Sciences , vol. 60, no. 3 Special issue on Data Mining in Bioengineering, pp. 407–418, 2012. [73] A. Delorme, J. Palmer, J. Onton, R. Oostenveld, and S. Makeig, “Independent eeg sources are dipolar,” PloS one , vol. 7, no. 2, p. e30135, 2012. [74] A. Belouchrani, K. Abed-Meraim, J.-F. Cardoso, and E. Moulines, “A blind source separation technique using second-order statistics,” IEEE Transactions on signal processing , vol. 45, no. 2, pp. 434–444, 1997. [75] J.-F. Cardoso and A. Souloumiac, “Blind beamforming for non-gaussian signals,” in IEE proceedings F (radar and signal processing) , vol. 140, no. 6. IET, 1993, pp. 362– 370. [76] J. A. Palmer, K. Kreutz-Delgado, B. D. Rao, and S. Makeig, “Modeling and estimation of dependent subspaces with non-radially symmetric and skewed densities,” in Independent Component Analysis and Signal Separation: 7th International Conference, ICA 2007, London, UK, September 9-12, 2007. Proceedings 7. Springer, 2007, pp. 97–104. [77] H. Leutheuser, F. Gabsteiger, F. Hebenstreit, P. Reis, M. Lochmann, and B. Eskofier, “Comparison of the amica and the infomax algorithm for the reduction of electromyogenic artifacts in eeg data,” in 2013 35th Annual International Conference of the IEEE Engineering in Medicine and Biology Society (EMBC) .IEEE, 2013, pp. 6804–6807. [78] T.-W. Lee, M. Girolami, and T. J. Sejnowski, “Inde-pendent component analysis using an extended info-max algorithm for mixed subgaussian and supergaus-sian sources,” Neural computation , vol. 11, no. 2, pp. 417–441, 1999. [79] S.-i. Amari, A. Cichocki, and H. Yang, “A new learning algorithm for blind signal separation,” Advances in neural information processing systems , vol. 8, 1995. [80] S.-I. Amari, “Natural gradient works efficiently in learning,” Neural computation , vol. 10, no. 2, pp. 251– 276, 1998. [81] J. Martens, “New insights and perspectives on the natural gradient method,” The Journal of Machine Learning Research , vol. 21, no. 1, pp. 5776–5851, 2020. [82] T. Kim, T. Eltoft, and T.-W. Lee, “Independent vector analysis: An extension of ica to multivariate components,” in Independent Component Analysis and Blind Signal Separation: 6th International Conference, ICA 2006, Charleston, SC, USA, March 5-8, 2006. Proceedings 6 . Springer, 2006, pp. 165–172. [83] C. A. Shah, M. K. Arora, S. A. Robila, and P. K. Varshney, “Ica mixture model based unsupervised classification of hyperspectral imagery,” in Applied Imagery Pattern Recognition Workshop, 2002. Proceedings. IEEE, 2002, pp. 29–35. [84] T.-W. Lee, M. S. Lewicki, and T. J. Sejnowski, “Ica mixture models for unsupervised classification of non-gaussian classes and automatic context switching in blind signal separation,” IEEE Transactions on Pattern Analysis and Machine Intelligence , vol. 22, no. 10, pp. 1078–1089, 2000. [85] J. Portilla, V. Strela, M. J. Wainwright, and E. P. Simoncelli, “Image denoising using scale mixtures of gaussians in the wavelet domain,” IEEE Transactions on Image processing , vol. 12, no. 11, pp. 1338–1351, 2003. [86] S.-i. Amari, T.-P. Chen, and A. Cichocki, “Stability analysis of learning algorithms for blind source separation,” Neural Networks , vol. 10, no. 8, pp. 1345– 1351, 1997. [87] J. Rodrigues, M. Weiß, J. Hewig, and J. J. Allen, “Epos: Eeg processing open-source scripts,” Frontiers I See Artifacts: ICA-based EEG Artifact Removal Does Not Improve Deep Network Decoding Across Three BCI Tasks 24 
+
+in neuroscience , vol. 15, p. 660449, 2021. [88] C. Brunner, R. Leeb, G. M¨ uller-Putz, A. Schl¨ ogl, and G. Pfurtscheller, “Bci competition 2008–graz data set a,” Institute for Knowledge Discovery (Laboratory of Brain-Computer Interfaces), Graz University of Technology , vol. 16, pp. 1–6, 2008. [89] J. Algermissen, Y. Yang, and N. Busch, “Eeg-manypipelines: Mapping the diversity of eeg analysis pipelines and their impact on results,” Programme book: Psychologie und Gehirn 2021 (PuG 2021) , p. SP020, 2021. [90] C. R. Pernet, R. Martinez-Cancino, D. Truong, S. Makeig, and A. Delorme, “From bids-formatted eeg data to sensor-space group results: a fully reproducible workflow with eeglab and limo eeg,” Frontiers in Neuroscience , vol. 14, p. 610388, 2021. [91] L. J. Papin, M. Esche, J. E. Scanlon, N. S. Jacobsen, and S. Debener, “Investigating cognitive-motor effects during slacklining using mobile eeg,” Frontiers in Human Neuroscience , vol. 18, p. 1382959, 2024. [92] C. Chatzichristos, J. Dan, A. M. Narayanan, N. Seeuws, K. Vandecasteele, M. De Vos, A. Bertrand, and S. Van Huffel, “Epileptic seizure detection in eeg via fusion of multi-view attention-gated u-net deep neural networks,” in 2020 IEEE Signal Processing in Medicine and Biology Symposium (SPMB) . IEEE, 2020, pp. 1–7. [93] N. Thammasan and M. Miyakoshi, “Cross-frequency power-power coupling analysis: A useful cross-frequency measure to classify ica-decomposed eeg,” 
+
+Sensors , vol. 20, no. 24, p. 7040, 2020. [94] R. T. Schirrmeister, J. T. Springenberg, L. D. J. Fiederer, M. Glasstetter, K. Eggensperger, M. Tangermann, F. Hutter, W. Burgard, and T. Ball, “Deep learning with convolutional neural networks for EEG decoding and visualization,” Human Brain Mapping , vol. 38, no. 11, pp. 5391–5420, 2017. [95] V. J. Lawhern, A. J. Solon, N. R. Waytowich, S. M. Gordon, C. P. Hung, and B. J. Lance, “Eegnet: a compact convolutional neural network for eeg-based brain–computer interfaces,” Journal of neural engineering , vol. 15, no. 5, p. 056013, 2018. [96] F. Karim, S. Majumdar, H. Darabi, and S. Harford, “Multivariate lstm-fcns for time series classification,” 
+
+Neural Networks , vol. 116, pp. 237–245, 2019. [97] A. Paszke, S. Gross, F. Massa, A. Lerer, J. Bradbury, G. Chanan, T. Killeen, Z. Lin, N. Gimelshein, L. Antiga 
+
+et al. , “Pytorch: An imperative style, high-performance deep learning library,” Advances in neural information processing systems , vol. 32, 2019. [98] I. Loshchilov and F. Hutter, “Decoupled weight decay reg-ularization,” arXiv preprint arXiv:1711.05101 , 2017. [99] ——, “Sgdr: Stochastic gradient descent with warm restarts,” arXiv preprint arXiv:1608.03983 , 2016. [100] M. Tietz, T. J. Fan, D. Nouri, and B. Bossan, “skorch: A scikit-learn compatible neural network library that wraps pytorch,” Jul. 2017. [101] S. Seabold and J. Perktold, “statsmodels: Econometric and statistical modeling with python,” in 9th Python in Science Conference , 2010. [102] G. M¨ uller-Putz, R. Scherer, C. Brunn er, R. Leeb, and G. Pfurtscheller, “Better than random: Acloser look on BCI results,” International Journal of Bioelectromagnetism , vol. 10, no. ARTICLE, pp. 52– 55, 2008. [103] P. Li, X. Rao, J. Blase, Y. Zhang, X. Chu, and C. Zhang, “Cleanml: a study for evaluating the impact of data cleaning on ml classification tasks,” in 2021 IEEE 37th International Conference on Data Engineering (ICDE) . IEEE, 2021, pp. 13–24. [104] R. R. Selvaraju, M. Cogswell, A. Das, R. Vedantam, D. Parikh, and D. Batra, “Grad-cam: Visual explanations from deep networks via gradient-based localization,” in Proceedings of the IEEE international conference on computer vision , 2017, pp. 618–626. [105] Z. Wang, A. C. Bovik, H. R. Sheikh, and E. P. Simoncelli, “Image quality assessment: from error visibility to structural similarity,” IEEE transactions on image processing , vol. 13, no. 4, pp. 600–612, 2004. [106] A. Chattopadhay, A. Sarkar, P. Howlader, and V. N. Bal-asubramanian, “Grad-cam++: Generalized gradient-based visual explanations for deep convolutional net-works,” in 2018 IEEE winter conference on applica-tions of computer vision (WACV) . IEEE, 2018, pp. 839–847. [107] C. Olah, N. Cammarata, C. Voss, L. Schubert, and G. Goh, “Naturally occurring equivariance in neural networks,” Distill , vol. 5, no. 12, pp. e00 024–004, 2020. [108] L. Schubert, C. Voss, N. Cammarata, G. Goh, and C. Olah, “High-low frequency detectors,” Distill , vol. 6, no. 1, pp. e00 024–005, 2021. [109] C. Voss, G. Goh, N. Cammarata, M. Petrov, L. Schubert, and C. Olah, “Branch specialization,” Distill , vol. 6, no. 4, pp. e00 024–008, 2021. [110] P. Gavrikov and J. Keuper, “Cnn filter db: An empirical investigation of trained convolutional filters,” in 
+
+Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , 2022, pp. 19 066–19 076. [111] O.-Y. Kwon, M.-H. Lee, C. Guan, and S.-W. Lee, “Subject-independent brain–computer interfaces based on deep convolutional neural networks,” IEEE transac-tions on neural networks and learning systems , vol. 31, no. 10, pp. 3839–3852, 2019. [112] S. Sakhavi, C. Guan, and S. Yan, “Parallel convolutional-linear neural network for motor imagery classification,” in 2015 23rd European Signal Processing Conference (EUSIPCO) . IEEE, 2015, pp. 2736–2740. [113] ——, “Learning temporal information for brain-computer interface using convolutional neural networks,” IEEE transactions on neural networks and learning systems ,vol. 29, no. 11, pp. 5619–5629, 2018. [114] K. K. Ang and C. Guan, “Eeg-based strategies to detect motor imagery for control and rehabilitation,” IEEE Transactions on Neural Systems and Rehabilitation Engineering , vol. 25, no. 4, pp. 392–401, 2016. [115] S. Aggarwal and N. Chugh, “Signal processing techniques for motor imagery brain computer interface: A review,” 
+
+Array , vol. 1, p. 100003, 2019. [116] M. Mametkulov, A. Artykbayev, D. Koishigarina, A. Ke-nessova, K. Razikhova, T. Kang, C. Wallraven, and S. Fazli, “Explainable machine learning for memory-related decoding via tabnet and non-linear features,” in 
+
+2022 10th International Winter Conference on Brain-Computer Interface (BCI) . IEEE, 2022, pp. 1–7. [117] P. Probst, A.-L. Boulesteix, and B. Bischl, “Tunability: Importance of hyperparameters of machine learning algorithms,” Journal of Machine Learning Research ,vol. 20, no. 53, pp. 1–32, 2019. [118] H. J. Weerts, A. C. Mueller, and J. Vanschoren, “Importance of tuning hyperparameters of machine learning algorithms,” arXiv preprint arXiv:2007.07588 ,2020. [119] S. Shleifer and E. Prokop, “Using small proxy datasets to accelerate hyperparameter search,” arXiv preprint arXiv:1906.04887 , 2019.

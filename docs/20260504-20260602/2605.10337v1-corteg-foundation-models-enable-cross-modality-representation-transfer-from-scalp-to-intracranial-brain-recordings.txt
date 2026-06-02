@@ -1,0 +1,632 @@
+Title: CORTEG: Foundation Models Enable Cross-Modality Representation Transfer from Scalp to Intracranial Brain Recordings
+
+URL Source: https://arxiv.org/pdf/2605.10337v1
+
+Published Time: Tue, 12 May 2026 03:18:46 GMT
+
+Number of Pages: 24
+
+Markdown Content:
+# CORTEG: Foundation Models Enable Cross-Modality Representation Transfer from Scalp to Intracranial Brain Recordings 
+
+Liuyin Yang 1∗† , Qiang Sun 1∗ , Bob Van Dyck 1, Eva Calvo Merino 1, Marc M. Van Hulle 1†
+
+> 1
+
+Laboratory for Neuro- & Psychophysiology, Department of Neurosciences, KU Leuven Code & Visual: https://github.com/LiuyinYang1101/CORTEG/tree/main 
+
+## Abstract 
+
+Intracranial electrocorticography (ECoG) offers high–signal-to-noise access to cortical activity for brain–computer interfaces, yet limited per-patient data has led most prior work to rely on small, subject-specific decoders that neglect information shared across patients. We investigate whether large pretrained scalp-EEG founda-tion models (EEG FMs) can be adapted to ECoG, enabling cross-patient learning and competitive decoding performance while calibrating to a held-out patient in 
+
+10 –30 minutes on a single GPU. We introduce CORTEG , a cross-modality trans-fer framework that combines a pretrained EEG FM backbone, an electrode-aware KNNSoftFourier spatial adapter, a dual-stream tokenizer for low-frequency and high-gamma activity, and a leave-one-subject-out fine-tuning strategy. We evaluate CORTEG on two challenging regression tasks: public finger trajectory regression (n=9) and private audio envelope regression (n=16). CORTEG matches or exceeds the strongest task-specific baselines on both tasks: it reaches the highest mean correlation among compared methods on the public finger benchmark (gain not statistically significant on n=9 subjects), with larger and statistically significant gains on the audio task and in low-data per-patient calibration. Feature analy-ses align with neurophysiology, and latent manifolds capture low-dimensional finger-movement structure. CORTEG provides systematic evidence that scalp-EEG pretraining can be repurposed for ECoG decoding, enabling data-efficient intracranial BCIs that can adapt to new patients. 
+
+## 1 Introduction 
+
+Intracranial electrocorticography (ECoG) records the high-fidelity cortical activity essential for robust, high-performance brain-computer interfaces (BCIs) [1– 4 ]. Yet ECoG remains difficult to scale: recordings are invasive, usually tied to short clinical monitoring windows, and collected with electrode grids that vary substantially across patients in number, coverage, and location. This has led most prior ECoG decoders to rely on small classical machine learning methods or compact neural networks trained independently for each patient, rather than population models that exploit shared structure across subjects. Instead, transformer architectures trained from scratch on only tens of minutes of data per patient have shown suboptimal performance in a recent benchmark study [ 5]. This data bottleneck may also explain why, despite growing interest in neural foundation models, a dedicated ECoG foundation model for BCI decoding has not yet been established. In contrast, scalp EEG has benefited from large-scale self-supervised pretraining, with EEG foundation models (EEG FMs) achieving strong performance on EEG BCI tasks [ 6–10 ]. The question is: can EEG FMs be adapted to ECoG, and can a population model be deployed to a new patient efficiently?    
+
+> ∗Equal contribution.
+> †Correspondence to: liuyin.yang@kuleuven.be &marc.vanhulle@kuleuven.be
+> Preprint.
+> arXiv:2605.10337v1 [cs.AI] 11 May 2026
+
+Figure 1: Overview of CORTEG for cross-modality transfer from scalp EEG to ECoG. (a) 
+
+A masked autoencoder is pretrained on 128 Hz scalp EEG, learning temporal representations and an EEG channel-embedding codebook E ∈ RM ′×D . (b) The KNNSoftFourier spatial adapter maps subject-specific ECoG electrode coordinates q = ( x, y, z ) into the pretrained EEG channel-embedding space using a soft codebook-interpolation branch and a Fourier residual branch. (c) Raw ECoG is decomposed into low-frequency signals (LFS, 1–64 Hz, 128 Hz) and high-gamma activity (HGA, 70–200 Hz, 200 Hz), patch-embedded, combined with adapted spatial embeddings, and passed through the pretrained EEG encoder with LoRA on the final transformer blocks. (d) Evaluation protocols include per-subject training, pooled training, and leave-one-subject-out fine-tuning (LOO-FT). (e) Downstream tasks are continuous finger-trajectory decoding and audio-envelope decoding. Three issues separate the two modalities. Geometry: EEG uses standardized montages (e.g., 10–20); ECoG grids cover patient-specific cortex with 16–64 electrodes. Spectrum: EEG predominantly reflects low-frequency cortical activity, while beta/gamma and higher-frequency components are substantially reduced or harder to isolate at the scalp because volume conduction through the head attenuates and spatially smooths cortical potentials, and high-frequency scalp recordings are increasingly contaminated by extracranial sources [ 11 ]. ECoG covers the high-gamma band on which motor decoding depends. Data scarcity: ECoG recordings are scarce and patient-specific, making it essential to leverage data from other subjects while adapting efficiently to new patients. 
+
+Contributions. We introduce CORTEG (Fig 1), a Cr Oss-Modality Representation Transfer frame-work that adapts a pretrained EEG FM to ECo G . We frame the contributions in order of empirical strength. (1) Cross-subject deployment regime. Parameter-efficient leave-one-subject-out fine-tuning (LOO-FT) with LoRA adapts a population CORTEG model to a new patient in 10 –30 min on a single GPU, while matching pooled-training performance and matching or exceeding per-subject training across all 25 pooled subjects in our benchmark. (2) Cross-modality pretraining signal. 
+
+Under matched per-subject baselines, scalp-EEG pretraining produces task-dependent gains over a randomly-initialized backbone of the same architecture. (3) Best mean correlation among com-pared methods on two distinct ECoG regression tasks. On the public Stanford finger benchmark, CORTEG (pooled) reaches r=0 .554 , above the strongest prior decoders (DeepFingerNet 0.542 , HiLo-FuseNet 0.534 ); on a private audio-envelope dataset it reaches r=0 .339 vs. 0.261 (CNN-LSTM), with the latter gap statistically significant under a Bonferroni-corrected paired Wilcoxon test. 
+
+## 2 Related Work 
+
+Can scalp-EEG pretraining transfer cross-modally? Self-supervised pretraining has produced a series of EEG FMs—EEGMAE [ 6] (masked autoencoding on multi-channel EEG), BIOT [ 7](channel-agnostic architecture), LaBraM [ 8 ] (neural tokenization with vector quantization), and CBraMod [ 9 ] (channel-independent patching for heterogeneous montages). All of these models target scalp-EEG downstream tasks (e.g., sleep staging, emotion recognition, motor imagery, etc.). A recent pilot study found that EEG FMs can extract transferable low-frequency information from ECoG, but did not benchmark against state-of-the-art ECoG decoders [12]. 
+
+ECoG decoding Finger trajectory regression from ECoG has been studied extensively [ 13 – 17 ], with methods ranging from linear models on hand-crafted features to deep neural networks. Audio 2envelope decoding from cortical recordings has also attracted significant interest [ 18 –20 ], mainly as a simple readout of auditory stimulus tracking and as a first step toward richer acoustic or linguistic targets such as spectrograms, mel-frequency bands, or phonetic features [ 21 , 22 ]. These approaches typically train a separate model per subject on tens of minutes of recording. 
+
+Cross-subject and cross-modal transfer in neuroscience Cross-subject transfer within-modality has been explored via domain adaptation, Euclidean alignment [ 23 ], and pooled multi-subject decoding with electrode projection [ 24 ]. Cross-modal transfer between recording modalities has been studied for fMRI-to-EEG [ 25 ] and MEG-to-EEG [ 26 ], typically via source-space projection. Cross-modal transfer from scalp EEG to intracranial ECoG remains largely unexplored owing to the geometric and spectral mismatches discussed in §1. 
+
+Parameter-efficient adaptation LoRA [ 27 ] and other adapter techniques [ 28 ] enable efficient finetuning of large pretrained models. We follow the standard practice to finetune our EEG FM. 
+
+Spatial / positional encoding Our KNNSoftFourier adapter draws on Fourier feature positional encoding from neural radiance fields [ 29 , 30 ] and on Nadaraya–Watson kernel regression [ 31 , 32 ]. We combine them to map coordinate spaces via a frozen pretrained EEG channel embedding codebook. 
+
+## 3 Method 
+
+3.1 Problem Formulation and Architecture EEG FM backbone choice We use ST-EEGFormer [ 10 ] as our pretrained EEG FM backbone. Among current EEG FMs, it offers (a) a ViT-style [ 33 ] architecture with an explicit, position-indexed channel-embedding codebook to which the spatial adapter (§3.2) can attach to bridge the EEG/ECoG montage gap, and (b) strong downstream performance on EEG benchmarks [ 10 ], including winning the NeurIPS 2025 EEG Foundation challenge regression task [ 34 ]. Empirically, the choice matters: LaBraM, CBraMod, and the time-series FM MantisV2 evaluated as drop-in alternatives (§5.4) all underperform ST-EEGFormer. ST-EEGFormer pretraining yields a ViT encoder backbone fθ and a channel-embedding codebook E ∈ RM ′×D (M ′=142 , D=512 for the small model). 
+
+Goal To use per-subject ECoG {(xlo , xhi )} with Cs subject-specific electrodes and regress to target 
+
+y ∈ Rdout . This transfer requires (i) mapping subject ECoG coordinates q to EEG channel embedding space E, (ii) bridging the scalp-to-cortical spectral gap, and (iii) generalizing across heterogeneous electrode layouts. 
+
+Dual-stream tokenizer The low-frequency stream xlo is unfolded into S temporal patches of length 
+
+plo and projected to dim D; the high-gamma stream xhi uses a separate projection and patch size, pooled to the same number of tokens S. Both streams receive the same additive channel embedding 
+
+e(c) 
+
+> ch
+
+(§3.2) and a fixed sinusoidal temporal embedding. Low-stream tokens carry a learnable [CLS] 
+
+token. The dual-stream design is to utilize the EEG FM’s ability on low-frequency signals while augmenting them with high-gamma dynamics that are essential for ECoG decoding. 
+
+Late fusion and LoRA adaptation The low stream traverses the first L−K transformer layers (frozen), with L the total number of transformer layers. At block L−K, the high-gamma tokens are averaged with the encoder-processed low-stream tokens, Zmerged = 12 (Z(L−K) 
+
+> lo
+
++Zhi ), and the merged sequence traverses the remaining K layers jointly (default K=4 ). Final tokens are mean-pooled and projected via a linear head. We adapt those K shared layers via LoRA [ 27 ], W′ = W + ( α/r )BA 
+
+on each {Q, K, V, fc1 , fc2 } projection ( r=4 , α=16 , A Kaiming-uniform, B=0); base weights are frozen, so trainable parameters are LoRA A, B, the spatial adapter, and the regression head. The frozen early layers stay specialized for extracting low-frequency EEG-space representations, while cross-modal ECoG adaptation is restricted to the final layers after the low/high-gamma fusion. 
+
+3.2 KNNSoftFourier Spatial Adapter 
+
+The spatial adapter gϕ : R3 → RD produces channel embeddings ech (q) = esoft (q) + efour (q) from a soft branch and a Fourier residual branch (Fig. 1 (b)); the soft-branch attention before and after training is further visualized in App. Fig. 6. 
+
+Soft branch A 3-layer MLP maps q to softmax attention weights wj (q) over M ′ EEG channels, giving esoft (q) = α P 
+
+> j
+
+wj (q)Ej (α learnable, init 1; E frozen, see Fig. 1 (b), top path). Only 3the bias of the last linear layer is initialized from the k-NN Gaussian kernel over EEG positions (k=8 , σ= median NN distance), so that softmax( MLP (q)) approximates the Nadaraya–Watson estimator [ 31 , 32 ] at initialization; the upstream layers and last-layer weights are at default Kaiming init and are free to deform the kernel during training. 
+
+Fourier residual The same coordinate q is also routed through a positional-encoding branch (Fig. 1 (b), bottom path): γ(q)=[sin( fiqd), cos( fiqd)] with F =32 log-spaced frequencies and three axes, then passed through a 3-layer MLP whose final projection is zero-init, so efour ≡0 at the start of training; the residual learns position-specific corrections from ECoG data that the soft branch’s codebook-affine output cannot express. Branch roles (soft = task-relevant EEG attention; Fourier = position-specific differentiation) are validated in §5.4. 
+
+3.3 Leave-One-Subject-Out Fine-Tuning (LOO-FT) 
+
+To adapt CORTEG to a new subject without retraining the population model, we use a two-stage LOO-FT strategy as shown in Fig. 1 (d). Stage 1 (pooled training) : for each held-out subject s∗, train CORTEG on the remaining N −1 subjects in a single pooled run with subject-interleaved batching. 
+
+Stage 2 (subject specific calibration) : load the Stage-1 checkpoint and finetune the spatial adapter, LoRA, and regression head on s∗’s training split with a fraction-aware adapter learning-rate boost (10 × the base LR at recording fraction f ≥0.25 , 2× at f =0 .1, see Fig. 2 (d–f)). The large LR lets the adapter quickly escape the Stage-1 LOO bias on s∗’s held-out channel layout while keeping LoRA priors at the base LR. Full hyperparameters and failure-mode ablations are in App. A.1. 
+
+## 4 Experimental Setup 
+
+Datasets We evaluate on two challenging ECoG regression tasks. Finger trajectory regression 
+
+(public Stanford fingerflex dataset [ 35 ]): 9 subjects with C ∈ [46 , 64] ECoG channels performing individual finger flexion. The task aims to predict 5-finger positions ( dout = 5 ) every 0.04 s with 1-second lookback window of ECoG signals. Audio envelope regression (private dataset collected on patients during their epilepsy monitoring): 16 subjects with C ∈ [16 , 56] channels listening to continuous audio. The task aims to predict the broadband audio envelope ( dout =1 ) every 0.05 s with a 
+
+1-second lookback window of ECoG signals. All subjects use MNI-coordinate electrode localization. Dataset and preprocessing details are provided in App. A.2. 
+
+Splits and leakage prevention For the public finger dataset, the train-and-test split is kept the same as previous works [ 17 , 36 ], where the initial 400 seconds (or the first two-thirds) of the ECoG recordings and synchronized finger trajectories is used for training, with the remaining data reserved for testing. Within the training set, the last 10% is used for validation. For the audio dataset, we split the continuous ECoG and audio recordings into 80% for training, 10% for validation, and reserve the last 10% as the test set. For both datasets, the validation split is used for early stopping and hyperparameter search. Per-subject z-score normalization for both inputs and targets is computed on training windows only and applied identically at validation and test time. 
+
+Baselines We evaluate the following ECoG decoders. Linear models : ridge regression on (lo-freq), (hi-gamma), and concatenated streams. Classic deep learning models trained per subject : CNN-LSTM [ 17 ], HiLoFuseNet [ 36 ] (depthwise-separable conv + LSTM on dual-stream), LSTM variants [ 36 ] (LSTM_LFS on raw 128 Hz, LSTM_HGA on high-gamma 200 Hz) , DeepFingerNet [ 37 ](nested U-Net with Morlet wavelet inputs), and HOPLS (tensor PLS). Other EEG/Time-series FM models (ablation study): LaBraM [ 8], CBraMod [ 9], and MantisV2 [ 38 ] adapted via our shell with their pretrained encoders. CORTEG variants : pooled CORTEG, per-subject CORTEG, and LOO-FT CORTEG as defined in §3.3. Moreover, we also scale CORTEG by increasing the backbone from Small (default, 25 .6M) to Base ( 85 .6M) and further to Large ( 303 M) ST-EEGFormer. 
+
+Implementation. CORTEG uses the ST-EEGFormer small variant ( D=512 , L=8 ). All models train with AdamW ( β1=0 .9, β 2=0 .999 ), bfloat16 mixed precision, batch size 64. Pooled CORTEG: learning rate 3×10 −3, cosine schedule with 10-epoch warmup, weight decay 0.01 , 100-epoch budget with patience 90 on mean per-subject ¯r. LoRA rank r=4 , αLoRA =16 , applied to the last 4 transformer blocks across {Q, K, V, fc1 , fc2 }. KNNSoftFourier: k=8 neighbors, F =32 Fourier frequencies. Compute: NVIDIA RTX 5090 (local) plus occasional H100 (HPC) for scaling sweeps. Each pooled 4Table 1: Comparison with classic baselines. Mean Pearson r (± cross-subject SD) across subjects (n=9 finger, n=16 audio). Best in bold blue , second-best in bold black per column. Provenance: †
+
+finger-task mean transcribed from [ 36 ] Table V; ‡ from [ 37 ] Table II. All other results are retrained under the shared protocol of §4 (identical splits, preprocessing, sliding-window, and early-stopping). Ridge audio rows (marked ⋄) are evaluated continuously rather than on the windowed test split, so their cross-subject SD is not directly comparable and is omitted. The three CORTEG rows share architecture and trainable-parameter count, differing only in training regime.                                                       
+
+> Method Trainable Parameters Finger ( r,n=9 )Audio ( r,n=16 )Type
+> Ridge_LFS —0.181 ±0.085 0.224 ⋄Linear, LFS only Ridge_HGA —0.336 ±0.095 0.175 ⋄Linear, HGA only PLS —0.402 †±0.115 0.203 ±0.151 Linear, multi-band wavelet HOPLS —0.364 †±0.123 0.203 ±0.142 Tensor latent-factor, multi-band LSTM_LFS 361 K 0.276 ±0.164 0.198 ±0.162 Deep, LFS only LSTM_HGA 361 K 0.485 †±0.136 0.137 ±0.167 Deep, HGA only CNN-LSTM 557 K 0.411 †±0.124 0.261 ±0.195 Deep, multi-band wavelet DeepFingerNet 1.16 M 0.542 ‡±0.129 0.085 ±0.144 Deep, multi-band wavelet (UNet++) HiLoFuseNet 334 K 0.534 †±0.138 0.259 ±0.203 Deep, LFS + HGA dual-stream CORTEG (ours) 297 K 0.539 ±0.140 0.250 ±0.226 Per-subject CORTEG (ours) 297 K 0.551 ±0.147 0.331 ±0.184 LOO-FT
+> CORTEG (ours) 297 K 0.554 ±0.154 0.339 ±0.170 Pooled
+
+CORTEG run takes approximately 6–12 GPU-hours; LOO-FT Stage-2 takes 10–30 minutes per held-out subject. Code, configs, pretrained adapters, and per-subject result logs will be released upon publication. 
+
+## 5 Results 
+
+5.1 Comparison to Per-Subject Baselines 
+
+Table 1 summarizes the main decoding results. CORTEG pooled training achieves the highest mean Pearson r on both tasks. On the public finger benchmark, the gain under our simple local protocol is modest ( r=0 .554 vs. DeepFingerNet 0.542 and HiLoFuseNet 0.534 ) and is not statistically significant across n=9 subjects (paired Wilcoxon: p=0 .65 vs. DeepFingerNet, p=0 .30 vs. HiLoFuseNet). Thus, on finger decoding, CORTEG is best described as reaching the highest mean correlation among the compared methods, while remaining statistically comparable to the strongest task-specific decoders under the local benchmark. With heavier HPC-scale training and per-scale tuning of the merge point 
+
+K, the same architecture reaches higher performance (CORTEG-Base r=0 .583 , CORTEG-Small 
+
+r=0 .577 ; Fig. 2 (b)), with the corresponding statistics reported in App. A.4, Table 6. The advantage is clearer on the audio task, where pooled CORTEG obtains the highest correlation (r=0 .339 ), improving over CNN-LSTM ( 0.261 ) and HiLoFuseNet ( 0.259 ) by approximately 0.08 
+
+and reaching significance after Bonferroni correction ( p< 0.01 ; Fig. 2 (a)). Importantly, LOO-FT also remains close to pooled training on both tasks ( r=0 .551 on finger, 0.331 on audio), matching or exceeding all per-subject baselines while adapting only a small number of LoRA and adapter parameters. Overall, CORTEG’s main benefit is not only higher mean accuracy, but a more practical cross-subject deployment regime: a population model can be trained once and efficiently adapted to new patients, instead of retraining a full per-subject decoder from scratch. Full per-subject and per-finger results are reported in App. A.3. 
+
+5.2 Decoding results across both tasks 
+
+Figure 2 shows model performance comparisons on full-data training (a), backbone scaling (b), compute-performance trade-off (c), and low-data analyses (d–f). Corresponding experimental proto-cols are documented in App. A.4. 
+
+LOO-FT reaches pooled-level performance Although the pooled model achieves the best perfor-mance, Fig. 2 (a) shows that across both tasks LOO-FT reaches pooled-level performance: Finger 
+
+0.551 vs. pooled 0.554 (paired Wilcoxon p=0 .65 , n=9 ); Audio 0.331 vs. 0.339 (p=0 .82 , n=16 ). This implies that an existing population model can be calibrated to a new patient via Stage-2 fine-tuning without retraining the multi-subject pooled model. Fig. 2 (f) also compares LOO-FT and per-subject CORTEG. The two methods rank subjects almost identically (Spearman ρ=0 .96 ), but LOO-FT is shifted upward: it improves over per-subject training on 11 /25 subjects, ties (within 
+
+|∆r|<0.05 ) on the remaining 14 /25 , and does not exhibit a single loss outside the tie band in this 5Figure 2: CORTEG decoding results. (a) Full-data method comparison (white = finger, n=9 ;grey = audio, n=16 ); error bars ± std; stars: paired Wilcoxon vs. CORTEG-pooled (Bonferroni corrected). (b) Backbone-size scaling: half-violin/box per-subject r at Small / Base / Large CORTEG; best validation model for each. (c) Compute–performance trade-off: training vs. inference time per backbone (marker area ∝ total params; right axis: prediction rate, in Hz). (d, e) Low-data scaling at recording fractions f ∈{ 0% , 10% , 25% , 50% , 100% } on finger (d) and audio (e). 0% shows the LOO-FT zero-shot bar. (f) Per-subject paired comparison at full data: per-subject (pretrained) r (x)vs. LOO-FT r (y), one dot per subject, both datasets pooled ( n=25 ). The shaded band |∆r|<0.05 is treated as a tie. Stats box reports Spearman ρ over the pooled subjects, paired-Wilcoxon p on ∆r,and the LOO-FT-win / per-subject-win / tie counts. benchmark. We therefore treat LOO-FT as an empirically competitive deployment strategy in our setting — it absorbs the population prior on subjects where per-subject training may overfit, without sacrificing performance on subjects where the per-subject decoder is already strong. 
+
+Backbone scaling and compute trade-off Fig. 2 (b,c) evaluates CORTEG-Small/Base/Large under a heavier HPC run, with each backbone evaluated at its best merge point K from Table 9. Scaling from Small to Base yields only a marginal finger-decoding change ( 0.577 3→0.583 , +0 .006 ), while Large slightly decreases performance ( 0.583 →0.577 , −0.006 ); these differences are not statistically significant across backbone scales. In contrast, inference cost increases substantially, from 2.4 to 
+
+13 .2 ms/sample on an RTX 5090 in fp32. Thus, the small backbone provides the best performance– efficiency trade-off, remaining competitive on both tasks while supporting real-time inference. 
+
+Learning from limited data Fig. 2(d–f) evaluates how different methods behave as the amount of patient-specific calibration data is reduced. Across both tasks, LOO-FT generally provides a more favorable low-data profile than training patient-specific models from scratch. Notably, the 0% 
+
+setting shows that zero-shot decoding (Stage-1 only, no patient-specific tuning) yields a positive mean Pearson r across subjects in both tasks (finger 0.092 , audio 0.112 ), with most subjects above zero ( 8/9
+
+finger, 13 /16 audio; per-subject zero-shot scores in App. Table 7). Its absolute performance, however, is still far from practical use. With additional calibration data, LOO-FT improves consistently and maintains an advantage over Per-subject training and randomly initialized CORTEG. 
+
+5.3 Model Interpretation and Neural Manifold Analysis Channel importance Fig. 3 (a, b) computes per-electrode importance as the drop in r when removing each channel, projected onto a template cortex (top view); the maps separate anatomically by task: finger-trajectory weights cluster over the sensorimotor strip, and audio-envelope weights cluster over superior-temporal cortex. The same trained adapter and backbone produce these task-dissociated importance maps without any anatomy-aware supervision, suggesting that CORTEG produces task-appropriate localization patterns through the regression objective alone. We treat this as a sanity check that the model exploits localized, task-appropriate cortex rather than diffuse contributions across the full grid.     
+
+> 3Reproducibility note: The CORTEG-S score in Fig. 2(b) is higher than the 0.554 reported in Table 1 because it comes from the heavier HPC sweep with hyperparameter tuning (details discussed in App. A.4). For consistency and reproducibility, Table 1 reports only results obtained under our simple local benchmark: a single RTX 5090, 100 epochs, batch size 64, and the default merge point K=4 .
+
+6Figure 3: Electrode importance and neural manifold of CORTEG. (a, b) Per-electrode importance on a template cortex (top view) for the finger trajectory (a) and audio envelope (b) tasks. The two tasks yield anatomically distinct cortex (sensorimotor vs. superior-temporal) under the same architecture and adapter. (c, d) 3D PCA of CORTEG’s per-window latent vector z (the mean of all transformer-output tokens taken just before the regression head) on finger-task subject S1 (bp ; C=64 channels, 
+
+rbaseline =0 .60 ), pretrained CORTEG (c) vs. random init (d) , colored by dominant active finger; rest in grey. Participation ratio: PR=8 .6 (pretrained) vs. 15 .2 (random). (e) Cumulative explained variance: pretrained concentrates more variance in top-K PCs than random. (f) Representational velocity ∥∆z1:3 ∥ around movement onset ( n=184 events). Pretrained shows a steeper slope occurring earlier to the onset time t=0 . Details regarding this visualization are provided in App. A.5. 
+
+Neural manifold Beyond decoding performance, the geometry of the learned representation differs systematically between pretrained and random init under matched architecture and training (subject 
+
+bp ). Fig. 3 (c–f) shows that pretrained representations form a lower-dimensional, finger-separable manifold (participation ratio PR=8 .6) than random init ( PR=15 .2, ∼2× wider). App. A.7 reports two alternative projections (LDA [ 39 ] and dPCA [ 40 ]) and shows the similar pattern. Furthermore, pretrained also concentrates more cumulative variance in its top principal components (panel e) and exhibits a steeper representational-velocity slope at movement onset (panel f). These findings suggest that pretraining provides not just better features but a more compact, task-aligned subspace. The sharper representational transition around movement onset may reflect a more efficient encoding of the motor intention, which could underlie the improved decoding performance. In summary, the pretrained model learns a more structured and interpretable neural manifold that aligns with known neurophysiological principles of motor control, while the random init model learns a more diffuse and less task-aligned representation. 
+
+5.4 Ablation Study 
+
+Table 2 evaluates the contribution of each CORTEG component. 
+
+(i) Pretraining is important Random init loses ∆r=−0.044 on finger and −0.183 on audio. Other EEG FMs (LaBraM, CBraMod) and time-series FM MantisV2 underperform by 0.18 –0.36 on finger, indicating that the backbone choice matters and the relevant modules are ST-EEGFormer’s channel codebook and encoder, not an arbitrary self-supervised model. 
+
+(ii) Adapter form and geometry Real coordinates outperform Random/Zero XYZ by 
+
+−0.075 /−0.318 on finger. The geometry effect is weaker on audio. Fourier-only retains ∼93% (finger) / matches the full adapter (audio), while soft-only drops by −0.111 on both. Overall, the combination of both components yields the best performance. 
+
+(iii) Adaptation & training regime Full FT performs worse than LoRA adaptation, indicating that low-rank parameter-efficient adaptation generalizes better than unrestricted weight updates. This also implicitly shows that the pretrained EEG FM could capture useful representations that transfer to ECoG without heavy finetuning. Pooled training over all N subjects yields the upper-bound 7Table 2: Model ablation study. Each row modifies one component of the full CORTEG-S model (top row), pooled training. Mean Pearson r across subjects ( n=9 on the finger task; n=16 on the audio task except Mantis). ∆: change from the full model. Dash means the configuration is not applicable on that task. ⋆Random-init runs use full-FT + adapter because LoRA cannot adapt a randomly-initialized backbone.                                                                    
+
+> Configuration Finger ( r)∆Audio ( r)∆
+> Full CORTEG-S (LoRA + KNNSoftFourier adapter) 0.554 —0.339 —
+> Foundation model
+> LaBraM [8] 0.372 −0.182 0.228 −0.111
+> CBraMod [9] 0.312 −0.242 0.045 −0.294
+> MantisV2 (time-series) [38] 0.198 −0.356 ——Random init (no pretrain) ⋆0.510 −0.044 0.156 −0.183
+> Adaptation strategy
+> Full FT + adapter (no LoRA) 0.542 −0.012 0.265 −0.074
+> LoRA, no adapter 0.529 −0.025 0.299 −0.040
+> Training regime
+> Per-subject (LoRA + adapter) 0.539 −0.015 0.250 −0.089
+> LOO-FT (Stage-1 on N−1, Stage-2 on held-out) 0.551 −0.003 0.331 −0.008
+> Input stream
+> High-gamma only 0.420 −0.134 0.134 −0.205
+> Low-frequency only 0.364 −0.190 0.273 −0.066
+> Electrode geometry
+> Random XYZ 0.479 −0.075 0.328 −0.011
+> Zero XYZ 0.236 −0.318 0.153 −0.186
+> Adapter branch
+> Fourier-only 0.515 −0.039 0.330 −0.009
+> Soft-only 0.443 −0.111 0.228 −0.111
+
+decoding results. LOO-FT, which never sees the test subject during pooled Stage-1, recovers pooled-level performance( ∆r< 0.01 on both tasks), while per-subject pretrained loses −0.015 on finger and −0.089 on audio. This argues that LOO-FT is not merely regularization on top of per-subject training: the Stage-1 multi-subject prior carries information that the spatial adapter and Stage-2 patient calibration jointly recover. 
+
+(iv) Stream importance dissociates by task HGA-only > LFS-only on finger ( 0.420 vs. 0.364 ); LFS-only > HGA-only on audio ( 0.273 vs. 0.134 ). Dual-stream fusion beats either stream alone. This indicates that different streams may be more relevant for specific tasks. The fusion adapter effectively integrates both streams. 
+
+## 6 Discussion 
+
+Is EEG FM to ECoG decoding feasible? To our knowledge, CORTEG provides one of the first systematic studies of transferring a scalp-EEG FM to intracranial ECoG decoding under matched per-subject baselines. Despite the gap in modality (extracranial vs. intracranial), sampling rate, montage, and frequency content, an EEG FM backbone trained on 142-channel scalp EEG, combined with a lightweight spatial adapter (KNNSoftFourier) that maps ECoG electrode coordinates into the pretrained EEG channel-embedding codebook, matches or exceeds task-specific deep baselines on both finger trajectory ( r=0 .554 ) and audio envelope ( r=0 .339 ) tasks (Table 1). The ablation study (Table 2) shows that the contribution of EEG pretraining is task-dependent: it is large on audio ( ∆r=−0.183 when removed) but modest on the finger task ( ∆r=−0.044 ), so the cross-modal pretraining signal is most clearly demonstrable on auditory cortical recordings. 
+
+What are the advantages of CORTEG? CORTEG’s main advantage is not only higher mean correlation, but a more practical deployment strategy based on adapting a pretrained cross-patient model. With LOO-FT, a new patient can be calibrated by fine-tuning only Stage 2 of the existing pooled model (§3.3), reducing adaptation to roughly 10 –30 minutes on a single GPU instead of retraining the pooled model for hours. The resulting model recovers pooled-level performance on both tasks and, under a |∆r|<0.05 tie convention, matches or exceeds per-subject training on all 25 
+
+pooled subjects (Fig. 2 (f)), making LOO-FT a competitive alternative to classic subject-dependent decoding in our benchmark. At the same time, pooled CORTEG achieves the best mean correlation 8among the compared methods on both finger and audio decoding, with modest gains on the public finger benchmark ( +0 .012 to +0 .020 Pearson r) and larger gains on audio ( +0 .078 to +0 .080 ;Table 1, Fig. 2a). Finally, this adaptation is parameter-efficient: only 297 K parameters are updated through LoRA and the spatial adapter, fewer than all per-subject deep baselines ( 334 K– 1.16 M). 
+
+What do ablations and representation analyses tell us about what is transferred? Ablations (Table 2) confirm that pretrained structure, real ECoG geometry, and the dual-branch adapter all contribute to performance. Representation analyses point to a consistent picture: relative to random initialization, the pretrained model organizes activity into a more compact, finger-separable manifold (participation ratio 8.6 vs. 15 .2; §5.3, Fig. 3), with the same qualitative structure under PCA, LDA, and dPCA (App. A.7); per-electrode importance maps further localize to task-relevant cortex without anatomy-aware supervision. Together, these analyses suggest, but do not causally establish, that EEG pretraining contributes a structured, low-dimensional prior alignable to ECoG, rather than merely a favorable initialization. 
+
+Limitations (i) MNI-space localization. The Stanford dataset shows large across-subject variance (Fig. 2a) consistent with heterogeneous implant coverage (App. Fig. 4). Identical MNI coordinates do not consistently correspond to identical function, and our shared-space adapter cannot fully exploit subject-specific anatomy. Subject-conditioned adapters or functional-connectivity priors are a natural next step. (ii) No cross-task transfer. We evaluate scalp-EEG →ECoG only, never across ECoG tasks (finger ↔audio). (iii) No scaling law. Model scaling is not observed (Fig. 2b). This may be due to the limited per-patient ECoG data rather than an architectural ceiling, and joint scaling of pretraining/calibration data is an interesting open direction. (iv) Simple fusion. LFS and HGA tokens are merged by mean-pooling, which is parameter-free but unlikely optimal. We tested several alternatives (learned gating, cross-attention merge, latent routers, sufficiency/complementarity losses; App. A.8, Table 10) and none improved over mean-pool, so designing a fusion mechanism that empirically beats the baseline remains open. 
+
+Broader impact ECoG BCIs target patients with severe motor/communication impairment. Reduc-ing per-patient calibration time lowers the deployment barrier but may introduce concentration risk (a single population model affects many patients) and may inherit pretraining-corpus demographic biases. 
+
+## 7 Conclusion 
+
+CORTEG combines a pretrained EEG FM backbone, a coordinate-aware spatial adapter, dual-stream tokenization, and parameter-efficient adaptation to bridge scalp recordings and intracranial decoding. Across motor and auditory tasks it matches or surpasses task-specialized baselines while updating an order of magnitude fewer parameters, and a held-out patient can be calibrated to the population model in minutes rather than hours. The accompanying ablations and manifold analyses are consistent with the hypothesis that pretraining provides a compact, task-aligned subspace rather than acting purely as a better initialization, motivating next steps on subject-specific anatomy, cross-task generalization, and joint scaling of pretraining and calibration data. 
+
+## Acknowledgments and Disclosure of Funding 
+
+*L.Y. is supported by the Research Foundation – Flanders (FWO) grant 1S65622N. *Q.S. is supported by the China Scholarship Council (no. 202206050022). *B.V.D. is Belgian Fund for Scientific Research - Flanders grant G0C1522N. *E.C.M. is supported by the Research Foundation – Flanders (FWO) grant 1102925N. *M.M.V.H. is supported by research grants received from Horizon Europe’s Marie Sklodowska-Curie Action (grant agreement No. 101118964), Horizon 2020 research and innovation programme under grant agreement No. 857375, the special research fund of the KU Leuven (C24/18/098), the Belgian Fund for Scientific Research – Flanders (G0A4321N, G0C1522N, G031426N), and the Hercules Foundation (AKUL 043). *The resources and services used in this work were provided by the VSC (Flemish Supercomputer Center), funded by the Research Foundation - Flanders (FWO) and the Flemish Government. *We thank the neurosurgery and neurology team at Ghent University Hospital — in particular Dr. Alfred 9Meurs, Dr. Evelien Carrette, Dr. Dirk Van Roost, and Kato Van Rooy — for performing the electrode implantations and for their assistance in recording the intracranial audio-envelope data from the participating patients. We are especially grateful to the patients themselves for agreeing to take part in this research during their epilepsy-monitoring stay. 
+
+## References 
+
+[1] Alim Louis Benabid, Thomas Costecalde, Andrey Eliseyev, Guillaume Charvet, Alexandre Verney, Serpil Karakas, Michael Foerster, Aurélien Lambert, Boris Morinière, Neil Abroug, et al. An exoskeleton controlled by an epidural wireless brain–machine interface in a tetraplegic patient: a proof-of-concept demonstration. The Lancet Neurology , 18(12):1112–1122, 2019. [2] Henri Lorach, Andrea Galvez, Valeria Spagnolo, Felix Martel, Serpil Karakas, Nadine Intering, Molywan Vat, Olivier Faivre, Cathal Harte, Salif Komi, et al. Walking naturally after spinal cord injury using a brain–spine interface. Nature , 618(7963):126–133, 2023. [3] Sean L Metzger, Jessie R Liu, David A Moses, Maximilian E Dougherty, Margaret P Seaton, Kaylo T Littlejohn, Josh Chartier, Gopala K Anumanchipalli, Adelyn Tu-Chan, Karunesh Ganguly, et al. Generalizable spelling using a speech neuroprosthesis in an individual with severe limb and vocal paralysis. Nature communications , 13(1):6510, 2022. [4] Kaylo T Littlejohn, Cheol Jun Cho, Jessie R Liu, Alexander B Silva, Bohan Yu, Vanessa R Anderson, Cady M Kurtz-Miott, Samantha Brosler, Anshul P Kashyap, Irina P Hallinan, et al. A streaming brain-to-voice neuroprosthesis to restore naturalistic communication. Nature neuroscience , 28(4):902–912, 2025. [5] Quentin Ferdinand, Rémi Souriau, Lucas Struber, Henri Lorach, Philippe Ciuciu, Marina Reyboz, and Tetiana Aksenova. ECoG-based movement classification and limbs 3D translation prediction: a deep learning study. In 2025 International Joint Conference on Neural Networks (IJCNN) , pages 1–10. IEEE, 2025. [6] Hsiang-Yun Sherry Chien, Hanlin Goh, Christopher M. Sandino, and Joseph Y. Cheng. Maeeg: Masked auto-encoder for eeg representation learning, 2022. URL https://arxiv.org/abs/ 2211.02625 .[7] Chaoqi Yang, M. Brandon Westover, and Jimeng Sun. BIOT: Cross-data biosignal learning in the wild, 2023. URL https://arxiv.org/abs/2305.10351 .[8] Wei-Bang Jiang, Li-Ming Zhao, and Bao-Liang Lu. Large brain model for learning generic representations with tremendous EEG data in BCI, 2024. URL https://arxiv.org/abs/ 2405.18765 .[9] Jiquan Wang, Sha Zhao, Zhiling Luo, Yangxuan Zhou, Haiteng Jiang, Shijian Li, Tao Li, and Gang Pan. CBraMod: A criss-cross brain foundation model for EEG decoding, 2025. URL 
+
+https://arxiv.org/abs/2412.07236 .[10] Liuyin Yang, Qiang Sun, Ang Li, and Marc M. Van Hulle. Are EEG foundation models worth it? comparative evaluation with traditional decoders in diverse BCI tasks. In The Fourteenth International Conference on Learning Representations , 2026. URL https://openreview. net/forum?id=5Xwm8e6vbh .[11] Nathan E Crone, Dana Boatman, Barry Gordon, and Lei Hao. Induced electrocorticographic gamma activity during auditory perception. Clinical neurophysiology , 112(4):565–582, 2001. [12] Qiang Sun, Liuyin Yang, Eva Calvo Merino, and Marc M Van Hulle. Large EEG foundation model learns informative low-frequency representations from intracranial brain signals. In 1st ICLR Workshop on Time Series in the Age of Large Models , 2026. [13] JOJWGSJ Kubanek, Kai J Miller, Jeffrey G Ojemann, Jonathan R Wolpaw, and Gerwin Schalk. Decoding flexion of individual fingers using electrocorticographic signals in humans. Journal of neural engineering , 6(6):066001, 2009. 10 [14] Ziqian Xie, Odelia Schwartz, and Abhishek Prasad. Decoding of finger trajectory from ECoG using deep learning. Journal of neural engineering , 15(3):036009, 2018. [15] Lin Yao, Bingzhao Zhu, and Mahsa Shoaran. Fast and accurate decoding of finger movements from ECoG through riemannian features and modern machine learning techniques. Journal of Neural Engineering , 19(1):016037, 2022. [16] Axel Faes, Flavio Camarrone, and Marc M Van Hulle. Single finger trajectory prediction from intracranial brain activity using block-term tensor regression with fast and automatic component extraction. IEEE Transactions on Neural Networks and Learning Systems , 35(7):8897–8908, 2022. [17] Zhanhui Lin, Xinyu Jiang, Chenyun Dai, and Fumin Jia. Towards real time efficient and robust ECoG decoding for mobile brain–computer interface. Journal of Neural Engineering , 22(4): 046012, 2025. [18] Jonas Vanthornhout, Lien Decruy, Jan Wouters, Jonathan Z. Simon, and Tom Francart. Speech intelligibility predicted from neural entrainment of the speech envelope. Journal of the Associa-tion for Research in Otolaryngology , 19(2):181–191, 2018. doi: 10.1007/s10162-018-0654-z. [19] Bernd Accou, Jonas Vanthornhout, Hugo Van hamme, and Tom Francart. Decoding of the speech envelope from EEG using the VLAAI deep neural network. Scientific Reports , 13(1): 812, 2023. doi: 10.1038/s41598-022-27332-2. [20] Alexandre Défossez, Charlotte Caucheteux, Jérémy Rapin, Ori Kabeli, and Jean-Rémi King. Decoding speech perception from non-invasive brain recordings. Nature Machine Intelligence ,5(10):1097–1107, 2023. [21] Ludovic Bellier, Anaïs Llorens, Déborah Marciano, Aysegul Gunduz, Gerwin Schalk, Peter Brunner, and Robert T. Knight. Music can be reconstructed from human auditory cortex activity using nonlinear decoding models. PLOS Biology , 21(8):e3002176, 2023. doi: 10.1371/journal. pbio.3002176. [22] Linnea Evanson, Christine Bulteau, Mathilde Chipaux, Georg Dorfmüller, Sarah Ferrand-Sorbets, Emmanuel Raffo, Sarah Rosenberg, Pierre Bourdillon, and Jean-Rémi King. Emergence of language in the developing brain, 2025. Preprint. [23] He He and Dongrui Wu. Transfer learning for brain–computer interfaces: A euclidean space data alignment approach. IEEE Transactions on Biomedical Engineering , 67(2):399–410, 2019. [24] Steven M Peterson, Zoe Steine-Hanson, Nathan Davis, Rajesh PN Rao, and Bingni W Brunton. Generalized neural decoders for transfer learning across participants and recording modalities. 
+
+Journal of Neural Engineering , 18(2):026014, 2021. [25] René J Huster, Stefan Debener, Tom Eichele, and Christoph S Herrmann. Methods for si-multaneous eeg-fmri: an introductory review. Journal of Neuroscience , 32(18):6053–6060, 2012. [26] Richard N Henson, Daniel G Wakeman, Vladimir Litvak, and Karl J Friston. A parametric empirical bayesian framework for the eeg/meg inverse problem: generative models for multi-subject and multi-modal integration. Frontiers in human neuroscience , 5:76, 2011. [27] Edward J Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean Wang, Lu Wang, and Weizhu Chen. LoRA: Low-rank adaptation of large language models. In 
+
+International Conference on Learning Representations (ICLR) , 2022. [28] Neil Houlsby, Andrei Giurgiu, Stanislaw Jastrzebski, Bruna Morrone, Quentin De Laroussilhe, Andrea Gesmundo, Mona Attariyan, and Sylvain Gelly. Parameter-efficient transfer learning for nlp. In International conference on machine learning , pages 2790–2799. PMLR, 2019. [29] Ben Mildenhall, Pratul P Srinivasan, Matthew Tancik, Jonathan T Barron, Ravi Ramamoor-thi, and Ren Ng. Nerf: Representing scenes as neural radiance fields for view synthesis. 
+
+Communications of the ACM , 65(1):99–106, 2021. 11 [30] Matthew Tancik, Pratul Srinivasan, Ben Mildenhall, Sara Fridovich-Keil, Nithin Raghavan, Utkarsh Singhal, Ravi Ramamoorthi, Jonathan Barron, and Ren Ng. Fourier features let networks learn high frequency functions in low dimensional domains. Advances in neural information processing systems , 33:7537–7547, 2020. [31] Elizbar A Nadaraya. On estimating regression. Theory of Probability & Its Applications , 9(1): 141–142, 1964. [32] Geoffrey S Watson. Smooth regression analysis. Sankhy ¯a: The Indian Journal of Statistics, Series A , pages 359–372, 1964. [33] Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn, Xiaohua Zhai, Thomas Unterthiner, Mostafa Dehghani, Matthias Minderer, Georg Heigold, Sylvain Gelly, et al. An image is worth 16x16 words: Transformers for image recognition at scale. arXiv preprint arXiv:2010.11929 , 2020. [34] Bruno Aristimunha, Dung Truong, Pierre Guetschel, Seyed Yahya Shirazi, Isabelle Guyon, Alexandre R. Franco, Michael P. Milham, Aviv Dotan, Scott Makeig, Alexandre Gramfort, Jean-Remi King, Marie-Constance Corsi, Pedro A. Valdés-Sosa, Amit Majumdar, Alan Evans, Terrence J Sejnowski, Oren Shriki, Sylvain Chevallier, and Arnaud Delorme. Eeg foundation challenge: From cross-task to cross-subject eeg decoding, 2025. URL https://arxiv.org/ abs/2506.19141 .[35] Kai J Miller. A library of human electrocorticographic data and analyses. Nature human behaviour , 3(11):1225–1235, 2019. [36] Qiang Sun, Eva Calvo Merino, Bob Van Dyck, Yuan Yang, Jiayuan He, and Marc M Van Hulle. Spectro-temporal fusion of high-gamma and low-frequency ecog signals for intracranial finger movement decoding. TechRxiv , 2025. [37] Wei Tao, Jianghao Hou, Yi Yang, Xun Chen, Tzyy-Ping Jung, and Feng Wan. Deepfingernet predicts finger trajectory from ecog measurements. IEEE Transactions on Instrumentation and Measurement , 74:1–12, 2025. [38] Vasilii Feofanov, Songkang Wen, Jianfeng Zhang, Lujia Pan, and Ievgen Redko. Mantisv2: Closing the zero-shot gap in time series classification with synthetic data and test-time strategies, 2026. URL https://arxiv.org/abs/2602.17868 .[39] Trevor Hastie. The elements of statistical learning: data mining, inference, and prediction, 2009. [40] Dmitry Kobak, Wieland Brendel, Christos Constantinidis, Claudia E Feierstein, Adam Kepecs, Zachary F Mainen, Xue-Lian Qi, Ranulfo Romo, Naoshige Uchida, and Christian K Machens. Demixed principal component analysis of neural population data. elife , 5:e10989, 2016. [41] Kai J Miller, Dora Hermes, Christopher J Honey, Adam O Hebb, Nick F Ramsey, Robert T Knight, Jeffrey G Ojemann, and Eberhard E Fetz. Human motor cortical activity is selectively phase-entrained on underlying rhythms. PLoS Computational Biology , 8(9), 2012. [42] Peter L. Søndergaard and Piotr Majdak. The auditory modeling toolbox. In Jens Blauert, editor, 
+
+The Technology of Binaural Listening , Modern Acoustics and Signal Processing, pages 33–56. Springer, Berlin, Heidelberg, 2013. 12 A Appendix 
+
+A.1 LOO-FT Strategy Sweep and Failed Alternatives Loss and metric. CORTEG minimizes per-subject z-scored MSE 
+
+L = 1
+
+> NN
+
+X
+
+> i=1
+
+∥ˆy(i) − y(i)∥22, y(i) = ( y(i) 
+
+> raw
+
+− μs)/σ s, (1) and we report subject-level Pearson correlation 
+
+¯rs = 1
+
+> dout
+> dout
+
+X
+
+> d=1
+
+r(s) 
+
+> d
+
+, ¯r = 1
+
+> |S|
+
+X
+
+> s
+
+¯rs, (2) We compared three Stage-2 protocols on the finger task ( n=9 ); all share Stage 1 (pooled on N −1
+
+subjects) and differ only in what is trainable in Stage 2. The results for different Stage-2 strategies are summarized in Table 3. Table 3: LOO-FT Stage-2 protocols on the finger task ( f =1 .0, n=9 , paired Wilcoxon vs. the pooled-training upper bound r=0 .554 ). v3 is the recipe used in the main paper. 
+
+Variant Stage-2 trainable modules Mean r p vs. pooled 
+
+v1 full-backbone fine-tune (lr= 10 −4) ∼ 0.27 catastrophic overfit v2 head + LoRA + adapter, single base LR 0.5309 0.301 
+
+v3 v2 + adapter LR boost (10 × at f ≥0.25 , 2 × at f =0 .1) 0.5512 0.652 
+
+The full-backbone variant (v1) collapses because the ∼25M backbone parameters far exceed the held-out subject’s ∼40K Stage-2 training samples. Parameter-efficient adaptation (LoRA on the last 4 blocks) is therefore essential. Within the parameter-efficient regime, going from v2 to v3 (adapter LR boost) provides a further 0.02 correlation gain by letting the spatial adapter quickly escape the Stage-1 LOO bias on the held-out subject’s channel layout, while keeping LoRA at the base rate so the population prior is not overwritten. 
+
+Final strategy (v3). The strategy used throughout the main paper combines: (i) a pooled Stage 1 on N −1 subjects (AdamW, learning rate 3×10 −3, patience 90 , 100 epochs, batch 64 , weight decay 
+
+0.01 ). (ii) a per-subject Stage 2 on the held-out subject’s training split (AdamW, base LR 1×10 −3,patience 30 , 100 epochs, batch 16 , weight decay 5×10 −3) with a fraction-aware adapter LR multiplier that raises the spatial adapter’s effective learning rate to 10 × the base when ≥ 25% of the held-out subject’s recording is available, and to 2× at the most data-scarce setting ( f =0 .1). The asymmetry — LoRA at the base rate, adapter at 10 × is because the spatial adapter depends on subject-specific channel layout, so it must adapt fastest in Stage 2, while LoRA’s role is to refine an attention prior that already transfers across subjects and should not be overwritten. v3 closes the gap to the pooled upper bound ( r=0 .554 ) to within paired-Wilcoxon noise ( r=0 .5512 , p=0 .652 ), demonstrating that LOO-FT can recover pooled-level decoding without ever having seen the held-out subject during Stage 1. 
+
+A.2 Dataset Preprocessing A.2.1 Finger trajectory regression 
+
+The Stanford fingerflex dataset [ 35 ] contains recordings from nine epilepsy patients implanted with subdural ECoG grids (4 mm diameter, 1 cm pitch) across various cortical regions 4. Participants performed self-paced flexion-extension of individual fingers in response to visual cues. At the same 
+
+> 4Ethics statement: All patients participated in a purely voluntary manner, after providing informed written consent, under experimental protocols approved by the Institutional Review Board of the University of Washington (#12193). All patient data was anonymized according to IRB protocol, in accordance with HIPAA mandate. These data originally appeared in the manuscript “Human Motor Cortical Activity Is Selectively Phase- Entrained on Underlying Rhythms” published in PLoS Computational Biology in 2012 [41]
+
+13 time, ECoG signals (band-pass filtered at 0.3–200 Hz) and finger trajectories (recorded via a digital glove) were sampled at 1000 Hz and 25 Hz, respectively. For signal preprocessing, we first applied a one-pass, 3rd-order Butterworth IIR band-stop filter to the continuous ECoG signals to eliminate power line interference at 60 Hz and its harmonics (120 Hz, 180 Hz). Then, we performed visual inspection to exclude abnormal channels, and finally referenced the signals to the common average (CAR). Data were partitioned chronologically in line with [ 17 , 36 ]: for recordings exceeding 600 seconds, the first 400 seconds served as the training set; otherwise, a 2:1 train-and-test split was applied. Within the training set, the last 10% data were kept as validation set. The HGA stream was obtained by a fourth-order Butterworth bandpass at 70 –200 Hz followed by Hilbert envelope extraction and average-pool decimation to 200 Hz; the LFS stream was obtained by a band-pass at 1–64 Hz with anti-aliasing decimation to 128 Hz. The two streams use the band ranges quoted in §3.1 and Fig. 1; the audio task uses a slightly narrower HGA band (60–124 Hz) because of its lower native sampling rate, as noted below. Training, validation, and testing datasets were constructed using a sliding window approach. To strictly maintain causality, each input sample comprises a 1-second window of ECoG signals immediately preceding the movement. The corresponding label for each sample represents the subsequent trajectory positions of the five fingers. We applied a 40 ms sliding stride to match the 25 Hz sampling rate of the motion-tracking glove. 
+
+A.2.2 Audio envelope regression 
+
+ECoG data were collected from 16 patients undergoing presurgical evaluation for drug-resistant focal epilepsy at X 5 University Hospital after approval from its Commission Medical Ethics. All participants, or their legal guardians if they were under 18, signed the informed consent form before the experiments. Electrode placement was determined solely by clinical need, and neural activity was recorded using subdural grids and strips with a Micromed SD LTM 64 Express system. Participants passively listened to a 30-minute fairy tale presented in three blocks, with comprehension questions between blocks. The raw ECoG signals were sampled at 256 Hz. Bad channels were rejected automatically by a per-channel variance heuristic across the full recording (channels with std < 10 −6, or whose variance exceeded 5× or fell below 0.2× the across-channel median). The retained channels were then re-referenced to the common average and z-scored within each of the three recording blocks, with statistics computed on that block’s training portion only. A 50 ms stimulus-to-cortex delay was applied by shifting the envelope relative to the ECoG. The HGA stream was obtained by a fourth-order Butterworth bandpass at 60 –124 Hz followed by Hilbert envelope extraction and resampling to 
+
+200 Hz; the LFS stream was decimated to 128 Hz. The HGA upper edge here is capped a few Hz below Nyquist of the 256 Hz native sampling rate, and is therefore narrower than the generic “70– 200 Hz” high-gamma band described in §3.1 and Fig. 1, which corresponds to the Stanford recordings sampled at 1 kHz. The broadband speech envelope was extracted with a 28 -channel ERB-spaced gammatone filterbank between 50 Hz and 5 kHz [ 42 ]; subband amplitudes were rectified, compressed with a 0.6 power law, averaged, and resampled to 128 /200 Hz to match the two ECoG streams. Each block was split chronologically into 80% /10% /10% train/val/test, and the per-block splits were concatenated across blocks to form each subject’s final arrays. For decoding, the LFS/HGA streams and the broadband envelope are sliding-windowed at a 50 ms stride; each 1 s window predicts one envelope value taken at the right edge of the window, so the effective output rate is 20 Hz, matching the 0.05 s stride quoted in §4. 
+
+Fair-comparison protocol. For all neural baselines, we use a single shared protocol: identical train / val / test splits per task, identical per-subject z-score normalization, identical sliding-window construction (1-s lookback, 0.04 s / 0.05 s stride for finger / audio), validation-driven early stopping with the same patience as CORTEG. 
+
+A.3 Full Per-Subject Results 
+
+We report per-subject Pearson r for every benchmarked method on both datasets. Subject identifiers follow the same anonymisation as Fig. 4/5 (mapping in the table captions). Table 4 gives the full 
+
+> 5Actual hospital name will be filled after double-blind review.
+
+14 per-subject and per-finger breakdown for the Stanford finger task; Table 5 gives the per-subject breakdown for the audio-envelope task (single r per subject since the target is a one-dimensional envelope). Table 4: Stanford finger regression task — full per-subject and per-finger Pearson r for every benchmarked method, n=9 , f =1 .0. Each method block has five rows (Thumb, Index, Middle, Ring, Little) plus an Avg row showing the per-subject mean across the five fingers; the rightmost column is the per-finger mean across the nine subjects. In the Avg row, per-column best (bold blue) and 
+
+second-best (bold black) values are highlighted, matching the convention of Table 1. Rows marked †
+
+are transcribed from [ 36 ] Table V; rows marked ‡ from [ 37 ] Table II. All other rows are computed from local outputs. Subject mapping: S1=bp, S2=cc, S3=ht, S4=jc, S5=jp, S6=mv, S7=wc, S8=wm, S9=zt (alphabetical, matching [ 36 , 37 ]). Per-method grand means agree with Table 1 within ±0.004 
+
+(small differences come from how the cited papers compute the grand average over per-finger vs. per-cell means). 
+
+Method Finger S1 S2 S3 S4 S5 S6 S7 S8 S9 Mean 
+
+Ridge_LFS Thumb 0.306 0.358 0.058 0.242 0.127 0.110 0.162 0.065 0.244 0.186 
+
+Index 0.250 0.325 0.179 0.253 0.172 0.352 0.231 0.056 0.190 0.223 
+
+Middle 0.209 0.195 0.034 0.132 0.041 0.153 0.171 −0.014 0.134 0.117 
+
+Ring 0.338 0.283 0.262 0.343 0.061 0.250 0.166 0.132 0.232 0.230 
+
+Little 0.170 0.281 0.156 0.325 0.031 0.219 0.098 −0.081 0.161 0.151 
+
+Avg 0.255 0.288 0.138 0.259 0.086 0.217 0.166 0.032 0.192 0.181 
+
+Ridge_HGA Thumb 0.469 0.594 0.307 0.506 0.364 0.225 0.448 0.250 0.556 0.413 
+
+Index 0.282 0.441 0.191 0.436 0.440 0.588 0.556 0.042 0.663 0.404 
+
+Middle 0.142 0.483 0.155 0.253 0.036 0.190 0.121 0.228 0.059 0.185 
+
+Ring 0.403 0.465 0.253 0.363 0.531 0.249 0.234 0.371 0.400 0.363 
+
+Little 0.187 0.609 0.235 0.252 0.350 0.580 0.200 0.083 0.308 0.312 
+
+Avg 0.296 0.519 0.229 0.362 0.344 0.367 0.312 0.195 0.397 0.336 
+
+PLS † Thumb 0.526 0.640 0.308 0.556 0.640 0.481 0.472 0.256 0.617 0.500 
+
+Index 0.338 0.429 0.188 0.419 0.568 0.725 0.595 0.133 0.663 0.451 
+
+Middle 0.219 0.485 0.238 0.309 0.235 0.265 0.191 0.228 0.272 0.271 
+
+Ring 0.434 0.593 0.321 0.453 0.607 0.397 0.302 0.390 0.499 0.444 
+
+Little 0.340 0.618 0.288 0.316 0.321 0.640 0.225 −0.004 0.340 0.343 
+
+Avg 0.371 0.553 0.269 0.411 0.474 0.502 0.357 0.201 0.478 0.402 
+
+HOPLS † Thumb 0.501 0.599 0.328 0.599 0.367 0.284 0.494 0.210 0.634 0.446 
+
+Index 0.337 0.518 0.248 0.433 0.328 0.182 0.610 0.004 0.695 0.373 
+
+Middle 0.212 0.565 0.259 0.364 0.149 0.194 0.115 0.131 0.288 0.253 
+
+Ring 0.481 0.581 0.338 0.422 0.290 0.522 0.287 0.469 0.480 0.430 
+
+Little 0.305 0.642 0.374 0.292 0.198 0.519 0.171 0.014 0.394 0.323 
+
+Avg 0.367 0.581 0.309 0.422 0.266 0.340 0.335 0.166 0.498 0.365 
+
+LSTM_LFS Thumb 0.468 0.597 0.225 0.627 0.063 0.441 0.199 0.063 0.374 0.340 
+
+Index 0.485 0.497 0.394 0.452 0.067 0.315 0.274 −0.018 0.209 0.297 
+
+Middle 0.399 0.371 0.157 0.176 0.090 0.248 0.235 0.062 0.203 0.216 
+
+Ring 0.445 0.526 0.465 0.496 0.039 0.188 0.078 0.069 0.233 0.282 
+
+Little 0.350 0.524 0.315 0.390 −0.068 0.141 0.137 0.064 0.344 0.244 
+
+Avg 0.429 0.503 0.311 0.428 0.038 0.267 0.185 0.048 0.273 0.276 
+
+LSTM_HGA † Thumb 0.600 0.745 0.429 0.668 0.678 0.531 0.487 0.217 0.498 0.539 
+
+Index 0.468 0.639 0.388 0.568 0.628 0.864 0.561 0.126 0.696 0.549 
+
+Middle 0.533 0.608 0.239 0.429 0.145 0.562 0.268 0.420 0.474 0.409 
+
+Ring 0.572 0.647 0.425 0.429 0.673 0.531 0.272 0.389 0.545 0.498 
+
+Little 0.378 0.703 0.370 0.383 0.519 0.776 0.268 0.097 0.430 0.436 
+
+Avg 0.510 0.668 0.370 0.495 0.529 0.653 0.371 0.250 0.529 0.486 
+
+CNN-LSTM † Thumb 0.518 0.702 0.233 0.553 0.531 0.508 0.459 0.319 0.456 0.475 
+
+Index 0.472 0.577 0.227 0.435 0.655 0.707 0.593 0.111 0.716 0.499 
+
+Middle 0.273 0.520 0.140 0.407 0.213 0.216 0.234 0.226 0.403 0.292 
+
+Ring 0.496 0.587 0.331 0.407 0.559 0.427 0.275 0.314 0.549 0.438 
+
+Little 0.280 0.571 0.294 0.361 0.452 0.528 0.285 0.058 0.417 0.361 
+
+15 Table 4 (continued) 
+
+Method Finger S1 S2 S3 S4 S5 S6 S7 S8 S9 Mean 
+
+Avg 0.408 0.591 0.245 0.433 0.482 0.477 0.369 0.206 0.508 0.413 
+
+DeepFingerNet ‡ Thumb 0.66 0.79 0.41 0.60 0.63 0.57 0.52 0.48 0.63 0.59 
+
+Index 0.68 0.70 0.39 0.47 0.63 0.87 0.63 0.29 0.77 0.60 
+
+Middle 0.46 0.62 0.30 0.39 0.44 0.56 0.52 0.40 0.47 0.46 
+
+Ring 0.60 0.77 0.46 0.48 0.65 0.55 0.26 0.23 0.58 0.51 
+
+Little 0.59 0.77 0.39 0.53 0.55 0.75 0.33 0.30 0.58 0.53 
+
+Avg 0.60 0.73 0.39 0.49 0.58 0.66 0.45 0.34 0.61 0.54 
+
+HiLoFuseNet † Thumb 0.687 0.687 0.453 0.790 0.758 0.667 0.464 0.377 0.592 0.608 
+
+Index 0.567 0.683 0.486 0.684 0.736 0.855 0.609 0.135 0.701 0.606 
+
+Middle 0.513 0.615 0.288 0.497 0.365 0.421 0.373 0.347 0.473 0.432 
+
+Ring 0.641 0.685 0.583 0.606 0.675 0.439 0.344 0.315 0.638 0.547 
+
+Little 0.393 0.695 0.436 0.618 0.431 0.717 0.221 0.060 0.536 0.456 
+
+Avg 0.560 0.673 0.449 0.639 0.593 0.620 0.402 0.247 0.588 0.530 
+
+CORTEG (per-subject) Thumb 0.652 0.778 0.510 0.627 0.696 0.323 0.605 0.146 0.559 0.544 
+
+Index 0.650 0.695 0.435 0.580 0.594 0.777 0.723 0.099 0.725 0.587 
+
+Middle 0.664 0.610 0.369 0.406 0.288 0.528 0.580 0.457 0.628 0.503 
+
+Ring 0.684 0.710 0.496 0.576 0.554 0.637 0.474 0.405 0.666 0.578 
+
+Little 0.515 0.749 0.470 0.534 0.433 0.812 0.428 −0.014 0.438 0.485 
+
+Avg 0.633 0.708 0.456 0.545 0.513 0.615 0.562 0.219 0.603 0.539 
+
+CORTEG (LOO-FT) Thumb 0.688 0.782 0.511 0.642 0.769 0.525 0.616 0.185 0.622 0.593 
+
+Index 0.589 0.689 0.437 0.603 0.721 0.824 0.748 0.078 0.746 0.604 
+
+Middle 0.579 0.607 0.296 0.433 0.373 0.557 0.541 0.388 0.638 0.490 
+
+Ring 0.668 0.718 0.440 0.586 0.684 0.586 0.488 0.382 0.653 0.578 
+
+Little 0.510 0.687 0.412 0.520 0.511 0.809 0.399 0.073 0.490 0.490 
+
+Avg 0.607 0.697 0.419 0.557 0.612 0.660 0.559 0.221 0.630 0.551 
+
+CORTEG (Pooled) Thumb 0.630 0.793 0.459 0.680 0.723 0.646 0.555 0.128 0.661 0.586 
+
+Index 0.647 0.709 0.435 0.594 0.702 0.787 0.710 0.100 0.758 0.605 
+
+Middle 0.508 0.619 0.287 0.344 0.478 0.728 0.569 0.452 0.636 0.513 
+
+Ring 0.614 0.753 0.422 0.504 0.630 0.639 0.418 0.350 0.627 0.551 
+
+Little 0.493 0.704 0.492 0.501 0.634 0.764 0.407 0.124 0.494 0.513 
+
+Avg 0.578 0.716 0.419 0.525 0.634 0.713 0.531 0.231 0.635 0.553 
+
+Table 5: Audio-envelope task — per-subject Pearson r, n=16 . Per-column best (bold blue) and 
+
+second-best (bold black) values are highlighted, matching the convention of Table 1. Grand-mean column matches Table 1 exactly. Subject mapping: S1=2018_001, S2=2019_001, S3=2019_003, S4=2019_004, S5=2019_007, S6=2020_001, S7=2020_002, S8=2020_004, S9=2020_005, S10=2020_006, S11=2021_001, S12=2021_002, S13=2021_005-1, S14=2021_006, S15=2021_007, S16=2021_008-1. Ridge baselines are evaluated continuously (all timepoints) rather than on the same windowed test split as the deep methods, so their per-subject decomposition is not directly comparable and is reported in Table 1 (mean only) rather than here.                                                                                                                                                                                      
+
+> Method S1 S2 S3 S4 S5 S6 S7 S8 S9 S10 S11 S12 S13 S14 S15 S16 Mean
+> LSTM_LFS 0.152 0.079 0.261 0.045 0.336 0.281 0.065 0.444 0.061 0.050 0.290 0.408 0.085 0.074 0.025 0.506 0.198
+> LSTM_HGA −0.003 0.012 0.058 0.014 0.209 0.143 0.051 0.576 0.059 0.074 0.083 0.383 0.050 0.046 0.050 0.386 0.137
+> CNN-LSTM 0.143 0.040 0.380 0.103 0.404 0.349 0.104 0.550 0.112 0.115 0.346 0.542 0.097 0.144 0.115 0.639 0.261
+> DeepFingerNet 0.028 0.004 −0.002 0.017 0.051 0.053 0.043 0.369 0.050 −0.009 −0.001 0.317 −0.018 0.044 −0.005 0.418 0.085
+> HiLoFuseNet 0.109 0.084 0.307 0.183 0.493 0.334 0.128 0.562 0.106 0.072 0.306 0.560 0.062 0.140 0.065 0.640 0.259
+> HOPLS 0.021 0.023 0.234 0.090 0.290 0.325 0.351 0.394 0.098 0.135 0.176 0.363 0.158 0.115 0.026 0.450 0.203
+> PLS 0.035 0.037 0.263 0.075 0.290 0.321 0.339 0.403 0.110 0.087 0.168 0.402 0.149 0.079 0.015 0.467 0.203
+> CORTEG (per-subject) −0.004 0.052 0.378 0.024 0.469 0.237 0.248 0.568 0.010 0.210 0.337 0.557 −0.053 0.199 0.104 0.658 0.250
+> CORTEG (LOO-FT) 0.164 0.116 0.423 0.194 0 .507 0 .431 0.327 0.563 0.064 0.273 0.393 0.587 0.194 0.190 0.199 0.663 0 .331
+> CORTEG (Pooled) 0.230 0.125 0.423 0.226 0 .493 0 .433 0.337 0.575 0 .167 0.248 0.369 0.583 0.176 0.198 0.187 0.654 0.339
+
+The variance across subjects reflects clinical-grid heterogeneity (electrode count, hemisphere, senso-rimotor vs. peri-Sylvian coverage; see App. A.6). On the finger task, every subject is decoded above chance by all CORTEG variants, and the per-subject ranking is consistent with the linear baselines’ difficulty ordering — e.g. S8 (wm) is the hardest case across every method. On the audio task, the per-subject CORTEG variant occasionally produces negative correlations (S1, S13), but pooled and 16 LOO-FT CORTEG drive every subject above 0.1, illustrating that the population prior compensates for subjects where the per-subject decoder has too little data to learn a reliable mapping. 
+
+DeepFingerNet on the audio task. DeepFingerNet’s audio result ( r=0 .085 , the lowest of any deep baseline) is surprising, because the same architecture is the headline state-of-the-art on the Stanford finger task (Table 4, r=0 .54 ). Three factors interact. First, the architecture is specifically 
+
+designed and validated for finger-trajectory decoding [ 37 ]: the original paper evaluates only on BCIIV4 and Stanford, and the nested 3-UNet hierarchy plus 40-frequency Morlet-wavelet input are inductive biases tuned to the smooth 5-DoF kinematic targets typical of those datasets, not to envelope tracking. Second, the published numbers in [ 37 ] are obtained on a 65/35 train/validation split where the validation set serves both for early stopping and as the reported metric, whereas our protocol holds out a separate windowed test split (matched to every other method in this paper) for a strictly fair cross-method comparison; this typically narrows the reported–actual gap and is harder to over-fit. Third, the model’s 1.16M parameters — the largest in our baseline suite, a 3.2 × over HiLoFuseNet’s 334K — combined with the dense wavelet representation, give the network ample capacity to memorise the small per-subject audio splits; smaller dual-stream baselines (HiLoFuseNet, CNN-LSTM) and CORTEG (which freezes the bulk of the backbone via LoRA) all generalise better in this regime. 
+
+A.4 Experimental Protocols for Figure 2 
+
+This subsection describes the experimental protocol behind each panel of Figure 2. 
+
+Panel (a): Full-data method comparison. All methods are trained at recording fraction f =1 .0 (i.e. the full per-subject training split) and evaluated on the held-out test split. The reported quantity is the subject-level Pearson r averaged across subjects ( n=9 for finger; n=16 for audio). For the finger task, the per-subject r is itself the mean over the five fingers. Bar heights are the cross-subject mean, and error bars are ±1 standard deviation across subjects. Per-method numbers are exactly those in Table 1; cited values from [ 36 , 37 ] are used where available (marked †/‡ in App. A.3). Stars above each baseline bar denote a paired Wilcoxon signed-rank test of per-subject r versus the CORTEG-pooled column, with Bonferroni correction across the eight non-CORTEG baselines (significance thresholds 
+
+p< 0.05 /0.01 /0.001 for ∗/∗∗ /∗ ∗ ∗ ). The three CORTEG bars (Pooled, LOO-FT, Per-subject) share the same architecture and trainable-parameter count and differ only in training regime; the LOO-FT bar uses the v3 recipe (App. A.1). Full per-subject and per-finger breakdowns of every method in this panel are in Tables 4 and 5. 
+
+Panel (b): Backbone scaling. We compare the three CORTEG architecture variants (Small, Base, Large; full hyperparameters in Table 8) at pooled training under a matched reporting protocol: each violin reports per-subject Pearson r extracted from the val-best (final saved-checkpoint) per-subject table. We report the best-performing model based on a hyperparameter sweep on one factor: Merge point K= hi_inject_last_n . We use the per-scale best from the merge sweep in Table 9: Small 
+
+K=1 , Base K=2 , Large K=6 . This scaling experiment uses an HPC recipe (200 epochs, batch 128 with gradient accumulation 4 for an effective batch of 512, patience 190; learning rate 3×10 −3 for Small and Base, 1×10 −3 for Large because 3×10 −3 causes training collapse on the larger backbone) needed for stable convergence at scale. LoRA depth (last 4 of L) and rank are not re-tuned per scale: a deeper-LoRA sensitivity sweep on the Base backbone (App. Table 11) showed no improvement from extending LoRA to 6 or 8 layers. Each half-violin shows the kernel-density estimate of per-subject Pearson r for the chosen configuration of that backbone, with the embedded box reporting the median and interquartile range; individual subject points are overlaid as dots. At the per-scale best operating point, CORTEG-Small and CORTEG-Base both achieve a paired-Wilcoxon-significant advantage over HiLoFuseNet on the finger task ( p=0 .039 and p=0 .027 respectively, two-sided, n=9 ); the gap over DeepFingerNet ( +0 .04 absolute) trends in the same direction but does not reach α=0 .05 on n=9 
+
+subjects, which we attribute primarily to a power limit. CORTEG-Large is borderline ( p=0 .074 ). 
+
+Panel (c): Compute–accuracy trade-off. For each backbone, we report a single point: the x-coordinate is wall-clock training time per pooled run (single GPU, RTX 5090, fp32, batch 64, identical recipe to panel (b), measured end-to-end including warmup and early-stopping); the y-coordinate is the matched grand mean from panel (b). The marker area is proportional to the total parameter count. The right-hand axis converts the inference-time scale into a prediction rate (Hz) using the 17 Table 6: HPC-protocol finger-task statistical comparison against the strongest prior decoders. Per-subject correlations parsed from the HPC sweep logs at the per-scale best K (Small K=1 , Base K=2 ,Large K=6 ); two-sided paired Wilcoxon vs. HiLoFuseNet (App. Table 4, transcribed from [ 36 ]) and DeepFingerNet (transcribed from [ 37 ], 2-decimal rounding). n=9 subjects. Significant entries (p< 0.05 ) in bold .                       
+
+> HPC variant Mean r±SD vs HiLoFuseNet pvs DeepFingerNet p
+> CORTEG-Small HPC 0.577 ±0.157 0.039 0.13
+> CORTEG-Base HPC 0.583 ±0.154 0.027 0.13
+> CORTEG-Large HPC 0.577 ±0.155 0.074 0.16
+
+per-window forward-pass cost averaged over 1000 inferences after a 1000 -window warm-up (RTX 5090, fp32, batch 1). The same end-to-end measurement protocol is applied to the deep baselines for the alternative-method markers. 
+
+Panels (d, e): Low-data scaling on finger and audio. Each subject’s training-window pool is sub-sampled to a fraction f ∈ { 0% , 10% , 25% , 50% , 100% } of the available recording. Held-out validation and test splits are kept at full size so that the metric is comparable across f . The four methods plotted (HiLoFuseNet, CORTEG per-subject from a random-init backbone, CORTEG per-subject from the pretrained backbone, CORTEG LOO-FT) are each retrained from scratch at every fraction, with all other hyperparameters held fixed at the f =1 .0 values. The f =0% point shows only CORTEG LOO-FT (Stage 1 alone with no Stage 2 fine-tuning, i.e. a strict zero-shot bar) since the other methods cannot be defined at f =0 . LOO-FT Stage 2 uses the fraction-aware adapter learning-rate boost from the v3 recipe ( 10 × at f ≥0.25 , 2× at f =0 .1; App. A.1). Bar height is the cross-subject mean, and error bars are ±1 standard deviation. Per-held-out-subject zero-shot ( f =0% )Pearson r values, read from each LOO Stage-1 model’s evaluation on its own held-out subject, are listed in Table 7. Table 7: Per-held-out-subject zero-shot Pearson r at f =0% (LOO Stage-1 only, no patient-specific tuning). Values are the held-out subject’s r recorded by the LOO Stage-1 evaluation pass; subject mapping matches App. Table 4 (finger) and App. Table 5 (audio).                                          
+
+> Finger ( n=9 )
+> Subject S1 S2 S3 S4 S5 S6 S7 S8 S9 Mean
+> rzero-shot 0.252 0.041 0.045 −0.017 0.068 0.154 0.007 0.025 0.257 0.092
+> Audio ( n=16 )
+> Subject S1 S2 S3 S4 S5 S6 S7 S8 S9 S10 S11 S12 S13 S14 S15 S16 Mean
+> rzero-shot 0.095 −0.053 0 .246 0 .016 0 .172 0 .017 0 .206 0 .304 −0.021 0 .117 0 .027 0 .193 0 .010 0 .010 0 .030 0 .424 0.112
+
+Panel (f): Per-subject paired comparison at full data. For each subject we plot a single dot at 
+
+(rpersub , r LOO-FT ), both evaluated at f =1 .0 on the held-out test split, on a single axis pooling both datasets. r is the per-subject Pearson correlation, mean-over-fingers on the finger task. The dashed line is the identity y = x and the shaded band |∆r|<δ (δ=0 .05 ) is treated as a tie. Three statistics are reported in the panel inset, all pooled across the 25 subjects: (i) Spearman rank correlation ρ
+
+between rpersub and rLOO-FT tests whether the two methods rank the same subjects in the same order; (ii) two-sided paired Wilcoxon signed-rank p on ∆r tests whether their distributions are shifted; (iii) the win/tie/loss tallies count subjects with ∆r>δ / |∆r|<δ / ∆r< −δ respectively, providing a non-parametric per-subject readout. Subjects whose |∆r|≥ δ are individually labelled so that the outliers are inspectable. 
+
+A.5 Experimental Protocols for Figure 3 
+
+This subsection introduces how each panel of Figure 3 was generated. 
+
+Panels (a, b): Per-electrode importance on a template cortex. The reliability-weighted impor-tance score for each electrode of each subject is computed by a leave-one-channel-out sensitivity 18 Table 8: CORTEG architecture variants.                             
+
+> Variant Depth LEmbed DHeads HMLP ratio Patch plo Params
+> Small 8512 84.0 16 ∼25.6M Base 12 768 12 4.0 16 ∼85.6M Large 24 1024 16 4.0 16 ∼303.0M
+
+Table 9: Merge point sweep across model scales on the Stanford finger task. K= hi_inject_last_n 
+
+is the number of transformer layers after which the high-frequency stream is merged into the low-frequency stream; K=L means merge at the input (all blocks see merged tokens). All entries are HPC runs at seed 42 with the extended HPC training se (200 epochs, effective batch size 512 via batch 128 / accumulation 4, patience 190); reported quantity is the val-best (final saved-checkpoint) cross-subject mean Pearson r. The bolded best-of-K per scale identifies the merge point used by Fig. 2(b) for the Base and Large entries.                                           
+
+> Small (L=8 )Base (L=12 )Large (L=24 )
+> KMean rKMean rKMean r
+> 10.577 20.583 30.576
+> 20.576 30.576 60.577
+> 30.569 50.568 12 0.551
+> 40.561 60.558 21 0.530
+> 50.538 80.525
+> 60.511 90.517
+> 70.527 11 0.470
+
+analysis: the trained pooled CORTEG-S model is evaluated on the held-out test split with one channel discarded at a time, and the per-channel drop in subject-mean Pearson r is recorded as the raw importance. To make scores comparable across subjects with different baseline decoding strengths, we report the within-subject rank of each channel ( ∈ [0 , 1] , 1=most important) multiplied by that subject’s baseline test correlation rbaseline , so a top-rank channel from a strong subject ( rbaseline ≈0.7)contributes more than a top-rank channel from a near-chance subject ( rbaseline ≈0.1). The colour scale is shared across both datasets and clipped to a single vmax equal to the maximum baseline correlation seen across both. 
+
+Panels (c, d): 3D PCA of token representations. For a representative finger-task subject (subject 
+
+bp ), we evaluate the trained model on the held-out test split with two configurations sharing identical architecture and training schedule but differing only in initialization: Pretrained loads the pretrained small checkpoint into the backbone before fine-tuning; Random init skips the load and begins from the standard Kaiming default. Both configurations use full fine-tuning with the KNNSoftFourier adapter (matched-protocol fairness control). For every test window, we extract the mean-pooled token representation z ∈ RD (D=512 for the Small backbone) immediately before the regression head, yielding T representation vectors. We centre z (subtracting the train-time mean) and fit 
+
+PCA(n_components=3) from sklearn on z, giving each timepoint a 3D coordinate. Points are coloured by the dominant active finger: a window is ‘active’ if any of the 5 finger flexion targets exceeds an activity threshold ( z-score > 1.0); among active windows, the colour is the index of the maximum-amplitude finger. Inactive (rest) windows are drawn first as faint grey, so coloured active points sit on top. The participation ratio PR=( P λi)2/ P λ2 
+
+> i
+
+, computed from the eigenvalues of the centred z covariance, is annotated in the upper-left of each panel as a single scalar summary of effective dimensionality. Both panels share the same default matplotlib 3D viewing angle (azimuth 
+
+−60 ◦, elevation 30 ◦) and the same data preprocessing. 
+
+Panel (e): Cumulative explained variance. For each of the two configurations from panel (c, d) we fit PCA(n_components=30) on the centred z and plot the cumulative sum of the per-component explained-variance ratios. The dashed vertical line at K=3 matches the dimensionality of panels (c, d) and the legend annotates each curve with the cumulative variance at K=3 . The same per-subject train-time normalisation is used to make the two curves directly comparable. 19 Panel (f): Representational velocity around movement onset. Movement onsets are detected on the ground-truth finger trajectory: a frame t is an onset for finger f if yt−1,f <τ , yt,f ≥τ (τ =1 .0
+
+in z-units), and no other onset for the same finger has been registered in the prior K=12 frames (evaluation window @ 25 Hz). Across all 5 fingers, this yields n=169 onsets on the held-out test split for subject bp . For each configuration (pretrained, random) we project z onto the top-3 PC subspace fitted on the centred z from that configuration, compute the per-frame representational velocity vt = ∥z(3)  
+
+> t+1
+
+− z(3)  
+
+> t
+
+∥2, and average vt across onsets in a window [−K, +K] frames around each onset. The plotted line is the cross-onset mean, and the shaded band is ±1 standard error of the mean. The vertical dashed line at t=0 marks the onset frame; a steeper rise just before t=0 (as seen for the pretrained curve) reflects an earlier representational transition coincident with the upcoming movement. 
+
+A.6 Per-Subject Electrode Implantations on MNI fsaverage 
+
+Electrode positions for every subject in both datasets, projected onto the fsaverage MNI brain surface. Subjects are anonymised as S1 –Sn; per-panel titles show the channel count. The final panel of each figure pools all subjects’ channels on the predominant hemisphere. The two datasets differ markedly in coverage: the finger task uses dense subdural grids over sensorimotor cortex (Fig. 4), while the audio task uses smaller, more variable strips over superior-temporal and Sylvian regions (Fig. 5). 
+
+Figure 4: Finger task: per-subject electrode implantations on MNI fsaverage (left- or right-lateral view chosen per subject by majority hemisphere). Panel S i shows subject i’s grid; the final panel pools all 480 channels. 
+
+A.7 Alternative Projection Methods for the Neural Manifold 
+
+The main-text Figure 3(c, d) uses unsupervised PCA on the mean-pooled token representation z. We additionally tried two supervised/structured alternatives common in motor-neuroscience analyses: 
+
+Linear Discriminant Analysis (LDA) , fit on active timepoints with the dominant active finger as label and projected onto the top three between-class discriminant axes (supervised by the displayed label, so the apparent compactness should not be interpreted as unsupervised cluster structure); and 20 Figure 5: Audio task: per-subject electrode implantations on MNI fsaverage. Panel S i shows subject 
+
+i’s electrodes; the final panel pools all 547 channels. 
+
+Demixed PCA (dPCA) [ 40 ], where we constructed a trial-by-finger tensor by aligning z to detected movement onsets ( t ∈ [−12 , 12] frames) with ntrials /finger =12 minimum, decomposed into condition / time / mixed components, and projected full-timeline z onto the top three condition (‘s’) axes. All three projections agree on the qualitative picture (Fig. 8): the pretrained backbone produces a finger-discriminable representation while random init does not. We use the unsupervised PCA panels in the main text because they (i) match the V0-paper convention, (ii) do not bias toward the displayed label, and (iii) co-vary directly with the unsupervised participation-ratio and variance-concentration statistics reported in Fig. 3(e). The LDA panels are included here to show the upper-bound separability, and the dPCA panels show that the pretrained-vs-random gap survives even when condition-related axes are isolated from time-related and noise components. 21 Figure 6: Soft-branch attention w(q) for a representative ECoG electrode (subject bp , MNI 
+
+(−32 , +39 , +44) mm; left frontal/precentral). Left: the subject’s full ECoG implantation on fsav-erage , with the highlighted electrode in red. Center: attention at initialization , equal to the k-NN Gaussian kernel over EEG positions ( k=8 , σ= median nearest-neighbour distance) — the Nadaraya– Watson estimator. Right: attention after training. Initialization spreads mass diffusely over ∼8 nearby EEG channels (top-3 weights 0.16 /0.15 /0.15 ), while training concentrates it onto a single dominant channel (top-3 weights 0.47 /0.22 /0.09 ). 
+
+A.8 Fusion Strategies (Empirical) 
+
+The proposed CORTEG model fuses the low-frequency and high-gamma streams by a parameter-free mean-pool of merged tokens after the dual-stream backbone. We tested a range of more sophisticated alternatives before settling on this choice; the full sweep is summarised in Table 10. None of the tested variants improved over the baseline, so we report only the empirical numbers here. Each variant is briefly described below. 
+
+Routing mechanisms. SPVAE latent router. Two small VAE encoders map zlo and zhi into shared and private latent components (zshared , z priv lo , z priv hi ) with KL regularisation against a standard-normal prior; a per-channel precision router then mixes the two streams with weights derived from a product-of-experts on the diagonal Gaussian posteriors. HPR v1–v3 (heteroscedastic precision routing). Three variants of a no-VAE alternative: each stream gets a lightweight prediction head that emits both the target and a per-channel log-variance σ2, calibrated via heteroscedastic Gaussian NLL; the router uses Bayesian-optimal mixing weights αch = prec hi /(prec lo + prec hi ) with prec = 1 /σ 2. v1–v3 differ in calibration regularisers (representation-agreement loss, variance scaling, etc.). Learned gating 
+
+α(z) ∈ [0 , 1] . A scalar gate per token, predicted by a small MLP from the merged representation, that linearly interpolates: zmerged = α z hi + (1 − α) zlo . Cross-attention merge. Replaces the mean-pool with a cross-attention block in which one stream forms queries and the other supplies keys and values, allowing tokens of one stream to attend over the other’s representation before pooling. 
+
+Auxiliary fusion losses. CID (sufficiency + complementarity). Two auxiliary heads attached to the per-stream pooled representations enforce a mutual-information chain decomposition I(y; zlo , z hi ) = 
+
+I(y; zlo ) + I(y; zhi | zlo ) via two MSE terms: a sufficiency loss ∥ˆylo (zlo ) − y∥2 pushing the lo-stream to be predictive of the target on its own, and a complementarity loss ∥ˆyhi (zhi ) − (y − ˆylo )∥2 (with stop-gradient on the residual) pushing the hi-stream to predict only what lo cannot. The main regression loss is unchanged; CID is added as an auxiliary objective. 
+
+LoRA depth and rank. Table 11 sweeps the number of trailing transformer blocks adapted by LoRA and the rank r. The default configuration (last 4 blocks, r=4 ) is at or near the maximum across both axes; deeper LoRA modestly underperforms, and increasing the rank from 4 to 8 does not help. We did not observe any configuration in this sweep that exceeded the default by more than seed-noise margin. 22 Figure 7: Per-channel reliability-weighted importance sc = rank within subj (∆ rc) × r(s)
+
+> baseline
+
+, pooled across subjects on fsaverage MNI (left lateral / dorsal / right lateral). Marker color and size both encode sc (yellow/large = high importance from a reliable subject; dark/small = low rank or unreliable subject). Top: finger trajectory ( n=9 , 480 channels). Bottom: audio envelope ( n=16 , 547 channels). The composite score makes anatomical clustering visible: left sensorimotor cortex on the finger task, bilateral superior-temporal / Sylvian regions on the audio task. Table 10: Fusion-strategy variants on the Stanford finger task, pooled training, seed =42 . Mean Pearson r across the n=9 subjects; ∆ is the change vs. the baseline (KNNSoftFourier adapter, mean-pool late fusion). All variants share the rest of the CORTEG-S configuration. Entries are HPC-protocol runs (cf. Table 9); the corresponding 5090-protocol number is reported in Table 1 (r=0 .554 ). The HPC-vs-local gap is consistent with the reproducibility footnote in §5.2.                        
+
+> Variant Mean r∆(pp) Baseline (mean-pool late fusion) 0.573 —
+> Routing mechanisms (per-token gating across the two streams)
+> SPVAE latent router 0.573 0.0
+> HPR v1–v3 (precision routing) ≤0.573 ≤0.0
+> Learned gating α(z)∈[0 ,1] 0.535 −3.8
+> Cross-attention merge 0.404 −16 .9
+> Auxiliary fusion losses
+> CID (sufficiency + complementarity loss) 0.548 −2.5
+
+Table 11: LoRA depth and rank sweep on the finger task pooled (small backbone, KNNSoftFourier adapter). Default configuration in bold .                 
+
+> Configuration Mean r∆vs. default Last 4 blocks, r=4 (default) 0.573 —Last 6 blocks, r=4 0.565 −0.008
+> Last 8 blocks, r=4 0.563 −0.010
+> Last 4 blocks, r=8 0.554 −0.019
+
+23 Figure 8: Comparison of three projection methods for the neural manifold on a representative finger-task subject (full fine-tune). Top row: pretrained CORTEG. Bottom row: random-init CORTEG. Columns: PCA (unsupervised; used in Fig. 3), LDA (supervised by the displayed finger label), and dPCA (condition-related axes after onset-aligned trial averaging). LDA gives the visually strongest finger separation but is supervised by the same label that is displayed; PCA and dPCA are unsu-pervised at projection time. All three methods agree qualitatively that the pretrained representation supports cleaner finger-conditional structure than the random-init baseline. Grey points are rest timepoints (no finger above the activity threshold). 24

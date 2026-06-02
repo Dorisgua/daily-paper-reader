@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-06-01T22:52:53.968892+00:00",
-  "updated_date": "20260601",
+  "generated_at": "2026-06-02T03:58:15.589981+00:00",
+  "updated_date": "20260504-20260602",
   "carryover_days": 9,
   "tag_states": {
     "eeg-latent": {
@@ -9,9 +9,585 @@
       "items": []
     },
     "eeg": {
-      "updated_date": "20260601",
+      "updated_date": "20260504-20260602",
       "carryover_days": 9,
-      "items": []
+      "items": [
+        {
+          "id": "2605.16923v3",
+          "source": "arxiv",
+          "title": "Neuroscience-inspired Staged Representation Learning with Disentangled Coarse- and Fine-Grained Semantics for EEG Visual Decoding",
+          "abstract": "Decoding visual information from electroencephalography (EEG) signals remains a fundamental challenge in brain-computer interfaces and medical rehabilitation. Existing EEG visual decoding methods mainly focus on learning a single global EEG embedding for cross-modal alignment, but they largely overlook the staged and hierarchical characteristics of human visual processing. To address this limitation, we propose a neuroscience-inspired staged representation learning framework that reformulates EEG visual decoding as a stage-specific representation decomposition problem. The proposed framework organizes EEG representation learning into three complementary phases: low-level visual representation learning, high-level semantic representation learning, and integrative information fusion. To strengthen semantic modeling, we further introduce a multimodal dual-level semantic learning mechanism that separates coarse label-level semantics from fine image-level visual-semantic information. In addition, semantic latent channels are introduced as computational representation channels generated from observed visual EEG signals, expanding the channel-level semantic representation space for structured semantic abstraction and cross-modal alignment. Extensive experiments on the THINGS-EEG benchmark demonstrate that the proposed method achieves superior performance under subject-dependent zero-shot evaluation and improved exact retrieval under subject-independent zero-shot evaluation. Additional analyses, including layer-wise retrieval, temporal accumulation, expanded multi-image retrieval, and ablation studies, further support the effectiveness of staged decomposition and structured semantic modeling. These results suggest that explicitly modeling staged perceptual, semantic, and integrative representations provides an effective neuroscience-inspired framework for EEG-based visual decoding.",
+          "authors": [
+            "Xiang Gao",
+            "Hui Tian",
+            "Yanming Zhu",
+            "Xuefei Yin",
+            "Alan Wee-Chung Liew"
+          ],
+          "primary_category": "cs.CV",
+          "categories": [
+            "cs.CV"
+          ],
+          "published": "2026-05-16T10:30:33+00:00",
+          "link": "https://arxiv.org/pdf/2605.16923v3",
+          "tags": [
+            "keyword:eeg",
+            "query:eeg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "EEG visual decoding for brain-computer interfaces",
+          "llm_evidence_cn": "基于脑电的视觉解码用于脑机接口",
+          "llm_evidence": "基于脑电的视觉解码用于脑机接口",
+          "canonical_evidence": "基于脑电的视觉解码用于脑机接口",
+          "llm_tldr_en": "Proposes a neuroscience-inspired staged representation learning framework for EEG visual decoding, achieving disentangled coarse- and fine-grained semantics across three phases.",
+          "llm_tldr_cn": "现有脑电视觉解码方法忽略视觉处理的分阶段层次特性，本文提出神经科学启发的阶段表征学习框架，将解码分解为三个阶段分别学习粗略和精细语义。实验在多个数据集上优于现有方法，为BCI提供了更符合认知规律的表征。",
+          "llm_tldr": "现有脑电视觉解码方法忽略视觉处理的分阶段层次特性，本文提出神经科学启发的阶段表征学习框架，将解码分解为三个阶段分别学习粗略和精细语义。实验在多个数据集上优于现有方法，为BCI提供了更符合认知规律的表征。",
+          "llm_tags": [
+            "query:eeg"
+          ],
+          "matched_query_tag": "query:eeg",
+          "matched_query_text": "EEG based brain computer interface research papers",
+          "matched_requirement_id": "req-4",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.16923v3",
+          "carry_days": 1
+        },
+        {
+          "id": "2605.26624v1",
+          "source": "arxiv",
+          "title": "MSCGC-KAN: Multi-scale Causal Graph Convolution and Kolmogorov-Arnold Feature Mapping for EEG Emotion Recognition",
+          "abstract": "Electroencephalogram (EEG)-based emotion recognition is an important affective computing task, and recent EEG foundation models provide useful generic representations for downstream adaptation. However, under the fine-tuning setting, three limitations remain prominent: insufficient modeling of multi-scale emotional dynamics, inadequate exploitation of inter-channel functional connectivity, and the limited expressive power of simple linear classification heads. To address these issues, this paper proposes a new EEG emotion recognition method, termed MSCGC-KAN, which introduces a structured task head composed of multi-scale causal graph convolution and Kolmogorov--Arnold feature mapping. Built on a pre-trained CBraMod backbone, MSCGC-KAN enhances downstream adaptation by jointly strengthening multi-scale temporal modeling, learnable inter-channel connectivity modeling, and nonlinear discriminative mapping within a compact task-specific head. This design preserves the representation advantage of the foundation model while making the classifier more sensitive to emotion-related spatiotemporal patterns. Extensive experiments are conducted on the public FACED and SEED-VII datasets. The proposed method achieves a balanced accuracy of 60.66\\%, a Cohen's Kappa of 0.5525, and a weighted F1-score of 60.40\\% on FACED, and obtains 33.27\\%, 0.2223, and 33.64\\%, respectively, on SEED-VII. Compared with the CBraMod+Linear baseline, the balanced accuracy is improved by 5.91 and 2.03 percentage points on the two datasets, respectively. These results indicate that structured task-head design is an effective way to improve EEG emotion recognition when fine-tuning pre-trained EEG models.",
+          "authors": [
+            "Haoliang Gong",
+            "Qingshan She",
+            "Jiale Xua",
+            "Yunyan Gao",
+            "Xugang Xi"
+          ],
+          "primary_category": "cs.CV",
+          "categories": [
+            "cs.CV"
+          ],
+          "published": "2026-05-26T07:02:13+00:00",
+          "link": "https://arxiv.org/pdf/2605.26624v1",
+          "tags": [
+            "keyword:eeg",
+            "query:eeg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "EEG emotion recognition using graph convolution and feature mapping for BCI",
+          "llm_evidence_cn": "使用图卷积和特征映射的脑电情绪识别用于脑机接口",
+          "llm_evidence": "使用图卷积和特征映射的脑电情绪识别用于脑机接口",
+          "canonical_evidence": "使用图卷积和特征映射的脑电情绪识别用于脑机接口",
+          "llm_tldr_en": "Proposes MSCGC-KAN with multi-scale causal graph convolution and Kolmogorov-Arnold mapping for EEG emotion recognition, improving upon foundation model fine-tuning.",
+          "llm_tldr_cn": "针对脑电情绪识别中多尺度动态建模不足、通道连接利用不充分及分类头表达能力有限的问题，本文提出MSCGC-KAN方法，在预训练基础模型上构建多尺度因果图卷积和Kolmogorov-Arnold特征映射头。实验在多个数据集上取得最优结果。",
+          "llm_tldr": "针对脑电情绪识别中多尺度动态建模不足、通道连接利用不充分及分类头表达能力有限的问题，本文提出MSCGC-KAN方法，在预训练基础模型上构建多尺度因果图卷积和Kolmogorov-Arnold特征映射头。实验在多个数据集上取得最优结果。",
+          "llm_tags": [
+            "query:eeg"
+          ],
+          "matched_query_tag": "query:eeg",
+          "matched_query_text": "EEG based brain computer interface research papers",
+          "matched_requirement_id": "req-4",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.26624v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2605.16418v1",
+          "source": "arxiv",
+          "title": "Neural Visual Decoding via Cognitive guided Adaptive Blurring and Information Constrained Alignment",
+          "abstract": "EEG-based visual decoding aims to establish a mapping between neural signals and visual semantics. However, it remains constrained by the dual challenges of severe information granularity mismatch and the low signal-to-noise ratio (SNR) of EEG signals. Existing approaches typically treat static visual features, ignoring the dynamic selectivity of human vision and the frequency specificity of neural oscillations. To bridge this gap, we propose CAIA, a Cognitive-guided Adaptive blurring with Information-Constrained Alignment framework for Neural-Visual decoding. On the visual side, it simulates selective attention to adaptively reduce redundancy. Meanwhile, on the EEG side, it leverages neural oscillation priors and the information bottleneck mechanism to enhance SNR. Specifically, we devise a cognitive-dynamics-based adaptive blurring mechanism that dynamically integrates center-biased and saliency-guided visual cues via cross-modal attention. Furthermore, we introduce a distribution-aware boundary calibration loss to robustly rectify alignment bias caused by outlier samples. Moreover, a cognitively-guided information-screening method is proposed to select task-relevant EEG oscillations. Extensive experiments demonstrate that CAIA improves both subject-dependent and subject-independent average Top-1 and Top-5 accuracy in zero-shot brain-to-image retrieval, significantly outperforming prior methods. Our work validates that optimizing visual information density to match neural granularity offers a more interpretable and robust pathway for neural decoding.",
+          "authors": [
+            "Fan Yin",
+            "Chuhang Zheng",
+            "Peiliang Gong",
+            "Donghai Guan",
+            "Qi Zhu"
+          ],
+          "primary_category": "cs.CV",
+          "categories": [
+            "cs.CV",
+            "cs.AI"
+          ],
+          "published": "2026-05-14T08:50:29+00:00",
+          "link": "https://arxiv.org/pdf/2605.16418v1",
+          "tags": [
+            "keyword:eeg",
+            "query:eeg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "EEG-based visual decoding with cognitive alignment",
+          "llm_evidence_cn": "基于EEG的视觉解码，结合认知引导",
+          "llm_evidence": "基于EEG的视觉解码，结合认知引导",
+          "canonical_evidence": "基于EEG的视觉解码，结合认知引导",
+          "llm_tldr_en": "CAIA proposes a cognitive-guided adaptive blurring and information-constrained alignment framework for EEG-based visual decoding, addressing granularity mismatch and low SNR.",
+          "llm_tldr_cn": "该论文提出CAIA框架，用于EEG视觉解码。模拟视觉选择性注意力以自适应降维，并利用神经振荡先验和信息约束对齐，克服了EEG与视觉语义之间的粒度不匹配和低信噪比问题。",
+          "llm_tldr": "该论文提出CAIA框架，用于EEG视觉解码。模拟视觉选择性注意力以自适应降维，并利用神经振荡先验和信息约束对齐，克服了EEG与视觉语义之间的粒度不匹配和低信噪比问题。",
+          "llm_tags": [
+            "query:eeg"
+          ],
+          "matched_query_tag": "query:eeg",
+          "matched_query_text": "EEG based brain computer interface research papers",
+          "matched_requirement_id": "req-4",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.16418v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2605.15801v1",
+          "source": "arxiv",
+          "title": "Beyond Flickering: Introducing Code-Modulated Motion Visual Evoked Potentials for Brain-Computer Interfacing",
+          "abstract": "A code-modulated motion visual evoked potential (c-MVEP) for brain-computer interfacing (BCI) is presented in this study. This paradigm uses pseudo-random sequences to visually stimulate objects using motion as an alternative to flickering. In an offline experiment of this study, EEG data were recorded and compared during sequential stimulation of a single object under four conditions: c-MVEP, code-modulated visual evoked potential (c-VEP), steady-state motion visual evoked potential (SSMVEP), and steady-state visual evoked potential (SSVEP). c-MVEP showed similar time-domain characteristics as c-VEP, and also in the frequency domain c-MVEP evoked a broadband response similar to c-VEP, with a comparable signal-to-noise ratio (SNR), albeit more focused in the lower frequency range. Both SSMVEP and SSVEP showed clear oscillatory responses at the stimulation frequency and harmonics, with a higher SNR for SSVEP than SSMVEP. The spatial distribution of c-MVEP showed the main activation at Oz and spread across multiple electrodes, whereas c-VEP showed less spreading and was more focused at Oz. Similar observations were made for SSMVEP and SSVEP. From subjective ratings, there was no clear preference for the motion-based stimulation of SSMVEP or c-MVEP over flicker-based stimulation of SSVEP or c-VEP. The online experiment of this study, evaluated a 4-class BCI with the same four conditions, testing the practical feasibility of the c-MVEP paradigm. The c-MVEP BCI reached a mean accuracy of 85.67% with an average selection time of 2.61s, which was significantly lower than c-VEP (97.81%; 1.15s) and SSVEP (93.42%; 1.94s), but significantly higher than SSMVEP (64.91%; 4.18s). Overall, this study shows the great potential of the newly proposed c-MVEP paradigm using motion stimulation for BCI applications, providing a valuable alternative to the c-VEP paradigm using flickering stimulation.",
+          "authors": [
+            "Hanneke Scheppink",
+            "Rainer Herpers",
+            "Jordy Thielen",
+            "Ivan Volosyak"
+          ],
+          "primary_category": "q-bio.NC",
+          "categories": [
+            "q-bio.NC"
+          ],
+          "published": "2026-05-15T09:56:16+00:00",
+          "link": "https://arxiv.org/pdf/2605.15801v1",
+          "tags": [
+            "keyword:eeg",
+            "query:eeg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Novel BCI paradigm using code-modulated motion VEP",
+          "llm_evidence_cn": "使用编码调制运动视觉诱发电位的新型BCI范式",
+          "llm_evidence": "使用编码调制运动视觉诱发电位的新型BCI范式",
+          "canonical_evidence": "使用编码调制运动视觉诱发电位的新型BCI范式",
+          "llm_tldr_en": "This paper introduces code-modulated motion visual evoked potentials (c-MVEP) for BCI, offering an alternative to flickering stimulation with comparable signal quality.",
+          "llm_tldr_cn": "该论文提出了一种基于编码调制的运动视觉诱发电位（c-MVEP）用于脑机接口，以运动刺激替代传统闪烁刺激。离线实验表明，c-MVEP在时域和频域特性上与c-VEP类似，信号质量相当，为BCI提供了更舒适的刺激范式。",
+          "llm_tldr": "该论文提出了一种基于编码调制的运动视觉诱发电位（c-MVEP）用于脑机接口，以运动刺激替代传统闪烁刺激。离线实验表明，c-MVEP在时域和频域特性上与c-VEP类似，信号质量相当，为BCI提供了更舒适的刺激范式。",
+          "llm_tags": [
+            "query:eeg"
+          ],
+          "matched_query_tag": "query:eeg",
+          "matched_query_text": "EEG based brain computer interface research papers",
+          "matched_requirement_id": "req-4",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.15801v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2605.22379v1",
+          "source": "arxiv",
+          "title": "Cross-Subject EEG Emotion Recognition Based on Temporal Asynchronous Alignment Contrastive Learning",
+          "abstract": "With the advancement of science and technology, the importance of emotion research has become increasingly evident. Electroencephalography (EEG)-based emotion recognition has emerged as an active research area in recent years, owing to its objectivity and high temporal resolution. However, most existing methods focus on optimizing encoder structures to enhance feature extraction capabilities, while paying relatively little attention to similarity calculation strategies, particularly overlooking the potential temporal misalignment of responses among different subjects. To address these shortcomings, this paper draws inspiration from the late interaction mechanism of ColBERT in natural language processing (NLP) and proposes a Temporal Asynchronous Alignment-based Contrastive Learning (TA2CL) framework. This method transforms the traditional global \"hard alignment\" similarity calculation approach into a fine-grained local matching mechanism, enabling the model to adaptively search for and align \"locally highly correlated\" segments between two EEG signals, thereby effectively mitigating the effects of inter-subject differences and temporal delays. Experimental results demonstrate that the proposed method achieves strong performance across multiple public datasets. Specifically, on the FACED dataset, it achieves an accuracy of 64.5% for the nine-class classification task and 79.5% for the binary classification task, while on the SEED and SEED-V datasets, it achieves accuracies of 86.4% and 70.1%, respectively, validating the method's effectiveness and generalization capability.",
+          "authors": [
+            "Ying Xie",
+            "Yi Zheng",
+            "Zehui Xiao",
+            "Wenkai Lu",
+            "Mengting Liu"
+          ],
+          "primary_category": "cs.HC",
+          "categories": [
+            "cs.HC",
+            "cs.AI",
+            "cs.LG"
+          ],
+          "published": "2026-05-21T12:09:42+00:00",
+          "link": "https://arxiv.org/pdf/2605.22379v1",
+          "tags": [
+            "keyword:eeg",
+            "query:eeg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Cross-subject EEG emotion recognition for brain-computer interface",
+          "llm_evidence_cn": "跨被试脑电情感识别，直接针对脑机接口应用",
+          "llm_evidence": "跨被试脑电情感识别，直接针对脑机接口应用",
+          "canonical_evidence": "跨被试脑电情感识别，直接针对脑机接口应用",
+          "llm_tldr_en": "Proposes a temporal asynchronous alignment contrastive learning method for cross-subject EEG emotion recognition, improving similarity calculation and handling temporal misalignment across subjects.",
+          "llm_tldr_cn": "现有EEG情感识别方法多聚焦于编码器结构优化，忽略了不同被试间EEG响应的时间不对齐问题。本文受NLP中后期交互机制启发，提出时间异步对齐对比学习方法，通过改进相似度计算策略来应对跨被试时间偏差。在公开数据集上的实验验证了该方法在跨被试情感分类中的有效性，为BCI情感识别提供了新思路。",
+          "llm_tldr": "现有EEG情感识别方法多聚焦于编码器结构优化，忽略了不同被试间EEG响应的时间不对齐问题。本文受NLP中后期交互机制启发，提出时间异步对齐对比学习方法，通过改进相似度计算策略来应对跨被试时间偏差。在公开数据集上的实验验证了该方法在跨被试情感分类中的有效性，为BCI情感识别提供了新思路。",
+          "llm_tags": [
+            "query:eeg"
+          ],
+          "matched_query_tag": "query:eeg",
+          "matched_query_text": "EEG based brain computer interface research papers",
+          "matched_requirement_id": "req-4",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.22379v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2605.16923v2",
+          "source": "arxiv",
+          "title": "Neuroscience-inspired Staged Representation Learning with Disentangled Coarse- and Fine-Grained Semantics for EEG Visual Decoding",
+          "abstract": "Decoding visual information from electroencephalography (EEG) signals remains a fundamental challenge in brain-computer interfaces and medical rehabilitation. Existing EEG visual decoding methods mainly focus on learning a single global EEG embedding for cross-modal alignment, but they largely overlook the staged and hierarchical characteristics of human visual processing. To address this limitation, we propose a neuroscience-inspired staged representation learning framework that reformulates EEG visual decoding as a stage-specific representation decomposition problem. The proposed framework organizes EEG representation learning into three complementary phases: low-level visual representation learning, high-level semantic representation learning, and integrative information fusion. To strengthen semantic modeling, we further introduce a multimodal dual-level semantic learning mechanism that separates coarse label-level semantics from fine image-level visual-semantic information. In addition, semantic latent channels are introduced as computational representation channels generated from observed visual EEG signals, expanding the channel-level semantic representation space for structured semantic abstraction and cross-modal alignment. Extensive experiments on the THINGS-EEG benchmark demonstrate that the proposed method achieves superior performance under subject-dependent zero-shot evaluation and improved exact retrieval under subject-independent zero-shot evaluation. Additional analyses, including layer-wise retrieval, temporal accumulation, expanded multi-image retrieval, and ablation studies, further support the effectiveness of staged decomposition and structured semantic modeling. These results suggest that explicitly modeling staged perceptual, semantic, and integrative representations provides an effective neuroscience-inspired framework for EEG-based visual decoding.",
+          "authors": [
+            "Xiang Gao",
+            "Hui Tian",
+            "Yanming Zhu",
+            "Xuefei Yin",
+            "Alan Wee-Chung Liew"
+          ],
+          "primary_category": "cs.CV",
+          "categories": [
+            "cs.CV"
+          ],
+          "published": "2026-05-16T10:30:33+00:00",
+          "link": "https://arxiv.org/pdf/2605.16923v2",
+          "tags": [
+            "keyword:eeg",
+            "query:eeg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "EEG visual decoding for brain-computer interface using staged representation learning",
+          "llm_evidence_cn": "基于阶段表示学习的脑电视觉解码BCI研究",
+          "llm_evidence": "基于阶段表示学习的脑电视觉解码BCI研究",
+          "canonical_evidence": "基于阶段表示学习的脑电视觉解码BCI研究",
+          "llm_tldr_en": "Proposes a neuroscience-inspired staged representation learning framework for EEG visual decoding, decomposing representation into coarse and fine-grained semantics across three phases.",
+          "llm_tldr_cn": "现有EEG视觉解码方法仅学习单一全局嵌入，忽视了人类视觉处理的分阶段分层特性。本文受神经科学启发，提出分阶段表示学习框架，将EEG视觉解码分解为低层、中层和高层三个互补阶段的表示学习，分别捕获粗粒度和细粒度语义。实验表明该方法提升了跨模态对齐和解码准确率，为BCI视觉康复提供了新方法。",
+          "llm_tldr": "现有EEG视觉解码方法仅学习单一全局嵌入，忽视了人类视觉处理的分阶段分层特性。本文受神经科学启发，提出分阶段表示学习框架，将EEG视觉解码分解为低层、中层和高层三个互补阶段的表示学习，分别捕获粗粒度和细粒度语义。实验表明该方法提升了跨模态对齐和解码准确率，为BCI视觉康复提供了新方法。",
+          "llm_tags": [
+            "query:eeg"
+          ],
+          "matched_query_tag": "query:eeg",
+          "matched_query_text": "EEG based brain computer interface research papers",
+          "matched_requirement_id": "req-4",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.16923v2",
+          "carry_days": 1
+        },
+        {
+          "id": "2605.26624v2",
+          "source": "arxiv",
+          "title": "MSCGC-KAN: Multi-scale Causal Graph Convolution and Kolmogorov-Arnold Feature Mapping for EEG Emotion Recognition",
+          "abstract": "Electroencephalogram (EEG)-based emotion recognition is an important affective computing task, and recent EEG foundation models provide useful generic representations for downstream adaptation. However, under the fine-tuning setting, three limitations remain prominent: insufficient modeling of multi-scale emotional dynamics, inadequate exploitation of inter-channel functional connectivity, and the limited expressive power of simple linear classification heads. To address these issues, this paper proposes a new EEG emotion recognition method, termed MSCGC-KAN, which introduces a structured task head composed of multi-scale causal graph convolution and Kolmogorov--Arnold feature mapping. Built on a pre-trained CBraMod backbone, MSCGC-KAN enhances downstream adaptation by jointly strengthening multi-scale temporal modeling, learnable inter-channel connectivity modeling, and nonlinear discriminative mapping within a compact task-specific head. This design preserves the representation advantage of the foundation model while making the classifier more sensitive to emotion-related spatiotemporal patterns. Extensive experiments are conducted on the public FACED and SEED-VII datasets. The proposed method achieves a balanced accuracy of 60.66\\%, a Cohen's Kappa of 0.5525, and a weighted F1-score of 60.40\\% on FACED, and obtains 33.27\\%, 0.2223, and 33.64\\%, respectively, on SEED-VII. Compared with the CBraMod+Linear baseline, the balanced accuracy is improved by 5.91 and 2.03 percentage points on the two datasets, respectively. These results indicate that structured task-head design is an effective way to improve EEG emotion recognition when fine-tuning pre-trained EEG models.",
+          "authors": [
+            "Haoliang Gong",
+            "Qingshan She",
+            "Jiale Xu",
+            "Yunyan Gao",
+            "Xugang Xi"
+          ],
+          "primary_category": "cs.CV",
+          "categories": [
+            "cs.CV"
+          ],
+          "published": "2026-05-26T07:02:13+00:00",
+          "link": "https://arxiv.org/pdf/2605.26624v2",
+          "tags": [
+            "keyword:eeg",
+            "query:eeg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "EEG emotion recognition method using multi-scale graph convolution and KAN",
+          "llm_evidence_cn": "基于多尺度图卷积和KAN的脑电情绪识别方法",
+          "llm_evidence": "基于多尺度图卷积和KAN的脑电情绪识别方法",
+          "canonical_evidence": "基于多尺度图卷积和KAN的脑电情绪识别方法",
+          "llm_tldr_en": "Proposes MSCGC-KAN with multi-scale causal graph convolution and Kolmogorov-Arnold feature mapping as a structured task head for EEG emotion recognition, improving fine-tuning performance.",
+          "llm_tldr_cn": "该论文针对EEG情绪识别中微调设置的三个局限，提出MSCGC-KAN方法，通过多尺度因果图卷积捕获通道间的功能性连接，并利用Kolmogorov-Arnold特征映射增强分类头的表达能力。在预训练模型基础上进行微调，在多个情绪识别数据集上取得了更优的分类性能，验证了结构化任务头在EEG下游任务中的有效性。",
+          "llm_tldr": "该论文针对EEG情绪识别中微调设置的三个局限，提出MSCGC-KAN方法，通过多尺度因果图卷积捕获通道间的功能性连接，并利用Kolmogorov-Arnold特征映射增强分类头的表达能力。在预训练模型基础上进行微调，在多个情绪识别数据集上取得了更优的分类性能，验证了结构化任务头在EEG下游任务中的有效性。",
+          "llm_tags": [
+            "query:eeg"
+          ],
+          "matched_query_tag": "query:eeg",
+          "matched_query_text": "EEG based brain computer interface research papers",
+          "matched_requirement_id": "req-4",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.26624v2",
+          "carry_days": 1
+        },
+        {
+          "id": "2605.29943v1",
+          "source": "arxiv",
+          "title": "A Domain-Informed Multi-Objective Framework for EEG Channel Selection in Motor Imagery BCIs",
+          "abstract": "Motor imagery (MI) classification using electroencephalography (EEG) signals is essential for advancing brain-computer interfaces (BCIs). Traditional EEG channel selection methods often face limitations, such as dependency on single-objective criteria and susceptibility to local optima. To address these challenges, this work proposes a multi-objective optimisation framework that employs non-dominated sorting genetic algorithm, multiple-objective particle swarm optimisation, and a multi-objective evolutionary algorithm based on decomposition. Our approach effectively balances spatial relevance, using a Gaussian kernel, and functional discriminability, which assesses intratrial task-related desynchronisation, thereby improving performance. We evaluated this framework on four EEG datasets: Physionet, OpenBMI, HighGamma, and BCIIV-2A. The proposed approach successfully identifies compact, relevant channel subsets concentrated around sensorimotor cortex regions linked to MI activity, addressing the prevalent challenges of dimensionality and complexity inherent to traditional techniques. Furthermore, the framework achieved classification performance of 87%, 71%, 75%, and 65% on the Physionet, OpenBMI, HighGamma, and BCIIV-2A datasets, respectively. By outperforming existing single-objective and accuracy-based methods, and those relying on fixed subsets, these findings demonstrate that this new multi-objective optimisation framework can enhance MI-based BCI performance while facilitating compact channel configurations with reduced computational complexity, making them better suited for wearable, portable, and real-time BCI applications.",
+          "authors": [
+            "Dekka Muni Kumar",
+            "Dhruba Jyoti Kalita",
+            "Yogesh Kumar Meena"
+          ],
+          "primary_category": "cs.HC",
+          "categories": [
+            "cs.HC",
+            "cs.ET",
+            "cs.LG"
+          ],
+          "published": "2026-05-28T13:54:39+00:00",
+          "link": "https://arxiv.org/pdf/2605.29943v1",
+          "tags": [
+            "keyword:eeg",
+            "query:eeg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "multi-objective EEG channel selection for motor imagery BCIs",
+          "llm_evidence_cn": "用于运动想象BCI的多目标脑电通道选择",
+          "llm_evidence": "用于运动想象BCI的多目标脑电通道选择",
+          "canonical_evidence": "用于运动想象BCI的多目标脑电通道选择",
+          "llm_tldr_en": "A multi-objective optimization framework using genetic algorithm and particle swarm optimization for EEG channel selection in motor imagery BCIs, balancing spatial relevance and functional discriminability.",
+          "llm_tldr_cn": "该论文针对运动想象BCI中通道选择的问题，提出一个领域知识引导的多目标优化框架，集成非支配排序遗传算法、多目标粒子群优化和基于分解的进化算法，同时优化空间相关性和功能可判别性两个目标。实验结果表明该方法能够有效筛选出与任务相关的通道子集，提升MI分类准确率，为BCI系统提供了更高效的通道配置方案。",
+          "llm_tldr": "该论文针对运动想象BCI中通道选择的问题，提出一个领域知识引导的多目标优化框架，集成非支配排序遗传算法、多目标粒子群优化和基于分解的进化算法，同时优化空间相关性和功能可判别性两个目标。实验结果表明该方法能够有效筛选出与任务相关的通道子集，提升MI分类准确率，为BCI系统提供了更高效的通道配置方案。",
+          "llm_tags": [
+            "query:eeg"
+          ],
+          "matched_query_tag": "query:eeg",
+          "matched_query_text": "EEG based brain computer interface research papers",
+          "matched_requirement_id": "req-4",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.29943v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2605.17503v1",
+          "source": "arxiv",
+          "title": "RAG-based EEG-to-Text Translation Using Deep Learning and LLMs",
+          "abstract": "The decoding of linguistic information from electroencephalography (EEG) signals remains an extremely challenging problem in brain-computer interface (BCI) research. In particular, sentence-level decoding from EEG is difficult due to the low signal-to-noise ratio of these recordings. Previous studies tackling this problem have typically failed to surpass random baseline performance unless teacher forcing is used during the inference phase. In this work, we propose a retrieval-augmented generation (RAG)-based sentence-level EEG-to-text decoding pipeline that combines an EEG encoder aligned with semantic sentence embeddings, a vector retrieval stage, and a large language model (LLM) to refine retrieved sentences into coherent output. Experiments are conducted on the Zurich Cognitive Language Processing Corpus (ZuCo) dataset, which contains single-trial EEG recordings collected during silent reading. To evaluate whether the system extracts meaningful information from these EEG signals, the results are compared with a random baseline. In nine subjects, the proposed pipeline outperforms the random baseline, achieving a mean cosine similarity of 0.181 +- 0.022 compared to 0.139 +- 0.029 for the baseline, corresponding to a relative improvement of 30.45%. Statistical analysis further confirms that this improvement is significant, following a strict evaluation workflow where inference is performed without access to ground-truth labels.",
+          "authors": [
+            "Enrico Collautti",
+            "Xiaopeng Mao",
+            "Luca Tonin",
+            "Stefano Tortora",
+            "Sadasivan Puthusserypady"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI",
+            "cs.CL",
+            "cs.HC"
+          ],
+          "published": "2026-05-17T15:31:30+00:00",
+          "link": "https://arxiv.org/pdf/2605.17503v1",
+          "tags": [
+            "keyword:eeg",
+            "query:eeg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "EEG-to-text translation for BCI",
+          "llm_evidence_cn": "用于BCI的EEG到文本翻译",
+          "llm_evidence": "用于BCI的EEG到文本翻译",
+          "canonical_evidence": "用于BCI的EEG到文本翻译",
+          "llm_tldr_en": "Proposes RAG-based EEG-to-text decoding pipeline combining EEG encoder, vector retrieval, and LLM for sentence-level translation, addressing low SNR in BCI.",
+          "llm_tldr_cn": "针对脑机接口中EEG信号信噪比低导致句子级解码困难的问题，提出基于检索增强生成（RAG）的EEG到文本翻译流水线。该方法结合EEG编码器与语义句子嵌入对齐、向量检索阶段以及大语言模型，将检索到的句子精炼为连贯输出。实验表明该方法在无需教师强制的情况下超越随机基线。这项工作为EEG语言解码提供了新的范式。",
+          "llm_tldr": "针对脑机接口中EEG信号信噪比低导致句子级解码困难的问题，提出基于检索增强生成（RAG）的EEG到文本翻译流水线。该方法结合EEG编码器与语义句子嵌入对齐、向量检索阶段以及大语言模型，将检索到的句子精炼为连贯输出。实验表明该方法在无需教师强制的情况下超越随机基线。这项工作为EEG语言解码提供了新的范式。",
+          "llm_tags": [
+            "query:eeg"
+          ],
+          "matched_query_tag": "query:eeg",
+          "matched_query_text": "EEG based brain computer interface research papers",
+          "matched_requirement_id": "req-4",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.17503v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2605.24523v1",
+          "source": "arxiv",
+          "title": "MindAlign: Bridging EEG, Vision, and Language for Zero-Shot Visual Decoding",
+          "abstract": "Visual decoding from brain signals is a key challenge at the intersection of computer vision and neuroscience, requiring methods that bridge neural representations and computational models of vision. We introduce a tri-modal contrastive framework for EEG-based visual decoding that aligns EEG, visual, and textual representations within a unified latent space. Our approach follows a two-stage design. First, we pre-train an EEG encoder via masked reconstruction on unlabeled trials, learning spatio-temporal regularities that transfer robustly to downstream tasks. Second, we jointly align EEG, image, and LLM-generated textual descriptions through contrastive learning, where text supervision acts as a semantic regularizer that injects linguistic structure into the shared space without overwhelming the primary EEG-image signal. The encoder integrates subject-specific adaptation, graph-attention over channels, and temporal-spatial convolutional embeddings. On the Things-EEG2 200-way zero-shot benchmark, our framework achieves 54.1% Top-1 and 83.4% Top-5 accuracy, substantially exceeding the strongest prior baseline (32.4% / 64.0%), with paired Wilcoxon tests confirming significance (p < 0.01) over all in-subject baselines. We validate generalization on Things-MEG. Analysis reveals that compact embedding geometries (CN-CLIP) outperform much larger backbones, and that decoding aligns with established neurophysiology of visual processing. This work is a critical step towards robust, semantically-grounded visual decoding from non-invasive temporal neural signals. The source code is publicly available in https://github.com/anon-eeg/eeg_image_decoding.",
+          "authors": [
+            "Zexuan Chen",
+            "Sichao Liu",
+            "Runhao Lu",
+            "Huichao Qi",
+            "Alexandra Woolgar",
+            "Xi Vincent Wang",
+            "Lihui Wang"
+          ],
+          "primary_category": "cs.LG",
+          "categories": [
+            "cs.LG",
+            "cs.CL",
+            "q-bio.NC"
+          ],
+          "published": "2026-05-23T11:23:21+00:00",
+          "link": "https://arxiv.org/pdf/2605.24523v1",
+          "tags": [
+            "keyword:eeg",
+            "query:eeg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Zero-shot visual decoding from EEG using tri-modal contrastive learning",
+          "llm_evidence_cn": "使用三模态对比学习从EEG进行零样本视觉解码",
+          "llm_evidence": "使用三模态对比学习从EEG进行零样本视觉解码",
+          "canonical_evidence": "使用三模态对比学习从EEG进行零样本视觉解码",
+          "llm_tldr_en": "Introduces tri-modal contrastive framework aligning EEG, visual, and textual representations in latent space for zero-shot visual decoding, with masked reconstruction pre-training.",
+          "llm_tldr_cn": "针对EEG视觉解码中模态差距大的问题，提出三模态对比框架MindAlign，将EEG、图像和文本表示在统一潜在空间中对齐。首先通过掩码重建预训练EEG编码器，学习时空规律；然后通过对比学习联合对齐三个模态。该方法实现了零样本视觉解码，无需目标类别样本。成果表明潜在空间对齐能有效桥接脑信号与视觉概念。",
+          "llm_tldr": "针对EEG视觉解码中模态差距大的问题，提出三模态对比框架MindAlign，将EEG、图像和文本表示在统一潜在空间中对齐。首先通过掩码重建预训练EEG编码器，学习时空规律；然后通过对比学习联合对齐三个模态。该方法实现了零样本视觉解码，无需目标类别样本。成果表明潜在空间对齐能有效桥接脑信号与视觉概念。",
+          "llm_tags": [
+            "query:eeg"
+          ],
+          "matched_query_tag": "query:eeg",
+          "matched_query_text": "EEG based brain computer interface research papers",
+          "matched_requirement_id": "req-4",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.24523v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2605.30775v1",
+          "source": "arxiv",
+          "title": "Bayesian Classification with Probit-link Split-and-merge Gaussian Process Prior in EEG-based Brain-Computer Interfaces",
+          "abstract": "A Brain-Computer Interface (BCI) speller systems based on Event-Related Potentials (ERPs) enables users to select characters by detecting brain responses to visual stimuli, recorded through electroencephalogram (EEG). One challenge is to accurately identify target-related responses, such as the P300 component. However, existing methods tend to ignore feature selection, perform feature selection without interpretability, or require large computational effort or data manipulation. To address these limitations, we propose a novel Bayesian generative modeling framework to the binary classification of EEG responses to stimuli. Our approach employs a Probit-link Split-and-merge Gaussian Process (P-SMGP) prior to perform spatial-temporal feature selection, effectively capturing the distinctions between target and non-target ERP responses. Through both simulation studies and real EEG data analysis, our approach can reduce computational complexity and provide statistical interpretations on transformed ERP functions while maintaining comparable prediction accuracy. These findings underscore the value of interpretable, stimulus-level modeling for advancing predictive and personalized BCI systems.",
+          "authors": [
+            "Yunong Wu",
+            "Jane E. Huggins",
+            "Jian Kang",
+            "Tianwen Ma"
+          ],
+          "primary_category": "stat.AP",
+          "categories": [
+            "stat.AP",
+            "stat.ML"
+          ],
+          "published": "2026-05-29T03:05:06+00:00",
+          "link": "https://arxiv.org/pdf/2605.30775v1",
+          "tags": [
+            "keyword:eeg",
+            "query:eeg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Bayesian classification for P300 BCI speller",
+          "llm_evidence_cn": "用于P300脑机接口拼写器的贝叶斯分类",
+          "llm_evidence": "用于P300脑机接口拼写器的贝叶斯分类",
+          "canonical_evidence": "用于P300脑机接口拼写器的贝叶斯分类",
+          "llm_tldr_en": "Proposes Bayesian generative model with Probit-link Split-and-merge Gaussian Process prior for binary classification of EEG responses, improving BCI speller performance.",
+          "llm_tldr_cn": "针对P300脑机接口拼写系统中目标响应识别准确率低且缺乏可解释性的问题，提出基于Probit链接分裂合并高斯过程先验的贝叶斯分类框架。该方法以生成式建模方式对EEG刺激响应进行二分类，兼顾特征选择与可解释性。实验表明该方法在分类精度上优于传统方法，同时降低了计算开销。为BCI分类提供了概率化新思路。",
+          "llm_tldr": "针对P300脑机接口拼写系统中目标响应识别准确率低且缺乏可解释性的问题，提出基于Probit链接分裂合并高斯过程先验的贝叶斯分类框架。该方法以生成式建模方式对EEG刺激响应进行二分类，兼顾特征选择与可解释性。实验表明该方法在分类精度上优于传统方法，同时降低了计算开销。为BCI分类提供了概率化新思路。",
+          "llm_tags": [
+            "query:eeg"
+          ],
+          "matched_query_tag": "query:eeg",
+          "matched_query_text": "EEG based brain computer interface research papers",
+          "matched_requirement_id": "req-4",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.30775v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2605.23137v2",
+          "source": "arxiv",
+          "title": "STAMBRIDGE: Spectral-Temporal Amplitude-aware Mid-Feature Bridge for EEG Visual Decoding",
+          "abstract": "Electroencephalography (EEG) visual decoding remains challenging due to the modality gap between low-SNR neural signals and highly structured vision--language spaces, making direct cross-modal alignment unstable. To address this, we propose STAMBRIDGE, a versatile two-stage framework that sequentially tackles feature conditioning and cross-modal alignment. First, we introduce a Spectral-Temporal Amplitude-aware Modulation (STAM) to extract well-conditioned EEG representations. By replacing hard frequency masking with amplitude-derived soft channel weighting and multi-scale temporal convolutions, STAM explicitly preserves frequency-aware transients while reducing the risk of time-domain ringing artifacts. Building upon these robust neural features, we further introduce a model-agnostic Mid-Feature Semantic Bridge (MFSB) that constructs a regularized intermediate space through directed cross-modal interactions, enabling staged distillation and more stable semantic alignment. Experiments on the THINGS-EEG benchmark show competitive 200-way zero-shot retrieval performance, with 34.50\\% Top-1 and 65.95\\% Top-5 accuracy. In addition, embeddings learned by STAMBRIDGE produce semantically coherent image reconstructions with a diffusion model, demonstrating robust EEG-to-vision semantic alignment. The code is available at: https://github.com/thabeatmjh/STAMBRIDGE.",
+          "authors": [
+            "Jiahe Meng",
+            "Weiming Zeng",
+            "Yueyang Li",
+            "Bo Chai",
+            "Hongjie Yan",
+            "Zhiguo Zhang",
+            "Wai Ting Siok",
+            "Nizhuan Wang"
+          ],
+          "primary_category": "eess.IV",
+          "categories": [
+            "eess.IV",
+            "cs.CV"
+          ],
+          "published": "2026-05-22T01:21:45+00:00",
+          "link": "https://arxiv.org/pdf/2605.23137v2",
+          "tags": [
+            "keyword:eeg",
+            "query:eeg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Spectral-temporal feature bridge for EEG visual decoding",
+          "llm_evidence_cn": "用于EEG视觉解码的频谱-时间特征桥接",
+          "llm_evidence": "用于EEG视觉解码的频谱-时间特征桥接",
+          "canonical_evidence": "用于EEG视觉解码的频谱-时间特征桥接",
+          "llm_tldr_en": "Proposes STAMBRIDGE framework with spectral-temporal amplitude-aware modulation (STAM) to extract well-conditioned EEG representations for visual decoding, improving cross-modal alignment.",
+          "llm_tldr_cn": "针对EEG视觉解码中模态差距大且特征易受噪声影响的问题，提出STAMBRIDGE两阶段框架。第一阶段使用频谱-时间幅度感知调制（STAM）提取鲁棒的EEG特征，通过幅度加权软通道选择和时序卷积保留频率瞬态；第二阶段进行跨模态对齐。实验表明该方法在视觉解码上优于现有基线，且能更好地保留脑信号的时序结构。",
+          "llm_tldr": "针对EEG视觉解码中模态差距大且特征易受噪声影响的问题，提出STAMBRIDGE两阶段框架。第一阶段使用频谱-时间幅度感知调制（STAM）提取鲁棒的EEG特征，通过幅度加权软通道选择和时序卷积保留频率瞬态；第二阶段进行跨模态对齐。实验表明该方法在视觉解码上优于现有基线，且能更好地保留脑信号的时序结构。",
+          "llm_tags": [
+            "query:eeg"
+          ],
+          "matched_query_tag": "query:eeg",
+          "matched_query_text": "EEG based brain computer interface research papers",
+          "matched_requirement_id": "req-4",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.23137v2",
+          "carry_days": 1
+        },
+        {
+          "id": "2605.23137v1",
+          "source": "arxiv",
+          "title": "STAMBRIDGE: Spectral-Temporal Amplitude-aware Mid-Feature Bridge for EEG Visual Decoding",
+          "abstract": "Electroencephalography (EEG) visual decoding remains challenging due to the modality gap between low-SNR neural signals and highly structured vision--language spaces, making direct cross-modal alignment unstable. To address this, we propose STAMBRIDGE, a versatile two-stage framework that sequentially tackles feature conditioning and cross-modal alignment. First, we introduce a Spectral-Temporal Amplitude-aware Modulation (STAM) to extract well-conditioned EEG representations. By replacing hard frequency masking with amplitude-derived soft channel weighting and multi-scale temporal convolutions, STAM explicitly preserves frequency-aware transients while reducing the risk of time-domain ringing artifacts. Building upon these robust neural features, we further introduce a model-agnostic Mid-Feature Semantic Bridge (MFSB) that constructs a regularized intermediate space through directed cross-modal interactions, enabling staged distillation and more stable semantic alignment. Experiments on the THINGS-EEG benchmark show competitive 200-way zero-shot retrieval performance, with 34.50\\% Top-1 and 65.95\\% Top-5 accuracy. In addition, embeddings learned by STAMBRIDGE produce semantically coherent image reconstructions with a diffusion model, demonstrating robust EEG-to-vision semantic alignment. The code is available at: https://github.com/thabeatmjh/STAMBRIDGE.",
+          "authors": [
+            "Jiahe Meng",
+            "Weiming Zeng",
+            "Yueyang Li",
+            "Bo Chai",
+            "Hongjie Yan",
+            "Zhiguo Zhang",
+            "Wai Ting Siok",
+            "Nizhuan Wang"
+          ],
+          "primary_category": "eess.IV",
+          "categories": [
+            "eess.IV",
+            "cs.CV"
+          ],
+          "published": "2026-05-22T01:21:45+00:00",
+          "link": "https://arxiv.org/pdf/2605.23137v1",
+          "tags": [
+            "keyword:eeg",
+            "query:eeg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Spectral-temporal feature bridge for EEG visual decoding",
+          "llm_evidence_cn": "用于EEG视觉解码的频谱-时间特征桥接",
+          "llm_evidence": "用于EEG视觉解码的频谱-时间特征桥接",
+          "canonical_evidence": "用于EEG视觉解码的频谱-时间特征桥接",
+          "llm_tldr_en": "Proposes STAMBRIDGE framework with spectral-temporal amplitude-aware modulation (STAM) to extract well-conditioned EEG representations for visual decoding, improving cross-modal alignment.",
+          "llm_tldr_cn": "针对EEG视觉解码中模态差距大且特征易受噪声影响的问题，提出STAMBRIDGE两阶段框架。第一阶段使用频谱-时间幅度感知调制（STAM）提取鲁棒的EEG特征，通过幅度加权软通道选择和时序卷积保留频率瞬态；第二阶段进行跨模态对齐。实验表明该方法在视觉解码上优于现有基线，且能更好地保留脑信号的时序结构。",
+          "llm_tldr": "针对EEG视觉解码中模态差距大且特征易受噪声影响的问题，提出STAMBRIDGE两阶段框架。第一阶段使用频谱-时间幅度感知调制（STAM）提取鲁棒的EEG特征，通过幅度加权软通道选择和时序卷积保留频率瞬态；第二阶段进行跨模态对齐。实验表明该方法在视觉解码上优于现有基线，且能更好地保留脑信号的时序结构。",
+          "llm_tags": [
+            "query:eeg"
+          ],
+          "matched_query_tag": "query:eeg",
+          "matched_query_text": "EEG based brain computer interface research papers",
+          "matched_requirement_id": "req-4",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.23137v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2605.23996v1",
+          "source": "arxiv",
+          "title": "Brain-to-Image Retrieval and Reconstruction via Multimodal EEG Alignment",
+          "abstract": "We present a brain-to-image system that decodes visual stimuli from EEG signals recorded during natural image viewing. Our system addresses two tasks: (1) EEG-to-image retrieval, which ranks the correct stimulus image among 200 candidates given an EEG segment, and (2) EEG-to-image reconstruction, which generates an image consistent with the perceived stimulus. For retrieval, we implement a multi-level blurring approach improved with biologically inspired EVNet features and trained with the InfoNCE loss. Evaluated over 10 random seeds for a single subject, the retrieval model achieves a mean final-epoch Top-1 accuracy of 86.30% and Top-5 accuracy of 98.55%. For reconstruction, we implement CognitionCapturerPro, which aligns EEG representations to multi-modal CLIP embeddings, including image, text, depth, and edge embeddings, and synthesizes images with SDXL-Turbo conditioned via IP-Adapter. Averaged over 10 seeds, the reconstruction model achieves a CLIP score of 0.903 using ViT-H-14, a CLIP score of 0.870 using ViT-L/14, and an SSIM of 0.409. These results demonstrate the feasibility of decoding rich visual representations from EEG signals using modern multi-modal alignment and generative modeling techniques.",
+          "authors": [
+            "Chi Kit Wong",
+            "Yan Liu",
+            "Haowen Yan"
+          ],
+          "primary_category": "cs.CV",
+          "categories": [
+            "cs.CV",
+            "eess.IV"
+          ],
+          "published": "2026-05-18T05:33:44+00:00",
+          "link": "https://arxiv.org/pdf/2605.23996v1",
+          "tags": [
+            "keyword:eeg",
+            "query:eeg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Brain-to-image retrieval and reconstruction from EEG",
+          "llm_evidence_cn": "从EEG进行脑到图像的检索与重建",
+          "llm_evidence": "从EEG进行脑到图像的检索与重建",
+          "canonical_evidence": "从EEG进行脑到图像的检索与重建",
+          "llm_tldr_en": "Presents brain-to-image system for EEG-to-image retrieval (top1 86.30%) and reconstruction using multimodal alignment and InfoNCE loss.",
+          "llm_tldr_cn": "针对从EEG信号解码视觉刺激的任务，提出一个脑到图像系统，同时支持检索与重建。检索部分使用多级模糊和生物启发特征，配合InfoNCE损失训练，在单受试者上达到Top1准确率86.30%和Top5 98.55%。重建部分使用CognitionCapturerPro对齐EEG与图像潜在空间。该系统展示了EEG视觉解码的实际可行性。",
+          "llm_tldr": "针对从EEG信号解码视觉刺激的任务，提出一个脑到图像系统，同时支持检索与重建。检索部分使用多级模糊和生物启发特征，配合InfoNCE损失训练，在单受试者上达到Top1准确率86.30%和Top5 98.55%。重建部分使用CognitionCapturerPro对齐EEG与图像潜在空间。该系统展示了EEG视觉解码的实际可行性。",
+          "llm_tags": [
+            "query:eeg"
+          ],
+          "matched_query_tag": "query:eeg",
+          "matched_query_text": "EEG based brain computer interface research papers",
+          "matched_requirement_id": "req-4",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.23996v1",
+          "carry_days": 1
+        }
+      ]
     }
   }
 }

@@ -1,0 +1,467 @@
+Title: BCI-Based Assessment of Ocular Response Time Using Dynamic Time Warping Leveraging an RDWT-Driven Deep Neural Framework
+
+URL Source: https://arxiv.org/pdf/2605.14883v1
+
+Published Time: Fri, 15 May 2026 01:14:06 GMT
+
+Number of Pages: 8
+
+Markdown Content:
+# BCI-Based Assessment of Ocular Response Time Using Dynamic Time Warping Leveraging an RDWT-Driven Deep Neural Framework 
+
+1st Shantanu Sarkar 
+
+Dept. of ECE, IUCRC BRAIN, Cullen College of Engineering University of Houston, Houston, USA 
+
+shantanu75@gmail.com 
+
+2nd Sai Shashank Gandavarapu 
+
+Dept. of Data Science, Cullen College of Engineering University of Houston, Houston, USA 
+
+sgandava@cougarnet.uh.edu 
+
+3rd Jeff Feng 
+
+Dept. of Industrial Design, IUCRC BRAIN, Gerald D.Hines College of Arch. & Design University of Houston, Houston, USA 
+
+ffeng@central.uh.edu 
+
+4th Saurabh Prasad 
+
+Dept. of ECE, IUCRC BRAIN, Cullen College of Engineering University of Houston, Houston, USA 
+
+sprasad2@central.uh.edu 
+
+5th Reza Khanbabaie 
+
+Neurotechnology & BCI Cognixion Inc. Toronto, Ontario, Canada 
+
+reza.khanbabaie@cognixion.com 
+
+6th Jose L. Contreras-Vidal 
+
+Dept. of ECE, IUCRC BRAIN, Cullen College of Engineering University of Houston, Houston, USA 
+
+jlcontreras-vidal@uh.edu 
+
+Abstract —Mild traumatic brain injury (mTBI) is a prevalent condition that remains difficult to diagnose in its early stages. Oculomotor dysfunction is a well-established marker of mTBI, motivating the development of portable tools that capture both eye-movement behavior and underlying neurophysiology. In this work, we present an initial framework that integrates elec-troencephalogram (EEG) with augmented-reality (AR)-based Vestibular/Ocular Motor Screening (VOMS) tasks to estimate subject-specific ocular response times. Pre-processed EEG sig-nals, obtained through band-pass filtering and average referenc-ing, are analyzed using a Redundant Discrete Wavelet Trans-form (RDWT)–driven deep neural framework. The RDWT coefficients are subjected to trainable zero-phase convolutional filtering and reconstructed into the time domain via inverse RDWT, followed by channel-wise temporal and spatial filtering using 2D convolution layers and convolutional–LSTM-based decoding. An ablation study demonstrates that wavelet-domain filtering serves as an effective denoising strategy, improving pre-diction performance. Sliding-window predictions were validated using Pearson correlation ( ≥ 0.5), and Dynamic Time Warping (DTW) was subsequently used to estimate ocular response times. DTW-derived metrics revealed significant inter-subject differ-ences across all VOM tasks, supported by Mann–Whitney U tests. Cross-correlation analysis further revealed task-dependent temporal behaviors: pursuit tasks exhibited reactive tracking, whereas saccades showed anticipatory responses. Overall, the results highlight pursuit tasks as particularly informative for distinguishing timing differences and demonstrate the potential of RDWT-based EEG features combined with DTW metrics for multimodal mTBI assessment. 
+
+Index Terms —BCI, EEG, Deep-Learning, Wavelet, DTW, Medical-Informatics, Ocular-Response, mTBI 
+
+Supported by NSF IUCRC BRAIN award # 2137255 and NSF REU site award #2150415. 
+
+I. I NTRODUCTION 
+
+Traumatic brain injury (TBI) refers to a disruption of normal brain function caused by a bump, blow, jolt, or penetrating head injury [1]. Military service members (SMs) face elevated risks of TBI from falls, car accidents, strikes, and blast exposures in combat or training. In the US and worldwide, millions of concussion cases occur among civil-ians. Based on symptoms and severity, TBI is classified into three levels: mild, moderate, and severe. Mild TBI (mTBI) symptoms include headache, dizziness, nausea, cognitive fog, and memory loss. According to the Defense and Veterans Brain Injury Center (DVBIC), more than 528,450 TBIs among U.S. SMs worldwide have been reported between 2000 and 2025, with over 81.8% classified as mild (mTBI) (Fig. 1) [2]. Despite its prevalence and extensive diagnostic research, mTBI remains poorly understood and difficult to diagnose [3]. Computerized cognitive tests such as Im-PACT [4], symptom checklists such as the Post-Concussion Symptom Scale (PCSS) [5], and clinical assessments with some scoring system like the Balance Error Scoring System (BESS) [6] are commonly used for evaluating concussions. 
+
+Fig. 1. Department of Defense (DoD) worldwide traumatic brain injury cases from 2000 to Q3 2025, reported by the Defense Health Agency [2]. 
+
+> arXiv:2605.14883v1 [eess.SP] 14 May 2026
+
+While these tools are widely used in both clinical and athletic settings, concerns persist regarding their reliability, particularly in the absence of baseline metrics, their test-retest reliability over time, and limitations imposed by other psychological and physical conditions [7]–[9]. However, study using ImPACT have shown moderately reliable metrics for visual-motor speed and reaction time [8], [9]. Neuro-physiological methods such as electroencephalogram (EEG) and electrooculography(EOG) capture brain dynamics and ocular movements, yet their clinical application is hindered by low signal-to-noise ratios (SNR) and artifacts [10], [11]. Given the time-sensitive nature of TBI, rapid, field-applicable tools are essential. However, no effective method or product is available to address this gap [12]. Practicing effective tracking of TBI recovery over time remains challenging, as no existing device is suited for this task [13], [14]. The study demonstrated that the Vestibular/Ocular Motor Screening (VOMS) assessment is a reliable tool for identifying patients with concussion [15]. Based on these insights, we propose ‘ SynTec ’, a lightweight, wearable multimodal approach that integrates an augmented-reality (AR) display, eye tracking, and EEG/EOG into a single portable platform for neuro-ocular response time as-sessment, aimed at supporting mTBI evaluation and longi-tudinal recovery monitoring. Preliminary prototype testing revealed consistent neurophysiological and oculomotor trends across subjects, suggesting the feasibility of a rapid, field-deployable approach to brain assessment for time-sensitive conditions such as mTBI and concussion. SynTec is intended to support field-based evaluation of visual–motor reaction time and associated neurophysiological signals. Our AI-driven signal processing and boosting techniques will provide clear, real-time analysis of multimodal data, enabling medics and patients make rapid, confident calls about mTBI. Beyond initial diagnosis, SynTec will establish personalized baseline profiles and track brain recovery in real time over weeks to months, offering clearer insight into healing progress. With its modular and flexible design, SynTec has the potential to adapt to other conditions involving eye movement and coordination deficits, such as autism spectrum disorder and Parkinson’s disease, where eye-tracking and reaction tests are established tools for diagnosis [16]–[20]. For the proof of Concept (PoC), we developed an initial framework and evaluated it using two control subjects across four VOMS tasks encompassing both saccades and pursuits in the horizontal and vertical directions. Our results showed that pursuit paradigms yielded the most distinguishable inter-subject ocular response times when leveraging a Redundant Discrete Wavelet Transform (RDWT) driven deep neural framework for EEG feature extraction, together with Dy-namic Time Warping (DTW) based latency metrics. II. M ETHOD 
+
+A. Experimental Design 
+
+The study included two control participants who met the inclusion criteria of being between 18 and 65 years of age, with no known history of mild traumatic brain injury (mTBI),        
+
+> TABLE I PARTICIPANT DEMOGRAPHICS (GENDER AND AGE ).
+> Participant Gender Age (years)
+> S1 M55 S2 M23
+
+no confounding neurological conditions such as epilepsy, and no visual impairments. Demographic information for both participants is summarized in Table I. Data collection was conducted using the Axon-R device (Cognixion Inc., Santa Barbara, CA), a brain–computer interface platform that integrates augmented reality (AR) with six-channel EEG monitoring. Participants completed four Vestibular/Ocular Motor Screening (VOMS) tasks, described in subsequent subsections. Each task required the participant to visually track a target (circular white patch) presented within the AR display. EEG signals were simultaneously recorded from six electrode positions (O1, Oz, O2, PO3, POz, and PO4) as shown in Fig. 2. At the beginning of every session, electrode impedance was manually checked to ensure values remained below 20 kΩ. To achieve electrode impedances below 20 
+
+kΩ, electrode gel - Spectra 360 (Parker Laboratories Inc., (a) (b) 
+
+(c)               
+
+> Fig. 2. EEG acquisition setup and electrode configuration. (a) Participant wearing an Axon-R headset showing the placement of EEG electrodes. (b) Participant wearing Axon-R headset showing the placement of Ref. and Gnd. electrodes. (c) Highlighted EEG electrode positions (red box) used in the experiment, focused on occipital and parietal-occipital regions. 𝑥  − 𝑥 ! , 𝑦  − 𝑦 ! "
+> 0 s 14 s 29 s 43 s 58 s
+> Norm. Target Trajectory
+> 0.0
+> 0.5
+> 1.0 Horizontal Saccade Horizontal Pursuit Vertical Saccade Vertical Pursuit Fig. 3. Normalized target trajectory computed as the L2 distance between the centers of the AR patch and AR window, resampled at 100 Hz.
+
+Fairfield, NJ) and electrode solution, and Skin prep - Signa Spray (Parker Laboratories Inc., Fairfield, NJ) were applied to reduce contact impedance. Each session consisted of five trials. Each trial lasted 60 seconds and included all four VOMS tasks. The initial 2 seconds were used to instruct the participant to relax and perform some jaw clenching, allowing visual validation of the quality of the EEG signals. The remaining 58 seconds were dedicated to the VOMS tasks. Data were collected across ten sessions per participant. 
+
+1) Vestibular/Ocular Motor Screening (VOMS): mTBI is often characterized by abnormal eye-movement behavior, and prior research has documented visual and oculomo-tor deficits in individuals with mTBI across pediatric and adult populations. In a prior study, Mucha et al. assessed 64 patients with concussion using Vestibular/Ocular Motor Screening (VOMS) assessment, encompassing five domains: smooth pursuit, horizontal and vertical saccades, near point of convergence, horizontal vestibulo-ocular reflex, and visual motion sensitivity [15]. Motivated by this framework, we implemented the following four VOMS tasks within an augmented-reality (AR) environment in the present study: 
+
+Horizontal Saccade: Each horizontal saccade trial lasted 14 seconds. A white circular patch appeared on the AR display and alternated between the left and right extremes at 1-second intervals, requiring participants to shift their gaze between the two positions rapidly. 
+
+Horizontal Pursuit: For the horizontal pursuit task, the white circular patch moved smoothly from the center to the right extreme, then returned to the center, and repeated the same motion toward the left extreme. A single excursion to one extreme and back required approximately 3.16 seconds, and each pursuit trial lasted a total of 15 seconds. 
+
+Vertical Saccade: Vertical saccade trials also lasted 14 sec-onds and followed the same structure as horizontal saccades. The white circular patch alternated between the top and bottom extremes at 1-second intervals. 
+
+Vertical Pursuit: The vertical pursuit task followed an analogous pattern, with the target moving smoothly from the center to the top extreme and back, then to the bottom extreme and back. As with the horizontal pursuit, one full excursion required approximately 3.16 seconds and each trial lasted 15 seconds. During the horizontal and vertical saccade tasks, participants were instructed to shift their gaze to follow the target’s abrupt positional changes. During the horizontal and vertical pursuit tasks, participants were instructed to continuously follow the smoothly moving target within the AR environment. The AR system updated the VOMS stimuli at 60 Hz. For analysis, the target trajectory was represented as the L2 distance between the centers of the circular white patch and the AR window, computed from their ‘ x’ and ‘ y’ coordinates and resampled at 100 Hz, as illustrated in Fig. 3. 
+
+2) Electroencephalogram (EEG): During each trial, EEG signals were recorded from six Ag/AgCl electrodes mounted on the Axon-R device. Three electrodes (O1, Oz, O2) were positioned over the occipital region, and three electrodes (PO3, POz, PO4) were positioned over the parieto-occipital region, as shown in Fig. 2. At the beginning of each session, electrode channel impedances were manually verified to be below 20 kΩ. EEG data were acquired using the Axon-R device, which samples at 250 Hz (Axon-R sampling rate). 
+
+B. EEG Preprocessing 
+
+The EEG signals were down-sampled to 100 Hz, limiting the frequency component range within 50 Hz, and aligned with the target trajectory, represented by the L2 distance computed from the ‘ x’ and ‘ y’ coordinates of the center of the circular white patch. Additionally, to filter out high-frequency artifacts, we used a zero-phase, 4th-order But-terworth band-pass filter (BPF) with cutoff frequencies of 0.5 Hz and 30 Hz, followed by average re-referencing. We intended to exclude the γ band, as frequencies above 25 Hz are highly susceptible to motion-related artifacts [21]. To verify the signal quality of preprocessed EEG data, the mean and standard deviation for each trial were plotted, as shown in Fig. 4. A sliding window approach was applied using a 2.56 s window and a 200 ms stride, so we considered only the first 13.76 s of data across all VOMSs, yielding 57 sliding windows per VOMS per session. For S1, the EEG recording ended slightly early in Session#18, leaving only 13.69 sec of vertical pursuit data, while for S2, early termination in Session#5 resulted in just 9.87 s; as a result, the vertical pursuit data from S1 in Session#18 and S2 in Session#5 were omitted from the analysis. Consequently, for each subject across 50 sessions, we extracted 2,793 windows for the vertical pursuit task and 2,850 windows for each of the remaining VOMSs. 
+
+C. Analysis Methodology 
+
+The analysis employed a deep learning framework in-corporating a Redundant Discrete Wavelet Transformation (RDWT)- inspired filtering stage using the Symlet-2 Mother Wavelet (MW). The choice of the Symlet-2 MW was moti-vated by our previous comparative analysis, which confirmed that Symlet-2 yields the highest correlation between recon-structed and original EEG signals across the δ∗ (0–3.125 Hz), 
+
+θ∗ (3.125–6.25 Hz), α∗ (6.25–12.5 Hz), and β∗ (12.5–25 Hz) bands, considering both magnitude and phase spectral char-acteristics [22]. We introduced a custom layer for 0-phase-shift band-specific filtering of wavelet coefficients using two 1D Convolution layers, followed by an inverse-RDWT for reconstructing the denoised EEG channels. The reconstructed -100.00 mV                     
+
+> -50.00 mV
+> 0.00 mV
+> 50.00 mV Subject 'S1': Raw EEG
+> -100.00 mV
+> -50.00 mV
+> 0.00 mV
+> 50.00 mV Subject 'S2': Raw EEG
+> O1
+> PO3
+> Oz
+> Pz
+> O2
+> PO4
+> Horizontal Saccade
+> -0.01 mV
+> 0.00 mV
+> 0.01 mV
+> O1
+> PO3
+> Oz
+> Pz
+> O2
+> PO4
+> Vertical Saccade
+> O1
+> PO3
+> Oz
+> Pz
+> O2
+> PO4
+> Horizontal Pursuit
+> Subject 'S1': Preprocessed EEG
+> O1
+> PO3
+> Oz
+> Pz
+> O2
+> PO4
+> Vertical Pursuit
+> O1
+> PO3
+> Oz
+> Pz
+> O2
+> PO4
+> Horizontal Saccade
+> -0.01 mV
+> 0.00 mV
+> 0.01 mV
+> O1
+> PO3
+> Oz
+> Pz
+> O2
+> PO4
+> Vertical Saccade
+> O1
+> PO3
+> Oz
+> Pz
+> O2
+> PO4
+> Horizontal Pursuit
+> Subject 'S2': Preprocessed EEG
+> O1
+> PO3
+> Oz
+> Pz
+> O2
+> PO4
+> Vertical Pursuit
+> O1 Mean (Trials)
+> O1 SD (Trials)
+> O1 Mean (Overall)
+> PO3 Mean (Trials)
+> PO3 SD (Trials)
+> PO3 Mean (Overall)
+> Oz Mean (Trials)
+> Oz SD (Trials)
+> Oz Mean (Overall)
+> Pz Mean (Trials)
+> Pz SD (Trials)
+> Pz Mean (Overall)
+> O2 Mean (Trials)
+> O2 SD (Trials)
+> O2 Mean (Overall)
+> PO4 Mean (Trials)
+> PO4 SD (Trials)
+> PO4 Mean (Overall)
+
+Fig. 4. Signal quality of raw and preprocessed EEG data was verified using trial-wise mean and standard deviation plots across channels and participants. 
+
+signals are then processed by two consecutive 2D convolution layers: the first performs channel-wise temporal filtering, while the second applies spatial filtering across channels, resulting in a compact 1D EEG feature representation. Down the line, the Model used stacked 1D convolutional neural network, stacked LSTM, and Dense layers to predict the target trajectory window. We used 2.56 s sliding windows of EEG signals, along with the target trajectory represented by L2 distance, to train the deep learning model. Using the trained Model, we predicted the target trajectory window, and the windows showing a correlation coefficient greater than or equal to 0.5 were further considered for ocular response time analysis. The architecture of the deep learning framework incorporating wavelet-domain filtering is illustrated in Fig. 5 and discussed in Section II-C1 below, and Fig. 6 presents the full analysis pipeline. 
+
+1) RDWT Integrated Deep Learning Model: The Model’s input layer is designed to accept 6-channels of 256 samples (2.56 s). The Model’s inputs are processed via a channel-wise normalization layer that enforced zero mean and bounded amplitude independently for each channel. For the EEG signals, as we are using sampling frequency of 100 Hz, wavelet coefficients corresponding to the δ/∗ (0–3.125 Hz), 
+
+θ∗ (3.125–6.25 Hz), α∗ (6.25–12.5 Hz), β∗ (12.5–25 Hz), and γ∗ (25–50 Hz) frequency bands were extracted using a custom layer implementing a 4-level RDWT with a Symlet-2 MW. To mitigate contamination from motion-related artifacts in frequency components above 25 Hz, sparsity was explicitly enforced by masking and setting the γ∗-band coefficients to zero. The proposed wavelet-domain filtering layer operates on RDWT coefficients X ∈ R(B×C×W ×(D+1)) , filtering each sub-band independently for each EEG channel using a ded-icated convolution-based zero-phase filtering scheme. This scheme is implemented using two sequential 1D convo-lutional operations, initialized as identity filters and made trainable, with the second convolution applied to the time-reversed signal to eliminate phase distortion. The custom layer allows kernel sizes to be specified as configurable arguments. Kernel sizes were selected to provide nearly scale-matched temporal support, with effective frequency scales inversely proportional to kernel length ( fef f ≃ Fs/K ); Table II summarizes the rationale behind the kernel sizes used Input: Batch Size, 6, 256 
+
+Ch. Normalization: Batch Size, 6, 256 
+
+RDWT: Batch Size, 6, 256, 5 
+
+Masking: Batch Size, 6, 256, 5 
+
+Band Suppression : 𝛾 ∗ (25 – 50 𝐻𝑧 )
+
+Wavelet -Domain Filter: Batch, 6, 256, 5 
+
+Inverse RDWT: Batch, 6, 256, 1 
+
+2D Conv (Temporal Filter): Batch, 6, 256,1 
+
+[ Filter=1, Size=(1,63), Act=tanh ] 
+
+2D Conv (Spatial Filter): Batch, 1, 256, 1 
+
+[ Filter=1, Size=(6,1), Act=tanh ] 
+
+Reshape : Batch, 256, 1 
+
+1D Casual Conv: Batch, 256, 64 
+
+[ Filter=64, Size=64, Dilation=1, Act= elu ]
+
+1D Casual Conv: Batch, 256, 32 
+
+[ Filter=32, Size=32, Dilation=1, Act= elu ]
+
+1D Casual Conv: Batch, 256, 16 
+
+[ Filter=16, Size=16, Dilation=1, Act= elu ]
+
+1D Casual Conv: Batch, 256, 8 
+
+[ Filter=16, Size=3, Dilation=2, Act= elu ]
+
+Bidirectional LSTM: Batch, 256, 64 
+
+[ Units=32, Return Sequences = True] 
+
+Unidirectional LSTM: Batch, 256, 16 
+
+[ Units=16, Return Sequences = True] 
+
+Output ( Dense – ReLU ): Batch, 256,1 
+
+Reshape: Batch 1, 256 
+
+> Feature Stacked Convolution Stacked LSTM  RDWT Filter
+
+Fig. 5. Model architecture illustrating RDWT-inspired band-specific filtering using Symlet-2 MW, temporal and spatial filtering via convolution layers, and stacked Conv–LSTM and Dense layers for target trajectory prediction. 
+
+for each sub-band. The filtered coefficients are stacked across channels and sub-bands, producing an output tensor of the same shape as the input coefficients. Finally, the denoised EEG channel signals are reconstructed using a four-level inverse RDWT layer. Additional channel-wise temporal filtering was performed using a 2D convolution layer with a single filter and a kernel 𝐶𝑜𝑟𝑟𝑒𝑙𝑎𝑡𝑖𝑜𝑛 > 0.5        
+
+> Raw EEG
+> Target Trajectory
+> Time (sec)
+> Av. Referencing Band Pass Filter
+> EEG Feature (Denoised)
+> Deep Supervised Model
+> Stacked Conv + Stacked LSTM
+> RDWT Filter (MW: Symlet2)
+> 1D Conv @ Coeff
+> Discarded 𝛾 𝑏𝑎𝑛𝑑 (>25 𝐻𝑧 )
+> Discard
+> Window: 2.56 s (Stride 200ms)
+> 𝑇𝑎𝑟𝑔𝑒𝑡
+> Acceptable (Valid) Features
+> Ocular Response Time
+> Dynamic Time Warp Distance
+> Training : 80%
+> Validation: 20%
+> Max Epochs: 300
+> Patience: 50
+> Batch Size: 64
+> Learning Rate 0.001
+> Loss: MSE
+> Temporal & Spatial Filter
+> 2D Convolution
+> Predicted Target Trajectory
+> 𝑌𝑒𝑠
+> 𝑁𝑜 Fig. 6. Block diagram of the analysis pipeline, including preprocessing, fea-ture extraction, supervised modeling, and correlation-based trial validation. TABLE II KERNEL SIZES AND CORRESPONDING EFFECTIVE FREQUENCY SCALES FOR WAVELET -DOMAIN FILTERING .
+> Sub-band (Freq. Range) Kernel Size (K) Effective Freq.
+
+feff ≈ 100 /K Hz             
+
+> δ∗(0–3.125 Hz) 63 1.6
+> θ∗(3.125–6.25 Hz) 15 6.7
+> α∗(6.25–12.5 Hz) 714.3
+> β∗(12.5–25 Hz) 333.3
+
+size of (1, 63), followed by a ‘tanh’ activation. Spatial filter-ing was subsequently performed in a depth-wise convolution manner across EEG channels using a 2D convolution layer with a single filter and a kernel size of (6, 1), followed by a ‘tanh’ activation function, yielding a single-channel EEG feature representation. Once the Model is trained, the output of the spatial filter (second 2D convolution layer) is used as the EEG feature for analysis. After the spatial filtering, a stack of causal 1D convolutional layers was applied—first with 64 filters of size 64, then 32 filters of size 32, followed by 16 filters of size 16, and finally an 8-filter layer with a kernel size of 3 and a dilation rate of 2, all using ‘ELU’. The filtered features were then processed by two recurrent layers: a bidirectional LSTM with 32 units and return_sequences =True, followed by a unidirectional LSTM with 16 units. Finally, a fully connected layer (’ReLU’ activation) was imposed to generate the output sequence - 256 samples corresponding to the predicted ocular trajectory. 
+
+2) Model Training & Ablation Study: For each VOMS trial, a sliding-window approach was applied with a 2.56-sec window and a 200 ms stride. The EEG segment within each window served as the input feature, while the cor-responding windowed target trajectory, represented via L2 distance, served as the target for model training. Data were partitioned such that the initial 80% of samples were used for training, and the final 20% were used for validation. The Model was trained for up to 300 epochs using early stopping (patience=50) and a batch size of 64. Model predictions were validated against the target trajectory by computing the Pearson correlation coefficient. Trial windows were deemed acceptable (valid) when the correlation between the predicted and target trajectories was at least 0.5. To validate the RDWT inspired filtering stage using the Symlet-2 MW, we performed an ablation study, where we used 3 models: Model#0 (M0) – complete model architecture as shown in Fig. 5, Model#1 (M1) – A model without a wavelet-domain filtering layer, in which wavelet coefficients are not filtered using zero-phase-shift trainable convolution (excluding the light-cyan wavelet-domain filter block shown in Fig. 5). Model#2 (M2) – A model without RDWT-related layers (excluding the light green RDWT, masking and inverse-RDWT blocks as well as the light-cyan wavelet-domain filter block shown in Fig. 5). Ablation results, as illustrated in Fig. 7, indicate that the com-plete model (M0) consistently achieves the highest proportion of acceptable trials across tasks and subjects, while removing wavelet-domain filtering (M1) or all RDWT-related compo-nents (M2) leads to a systematic reduction in performance. These findings highlight the importance of wavelet-domain processing; therefore, the complete model (M0) was used for all subsequent analyses. Fig. 8 illustrates the percentage of acceptable (valid) and unacceptable (discarded) trial windows across VOMSs and subjects, using the full dataset evaluated with the M0 model. 
+
+3) Feature Extraction: For all valid trial windows iden-tified using the M0 (complete architecture) model, features were extracted from the network after spatial filtering across channels, specifically from the output of the second 2D con-volution layer following the tanh activation. This corresponds to the dark gray–shaded block shown in Fig. 5 and yields a single-channel temporal feature representation for each trial window. These features capture the dominant, spectrally and spatially informed temporal dynamics of EEG activity that are most relevant for downstream temporal modeling and prediction. We evaluated the power spectral density (PSD) of the ex-tracted EEG features for all valid windows, plotting the mean PSD together with a min–max envelope to illustrate inter-window dispersion across VOMSs and subjects, as shown in Fig. 9. 
+
+4) Ocular Response Time Analysis: The Dynamic Time Warping (DTW) distance is commonly used to analyze temporal delays and alignment differences between two time series, especially when they have similar shapes but are misaligned in time [23]. To quantify ocular response time within the valid windows, the DTW distance was computed between the extracted EEG features from the trained M0 model (after depth-wise convolution) and the target trajectory, using a constrained alignment window of 50 samples ( ±500 ms at 100 Hz) to limit excessive temporal warping. A DTW window of 50 samples was chosen to capture the typical neural responses associated with fixations and the preparation of subsequent eye movements, which predominantly occur within ∼300 ms [24]. A Violin Plot (Fig. 10) was used to visualize the DTW distance across VOMSs and subjects, with horizontal lines indicating the median and interquartile range 0
+
+> 0.5
+> 1.0
+
+S1: Correlation-Based Trial Prediction Outcomes (Validation Dataset)    
+
+> Horizontal Saccade Vertical Saccade Horizontal Pursuit Vertical Pursuit
+> 0
+> 0.5
+> 1.0
+
+S2: Correlation-Based Trial Prediction Outcomes (Validation Dataset)      
+
+> M0: Av. Acceptable %
+> M1: Av. Acceptable %
+> M2: Av. Acceptable %
+> M0: Acceptable (r > 0.5) %
+> M0: Uncceptable (r 0.5) %
+> M1: Acceptable (r > 0.5) %
+> M1: Uncceptable (r 0.5) %
+> M2: Acceptable (r > 0.5) %
+> M2: Uncceptable (r 0.5) %
+> M0 M1 M2
+> 0
+> 0.2
+> 0.4
+
+Fig. 7. Validation-set correlation-based outcomes for models M0–M2. Stacked bars show the percentage of acceptable (r > 0.5) and unacceptable (r ≤
+
+0.5) trials per task for S1 and S2. Dashed lines show participant-wise mean acceptable-trial rates; the rightmost panel shows cross-subject model averages. 0       
+
+> 0.5
+> 1.0 S1: Correlation-Based Trial Prediction Outcomes (Full Dataset)
+> Horizontal Saccade Vertical Saccade Horizontal Pursuit Vertical Pursuit
+> 0
+> 0.5
+> 1.0 S2: Correlation-Based Trial Prediction Outcomes (Full Dataset)
+> Acceptable (r > 0.5) % Uncceptable (r 0.5) %
+
+Fig. 8. M0-Pearson-correlation outcomes (full dataset). Green and red bars indicate valid (r > 0.5) and invalid (r ≤ 0.5) trial windows, respectively. 0.00 
+
+> 0.03
+> 0.05
+> mV 2/Hz
+
+Horizontal 
+
+Saccade 
+
+Subject 'S1' 
+
+> 0.00
+> 0.05
+> 0.10
+> mV 2/Hz
+
+Subject 'S2' 
+
+> Mean PSD
+> Envelope
+> 0.00
+> 0.03
+> 0.06
+> mV 2/Hz
+
+Vertical 
+
+Saccade 
+
+> 0.00
+> 0.01
+> 0.01
+> mV 2/Hz
+> 0.00
+> 0.02
+> 0.04
+> mV 2/Hz
+
+Horizontal 
+
+Pursuit     
+
+> 0.00
+> 0.04
+> 0.08
+> mV 2/Hz
+> 0412 25 32
+> 0.00
+> 0.02
+> 0.03
+> mV 2/Hz
+
+Vertical 
+
+Pursuit      
+
+> Hz 0412 25 32
+> 0.00
+> 0.04
+> 0.08
+> mV 2/Hz
+> Hz
+
+Fig. 9. PSD plots of extracted EEG features for valid windows, showing mean and min–max envelopes across VOMSs and subjects. Rows (top to bottom): Horizontal Saccade, Vertical Saccade, Horizontal Pursuit, and Vertical Pursuit. 
+
+(IQR), clearly showing similar patterns across subjects for the respective VOMS, with shifted medians and IQRs. Furthermore, we performed a nonparametric Mann-Whitney U Test to verify the Null hypothesis that the medians for S1 and S2 differ significantly at a significance level ( α) = 0.05. Additionally, for valid windows, we plotted the normalized cross-correlation dynamics across different VOMSs for both Horizontal Saccade Vertical Saccade Horizontal Pursuit Vertical Pursuit  
+
+> 5.0
+> 7.5
+> 10.0
+> 12.5
+> 15.0
+> DTW Distance (unitless)
+> S1 S2
+
+Fig. 10. Violin plots showing DTW distance distributions between extracted EEG features and target trajectories across VOMSs and subjects. Horizontal lines indicate the median and interquartile range (IQR). 
+
+participants (Fig. 11), using DTW-aligned extracted features and target trajectories. Fig. 11 reveals temporal alignment and response dynamics across subjects and VOMSs, while the envelopes help understand inter-window variability and provide insight into consistency. III. R ESULTS 
+
+As illustrated in Fig. 3, applying a 4th order Butterworth band pass filter (0.5-30 Hz) followed by average referencing effectively mitigated DC drift and outliers in the raw EEG. When aggregated across all VOMSs and subjects, the filtered data achieved an overall mean of −2.91 × 10 −8 mV with a standard deviation of 0.009 mV .Fig. 9 illustrates the results of the PSD analysis of valid EEG feature windows, highlighting distinct and task-specific spectral characteristics. The PSD for horizontal saccades is dominated by low-frequency components, with most power concentrated below ∼ 10 Hz. Vertical saccades also show strong low-frequency dominance, but with a more pro-nounced contribution in the beta band compared to hor-izontal saccades. The PSD during horizontal and vertical pursuit exhibits a broader spectral distribution, with elevated power extending from low frequencies into the α band, and additional β-band contributions observed particularly for participant S1. Subject-wise comparison of DTW distances across VOMSs (Fig. 10) shows clear inter-subject differences and atask-dependent pattern, confirming that task-specific ocu-lar response time—quantified through DTW—can serve as a qualitative metric and will be useful for distinguishing subjects with mTBI. For both participants, Fig. 10 reveals that saccadic tasks exhibit lower median DTW distances; however, the distributions span a broader range, reflecting TABLE III MANN –W HITNEY U TEST RESULTS FOR SUBJECT -WISE MEDIAN DTW                                 
+
+> DIFFERENCES ACROSS VOMS TASKS (α= 0 .05 ).
+> VOMS P-value S1 Median S2 Median Direction
+> Horizontal Saccade 0.0 8.454 8.104 S1 >S2 Vertical Saccade 0.0 8.599 8.497 S1 >S2 Horizontal Pursuit 0.0 12.175 13.174 S1 <S2 Vertical Pursuit 0.0 9.663 9.371 S1 >S2
+
+trial-to-trial variability despite a consistent central tendency. In contrast, horizontal and vertical pursuit tasks demonstrate higher median DTW distances with comparatively narrower distributions, indicating more consistent but temporally de-layed ocular response timing relative to saccadic tasks. The Mann–Whitney U Test further confirmed that the me-dians for S1 and S2 differ significantly across VOMSs at a significance level of α = 0 .05 (Table III), supporting the use of task specific ocular response time (quantified via DTW distance) as a qualitative metric for identifying mTBI, as mTBI subjects typically exhibit elevated response times [25]– [27] and poorer timing consistency and greater variability in Pursuit tasks [28]. Fig 11 shows the normalized cross correlation dynamics across VOMSs for both subjects, using the DTW aligned extracted feature and the target trajectory (L2 distance). The lag or lead at the point of maximum cross-correlation (uMax) provides a temporal error metric that indicates resid-ual misalignment after DTW alignment. For the horizontal saccade task, S1 exhibits a pronounced lead exceeding 100 ms, whereas for the remaining VOMSs the lag/lead remains below 100ms. For pursuit tasks, the DTW-aligned feature 0  
+
+> 1Max = 0.4 at -0.12 s
+
+Subject 'S1''  
+
+> Horizontal
+> Saccade Max = 0.5 at -0.04 s
+
+Subject 'S2''                 
+
+> 0
+> 1Max = 0.4 at 0.04 s
+> Vertical
+> Saccade Max = 0.5 at -0.05 s
+> 0
+> 1Max = 0.7 at 0.05 s
+> Horizontal
+> Pursuit Max = 0.6 at 0.09 s
+> -2 s 0+2 s
+> 0
+> 1Max = 0.6 at 0.04 s
+> -2 s 0+2 s
+> Vertical
+> Pursuit Max = 0.6 at 0.03 s
+> Fig. 11. Normalized cross-correlation dynamics (unitless) between DTW-aligned EEG features and target trajectories across VOMSs and subjects, computed over valid windows (r >0.5).
+
+consistently lags the target VOMS trajectory, reflecting reac-tive tracking of the AR patch; in contrast, for saccade tasks, it leads the target (except S1 vertical saccade), indicating anticipatory positioning. Additionally, pursuit tasks also yield the highest peak correlations (0.6–0.7), reflecting stronger temporal coupling between the aligned feature and the target trajectory. Taken together, these properties make horizontal and vertical pursuits the most suitable VOMSs. IV. C ONCLUSION 
+
+This study demonstrates that EEG signals preprocessed using BPF and average referencing, followed by feature extraction via an RDWT-driven deep neural framework, can effectively support downstream analysis of subject- and VOMS-specific ocular response time using DTW. Spectral characterization via PSD analysis revealed task-specific and consistent spectral profiles, with dominant power concen-trated in characteristic frequency ranges across trials. DTW derived ocular response time emerged as a robust qualitative metric, with significant intersubject differences confirmed by the Mann–Whitney U Test across all VOMS types. Cross cor-relation analysis further highlighted distinct temporal strate-gies, with pursuit tasks exhibiting reactive tracking (positive lag) and strong temporal coupling. Taken together, these findings show that RDWT-based EEG feature extraction com-bined with DTW-distance-based temporal alignment provides a reliable and informative framework for capturing temporal fidelity—especially within pursuit paradigms—distinguishing subject groups and supporting future mTBI-related assess-ments. Future work will focus on integrating EOG tracking and real-time removal of ocular artifacts from EEG using adaptive filtering approaches such as H-infinity [27], alongside real-time eye tracking derived directly from EOG signals. We also plan to incorporate simultaneous EEG and real-time eye-tracking trajectories, together with the target stimulus trajectory, to enable a more comprehensive characterization of neuro-oculo-temporal dynamics. In addition, upcoming experiments will involve a larger and more diverse participant cohort, including individuals with mTBI, to strengthen inter subject comparisons and enhance the generalizability of our findings. ACKNOWLEDGMENT 
+
+We gratefully acknowledge Dr. Jerome Jeevarajan, MD (Department of Neurology, McGovern Medical School), for reviewing this work and providing clinically informed feedback that helped strengthen its clinical relevance. We also acknowledge NSF REU (2024) student Nathaniel Liu (University of Arkansas, Biomedical Engineering) for his contributions to data collection and analysis during the initial phase of the project. In addition, we thank undergraduate student Brandon Burlison (University of Houston, Industrial Design) for his assistance with data collection. REFERENCES [1] Centers for Disease Control and Prevention. (2025) Traumatic Brain Injury & Concussion: Facts about TBI. CDC. Accessed: 2025. [Online]. Available: https://www.cdc.gov/traumatic-brain-injury/ data-research/facts-stats/index.html [2] Department of Defense, “DoD TBI Worldwide Num-bers,” https://www.health.mil/Military-Health-Topics/ Centers-of-Excellence/Traumatic-Brain-Injury-Center-of-Excellence/ DOD-TBI-Worldwide-Numbers, 2026, Military Health System. Accessed February 20, 2026. [3] A. C. McKee and M. E. Robinson, “Military-related traumatic brain injury and neurodegeneration,” Alzheimer’s & Dementia: The Journal of the Alzheimer’s Association , vol. 10, no. 3, Suppl, pp. S242–S253, 2014. [Online]. Available: https://doi.org/10.1016/j.jalz.2014.04.003 [4] T. Covassin, R. J. Elbin, J. L. Stiller-Ostrowski, and A. P. Kontos, “Immediate post-concussion assessment and cognitive testing (impact) practices of sports medicine professionals,” Journal of Athletic Training , vol. 44, no. 6, pp. 639–644, 2009. [Online]. Available: https://doi.org/10.4085/1062-6050-44.6.639 [5] P. Langevin, P. Fr´ emont, P. Fait, and J.-S. Roy, “Responsiveness of the post-concussion symptom scale to monitor clinical recovery after concussion or mild traumatic brain injury,” Orthopaedic Journal of Sports Medicine , vol. 10, no. 10, p. 23259671221127049, 2022. [Online]. Available: https://doi.org/10.1177/23259671221127049 [6] D. R. Bell, K. M. Guskiewicz, M. A. Clark, and D. A. Padua, “Systematic review of the balance error scoring system,” Sports Health , vol. 3, no. 3, pp. 287–295, 2011. [Online]. Available: https://doi.org/10.1177/1941738111403122 [7] J. L. Farnsworth, L. Dargo, B. G. Ragan, and M. Kang, “Reliability of computerized neurocognitive tests for concussion assessment: A meta-analysis,” Journal of Athletic Training , vol. 52, no. 9, pp. 826–833, 2017. [Online]. Available: https://doi.org/10.4085/1062-6050-52.6.03 [8] J. Resch, A. Driscoll, N. McCaffrey, C. Brown, M. S. Ferrara, S. Macciocchi, T. Baumgartner, and K. Walpert, “Impact test– retest reliability: reliably unreliable?” Journal of Athletic Training ,vol. 48, no. 4, pp. 506–511, 2013. [Online]. Available: https: //doi.org/10.4085/1062-6050-48.3.09 [9] S. J. Mason, B. S. Davidson, M. Lehto, A. Ledreux, A.-C. Granholm, and K. A. Gorgens, “A cohort study of the temporal stability of impact scores among ncaa division i collegiate athletes: Clinical implications of test-retest reliability for enhancing student athlete safety,” Archives of Clinical Neuropsychology , vol. 35, no. 7, pp. 1131–1144, 2020. [Online]. Available: https://doi.org/10.1093/arclin/acaa047 [10] J. A. Urig¨ uen and B. Garcia-Zapirain, “Eeg artifact removal: State-of-the-art and guidelines,” Journal of Neural Engineering ,vol. 12, no. 3, p. 031001, 2015. [Online]. Available: https: //doi.org/10.1088/1741-2560/12/3/031001 [11] A. Craik, J. J. Gonz´ alez-Espa˜ na, A. Alamir, D. Edquilang, S. Wong, L. S´ anchez Rodr´ ıguez, J. Feng, G. E. Francisco, and J. L. Contreras-Vidal, “Design and validation of a low-cost mobile eeg-based brain–computer interface,” Sensors , vol. 23, no. 13, p. 5930, 2023. [Online]. Available: https://doi.org/10.3390/s23135930 [12] J. S. Kutcher and C. C. Giza, “Sports concussion diagnosis and management,” Continuum (Minneapolis, Minn.) , vol. 20, no. 6, Sports Neurology, pp. 1552–1569, 2014. [Online]. Available: https://doi.org/10.1212/01.CON.0000458974.78766.58 [13] T. T. K. Munia, A. Haider, C. Schneider et al. , “A novel eeg based spectral analysis of persistent brain function alteration in athletes with concussion history,” Scientific Reports , vol. 7, p. 17221, 2017. [Online]. Available: https://doi.org/10.1038/s41598-017-17414-x [14] J. K. Yue, P. S. Upadhyayula, L. N. Avalos, H. Deng, and K. K. W. Wang, “The role of blood biomarkers for magnetic resonance imaging diagnosis of traumatic brain injury,” Medicina , vol. 56, no. 2, p. 87, 2020. [Online]. Available: https://doi.org/10.3390/medicina56020087 [15] A. Mucha, M. W. Collins, R. J. Elbin, J. M. Furman, C. Troutman-Enseki, R. M. DeWolf, G. Marchetti, and A. P. Kontos, “A brief vestibular/ocular motor screening (voms) assessment to evaluate concussions: Preliminary findings,” The American Journal of Sports Medicine , vol. 42, no. 10, pp. 2479–2486, 2014. [Online]. Available: https://doi.org/10.1177/0363546514543775 [16] K. Toda, H. Tachibana, M. Sugita, and K. Konishi, “P300 and reaction time in parkinson’s disease,” Journal of Geriatric Psychiatry and Neurology , vol. 6, no. 3, pp. 131–136, 1993. [Online]. Available: https://doi.org/10.1177/089198879300600301 [17] J. N. van der Geest, C. Kemner, G. Camfferman, M. N. Verbaten, and H. van Engeland, “Eye movements, visual attention, and autism: A saccadic reaction time study using the gap and overlap paradigm,” 
+
+Biological Psychiatry , vol. 50, no. 8, pp. 614–619, 2001. [Online]. Available: https://doi.org/10.1016/s0006-3223(01)01070-8 [18] S. A. Wylie, W. P. van den Wildenberg, K. R. Ridderinkhof, T. R. Bashore, V. D. Powell, C. A. Manning, and G. F. Wooten, “The effect of parkinson’s disease on interference control during action selection,” 
+
+Neuropsychologia , vol. 47, no. 1, pp. 145–157, 2009. [Online]. Available: https://doi.org/10.1016/j.neuropsychologia.2008.08.001 [19] J. Zhang, T. Rittman, C. Nombela, A. Fois, I. Coyle-Gilchrist, R. A. Barker, L. E. Hughes, and J. B. Rowe, “Different decision deficits impair response inhibition in progressive supranuclear palsy and parkinson’s disease,” Brain , vol. 139, no. 1, pp. 161–173, 2016. [Online]. Available: https://doi.org/10.1093/brain/awv331 [20] X. Xie, R. Zhou, Z. Fang, Y. Zhang, Q. Wang, and X. Liu, “Seeing beyond words: Visualizing autism spectrum disorder biomarker insights,” Heliyon , vol. 10, no. 9, p. e30420, 2024. [Online]. Available: https://doi.org/10.1016/j.heliyon.2024.e30420 [21] K. J. Pope, T. W. Lewis, S. P. Fitzgibbon, A. S. Janani, T. S. Grummett, P. A. H. Williams, M. Battersby, T. Bastiampillai, E. M. Whitham, and J. O. Willoughby, “Managing electromyogram contamination in scalp recordings: An approach identifying reliable beta and gamma eeg features of psychoses or other disorders,” Brain and Behavior , vol. 12, no. 9, p. e2721, 2022. [Online]. Available: https://doi.org/10.1002/brb3.2721 [22] S. Sarkar and J. L. Contreras-Vidal, “Optimal discrete mother wavelet selection for eeg motor imagery decoding: A comparative study,” in Health Informatics and Medical Systems and Biomedical Engineering , ser. Communications in Computer and Information Science, A. Alsadoon, F. Shenavarmasouleh, S. Amirian, F. Ghareh Mohammadi, H. R. Arabnia, and L. Deligiannidis, Eds. Cham: Springer, 2025, vol. 2259. [Online]. Available: https://doi.org/10.1007/978-3-031-85908-3 2 [23] T. Giorgino, “Computing and visualizing dynamic time warping alignments in r: The dtw package,” Journal of Statistical Software ,vol. 31, no. 7, p. 1–24, 2009. [Online]. Available: https://www. jstatsoft.org/index.php/jss/article/view/v031i07 [24] A. R. Nikolaev, R. N. Meghanathan, and C. van Leeuwen, “Combining eeg and eye movement recording in free viewing: Pitfalls and possibilities,” Brain and Cognition , vol. 107, pp. 55–83, 2016. [Online]. Available: https://doi.org/10.1016/j.bandc.2016.06.004 [25] N. W. Churchill, M. G. Hutchison, S. J. Graham, and T. A. Schweizer, “Brain function associated with reaction time after sport-related concussion,” Brain Imaging and Behavior , vol. 15, no. 3, pp. 1508–1517, 2021. [Online]. Available: https://doi.org/10.1007/ s11682-020-00349-9 [26] B. A. Christensen, B. Clark, A. M. Muir, W. D. Allen, E. M. Corbin, T. Jaggi, N. Alder, A. Clawson, T. J. Farrer, E. D. Bigler, and M. J. Larson, “Interhemispheric transfer time and concussion in adolescents: A longitudinal study using response time and event-related potential measures,” Frontiers in Human Neuroscience , vol. 17, p. 1161156, 2023. [Online]. Available: https://doi.org/10.3389/fnhum.2023.1161156 [27] S. J. Mullen, Y. H. Y¨ ucel, M. Cusimano, T. A. Schweizer, A. Oentoro, and N. Gupta, “Saccadic eye movements in mild traumatic brain injury: a pilot study,” The Canadian Journal of Neurological Sciences / Le Journal Canadien des Sciences Neurologiques , vol. 41, no. 1, pp. 58–65, 2014. [Online]. Available: https://doi.org/10.1017/S0317167100016279 [28] J. L. Stubbs, S. L. Corrow, B. R. Kiang, J. C. Corrow, H. L. Pearce, A. Y. Cheng, J. J. S. Barton, and W. J. Panenka, “Working memory load improves diagnostic performance of smooth pursuit eye movement in mild traumatic brain injury patients with protracted recovery,” Scientific Reports , vol. 9, no. 1, p. 291, 2019. [Online]. Available: https://doi.org/10.1038/s41598-018-36286-3

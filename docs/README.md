@@ -6,54 +6,73 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-01
-- 运行时间：2026-06-01 22:59:27 UTC
+- 最新运行日期：2026-05-04 ~ 2026-06-02
+- 运行时间：2026-06-02 04:08:46 UTC
 - 运行状态：成功
-- 本次总论文数：10
-- 精读区：1
-- 速读区：9
+- 本次总论文数：17
+- 精读区：6
+- 速读区：11
 
 ### 今日简报（AI）
-今天精读1篇EEG基础模型位置编码基准测试，速读睡眠分期、神经符号解码和实时EEG推理三篇。
-
-最值得关注的是Transformer位置编码策略对EEG性能的关键影响（精读9.0分），以及轻量自监督睡眠分期模型（7.0分）。
-
-建议优先阅读精读论文理解位置编码设计，再关注因果状态空间模型在实时EEG中的潜力。
-- 详情：[/202606/01/README](/202606/01/README)
+本期日报聚焦EEG去伪迹与解码可靠性，精读两篇8.0分论文。  
+最值得关注：ICA去伪迹对深度网络解码无显著提升，而预处理选择严重左右解码可靠性。  
+建议读者优先统一预处理标准，避免因方法差异导致研究结论偏差。
+- 详情：[/20260504-20260602/README](/20260504-20260602/README)
 
 ### 精读区论文标签
-1. [Benchmarking Positional Encoding Strategies for Transformer-Based EEG Foundation Models](/202606/01/2605.29754v1-benchmarking-positional-encoding-strategies-for-transformer-based-eeg-foundation-models)  
-   标签：评分：9.0/10、query:eeg
-   evidence：对基于Transformer的EEG基础模型的位置编码策略进行基准测试
+1. [I see artifacts: ICA-based EEG artifact removal does not improve deep network decoding across three BCI tasks](/20260504-20260602/2605.06018v1-i-see-artifacts-ica-based-eeg-artifact-removal-does-not-improve-deep-network-decoding-across-three-bci-tasks)  
+   标签：评分：8.0/10、query:eeg
+   evidence：探究伪迹去除方法对BCI解码性能的影响
+2. [Same Brain, Different Prediction: How Preprocessing Choices Undermine EEG Decoding Reliability](/20260504-20260602/2605.07212v1-same-brain-different-prediction-how-preprocessing-choices-undermine-eeg-decoding-reliability)  
+   标签：评分：8.0/10、query:eeg
+   evidence：脑电解码中的预处理不稳定性
+3. [NeuralBench: A Unifying Framework to Benchmark NeuroAI Models](/20260504-20260602/2605.08495v1-neuralbench-a-unifying-framework-to-benchmark-neuroai-models)  
+   标签：评分：8.0/10、query:eeg
+   evidence：统一的EEG模型评估基准，包含36个任务
+4. [Explainability of Recurrent Neural Networks for Enhancing P300-based Brain-Computer Interfaces](/20260504-20260602/2605.10121v1-explainability-of-recurrent-neural-networks-for-enhancing-p300-based-brain-computer-interfaces)  
+   标签：评分：8.0/10、query:eeg
+   evidence：基于P300的脑机接口分类与可解释性研究
+5. [CORTEG: Foundation Models Enable Cross-Modality Representation Transfer from Scalp to Intracranial Brain Recordings](/20260504-20260602/2605.10337v1-corteg-foundation-models-enable-cross-modality-representation-transfer-from-scalp-to-intracranial-brain-recordings)  
+   标签：评分：8.0/10、query:eeg-latent
+   evidence：利用基础模型和潜在表示实现头皮脑电到皮层脑电的跨模态迁移
+6. [DANCE: Detect and Classify Events in EEG](/20260504-20260602/2605.10688v1-dance-detect-and-classify-events-in-eeg)  
+   标签：评分：8.0/10、query:eeg
+   evidence：统一的EEG事件检测与分类
 
 ### 速读区论文标签
-1. [Sleep-stage efficient classification using a lightweight self-supervised model](/202606/01/2605.26295v1-sleep-stage-efficient-classification-using-a-lightweight-self-supervised-model)  
+1. [From EEG Cleaning to Decoding: The Role of Artifact Rejection in MI-based BCIs](/20260504-20260602/2605.12408v1-from-eeg-cleaning-to-decoding-the-role-of-artifact-rejection-in-mi-based-bcis)  
+   标签：评分：8.0/10、query:eeg
+   evidence：运动想象BCI的伪影去除
+2. [NeuroAtlas: Benchmarking Foundation Models for Clinical EEG and Brain-Computer Interfaces](/20260504-20260602/2605.14698v1-neuroatlas-benchmarking-foundation-models-for-clinical-eeg-and-brain-computer-interfaces)  
+   标签：评分：8.0/10、query:eeg
+   evidence：大规模临床EEG和BCI基础模型基准
+3. [BCI-Based Assessment of Ocular Response Time Using Dynamic Time Warping Leveraging an RDWT-Driven Deep Neural Framework](/20260504-20260602/2605.14883v1-bci-based-assessment-of-ocular-response-time-using-dynamic-time-warping-leveraging-an-rdwt-driven-deep-neural-framework)  
+   标签：评分：8.0/10、query:eeg
+   evidence：基于脑机接口的评估：结合脑电与动态时间规整
+4. [nASR: An End-to-End Trainable Neural Layer for Channel-Level EEG Artifact Subspace Reconstruction in Real-Time BCI](/20260504-20260602/2605.14941v1-nasr-an-end-to-end-trainable-neural-layer-for-channel-level-eeg-artifact-subspace-reconstruction-in-real-time-bci)  
+   标签：评分：8.0/10、query:eeg
+   evidence：通道级伪影子空间重建用于脑电信号去噪
+5. [Multi-Level Bidirectional Biomimetic Learning for EEG-Based Visual Decoding](/20260504-20260602/2605.04680v1-multi-level-bidirectional-biomimetic-learning-for-eeg-based-visual-decoding)  
+   标签：评分：7.0/10、query:eeg
+   evidence：多级仿生学习用于EEG视觉解码
+6. [What Do EEG Foundation Models Capture from Human Brain Signals?](/20260504-20260602/2605.11410v1-what-do-eeg-foundation-models-capture-from-human-brain-signals)  
+   标签：评分：7.0/10、query:eeg
+   evidence：分析脑电基础模型的表示内容
+7. [What Do EEG Foundation Models Capture from Human Brain Signals?](/20260504-20260602/2605.11410v2-what-do-eeg-foundation-models-capture-from-human-brain-signals)  
    标签：评分：7.0/10、query:eeg-latent
-   evidence：使用mulEEG模型进行自监督EEG表示学习用于睡眠阶段分类
-2. [SYNAPSE: Neuro-Symbolic Visual Thought-to-Text Decoding via Topological Semantic Denoising](/202606/01/2605.27790v1-synapse-neuro-symbolic-visual-thought-to-text-decoding-via-topological-semantic-denoising)  
+   evidence：分析脑电基础模型的潜在表示
+8. [Mechanistic Interpretability of EEG Foundation Models via Sparse Autoencoders](/20260504-20260602/2605.13930v1-mechanistic-interpretability-of-eeg-foundation-models-via-sparse-autoencoders)  
    标签：评分：7.0/10、query:eeg
-   evidence：使用神经符号和潜在空间去噪的EEG到文本解码，用于BCI
-3. [CaMBRAIN: Real-time, Continuous EEG Inference with Causal State Space Models](/202606/01/2605.28792v1-cambrain-real-time-continuous-eeg-inference-with-causal-state-space-models)  
-   标签：评分：7.0/10、query:eeg
-   evidence：用于实时EEG推理的因果状态空间模型
-4. [GL-LFGNN:A Global-Local Dual-branch Causal Graph Neural Network Based on Liang-Kleeman Information Flow for EEG Emotion Recognition](/202606/01/2605.25061v1-gl-lfgnna-global-local-dual-branch-causal-graph-neural-network-based-on-liang-kleeman-information-flow-for-eeg-emotion-recognition)  
-   标签：评分：6.0/10、query:eeg-latent
-   evidence：用于EEG情绪识别的因果图神经网络，全局-局部分支
-5. [StrTransformer: Source-Wise Structured Transformers for Unsupervised Blind Source Recovery](/202606/01/2605.25648v1-strtransformer-source-wise-structured-transformers-for-unsupervised-blind-source-recovery)  
-   标签：评分：6.0/10、query:eeg-latent
-   evidence：提出StrTransformer盲源恢复框架，通过优化潜在源矩阵和掩码斑块重建，与潜在空间补全相关。
-6. [On the Role of Inductive Bias in Time-Series Pretraining: A Case Study in Learning Generalizable Representations for Clinical Time Series](/202606/01/2605.26194v1-on-the-role-of-inductive-bias-in-time-series-pretraining-a-case-study-in-learning-generalizable-representations-for-clinical-time-series)  
-   标签：评分：6.0/10、query:eeg-latent
-   evidence：研究临床时间序列预训练中的归纳偏置，包含局部重建任务，可迁移至EEG信号重建。
-7. [MSCGC-KAN: Multi-scale Causal Graph Convolution and Kolmogorov-Arnold Feature Mapping for EEG Emotion Recognition](/202606/01/2605.26624v1-mscgc-kan-multi-scale-causal-graph-convolution-and-kolmogorov-arnold-feature-mapping-for-eeg-emotion-recognition)  
-   标签：评分：6.0/10、query:eeg-latent
-   evidence：用于EEG情绪识别的多尺度因果图卷积，学习潜在表示
-8. [Routing on the Stiefel Manifold: When Does Adaptive Subspace Selection Help for Cross-Domain EEG Decoding?](/202606/01/2605.31043v1-routing-on-the-stiefel-manifold-when-does-adaptive-subspace-selection-help-for-cross-domain-eeg-decoding)  
-   标签：评分：6.0/10、query:eeg-latent
-   evidence：在Stiefel流形上自适应子空间选择以跨域EEG解码
-9. [Giving Sensors a Voice: Multimodal JEPA for Semantic Time-Series Embeddings](/202606/01/2605.31580v1-giving-sensors-a-voice-multimodal-jepa-for-semantic-time-series-embeddings)  
-   标签：评分：6.0/10、query:eeg-latent
-   evidence：提出CHARM多元时间序列嵌入模型，使用JEPA和潜在空间预测，与潜在空间表示学习相关。
+   evidence：稀疏自编码器用于解释EEG基础模型
+9. [Adaptive Data Compression and Reconstruction for Memory-Bounded EEG Continual Learning](/20260504-20260602/2605.03085v1-adaptive-data-compression-and-reconstruction-for-memory-bounded-eeg-continual-learning)  
+   标签：评分：6.0/10、query:eeg
+   evidence：脑电信号压缩与重建用于持续学习
+10. [From Clever Hans to Scientific Discovery: Interpreting EEG Foundational Transformers with LRP](/20260504-20260602/2605.11885v1-from-clever-hans-to-scientific-discovery-interpreting-eeg-foundational-transformers-with-lrp)  
+   标签：评分：6.0/10、query:eeg
+   evidence：使用LRP解释EEG基础Transformer
+11. [Mechanistic Interpretability of EEG Foundation Models via Sparse Autoencoders](/20260504-20260602/2605.13930v2-mechanistic-interpretability-of-eeg-foundation-models-via-sparse-autoencoders)  
+   标签：评分：6.0/10、query:eeg
+   evidence：通过稀疏自编码器进行EEG基础模型的可解释性分析
 
 
 <div class="dpr-home-promo-card">
