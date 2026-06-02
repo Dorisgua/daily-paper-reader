@@ -1,0 +1,203 @@
+Title: RAG-based EEG-to-Text Translation Using Deep Learning and LLMs
+
+URL Source: https://arxiv.org/pdf/2605.17503v1
+
+Published Time: Tue, 19 May 2026 01:27:59 GMT
+
+Number of Pages: 6
+
+Markdown Content:
+# RAG-based EEG-to-Text Translation Using Deep Learning and LLMs 
+
+Enrico Collautti 1, Xiaopeng Mao 3, Luca Tonin 1,2, Stefano Tortora 1,2, Sadasivan Puthusserypady 3
+
+Abstract — The decoding of linguistic information from elec-troencephalography (EEG) signals remains an extremely chal-lenging problem in brain-computer interface (BCI) research. In particular, sentence-level decoding from EEG is difficult due to the low signal-to-noise ratio of these recordings. Previous studies tackling this problem have typically failed to surpass random baseline performance unless teacher forcing is used during the inference phase. In this work, we propose a retrieval-augmented generation (RAG)-based sentence-level EEG-to-text decoding pipeline that combines an EEG encoder aligned with semantic sentence embeddings, a vector retrieval stage, and a large language model (LLM) to refine retrieved sentences into coherent output. Experiments are conducted on the Zurich Cognitive Language Processing Corpus (ZuCo) dataset, which contains single-trial EEG recordings collected during silent reading. To evaluate whether the system extracts meaningful information from these EEG signals, the results are compared with a random baseline. In nine subjects, the proposed pipeline outperforms the random baseline, achieving a mean cosine similarity of 0.181 ± 0.022 compared to 0.139 ± 0.029 for the baseline, corresponding to a relative improvement of 30 .45% .Statistical analysis further confirms that this improvement is significant, following a strict evaluation workflow where inference is performed without access to ground-truth labels. 
+
+Index Terms — Brain-computer interface (BCI), EEG decod-ing, EEG-to-text, retrieval-augmented generation (RAG), large language models (LLMs) 
+
+I. INTRODUCTION Brain-computer interfaces (BCIs) aim to translate neural activity into external control signals, providing alternative communication pathways for individuals with severe motor impairments, enabling users to express intentions without relying on muscular activity. Recent advances in invasive neural recording technologies, such as electrocorticogra-phy (ECoG) and intracortical implants, have demonstrated promising results in decoding speech and linguistic in-formation directly from brain activity [1], [2]. However, invasive BCIs require neurosurgical implantation and are therefore limited to specific clinical contexts. For broader and safer deployment, non-invasive approaches such as electroencephalography (EEG) remain highly attractive due to their safety, portability, and relatively low cost. BCIs based on EEG have been developed for a variety of tasks,            
+
+> This work has been submitted to the IEEE for possible publication. Copyright may be transferred without notice, after which this version may no longer be accessible.
+> 1IAS-LAB, Department of Information Engineer-ing, University of Padova, 35122 Padova (PD), Italy
+
+enrico.collautti@studenti.unipd.it 
+
+{luca.tonin, stefano.tortora }@unipd.it  
+
+> 2Padova Neuroscience Center, 35131 Padova (PD), Italy.
+> 3Department of Health Technology, Technical University of Denmark, 2800 Kgs. Lyngby, Denmark
+
+{xiama, sapu }@dtu.dk 
+
+including motor control, environmental interaction, and com-munication [3]. Despite these advantages, decoding natural language from EEG signals remains extremely challenging. EEG recordings suffer from low spatial resolution, high noise levels, and strong inter-subject variability. As a result, many early systems relied on restricted vocabularies or character-level decoding strategies, which significantly limit fluency and practicality. Consequently, reliable sentence-level EEG-to-text decoding remains an open challenge. Recent work has also raised concerns about the evaluation methodologies commonly used in EEG-to-text research. Jo et al. [4] demonstrate that several neural decoding models report strong performance despite relying on questionable evaluation practices. In particular, some systems employ teacher forcing during inference, meaning that ground-truth tokens are partially provided to the decoder during testing. This practice artificially simplifies the generation task and can significantly inflate reported metrics. In addition, the authors highlight that many studies lack meaningful com-parisons against random or noise-based baselines. Through a noise-based analysis, they show that some EEG-to-text models achieve comparable performance even when the input EEG signals are replaced with noise, suggesting that the models may rely on dataset artifacts or memorization rather than genuinely decoding neural information. These findings emphasize the importance of rigorous evaluation protocols and proper baselines when assessing brain-to-text systems. Recent approaches have explored the integration of deep learning and large language models (LLMs) to improve EEG-to-text decoding. For example, Mishra et al. [5] propose 
+
+Thought2Text , a three-stage pipeline that combines an EEG encoder with multimodal alignment and instruction-tuned LLMs. Their method trains a multichannel convolutional EEG encoder based on ChannelNet [6] to align EEG em-beddings with pretrained contrastive language-image pre-training (CLIP) [7] image embeddings while simultaneously predicting salient object labels. The resulting multimodal representation is then projected onto the token embedding space of an LLM, enabling the generation of textual descrip-tions conditioned on EEG-derived signals. While this mul-timodal alignment strategy demonstrates competitive perfor-mance, it relies on visual stimuli and image representations, which restrict the expressive freedom of natural language. Furthermore, projecting EEG embeddings directly onto the token embedding space of a language model may introduce information loss due to the compression required by the projection layer. In this work, a sentence-level embedding strategy is adopted to support more natural and flexible communication. 
+
+> arXiv:2605.17503v1 [cs.AI] 17 May 2026
+
+A modular EEG-to-text framework is proposed in which each component can be independently replaced or improved, providing a flexible foundation for future developments in artificial intelligence and neuroengineering. The pipeline learns EEG sentence embeddings aligned with pretrained language representations, enabling semantic retrieval in a vector space without directly projecting neural embeddings onto the language model’s internal representation. Retrieved candidate sentences are subsequently refined by an LLM performing a natural language processing task. In addition, the proposed framework introduces a rigorous evaluation protocol designed to avoid the methodological pitfalls high-lighted in recent literature. The system is evaluated without any form of teacher forcing during inference, ensuring that the decoder does not receive ground-truth information at test time. Performance is compared against a random baseline following the evaluation concerns raised by Jo et al. [4]. However, beyond simple baseline comparison, this work further introduces statistical analysis to determine whether the observed differences between real EEG decoding and random baselines are statistically significant. This additional validation step provides a stronger and more reliable as-sessment of whether the decoded information genuinely originates from neural signals rather than dataset artifacts or chance effects. II. METHODS 
+
+A. Dataset 
+
+The Zurich Cognitive Language Processing Corpus (ZuCo) 1.0 and 2.0 are datasets that provide EEG recordings collected during silent reading of English sentences [8], [9]. The ZuCo datasets are well-suited for brain-to-text research because they (i) use a silent reading paradigm that avoids speech-related muscle artifacts, (ii) rely on EEG rather than invasive recording, and (iii) provide labeled EEG-text pairs that make it possible to train supervised deep learning models for mapping neural activity to linguistic representations. The datasets include multiple reading tasks: Natural Read-ing (NR), in which participants read sentences normally; 
+
+Sentiment Reading (SR), where participants read sentences and subsequently evaluate their sentiment; and Task-Specific Reading (TSR), which involves an active language com-prehension exercise. In addition, the datasets provide eye-tracking annotations that allow precise alignment between textual stimuli and neural signals. In this work, subject-dependent sentence-level decoding is performed across nine ZuCo 1.0 participants. Three out of the twelve subjects were excluded due to incomplete recordings that resulted in substantially fewer usable sentence trials. For each included subject, the NR and SR tasks were merged after preprocessing, yielding approximately 700 sentence-level EEG-text pairs per subject. Models are trained and evaluated independently for each subject in order to assess robustness across individuals. 
+
+B. Main Pipeline 
+
+The overall architecture of the proposed EEG-to-text de-coding framework is illustrated in Fig. 1. The pipeline is organized into two main stages: an offline training phase 
+
+and an online inference phase .The individual components of the pipeline are described in detail in the following subsections. 
+
+C. EEG Preprocessing 
+
+EEG signals in ZuCo 1.0 were originally acquired using a 128-channel Geodesic Hydrocel system sampled at 500 Hz with hardware band-pass filtering of 0.1 to 100 Hz [8]. The dataset provides artifact-cleaned signals produced using the Automagic preprocessing pipeline [10]. This pipeline in-cludes bad-channel detection and interpolation, high-pass and notch filtering, eye-artifact regression, independent compo-nent analysis (ICA) with automatic artifact component rejec-tion using Multiple Artifact Rejection Algorithm (MARA), and average re-referencing [11], [12]. Sentence-level EEG segments are extracted using fixation-aligned timing information provided by the dataset. Each segment corresponds to the EEG activity recorded during the reading of a specific sentence. Since sentence durations vary across trials, all EEG segments among the same sub-ject are symmetrically zero-padded to a common temporal length, enabling batch processing with convolutional neural networks (CNNs). 
+
+D. Sentence Embedding Targets 
+
+Each ground-truth sentence is mapped to a contextual semantic representation using a pretrained sentence em-bedding model. Specifically, the all-mpnet-base-v2 
+
+model from the Sentence Transformers library is used to compute 768-dimensional sentence embeddings [13]. These embeddings serve as the target representations that the EEG encoder is trained to approximate. 
+
+E. EEG Encoder and Embedding Alignment 
+
+A convolutional EEG encoder is trained to map a multi-channel EEG segment X ∈ RC×T (channels × time sam-ples) to a 768-dimensional embedding zEEG ∈ R768 . The ar-chitecture is inspired by EEGChannelNet-style designs [6]. It combines (i) temporal depthwise convolutions with multiple dilation factors to capture multi-scale temporal dynamics, (ii) spatial convolutions to model inter-channel relationships, and (iii) residual blocks to improve training stability. A global average pooling layer aggregates temporal features, followed by a linear projection that maps the representation to the 768-dimensional sentence embedding space in order to align it with the precomputed text embeddings. The model is trained using a cosine similarity loss that encourages alignment between EEG and text embeddings: 
+
+L = 1 − zEEG · zTXT 
+
+∥zEEG ∥∥ zTXT ∥ , (1) where zTXT denotes the target sentence embedding. For each subject, the dataset of approximately 700 sen-tences is divided into 650 training samples and 50 test samples in order to evaluate generalization under limited data conditions. The 50 test sentences are identical across LLM 
+
+> Refinement
+> K-Best
+> Sentences
+> EEG
+> Embeddings
+> Sentence
+> Transformer
+> EEG
+> Train
+> Dataset
+> Sentences
+> Dataset
+> EEG
+> Encoder
+> Sentence
+> Embeddings
+> EEG
+> Embeddings
+> EEG+Text
+> Vector Store
+> EEG
+> Test
+> Dataset
+> EEG
+> Encoder
+> FINAL
+> OUTPUT
+> Cosine
+> Similarity
+> Retrieval
+> Prompt
+
+Offline Training 
+
+Input  Online Chain Fig. 1. Overview of the proposed EEG-to-text decoding pipeline. The framework consists of an offline training stage for learning EEG sentence embeddings and an online inference stage that performs similarity retrieval and language model refinement. 
+
+subjects, allowing semantically consistent comparisons be-tween participants. A preliminary hyperparameter search is conducted using a validation set of 50 sentences drawn from the training portion. The objective of this search is to identify a single hyperparameter configuration that can be applied consistently across all subjects, thereby testing the generalization capability of the encoder architecture. The explored optimization strategies include dropout reg-ularization, L2 weight decay, LeakyReLU activations, and a cosine annealing learning-rate scheduler. The grid search is executed using three different random seeds to reduce sensitivity to initialization effects. The hyperparameter con-figuration that demonstrated the most stable and consistent performance across all seeds is selected. After selecting the best configuration, the model is retrained on the full training set (without a validation split) to produce the final EEG embeddings for each subject. 
+
+F. Vector Indexing and Retrieval-Augmented Generation 
+
+After training, EEG embeddings corresponding to all train-ing sentences are indexed in a Facebook AI Similarity Search (FAISS) [14] vector store to enable efficient nearest-neighbor retrieval using cosine similarity. Importantly, the vector store is constructed exclusively from training sentences, and all test sentences are strictly excluded. As a result, during inference, the retrieval stage cannot return the ground-truth sentence associated with the test EEG signal, preventing any form of data circularity. During retrieval, a test EEG segment is encoded into an embedding zEEG , and the top-k nearest sentences are retrieved from the vector store (with k = 3 ). Inference is accomplished via a retrieval-augmented gen-eration (RAG), where the retrieved sentences are provided to an LLM, which generates a single fluent output sen-tence that captures their shared semantic content. In this work, the meta-llama/Meta-Llama-3-8B model [15] is used through HuggingFace. The model is prompted with a constrained instruction designed to limit hallucination and enforce semantic preservation: 
+
+“You are given three similar sentences. Your task is to generate one single, fluent, grammatically correct sentence that captures the same meaning, without adding or removing information. Only output the corrected sentence.” G. Random Baseline and Statistical Analysis 
+
+To assess whether the proposed EEG-to-text decoding pipeline performs above chance level, a random baseline is constructed and compared with the real decoding results. The random baseline is generated by shuffling the EEG signals associated with each sentence. Specifically, the orig-inal EEG data for each trial (channels × time samples) is randomly permuted along the temporal dimension to produce synthetic signals that preserve the physiological amplitude distribution of EEG activity while destroying its temporal structure. As a result, the mean and standard deviation of the signals remain unchanged, while the temporal structure is disrupted, thereby altering spectral-temporal patterns that may encode linguistic information. The shuffled signals are then randomly assigned to the true sentence labels of the test set and processed through the same decoding pipeline used for real EEG data. To account for variability in the randomization process, this procedure is repeated across multiple random seeds (here n = 10 ). For evaluation, both the generated sentence and the cor-responding ground-truth sentence are embedded, and the cosine similarity between the two embeddings is used as a measure of semantic alignment. To determine whether decoding performance exceeds chance level, statistical comparisons between real decoding results and the random baseline are conducted at both the subject-specific level and the whole-dataset level. At the whole-dataset level, analysis is performed across subjects. For each subject, cosine similarity scores obtained from the random baseline are first averaged across the different random seeds. The mean cosine similarity is then computed separately for the real decoding outputs and the random baseline, producing one paired observation per sub-ject (real mean vs. random mean). These paired values are compared using a Wilcoxon signed-rank test with a one-sided alternative hypothesis (real > random) [16], reflecting the hypothesis that real EEG decoding should outperform the random baseline. At the subject-specific level, decoding performance is evaluated individually for each participant. For each subject, the cosine similarity scores of the 50 decoded sentences are compared with the corresponding random baseline scores ob-tained by averaging across random seeds for each sentence. The comparison between real and random cosine similarities is again evaluated using a Wilcoxon signed-rank test with a one-sided alternative hypothesis. Since these statistical tests are conducted separately for multiple subjects, the resulting p-values are corrected for multiple comparisons using the Benjamini-Hochberg False Discovery Rate (FDR) procedure. III. RESULTS 
+
+A. EEG Encoder Training 
+
+During the training phase, the optimized configuration shows substantially improved generalization compared to a direct adaptation of the baseline EEGChannelNet-style encoder. Training and validation losses decrease together throughout the optimization process, with no evident di-vergence that would indicate overfitting. This behavior is consistent across subjects, with similar convergence patterns observed for all participants. Final validation losses across subjects remain in the 0.60 –0.70 range. The cosine loss, as defined in Eq. 1, ranges between 0 and 2, and these values are therefore consistent with the noisy nature of single-trial EEG signals and the limited number of training examples available for each subject. 
+
+B. Final Output Examples 
+
+As a qualitative evaluation of the proposed pipeline, Ta-ble I reports some representative decoding results across different subjects. For each example, the target sentence, the generated output, and the cosine similarity score be-tween their sentence embeddings are shown. The under-lined segments highlight portions of the generated output that are semantically similar to the target sentence. These correspondences are not necessarily exact word matches, but rather expressions that convey a similar meaning or concept. This reflects the goal of the proposed pipeline, which is to capture semantic information from EEG signals rather than reproduce the exact lexical structure of the original sentence. In the successful examples, the system correctly identifies the main topic of the sentence, such as references to a movie , and captures the associated sentiment or overall context (e.g., describing a film in a positive or negative way). 
+
+> TABLE I EXAMPLES OF DECODED SENTENCES PRODUCED BY THE PIPELINE .
+
+Subject: ZMG 
+
+Target Sentence: ... by the time it’s done with us, Mira Nair’s new movie has its audience giddy with the delight of discovery, of having been immersed in a foreign culture only to find that human nature is pretty much the same all over. 
+
+Final Output: A beautifully crafted, emotionally resonant film that should appeal to audiences looking for something original and thought-provoking. 
+
+Cosine Similarity Score: 0.560 
+
+Subject: ZJN 
+
+Target Sentence: Huxley was born in Godalming, Surrey, England. 
+
+Final Output: He was born in Litchfield, England, where he attended school before moving on to study medicine at Edinburgh University, Scotland. 
+
+Cosine Similarity Score: 0.551 
+
+Subject: ZMG 
+
+Target Sentence: The film is so bad it doesn’t improve upon the experience of staring at a blank screen. 
+
+Final Output: A very long film with dull parts, excessive emphasis on food preparation and snow hut building, and a leading actress who ruins it all with her utter inability to act. 
+
+Cosine Similarity Score: 0.501 
+
+Subject: ZDM 
+
+Target Sentence: The simplicity of The Way Home has few equals this side of Aesop. 
+
+Final Output: Bogdanovitch’s film is an interesting look at the Hearsts’ history, but the climax of the story gets lost in its own excesses. 
+
+Cosine Similarity Score: 0.101 
+
+> TABLE II SUBJECT -SPECIFIC AND WHOLE -DATASET ANALYSIS
+
+Subj. Real CosSim Random CosSim ∆ ∆% pw
+
+(μ ± σ) (μ ± σ)
+
+ZAB 0.214 ± 0.111 0.147 ± 0.152 0.067 46.02 0.012 
+
+ZDM 0.148 ± 0.128 0.141 ± 0.136 0.008 5.52 0.417 ZGW 0.195 ± 0.159 0.115 ± 0.140 0.080 70.22 0.009 
+
+ZJM 0.187 ± 0.139 0.174 ± 0.154 0.013 7.51 0.417 ZJN 0.158 ± 0.133 0.105 ± 0.097 0.053 50.50 0.030 
+
+ZKB 0.165 ± 0.128 0.172 ± 0.146 -0.008 -4.43 0.594 ZKH 0.208 ± 0.153 0.096 ± 0.111 0.112 116.11 0.009 
+
+ZKW 0.171 ± 0.129 0.165 ± 0.129 0.006 3.43 0.417 ZMG 0.185 ± 0.158 0.136 ± 0.101 0.049 36.10 0.056 ALL 0.181 ± 0.022 0.139 ± 0.029 0.042 30.45 0.0059 
+
+This suggests that the decoding pipeline is able to extract coarse semantic cues from neural activity. For completeness, a failure case is also shown in the last example of the table. In this example, the generated sentence is unrelated to the target content, illustrating a hallucination produced by the retrieval and generation stages. 
+
+C. Random Baseline and Statistical Analysis 
+
+Table II reports, respectively, the comparison between real decoding results and the random baseline at the subject-level and the overall behavior of the system across participants. Cosine similarity is computed between the embedding of Real Random     
+
+> 0.05
+> 0.10
+> 0.15
+> 0.20
+> 0.25
+> Cosine similarity
+> **
+> Whole Dataset Analysis: Real vs Random Fig. 2. Whole-dataset comparison between real and random cosine sim-ilarity distributions. Boxplots show the interquartile range (IQR), median, and whiskers. Each subject is connected across conditions by a line, which is solid for statistically significant differences ( p<0.05 ) and dashed otherwise. The double asterisk ( ∗∗ ) indicates a highly significant overall difference ( p < 0.01 ).
+
+the generated sentence and that of the ground-truth sentence. The tables show the mean and standard deviation of cosine similarity scores obtained from the real decoding pipeline and from the random baseline. The columns ∆ and ∆% 
+
+indicate the absolute and relative improvements of the real decoding results over the random baseline. The column pw
+
+reports the p-values obtained from the Wilcoxon signed-rank test, following the evaluation procedure described in the Methods section. Values below 0.05 are reported in bold ,indicating statistically significant results. The same statistical comparison is further illustrated by the boxplots in Fig. 2. At the subject-specific level, most subjects exhibit higher cosine similarity values for the real decoding pipeline com-pared with the random baseline. Statistically significant im-provements are observed for subjects ZAB, ZGW, ZJN, and ZKH. Subject ZMG also shows a positive improvement but does not reach the significance threshold and is therefore reported as a borderline case (underlined). In particular, the 
+
+p-value for ZMG exceeds the 0.05 threshold after apply-ing the Benjamini/Hochberg False Discovery Rate (FDR) correction. At the whole-dataset level, on average, the real decoding pipeline achieves higher cosine similarity scores than the random baseline across subjects, a result that is further supported by a highly significant p-value ( p < 0.01 ). Overall, the whole-dataset results confirm that the pro-posed decoding pipeline produces outputs that are signifi-cantly more semantically aligned with the target sentences than those obtained from the random baseline. Although the absolute cosine similarity values remain moderate due to the intrinsic noise of single-trial EEG signals and the difficulty of sentence-level decoding, the statistical results indicate that the system captures meaningful semantic information from neural activity beyond chance-level performance. IV. DISCUSSION To the best of our knowledge, this work presents the first sentence-level EEG-to-text decoding system that demon-strates performance significantly above a random baseline through statistical analysis. Although the cosine similarity scores remain moderate, the results are impressive given the difficulty of the task and the constraints of the experimental setup. In particular, inference is performed without access to ground-truth sentences or labels during generation. The sys-tem therefore avoids optimistic estimates that may arise from teacher forcing strategies often used in sequence generation models, operating in a strictly constrained setting. Another important challenge concerns the evaluation of EEG-to-text systems. Many previous studies rely on met-rics such as (Bilingual Evaluation Understudy) (BLEU) or Recall-Oriented Understudy for Gisting Evaluation (ROUGE), which measure performance based on exact word or n-gram overlap between generated and reference sen-tences. While appropriate for tasks such as machine transla-tion, these metrics are less suitable for EEG-based language decoding, where recovering the exact word sequence origi-nally processed by the brain is extremely difficult [17]. In this context, the primary objective is to recover the semantic content of the intended message rather than to reproduce identical wording. For this reason, this work eval-uates decoding performance using cosine similarity between sentence embeddings, which is widely adopted as a measure of semantic similarity in natural language processing (NLP). In addition, a statistical analysis comparing the real decoding pipeline with a randomized baseline is introduced to assess whether the observed improvements exceed chance-level performance. This evaluation criterion resembles a real-world scenario and is therefore more robust than using a white noise baseline [4]. Although cosine similarity and statistical testing are well-established tools in machine learning (ML) and NLP, their combined use for evaluating EEG-to-text decoding pipelines has not been systematically explored in prior work. Some limitations of the current approach must nevertheless be acknowledged. First, the ZuCo datasets provide only single-trial recordings for each sentence, meaning that each sentence is associated with a single EEG instance. From an ML perspective, this severely limits the amount of training data available for learning robust neural representations. In contrast to many deep learning applications where multiple samples per class are available, the present setup requires the model to generalize from highly sparse examples. The goal of the decoding process is therefore to capture the general meaning of a sentence rather than to reproduce its exact wording. Hence, the finer-grained linguistic nuances are not captured, and the conventional NLP metrics are inapplicable. Nonetheless, this design choice aligns with the inherent variability and noise present in non-invasive EEG signals. Despite these limitations, the modular structure of the pro-posed pipeline offers several advantages for future research. The architecture separates EEG representation learning, re-trieval in the embedding space, and linguistic refinement through a language model. This separation allows each component to be independently improved or replaced without redesigning the entire system. Among the components, the EEG encoder remains the most challenging part of the pipeline. Learning a meaningful embedding space from EEG signals is difficult, as the model must organize representa-tions so that semantically related sentences are mapped to nearby points while unrelated sentences remain distant. In practice, the learned EEG embedding space often exhibits reduced dispersion, making retrieval more difficult. Future work could explore contrastive learning strategies to explicitly enforce separation between embeddings of dif-ferent sentences and improve the structure of the learned representation space [18]. Additional improvements may also be achieved by exploring alternative sentence embedding models or more efficient LLMs for the refinement stage. In particular, prompt design and prompt engineering could play a role in improving the final linguistic output by guiding the language model to better integrate the retrieved sentences. Finally, while the present work focuses on open-domain sentence decoding, future datasets designed specifically for assistive applications could significantly improve perfor-mance. For instance, a dataset tailored for impaired subjects with a limited vocabulary of functional commands (e.g., “go to the bathroom”, “bring the cup”, or “turn on the light”) and multiple training trials per command would allow the system to learn more robust representations. In such scenarios, EEG decoding combined with modern vision-language-action models could potentially enable a natural human-robot interaction for assistive technologies capable of helping users in everyday life [19]. V. CONCLUSION This study introduced a modular, RAG-based framework for brain-to-text decoding, successfully reconstructing se-mantic sentence content from non-invasive EEG signals. By aligning neural embeddings with high-dimensional language representations and using vector similarity retrieval, our pipeline demonstrates that EEG contains sufficient signal-to-noise to support sentence-level decoding significantly above chance level. While the inherent noise and single-trial nature of current datasets, such as ZuCo, limit exact word-for-word reconstruction, our results confirm that semantic intent is preserved and recoverable. Future advancements in discrimi-native embedding spaces and refined prompt engineering for the LLM stage will further narrow the gap between neural intent and linguistic output. Ultimately, the modularity of this RAG-based approach provides a scalable foundation for next-generation assistive BCIs, offering a promising path toward high-fidelity communication for speech-impaired users. 
+
+ACKNOWLEDGMENT Generative AI tools were used to support English grammar and code debugging. All content, decisions and results remain the responsibility of the authors. 
+
+REFERENCES [1] F. R. Willett, E. M. Kunz, C. Fan, D. T. Avansino, G. H. Wilson, E. Y. Choi, F. Kamdar, M. F. Glasser, L. R. Hochberg, S. Druckmann, K. V. Shenoy, and J. M. Henderson, “A high-performance speech neuroprosthesis,” Nature , 2023. [2] N. S. Card, M. Wairagkar, C. Iacobacci, X. Hou, T. Singer-Clark, F. R. Willett, E. M. Kunz, C. Fan, M. V. Nia, D. R. Deo, A. Srinivasan, E. Y. Choi, M. F. Glasser, L. R. Hochberg, J. M. Henderson, K. Shahlaie, S. D. Stavisky, and D. M. Brandman, “An accurate and rapidly cal-ibrating speech neuroprosthesis,” New England Journal of Medicine ,2024. [3] L. Tonin and J. del R. Mill´ an, “Noninvasive brain–machine interfaces for robotic devices,” Annual Review of Control, Robotics, and Au-tonomous Systems , 2021. [4] H. Jo, Y. Yang, J. Han, Y. Duan, H. Xiong, and W. H. Lee, “Evalu-ating EEG-to-text models through noise-based performance analysis,” 
+
+Scientific Reports , 2025. [5] A. Mishra, S. Shukla, J. Torres, J. Gwizdka, and S. Roychowdhury, “Thought2Text: Text generation from EEG signal using large language models (LLMs),” 2025. [6] S. Palazzo, C. Spampinato, I. Kavasidis, D. Giordano, J. Schmidt, and M. Shah, “Decoding brain representations by multimodal learning of neural activity and visual features,” IEEE Transactions on Pattern Analysis and Machine Intelligence , 2021. [7] A. Radford, J. W. Kim, C. Hallacy, A. Ramesh, G. Goh, S. Agarwal, G. Sastry, A. Askell, P. Mishkin, J. Clark, G. Krueger, and I. Sutskever, “Learning transferable visual models from natural language supervi-sion,” in Proceedings of the 38th International Conference on Machine Learning , 2021. [8] N. Hollenstein, J. Rotsztejn, M. Troendle, A. Pedroni, C. Zhang, and N. Langer, “ZuCo, a simultaneous EEG and eye-tracking resource for natural sentence reading,” Scientific Data , 2018. [9] N. Hollenstein, M. Troendle, C. Zhang, and N. Langer, “ZuCo 2.0: A dataset of physiological recordings during natural reading and annotation,” 2020. [10] A. Pedroni, A. Bahreini, and N. Langer, “Automagic: Standardized preprocessing of big EEG data,” NeuroImage , 2019. [11] A. Delorme and S. Makeig, “EEGLAB: an open source toolbox for analysis of single-trial EEG dynamics including independent compo-nent analysis,” Journal of Neuroscience Methods , 2004. [12] I. Winkler, S. Haufe, and M. Tangermann, “Automatic classification of artifactual ICA-components for artifact removal in EEG signals,” 
+
+Behavioral and Brain Functions , 2011. [13] N. Reimers and I. Gurevych, “Sentence-bert: Sentence embeddings using siamese bert-networks,” in Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing . Association for Computational Linguistics, 2019. [14] J. Johnson, M. Douze, and H. J´ egou, “Billion-scale similarity search with GPUs,” IEEE Transactions on Big Data , 2021. [15] A. Grattafiori, A. Dubey, and the Llama Team, “The Llama 3 herd of models,” 2024. [16] J. D. Gibbons and S. Chakraborti, “Nonparametric statistical infer-ence,” in International Encyclopedia of Statistical Science . Springer, 2025. [17] K. Blagec, G. Dorffner, M. Moradi, S. Ott, and M. Samwald, “A global analysis of metrics used for measuring performance in natural language processing,” 2022. [18] P. Khosla, P. Teterwak, C. Wang, A. Sarna, Y. Tian, P. Isola, A. Maschinot, C. Liu, and D. Krishnan, “Supervised contrastive learning,” Advances in Neural Information Processing Systems , 2020. [19] R. Sapkota, Y. Cao, K. I. Roumeliotis, and M. Karkee, “Vision-language-action (VLA) models: Concepts, progress, applications and challenges.”
