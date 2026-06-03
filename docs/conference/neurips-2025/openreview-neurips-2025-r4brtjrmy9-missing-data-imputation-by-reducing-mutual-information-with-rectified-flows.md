@@ -1,21 +1,21 @@
 ---
 title: Missing Data Imputation by Reducing Mutual Information with Rectified Flows
-title_zh: 通过减少互信息和矩形流的缺失数据插补
+title_zh: 通过修正流降低互信息的缺失数据插补
 authors: "Jiahao Yu, Qizhen Ying, Leyang Wang, Ziyue Jiang, Song Liu"
 date: 2025-09-18
 pdf: "https://openreview.net/pdf?id=r4BrtJRmy9"
 tags: ["query:eeg-latent"]
-score: 7.0
-evidence: 基于潜空间的插补方法，通过rectified flows可用于多通道EEG缺失通道补全
-tldr: 现有缺失数据插补方法在生成质量和分布匹配上仍有不足。本文提出一种通过迭代最小化数据与缺失掩码互信息的插补方法，利用rectified flows求解ODE实现最优插补。该方法在通用数据集上展示了有效性，可直接迁移至多通道EEG的缺失通道补全任务，为EEG信号重建提供了灵活的生成工具。
+score: 8.0
+evidence: 提出基于修正流的迭代缺失数据插补方法，一种可应用于EEG通道插补的生成模型
+tldr: 该论文提出一种新颖的缺失数据插补方法，通过迭代减小数据与缺失掩码之间的互信息，并利用修正流学习插补函数。将最优插补转化为ODE求解，理论保证可靠。在多种缺失机制下表现优异，且不依赖特定数据模态，可即插即用于EEG通道缺失补全等任务。其生成式插补框架为深度生成网络在缺失信号恢复中提供了有力工具。
 source: NeurIPS-2025-Accepted
 selection_source: conference_retrieval
 figures_json: "[{\"url\": \"assets/figures/openreview/openreview-neurips-2025-r4brtjrmy9/fig-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1399, \"height\": 389, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-r4brtjrmy9/fig-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 1313, \"height\": 366, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-r4brtjrmy9/fig-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1446, \"height\": 430, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-r4brtjrmy9/fig-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1450, \"height\": 431, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-r4brtjrmy9/fig-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 1350, \"height\": 615, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-r4brtjrmy9/fig-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 1385, \"height\": 1220, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-r4brtjrmy9/fig-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 1379, \"height\": 813, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-r4brtjrmy9/fig-008.webp\", \"caption\": \"\", \"page\": 0, \"index\": 8, \"width\": 1384, \"height\": 1220, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-r4brtjrmy9/fig-009.webp\", \"caption\": \"\", \"page\": 0, \"index\": 9, \"width\": 1449, \"height\": 373, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-r4brtjrmy9/fig-010.webp\", \"caption\": \"\", \"page\": 0, \"index\": 10, \"width\": 1451, \"height\": 372, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-r4brtjrmy9/fig-011.webp\", \"caption\": \"\", \"page\": 0, \"index\": 11, \"width\": 1451, \"height\": 371, \"label\": \"Figure\"}]"
 tables_json: "[{\"url\": \"assets/tables/openreview/openreview-neurips-2025-r4brtjrmy9/table-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1440, \"height\": 338, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-r4brtjrmy9/table-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 621, \"height\": 323, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-r4brtjrmy9/table-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 621, \"height\": 287, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-r4brtjrmy9/table-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 676, \"height\": 498, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-r4brtjrmy9/table-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 1042, \"height\": 359, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-r4brtjrmy9/table-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 1502, \"height\": 351, \"label\": \"Table\"}]"
-motivation: 现有缺失数据插补方法在生成质量和分布匹配上存在不足，需要更有效的迭代方法。
-method: 提出迭代最小化数据与缺失掩码互信息的框架，通过rectified flows目标求解ODE进行插补。
-result: 在通用数据集上展示了插补性能的提升，方法具有通用性。
-conclusion: 该通用插补方法可有效迁移至EEG多通道缺失数据场景。
+motivation: 现有插补方法未显式最小化缺失模式的可预测性。
+method: 迭代最小化数据与缺失掩码的互信息，利用修正流求解最优ODE。
+result: 在多种缺失场景下取得先进插补性能。
+conclusion: 为缺失数据插补提供了通用且理论完备的生成式框架。
 ---
 
 ## Abstract

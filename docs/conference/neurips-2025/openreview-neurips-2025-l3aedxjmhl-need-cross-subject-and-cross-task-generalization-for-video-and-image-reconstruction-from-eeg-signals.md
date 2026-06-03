@@ -1,21 +1,21 @@
 ---
 title: "NEED: Cross-Subject and Cross-Task Generalization for Video and Image Reconstruction from EEG Signals"
-title_zh: NEED：基于EEG信号的视频与图像重建的跨主体与跨任务泛化
+title_zh: "NEED: 基于EEG信号的跨主体与跨任务视频和图像重建通用框架"
 authors: "Shuai Huang, Huan Luo, Haodong Jing, Qixian Zhang, Litao Chang, Yating Feng, Xiao Lin, Chendong Qin, Han Chen, Shuwen Jia, Siyi Sun, Yongxiong Wang"
 date: 2025-09-18
 pdf: "https://openreview.net/pdf?id=L3aEdxJMHl"
-tags: ["query:eeg-latent"]
-score: 9.0
-evidence: 深度学习用于EEG信号重建：从EEG信号重建视觉内容
-tldr: 现有EEG视觉重建方法跨主体泛化能力差且局限于特定视觉任务。本文提出NEED框架，通过个体自适应模块预处理多主体数据，结合对比学习和生成网络，首次实现零样本跨主体、跨任务的EEG视觉重建。在多个基准数据集上显著超越已有方法，推动了BCI与神经解码的发展。
+tags: ["query:eeg"]
+score: 5.0
+evidence: 基于EEG的视觉重建，应用于脑机接口
+tldr: 该论文提出NEED统一框架，首次实现面向EEG视觉重建的零样本跨主体和跨任务泛化。通过个体适应模块和潜在空间对齐，克服了主体变异性和空间分辨率限制，在多种视觉任务上验证了有效性。
 source: NeurIPS-2025-Accepted
 selection_source: conference_retrieval
 figures_json: "[{\"url\": \"assets/figures/openreview/openreview-neurips-2025-l3aedxjmhl/fig-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1441, \"height\": 478, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-l3aedxjmhl/fig-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 1450, \"height\": 1000, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-l3aedxjmhl/fig-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1443, \"height\": 663, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-l3aedxjmhl/fig-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1436, \"height\": 1114, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-l3aedxjmhl/fig-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 1444, \"height\": 464, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-l3aedxjmhl/fig-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 1457, \"height\": 823, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-l3aedxjmhl/fig-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 1454, \"height\": 1190, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-l3aedxjmhl/fig-008.webp\", \"caption\": \"\", \"page\": 0, \"index\": 8, \"width\": 1458, \"height\": 1057, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-l3aedxjmhl/fig-009.webp\", \"caption\": \"\", \"page\": 0, \"index\": 9, \"width\": 1430, \"height\": 855, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-l3aedxjmhl/fig-010.webp\", \"caption\": \"\", \"page\": 0, \"index\": 10, \"width\": 1450, \"height\": 875, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-l3aedxjmhl/fig-011.webp\", \"caption\": \"\", \"page\": 0, \"index\": 11, \"width\": 1415, \"height\": 842, \"label\": \"Figure\"}]"
 tables_json: "[{\"url\": \"assets/tables/openreview/openreview-neurips-2025-l3aedxjmhl/table-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1447, \"height\": 708, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-l3aedxjmhl/table-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 1452, \"height\": 627, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-l3aedxjmhl/table-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1450, \"height\": 242, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-l3aedxjmhl/table-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1451, \"height\": 591, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-l3aedxjmhl/table-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 1445, \"height\": 1359, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-l3aedxjmhl/table-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 1447, \"height\": 1436, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-l3aedxjmhl/table-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 1445, \"height\": 483, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-l3aedxjmhl/table-008.webp\", \"caption\": \"\", \"page\": 0, \"index\": 8, \"width\": 1442, \"height\": 817, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-l3aedxjmhl/table-009.webp\", \"caption\": \"\", \"page\": 0, \"index\": 9, \"width\": 1441, \"height\": 452, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-l3aedxjmhl/table-010.webp\", \"caption\": \"\", \"page\": 0, \"index\": 10, \"width\": 1442, \"height\": 876, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-l3aedxjmhl/table-011.webp\", \"caption\": \"\", \"page\": 0, \"index\": 11, \"width\": 1440, \"height\": 403, \"label\": \"Table\"}]"
-motivation: EEG视觉重建面临跨主体泛化差和任务受限的问题。
-method: 提出统一框架NEED，包含个体自适应模块、对比学习和生成网络，实现零样本跨主体和跨任务泛化。
-result: 在多个EEG视觉重建数据集上取得了最先进性能，并展示了强大的泛化能力。
-conclusion: 该方法为EEG神经解码提供了可行的跨主体解决方案。
+motivation: 现有EEG视觉解码泛化性差且局限于特定任务。
+method: 提出个体适应模块和多任务潜在空间对齐，实现零样本泛化。
+result: 在多个数据集上实现跨主体和跨任务的视频/图像重建。
+conclusion: 为通用EEG脑机接口视觉解码奠定了基础。
 ---
 
 ## Abstract

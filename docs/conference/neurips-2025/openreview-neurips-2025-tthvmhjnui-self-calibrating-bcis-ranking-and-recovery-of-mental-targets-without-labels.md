@@ -1,21 +1,21 @@
 ---
 title: "Self-Calibrating BCIs: Ranking and Recovery of Mental Targets Without Labels"
-title_zh: 自校准脑机接口：无标签情况下的心理目标排序与恢复
+title_zh: 自校准脑机接口：无标签条件下心理目标的排序与恢复
 authors: "Jonathan Grizou, Carlos De la Torre-Ortiz, Tuukka Ruotsalo"
 date: 2025-09-18
 pdf: "https://openreview.net/pdf?id=TtHvmhjNui"
 tags: ["query:eeg"]
-score: 7.0
-evidence: 无标签的EEG自校准脑机接口
-tldr: 脑机接口通常需要标注数据训练解码器。本文提出CURSOR框架，首次实现无标签自校准的EEG目标恢复，仅利用配对EEG-图像数据，无需预训练解码器。实验表明，CURSOR能预测与人类感知相关的图像相似度得分，并有效恢复心理目标。该工作推进了实用化BCI的发展。
+score: 4.0
+evidence: 从EEG中恢复心理目标的自校准脑机接口
+tldr: 该论文提出CURSOR算法，首次实现无标签条件下从EEG恢复心理目标。通过自校准和无监督潜在相似性学习，在自然人脸图像上验证了与人类感知一致的重建能力。
 source: NeurIPS-2025-Accepted
 selection_source: conference_retrieval
 figures_json: "[{\"url\": \"assets/figures/openreview/openreview-neurips-2025-tthvmhjnui/fig-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1438, \"height\": 369, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-tthvmhjnui/fig-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 1168, \"height\": 510, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-tthvmhjnui/fig-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1439, \"height\": 429, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-tthvmhjnui/fig-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1314, \"height\": 406, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-tthvmhjnui/fig-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 681, \"height\": 529, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-tthvmhjnui/fig-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 680, \"height\": 521, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-tthvmhjnui/fig-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 1006, \"height\": 796, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-tthvmhjnui/fig-008.webp\", \"caption\": \"\", \"page\": 0, \"index\": 8, \"width\": 1001, \"height\": 1030, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-tthvmhjnui/fig-009.webp\", \"caption\": \"\", \"page\": 0, \"index\": 9, \"width\": 702, \"height\": 713, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-tthvmhjnui/fig-010.webp\", \"caption\": \"\", \"page\": 0, \"index\": 10, \"width\": 704, \"height\": 696, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-tthvmhjnui/fig-011.webp\", \"caption\": \"\", \"page\": 0, \"index\": 11, \"width\": 1021, \"height\": 2203, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-tthvmhjnui/fig-012.webp\", \"caption\": \"\", \"page\": 0, \"index\": 12, \"width\": 1440, \"height\": 949, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-tthvmhjnui/fig-013.webp\", \"caption\": \"\", \"page\": 0, \"index\": 13, \"width\": 998, \"height\": 817, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-tthvmhjnui/fig-014.webp\", \"caption\": \"\", \"page\": 0, \"index\": 14, \"width\": 1014, \"height\": 809, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-tthvmhjnui/fig-015.webp\", \"caption\": \"\", \"page\": 0, \"index\": 15, \"width\": 1002, \"height\": 1008, \"label\": \"Figure\"}]"
 tables_json: "[{\"url\": \"assets/tables/openreview/openreview-neurips-2025-tthvmhjnui/table-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1445, \"height\": 446, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-tthvmhjnui/table-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 913, \"height\": 292, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-tthvmhjnui/table-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1663, \"height\": 379, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-tthvmhjnui/table-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1314, \"height\": 176, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-tthvmhjnui/table-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 1226, \"height\": 174, \"label\": \"Table\"}]"
-motivation: 现有BCI需要大量标注数据，实际应用中标签获取困难。
-method: 提出CURSOR算法，利用配对EEG-图像数据通过无标签自校准学习恢复心理目标。
-result: 能预测与人类感知一致的图像相似度，并有效恢复目标。
-conclusion: 自校准方法可减少BCI对标注数据的依赖，提升实用性。
+motivation: 无标签数据下从EEG恢复心理目标是一个未被充分探索的问题。
+method: 提出CURSOR框架，利用无标签数据进行自校准和潜在空间相似性学习。
+result: 能够预测与人类判断相关的图像相似度分数，并恢复心理目标。
+conclusion: 拓展了脑机接口在无监督场景下的应用。
 ---
 
 ## Abstract

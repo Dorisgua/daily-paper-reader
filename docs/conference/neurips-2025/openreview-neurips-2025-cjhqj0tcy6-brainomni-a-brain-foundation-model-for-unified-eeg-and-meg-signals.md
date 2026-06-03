@@ -1,21 +1,21 @@
 ---
 title: "BrainOmni: A Brain Foundation Model for Unified EEG and MEG Signals"
-title_zh: BrainOmni：统一EEG和MEG信号的脑基础模型
+title_zh: "BrainOmni: 统一EEG和MEG信号的脑部基础模型"
 authors: "Qinfan Xiao, Ziyun Cui, Chi Zhang, SiQi Chen, Wen Wu, Andrew Thwaites, Alexandra Woolgar, Bowen Zhou, Chao Zhang"
 date: 2025-09-18
 pdf: "https://openreview.net/pdf?id=cjHQj0tCy6"
 tags: ["query:eeg-latent"]
 score: 8.0
-evidence: 统一的EEG和MEG基础模型，使用时空调制标记化
-tldr: 针对现有EEG和MEG模型依赖特定模态和数据集、泛化性差的问题，提出BrainOmni，首个统一异构脑电信号的基础模型。引入BrainTokenizer将时空脑活动量化成离散标记，在多个数据集上表现优异。该模型为EEG信号处理提供了通用的潜在空间表示，可支持信号重建、通道补全等下游任务。
+evidence: 统一EEG和MEG的基础模型，包含标记化潜在表示
+tldr: 该论文提出BrainOmni，首个统一EEG和MEG信号的大脑基础模型。通过BrainTokenizer将时空脑活动量化为离散潜在标记，学习跨模态和跨配置的通用表示，在多项基准上取得一致优势。
 source: NeurIPS-2025-Accepted
 selection_source: conference_retrieval
 figures_json: "[{\"url\": \"assets/figures/openreview/openreview-neurips-2025-cjhqj0tcy6/fig-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1456, \"height\": 714, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-cjhqj0tcy6/fig-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 1369, \"height\": 516, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-cjhqj0tcy6/fig-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1419, \"height\": 680, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-cjhqj0tcy6/fig-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1385, \"height\": 375, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-cjhqj0tcy6/fig-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 1135, \"height\": 769, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-cjhqj0tcy6/fig-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 1440, \"height\": 1343, \"label\": \"Figure\"}]"
 tables_json: "[{\"url\": \"assets/tables/openreview/openreview-neurips-2025-cjhqj0tcy6/table-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1448, \"height\": 477, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-cjhqj0tcy6/table-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 1380, \"height\": 745, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-cjhqj0tcy6/table-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1238, \"height\": 346, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-cjhqj0tcy6/table-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1312, \"height\": 237, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-cjhqj0tcy6/table-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 1446, \"height\": 225, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-cjhqj0tcy6/table-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 1309, \"height\": 192, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-cjhqj0tcy6/table-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 1311, \"height\": 226, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-cjhqj0tcy6/table-008.webp\", \"caption\": \"\", \"page\": 0, \"index\": 8, \"width\": 1396, \"height\": 169, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-cjhqj0tcy6/table-009.webp\", \"caption\": \"\", \"page\": 0, \"index\": 9, \"width\": 1169, \"height\": 445, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-cjhqj0tcy6/table-010.webp\", \"caption\": \"\", \"page\": 0, \"index\": 10, \"width\": 986, \"height\": 1073, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-cjhqj0tcy6/table-011.webp\", \"caption\": \"\", \"page\": 0, \"index\": 11, \"width\": 1194, \"height\": 791, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-cjhqj0tcy6/table-012.webp\", \"caption\": \"\", \"page\": 0, \"index\": 12, \"width\": 772, \"height\": 537, \"label\": \"Table\"}]"
-motivation: 现有EEG和MEG模型独立且数据集特定，缺乏跨模态跨设备泛化能力，限制了性能。
-method: 提出BrainOmni基础模型，使用BrainTokenizer将时空脑活动量化成离散标记，统一异构EEG和MEG记录。
-result: 在多个EEG/MEG数据集上验证了模型的有效性和泛化能力。
-conclusion: BrainOmni为脑电信号提供了一个统一的潜在表示框架，有助于后续重建、补全等任务。
+motivation: EEG和MEG信号异构且缺乏统一模型。
+method: 提出BrainTokenizer量化脑活动为离散潜在标记，训练统一Transformer。
+result: 在统一EEG/MEG分类和回归任务上达到最先进性能。
+conclusion: 为多模态脑信号分析提供了首个通用基础模型。
 ---
 
 ## Abstract

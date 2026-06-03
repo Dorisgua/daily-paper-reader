@@ -1,21 +1,21 @@
 ---
 title: Joint Modeling of fMRI and EEG Imaging Using Ordinary Differential Equation-Based Hypergraph Neural Networks
-title_zh: 基于常微分方程超图神经网络的fMRI与EEG联合建模
+title_zh: 使用常微分方程超图神经网络联合建模fMRI和EEG成像
 authors: "YanZhang, Yang Gao, Min Li"
 date: 2025-09-18
 pdf: "https://openreview.net/pdf?id=qJLPlZSdkb"
 tags: ["query:eeg"]
-score: 6.0
-evidence: 使用超图联合建模fMRI和EEG
-tldr: fMRI与EEG联合建模面临数据量小、模态差异大等挑战。本文提出基于常微分方程的超图神经网络框架，通过超图结构捕捉多模态脑区间的非一对一关系。在同步fMRI-EEG数据集上验证了模型的有效性，为多模态脑成像分析提供了新思路。
+score: 4.0
+evidence: 联合建模EEG和fMRI，EEG信号分析
+tldr: 针对同步fMRI-EEG数据稀少且模态差异大的问题，提出基于ODE的超图神经网络框架，同时建模血流动力学和神经振荡，实现跨模态联合表征。
 source: NeurIPS-2025-Accepted
 selection_source: conference_retrieval
 figures_json: "[{\"url\": \"assets/figures/openreview/openreview-neurips-2025-qjlplzsdkb/fig-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1426, \"height\": 638, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-qjlplzsdkb/fig-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 1428, \"height\": 577, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-qjlplzsdkb/fig-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1439, \"height\": 284, \"label\": \"Figure\"}]"
 tables_json: "[{\"url\": \"assets/tables/openreview/openreview-neurips-2025-qjlplzsdkb/table-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1444, \"height\": 678, \"label\": \"Table\"}]"
-motivation: fMRI与EEG联合建模面临数据量有限和模态差异大，现有图方法忽略多对多关系。
-method: 提出基于常微分方程的超图神经网络，利用超图建模多模态脑区复杂关系。
-result: 在同步fMRI-EEG数据上取得良好联合建模效果。
-conclusion: 超图神经网络能有效融合fMRI与EEG互补信息，提升多模态脑成像分析能力。
+motivation: 联合建模fMRI和EEG面临数据少和模态差异大，现有图方法忽略ROI之间多对多关系。
+method: 提出基于常微分方程的超图神经网络，捕获fMRI与EEG的复杂关联。
+result: 在联合建模任务上优于现有图方法。
+conclusion: 超图ODE能有效融合fMRI和EEG，提升多模态脑成像分析效果。
 ---
 
 ## Abstract

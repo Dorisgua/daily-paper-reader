@@ -1,21 +1,21 @@
 ---
 title: Dynamical modeling of nonlinear latent factors in multiscale neural activity with real-time inference
-title_zh: 多尺度神经活动中非线性潜在因子的动力学建模与实时推理
+title_zh: 多尺度神经活动中非线性潜因子的动力学建模与实时推断
 authors: "Eray Erturk, Maryam M. Shanechi"
 date: 2025-09-18
 pdf: "https://openreview.net/pdf?id=jOHgjZaGqd"
 tags: ["query:eeg-latent"]
-score: 9.0
-evidence: 非线性潜在因子建模与缺失数据处理
-tldr: 多模态神经活动分析面临不同采样率和缺失样本的挑战，现有非线性模型未解决这些问题。本文提出一种学习框架，能够对多模态神经时间序列（如发放和场电位）进行非线性潜在因子建模，并支持实时递归解码。该框架显式处理不同时间尺度和缺失数据，在仿真和真实数据上展示了有效性和实时推理能力，为脑机接口和神经科学应用提供了可实用的解码方法。
+score: 7.0
+evidence: 对多尺度神经活动中的非线性潜因子建模，并处理跨模态缺失时间步，实现潜空间插补
+tldr: 该论文针对多模态神经时间序列（如尖峰和场电位）的实时解码难题，提出一种学习框架。它利用非线性潜因子动力学统一建模不同采样率和缺失样本，支持在线递归解码。在合成与真实数据上验证了处理缺失模态和不同时间尺度的能力，对多通道EEG缺失通道插补有重要的方法学启示。
 source: NeurIPS-2025-Accepted
 selection_source: conference_retrieval
 figures_json: "[{\"url\": \"assets/figures/openreview/openreview-neurips-2025-johgjzagqd/fig-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1456, \"height\": 495, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-johgjzagqd/fig-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 840, \"height\": 371, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-johgjzagqd/fig-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1399, \"height\": 639, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-johgjzagqd/fig-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1460, \"height\": 632, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-johgjzagqd/fig-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 1455, \"height\": 1100, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-johgjzagqd/fig-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 1449, \"height\": 1020, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-johgjzagqd/fig-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 961, \"height\": 883, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-johgjzagqd/fig-008.webp\", \"caption\": \"\", \"page\": 0, \"index\": 8, \"width\": 975, \"height\": 874, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-johgjzagqd/fig-009.webp\", \"caption\": \"\", \"page\": 0, \"index\": 9, \"width\": 1176, \"height\": 517, \"label\": \"Figure\"}]"
 tables_json: "[{\"url\": \"assets/tables/openreview/openreview-neurips-2025-johgjzagqd/table-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1415, \"height\": 286, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-johgjzagqd/table-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 1448, \"height\": 170, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-johgjzagqd/table-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1438, \"height\": 141, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-johgjzagqd/table-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1454, \"height\": 169, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-johgjzagqd/table-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 1449, \"height\": 167, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-johgjzagqd/table-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 1455, \"height\": 173, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-johgjzagqd/table-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 1419, \"height\": 265, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-johgjzagqd/table-008.webp\", \"caption\": \"\", \"page\": 0, \"index\": 8, \"width\": 760, \"height\": 305, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-johgjzagqd/table-009.webp\", \"caption\": \"\", \"page\": 0, \"index\": 9, \"width\": 1256, \"height\": 309, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-johgjzagqd/table-010.webp\", \"caption\": \"\", \"page\": 0, \"index\": 10, \"width\": 1257, \"height\": 259, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-johgjzagqd/table-011.webp\", \"caption\": \"\", \"page\": 0, \"index\": 11, \"width\": 509, \"height\": 303, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-johgjzagqd/table-012.webp\", \"caption\": \"\", \"page\": 0, \"index\": 12, \"width\": 682, \"height\": 464, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-johgjzagqd/table-013.webp\", \"caption\": \"\", \"page\": 0, \"index\": 13, \"width\": 757, \"height\": 221, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-johgjzagqd/table-014.webp\", \"caption\": \"\", \"page\": 0, \"index\": 14, \"width\": 848, \"height\": 431, \"label\": \"Table\"}]"
-motivation: 多模态神经数据存在不同采样率和缺失样本，现有非线性模型无法处理这些问题。
-method: 提出一个学习框架，对多模态神经时间序列进行非线性潜在因子建模，支持实时递归解码并处理缺失数据。
-result: 在仿真和真实数据上验证了模型能有效处理不同时间尺度和缺失样本，实现实时解码。
-conclusion: 提供了一种通用的多模态神经数据实时解码方法，可应用于脑机接口等领域。
+motivation: 多模态神经数据存在不同时间尺度和缺失样本，现有非线性模型无法处理。
+method: 构建包含非线性潜因子动力学的学习框架，支持递归实时解码。
+result: 有效处理了跨模态缺失样本和时间尺度差异。
+conclusion: 为实时神经解码提供了统一且鲁棒的框架。
 ---
 
 ## Abstract

@@ -1,21 +1,21 @@
 ---
 title: "THD-BAR: Topology Hierarchical Derived Brain Autoregressive Modeling for EEG Generic Representations"
-title_zh: THD-BAR：面向EEG通用表示的拓扑层级导出脑自回归建模
+title_zh: THD-BAR：用于EEG通用表示的拓扑层次化脑自回归建模
 authors: "Wenchao Yang, Weidong Yan, Wenkang Liu, Yulan Ma, Yang Li"
 date: 2025-09-18
 pdf: "https://openreview.net/pdf?id=6Q5WG84uOD"
 tags: ["query:eeg-latent"]
 score: 8.0
-evidence: 提出THD-BAR方法用于EEG通用表示，结合拓扑层级和自回归建模
-tldr: 目前EEG预训练模型主要采用简单时间序列建模，忽略了丰富的生理特性和动态空间拓扑。本文提出THD-BAR方法，通过拓扑层级导出脑自回归建模，同时捕捉多通道EEG的时间和空间拓扑结构，为学习EEG通用表示提供了新范式。
+evidence: 提出自回归建模学习EEG通用表示，涉及潜在空间表征
+tldr: 现有EEG预训练模型主要依赖简单时序建模，忽略了信号的生理特性和动态空间拓扑。本文提出THD-BAR，一种拓扑层次化自回归建模方法，通过分层建模多通道EEG的拓扑结构来学习通用表示。实验表明该方法在多个下游任务上优于基线，为EEG表示学习提供了新范式。
 source: NeurIPS-2025-Accepted
 selection_source: conference_retrieval
 figures_json: "[{\"url\": \"assets/figures/openreview/openreview-neurips-2025-6q5wg84uod/fig-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1439, \"height\": 411, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-6q5wg84uod/fig-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 1447, \"height\": 303, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-6q5wg84uod/fig-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1295, \"height\": 556, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-6q5wg84uod/fig-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 1436, \"height\": 652, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-6q5wg84uod/fig-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 1434, \"height\": 739, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-6q5wg84uod/fig-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 581, \"height\": 634, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-6q5wg84uod/fig-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 1445, \"height\": 646, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-6q5wg84uod/fig-008.webp\", \"caption\": \"\", \"page\": 0, \"index\": 8, \"width\": 1458, \"height\": 535, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-6q5wg84uod/fig-009.webp\", \"caption\": \"\", \"page\": 0, \"index\": 9, \"width\": 1454, \"height\": 326, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-6q5wg84uod/fig-010.webp\", \"caption\": \"\", \"page\": 0, \"index\": 10, \"width\": 1382, \"height\": 983, \"label\": \"Figure\"}, {\"url\": \"assets/figures/openreview/openreview-neurips-2025-6q5wg84uod/fig-011.webp\", \"caption\": \"\", \"page\": 0, \"index\": 11, \"width\": 1390, \"height\": 1134, \"label\": \"Figure\"}]"
 tables_json: "[{\"url\": \"assets/tables/openreview/openreview-neurips-2025-6q5wg84uod/table-001.webp\", \"caption\": \"\", \"page\": 0, \"index\": 1, \"width\": 1272, \"height\": 480, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-6q5wg84uod/table-002.webp\", \"caption\": \"\", \"page\": 0, \"index\": 2, \"width\": 1330, \"height\": 473, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-6q5wg84uod/table-003.webp\", \"caption\": \"\", \"page\": 0, \"index\": 3, \"width\": 1312, \"height\": 453, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-6q5wg84uod/table-004.webp\", \"caption\": \"\", \"page\": 0, \"index\": 4, \"width\": 688, \"height\": 1084, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-6q5wg84uod/table-005.webp\", \"caption\": \"\", \"page\": 0, \"index\": 5, \"width\": 1370, \"height\": 785, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-6q5wg84uod/table-006.webp\", \"caption\": \"\", \"page\": 0, \"index\": 6, \"width\": 846, \"height\": 531, \"label\": \"Table\"}, {\"url\": \"assets/tables/openreview/openreview-neurips-2025-6q5wg84uod/table-007.webp\", \"caption\": \"\", \"page\": 0, \"index\": 7, \"width\": 1445, \"height\": 1092, \"label\": \"Table\"}]"
-motivation: 现有EEG自回归模型未能充分利用信号的生理特性和动态空间拓扑结构。
-method: 提出拓扑层级导出脑自回归建模，结合空间拓扑层级和时间自回归进行EEG表示学习。
-result: 在大规模EEG数据集上展示了通用表示学习的优越性能。
-conclusion: 该方法为EEG通用预训练模型提供了有效方案。
+motivation: 现有自回归框架未能充分捕获EEG信号的生理特性和动态空间拓扑。
+method: 提出拓扑层次化自回归建模，分层学习多通道EEG的拓扑结构。
+result: 在多个EEG下游任务上取得优于基线的表现，验证了通用表示的有效性。
+conclusion: THD-BAR为大规模EEG自监督表示学习提供了新的拓扑感知框架。
 ---
 
 ## Abstract
