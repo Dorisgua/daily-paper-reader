@@ -6,35 +6,35 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-02
-- 运行时间：2026-06-02 22:15:24 UTC
+- 最新运行日期：2026-06-03
+- 运行时间：2026-06-03 21:51:59 UTC
 - 运行状态：成功
 - 本次总论文数：5
-- 精读区：3
-- 速读区：2
+- 精读区：2
+- 速读区：3
 
 ### 今日简报（AI）
-今日聚焦可穿戴EEG的虚拟通道生成与基础模型持续学习。最值得看的两项分别是基于四额叶电极的鲁棒频率校准虚拟通道生成方法和跨任务持续学习的EvoBrain框架。建议关注可穿戴EEG实用化中的信号补全与模型泛化瓶颈，这两者正成为落地关键。
-- 详情：[/202606/02/README](/202606/02/README)
+今日聚焦抑郁症检测与ERP分类两类8分前沿研究，精读评分均领跑。推荐重点关注《Beyond Augmentation》中的评分引导病理先验和《ERP-XTTN》的跨个体原型交叉注意力机制。建议普通读者优先精读这两篇，掌握脑电信号中的病理先验与可解释性最新思路。
+- 详情：[/202606/03/README](/202606/03/README)
 
 ### 精读区论文标签
-1. [Robust Frequency-Calibrated Virtual EEG Channel Generation from Four Frontal Electrodes for Wearable EEG Augmentation](/202606/02/2605.29263v2-robust-frequency-calibrated-virtual-eeg-channel-generation-from-four-frontal-electrodes-for-wearable-eeg-augmentation)  
-   标签：评分：9.0/10、query:eeg-latent
-   evidence：使用深度生成网络重建缺失EEG通道（虚拟通道生成）
-2. [EvoBrain: Continual Learning of EEG Foundation Models Across Heterogeneous BCI Tasks](/202606/02/2606.01767v1-evobrain-continual-learning-of-eeg-foundation-models-across-heterogeneous-bci-tasks)  
+1. [Beyond Augmentation: Score-Guided Pathological Prior for EEG-based Depression Detection](/202606/03/2606.00180v1-beyond-augmentation-score-guided-pathological-prior-for-eeg-based-depression-detection)  
    标签：评分：8.0/10、query:eeg-latent
-   evidence：提出EEG基础模型的持续学习，跨任务学习潜在表示
-3. [EVA-Net: Subject-Independent EEG Motor Decoding with Video-Derived Motor Priors](/202606/02/2606.01884v1-eva-net-subject-independent-eeg-motor-decoding-with-video-derived-motor-priors)  
-   标签：评分：8.0/10、query:eeg-latent
-   evidence：通过跨模态对齐的EEG潜在空间表示
+   evidence：使用生成网络建模异常度作为潜在表示
+2. [ERP-XTTN: Interpretable Prototype-Guided Cross-Attention for Cross-Subject ERP Classification](/202606/03/2606.02939v1-erp-xttn-interpretable-prototype-guided-cross-attention-for-cross-subject-erp-classification)  
+   标签：评分：8.0/10、query:eeg
+   evidence：跨主体ERP分类用于脑机接口
 
 ### 速读区论文标签
-1. [Torus Graphs for Large Scale Neural Phase Analysis](/202606/02/2606.00496v1-torus-graphs-for-large-scale-neural-phase-analysis)  
+1. [A Domain-Informed Multi-Objective Framework for EEG Channel Selection in Motor Imagery BCIs](/202606/03/2605.29943v1-a-domain-informed-multi-objective-framework-for-eeg-channel-selection-in-motor-imagery-bcis)  
+   标签：评分：7.0/10、query:eeg
+   evidence：使用多目标优化解决运动想象脑机接口的通道选择问题
+2. [Bayesian Classification with Probit-link Split-and-merge Gaussian Process Prior in EEG-based Brain-Computer Interfaces](/202606/03/2605.30775v1-bayesian-classification-with-probit-link-split-and-merge-gaussian-process-prior-in-eeg-based-brain-computer-interfaces)  
    标签：评分：6.0/10、query:eeg
-   evidence：提出环面图模型用于EEG和LFP的大规模神经相位分析
-2. [Dive into Waves: Morlet Spectral Transformer for Cross-Subject Emotion Decoding from EEG](/202606/02/2606.00884v1-dive-into-waves-morlet-spectral-transformer-for-cross-subject-emotion-decoding-from-eeg)  
-   标签：评分：6.0/10、query:eeg
-   evidence：基于EEG的情绪解码，使用频谱Transformer用于BCI
+   evidence：提出用于EEG脑机接口的贝叶斯生成分类框架
+3. [Mapping Whisper Representations to Human ECoG Responses with Interpretable Time-Resolved Neural Encoding](/202606/03/2606.02305v1-mapping-whisper-representations-to-human-ecog-responses-with-interpretable-time-resolved-neural-encoding)  
+   标签：评分：6.0/10、query:eeg-latent
+   evidence：将Whisper潜在表示映射到ECoG神经响应
 
 
 <div class="dpr-home-promo-card">

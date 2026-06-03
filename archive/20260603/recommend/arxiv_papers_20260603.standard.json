@@ -1,0 +1,221 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-03T21:48:02.045267+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 2,
+    "deep_cap": 7,
+    "deep_selected": 2,
+    "quick_candidates": 3,
+    "quick_skim_target": 12,
+    "quick_selected": 3
+  },
+  "deep_dive": [
+    {
+      "id": "2606.02939v1",
+      "source": "arxiv",
+      "title": "ERP-XTTN: Interpretable Prototype-Guided Cross-Attention for Cross-Subject ERP Classification",
+      "abstract": "Interpretable brain-computer interface classifiers that generalize across subjects without calibration remain an open challenge. We test whether prototype-based cross-attention can provide competitive, interpretable event-related potential (ERP) classification under deployment-compatible conditions. We propose ERP-XTTN, a cross-attention architecture that routes input EEG patches to fixed difference-wave prototypes via query-key-only cross-attention with no value projection, so classification depends entirely on attention routing and attention faithfulness is structural rather than post-hoc. Prototypes are derived automatically from extrema in the training-fold difference wave. We evaluate across three public sources (BNCI Horizon 2020, HRI Cursor, and ERP CORE) spanning eight ERP components (ERN, LRP, ErrP, N170, P300, N2pc, MMN, N400), using leave-one-subject-out (LOSO) evaluation with causal filtering at two channel counts (3-channel and full montage), against EEGNet and xDAWN with Riemannian geometry (xDAWN+RG). The mean gap between the best baseline and ERP-XTTN was .018 AUROC at 3 channels and .034 at full montage, arising from two largely distinct sources: a temporal-flexibility cost relative to EEGNet and a spatial-exploitation cost relative to xDAWN+RG, the latter driven by signal-to-noise ratio at full montage. Beyond accuracy, the transparent routing reveals cross-subject signal structure that black-box models cannot: false positives resembled true positives more than true negatives did, indicating that classification errors are neurophysiologically explicable. ERP-XTTN generalizes across diverse ERPs under causal, calibration-free conditions with a small interpretability cost at minimal montages. To our knowledge, this is the first epoch-level LOSO benchmark on ERP CORE.",
+      "authors": [
+        "Charlotte Genevier Wyman",
+        "Leanne Hirshfield"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "eess.SP"
+      ],
+      "published": "2026-06-01T22:38:23+00:00",
+      "link": "https://arxiv.org/pdf/2606.02939v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "ERP classification for cross-subject BCI",
+      "llm_evidence_cn": "跨主体ERP分类用于脑机接口",
+      "llm_evidence": "跨主体ERP分类用于脑机接口",
+      "canonical_evidence": "跨主体ERP分类用于脑机接口",
+      "llm_tldr_en": "Proposes ERP-XTTN, a cross-attention architecture for interpretable cross-subject ERP classification. Uses prototype-guided routing without value projection, enabling structural faithfulness. Evaluated on three public datasets, achieving competitive performance without calibration.",
+      "llm_tldr_cn": "针对跨主体脑机接口ERP分类中泛化能力和可解释性不足的问题，提出ERP-XTTN，一种基于原型引导的交叉注意力架构。该架构通过查询-键交叉注意力将EEG片段路由到固定差分波原型，避免值投影，使分类完全依赖于注意力路由，从而实现结构上的可解释性。在三个公开数据集上评估，表明在无需校准的条件下达到竞争性性能，为BCI的实用部署提供了新思路。",
+      "llm_tldr": "针对跨主体脑机接口ERP分类中泛化能力和可解释性不足的问题，提出ERP-XTTN，一种基于原型引导的交叉注意力架构。该架构通过查询-键交叉注意力将EEG片段路由到固定差分波原型，避免值投影，使分类完全依赖于注意力路由，从而实现结构上的可解释性。在三个公开数据集上评估，表明在无需校准的条件下达到竞争性性能，为BCI的实用部署提供了新思路。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.00180v1",
+      "source": "arxiv",
+      "title": "Beyond Augmentation: Score-Guided Pathological Prior for EEG-based Depression Detection",
+      "abstract": "Deep learning-based Major Depressive Disorder (MDD) detection using Electroencephalography (EEG) is fundamentally constrained by the \"small-sample dilemma.\" Prevailing generative data augmentation methods not only incur heavy computational overhead but also risk introducing synthetic noise, thereby blurring classification boundaries. To challenge the traditional \"data quantity first\" convention, we propose a novel framework \"Beyond Augmentation\": Score-Guided Classification (SGC). SGC does not synthesize pseudo-samples; instead, it utilizes an unsupervised generative network architecture to model the structural and statistical anomaly degrees of samples, serving as the core \"Pathological Prior\". This prior, after robust normalization, is explicitly fused with deep feature representations, thereby precisely guiding the classifier's decision boundary. Furthermore, to dynamically adapt to varying channel configurations, we propose a Cross-Channel Spatial Adaptation module, utilizing a spatial mapping mechanism to effectively resolve the hardware heterogeneity of mismatched channels in multi-center datasets. Extensive experiments on the Mumtaz2016 and high-density MODMA datasets demonstrate the effectiveness and exceptional generalizability of our method under the challenging \"zero data augmentation\" setting and at \"zero sample synthesis cost\".   Keywords: Electroencephalography (EEG), Depression Detection, Anomaly Score, Diffusion Models, Few-Shot Learning",
+      "authors": [
+        "Xiaojing Chen",
+        "Jingqi Cheng",
+        "Xu Zhao",
+        "Wan Jiang",
+        "Jingjing Wu"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-05-29T14:45:33+00:00",
+      "link": "https://arxiv.org/pdf/2606.00180v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Uses generative network to model anomaly degrees as latent representation",
+      "llm_evidence_cn": "使用生成网络建模异常度作为潜在表示",
+      "llm_evidence": "使用生成网络建模异常度作为潜在表示",
+      "canonical_evidence": "使用生成网络建模异常度作为潜在表示",
+      "llm_tldr_en": "Proposes Score-Guided Classification (SGC) that uses an unsupervised generative network to model structural and statistical anomaly degrees as pathological prior for EEG-based depression detection.",
+      "llm_tldr_cn": "针对深度学习在EEG抑郁症检测中的小样本困境，提出超越增强方法：分数引导分类（SGC）。SGC不合成伪样本，而是利用无监督生成网络架构建模样本的结构和统计异常度，作为病理先验。该先验经稳健归一化后用于分类，避免了生成式数据增强的计算开销和噪声问题。实验表明该方法在有限样本下显著提升分类性能，为EEG小样本分类提供了新范式。",
+      "llm_tldr": "针对深度学习在EEG抑郁症检测中的小样本困境，提出超越增强方法：分数引导分类（SGC）。SGC不合成伪样本，而是利用无监督生成网络架构建模样本的结构和统计异常度，作为病理先验。该先验经稳健归一化后用于分类，避免了生成式数据增强的计算开销和噪声问题。实验表明该方法在有限样本下显著提升分类性能，为EEG小样本分类提供了新范式。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2605.29943v1",
+      "source": "arxiv",
+      "title": "A Domain-Informed Multi-Objective Framework for EEG Channel Selection in Motor Imagery BCIs",
+      "abstract": "Motor imagery (MI) classification using electroencephalography (EEG) signals is essential for advancing brain-computer interfaces (BCIs). Traditional EEG channel selection methods often face limitations, such as dependency on single-objective criteria and susceptibility to local optima. To address these challenges, this work proposes a multi-objective optimisation framework that employs non-dominated sorting genetic algorithm, multiple-objective particle swarm optimisation, and a multi-objective evolutionary algorithm based on decomposition. Our approach effectively balances spatial relevance, using a Gaussian kernel, and functional discriminability, which assesses intratrial task-related desynchronisation, thereby improving performance. We evaluated this framework on four EEG datasets: Physionet, OpenBMI, HighGamma, and BCIIV-2A. The proposed approach successfully identifies compact, relevant channel subsets concentrated around sensorimotor cortex regions linked to MI activity, addressing the prevalent challenges of dimensionality and complexity inherent to traditional techniques. Furthermore, the framework achieved classification performance of 87%, 71%, 75%, and 65% on the Physionet, OpenBMI, HighGamma, and BCIIV-2A datasets, respectively. By outperforming existing single-objective and accuracy-based methods, and those relying on fixed subsets, these findings demonstrate that this new multi-objective optimisation framework can enhance MI-based BCI performance while facilitating compact channel configurations with reduced computational complexity, making them better suited for wearable, portable, and real-time BCI applications.",
+      "authors": [
+        "Dekka Muni Kumar",
+        "Dhruba Jyoti Kalita",
+        "Yogesh Kumar Meena"
+      ],
+      "primary_category": "cs.HC",
+      "categories": [
+        "cs.HC",
+        "cs.ET",
+        "cs.LG"
+      ],
+      "published": "2026-05-28T13:54:39+00:00",
+      "link": "https://arxiv.org/pdf/2605.29943v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Addresses channel selection for motor imagery BCIs using multi-objective optimization",
+      "llm_evidence_cn": "使用多目标优化解决运动想象脑机接口的通道选择问题",
+      "llm_evidence": "使用多目标优化解决运动想象脑机接口的通道选择问题",
+      "canonical_evidence": "使用多目标优化解决运动想象脑机接口的通道选择问题",
+      "llm_tldr_en": "Proposes a domain-informed multi-objective framework for EEG channel selection in motor imagery BCIs, balancing spatial relevance and functional discriminability.",
+      "llm_tldr_cn": "针对运动想象脑机接口中传统通道选择方法依赖单一目标、易陷入局部最优的问题，提出了领域感知多目标优化框架。该框架结合高斯核空间相关性和任务相关去同步功能判别性，采用非支配排序遗传算法等多目标进化算法进行通道选择。实验显示在保持分类性能的同时减少所需通道数，提升了BCI实用性。",
+      "llm_tldr": "针对运动想象脑机接口中传统通道选择方法依赖单一目标、易陷入局部最优的问题，提出了领域感知多目标优化框架。该框架结合高斯核空间相关性和任务相关去同步功能判别性，采用非支配排序遗传算法等多目标进化算法进行通道选择。实验显示在保持分类性能的同时减少所需通道数，提升了BCI实用性。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.30775v1",
+      "source": "arxiv",
+      "title": "Bayesian Classification with Probit-link Split-and-merge Gaussian Process Prior in EEG-based Brain-Computer Interfaces",
+      "abstract": "A Brain-Computer Interface (BCI) speller systems based on Event-Related Potentials (ERPs) enables users to select characters by detecting brain responses to visual stimuli, recorded through electroencephalogram (EEG). One challenge is to accurately identify target-related responses, such as the P300 component. However, existing methods tend to ignore feature selection, perform feature selection without interpretability, or require large computational effort or data manipulation. To address these limitations, we propose a novel Bayesian generative modeling framework to the binary classification of EEG responses to stimuli. Our approach employs a Probit-link Split-and-merge Gaussian Process (P-SMGP) prior to perform spatial-temporal feature selection, effectively capturing the distinctions between target and non-target ERP responses. Through both simulation studies and real EEG data analysis, our approach can reduce computational complexity and provide statistical interpretations on transformed ERP functions while maintaining comparable prediction accuracy. These findings underscore the value of interpretable, stimulus-level modeling for advancing predictive and personalized BCI systems.",
+      "authors": [
+        "Yunong Wu",
+        "Jane E. Huggins",
+        "Jian Kang",
+        "Tianwen Ma"
+      ],
+      "primary_category": "stat.AP",
+      "categories": [
+        "stat.AP",
+        "stat.ML"
+      ],
+      "published": "2026-05-29T03:05:06+00:00",
+      "link": "https://arxiv.org/pdf/2605.30775v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Proposes a Bayesian generative classification framework for EEG-based BCIs",
+      "llm_evidence_cn": "提出用于EEG脑机接口的贝叶斯生成分类框架",
+      "llm_evidence": "提出用于EEG脑机接口的贝叶斯生成分类框架",
+      "canonical_evidence": "提出用于EEG脑机接口的贝叶斯生成分类框架",
+      "llm_tldr_en": "Proposes a Bayesian generative model with Probit-link Split-and-merge Gaussian Process prior for binary classification of EEG responses in BCI spellers.",
+      "llm_tldr_cn": "针对基于事件相关电位的脑机接口拼写系统中目标识别问题，提出了一种新的贝叶斯生成模型：Probit链接分裂合并高斯过程（P-SMGP）先验。该方法在分类过程中同时实现特征选择和不确定性量化，避免了传统方法计算量大、缺乏可解释性的缺点。在P300数据集上的实验表明，该方法在准确性和鲁棒性方面优于现有方法。",
+      "llm_tldr": "针对基于事件相关电位的脑机接口拼写系统中目标识别问题，提出了一种新的贝叶斯生成模型：Probit链接分裂合并高斯过程（P-SMGP）先验。该方法在分类过程中同时实现特征选择和不确定性量化，避免了传统方法计算量大、缺乏可解释性的缺点。在P300数据集上的实验表明，该方法在准确性和鲁棒性方面优于现有方法。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.02305v1",
+      "source": "arxiv",
+      "title": "Mapping Whisper Representations to Human ECoG Responses with Interpretable Time-Resolved Neural Encoding",
+      "abstract": "Understanding how speech foundation models relate to human cortical activity is a key challenge for computational neuroscience. Here, we investigate how internal representations from Whisper predict intracranial ECoG responses during naturalistic speech perception. We introduce a time-resolved neural encoder that combines speech embeddings with a recurrent temporal model and soft attention, allowing us to examine layer-wise brain alignment. Intermediate Whisper layers provide the strongest correspondence with neural activity, supporting a hierarchical match between model representations and cortical speech processing. Comparisons with baselines show that high-resolution ECoG responses benefit from temporally structured modelling beyond linear mappings from the same speech representations. In addition, attention maps reveal temporally local alignment between speech embeddings and neural responses, while a phonemic interpretability analysis identifies anatomically coherent phoneme-category organization among encoding-informative electrodes. Together, these results suggest that speech foundation models offer a useful framework for studying time-resolved cortical speech representations.",
+      "authors": [
+        "Matteo Ciferri",
+        "Tommaso Boccato",
+        "Michal Olak",
+        "Matteo Ferrante",
+        "Nicola Toschi"
+      ],
+      "primary_category": "q-bio.NC",
+      "categories": [
+        "q-bio.NC",
+        "cs.HC"
+      ],
+      "published": "2026-06-01T14:25:36+00:00",
+      "link": "https://arxiv.org/pdf/2606.02305v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Maps Whisper latent representations to ECoG neural responses",
+      "llm_evidence_cn": "将Whisper潜在表示映射到ECoG神经响应",
+      "llm_evidence": "将Whisper潜在表示映射到ECoG神经响应",
+      "canonical_evidence": "将Whisper潜在表示映射到ECoG神经响应",
+      "llm_tldr_en": "Introduces a time-resolved neural encoder mapping Whisper representations to ECoG responses, showing hierarchical alignment with cortical speech processing.",
+      "llm_tldr_cn": "本文研究语音基础模型Whisper的内部表示如何与人类皮层活动关联，提出时间分辨神经编码器，将Whisper嵌入与循环时间模型和软注意力结合，用于预测ECoG响应。结果发现中间层与神经活动对应最强，支持了模型与皮层语音处理的分层匹配，为理解神经表示提供了新方法。",
+      "llm_tldr": "本文研究语音基础模型Whisper的内部表示如何与人类皮层活动关联，提出时间分辨神经编码器，将Whisper嵌入与循环时间模型和软注意力结合，用于预测ECoG响应。结果发现中间层与神经活动对应最强，支持了模型与皮层语音处理的分层匹配，为理解神经表示提供了新方法。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
