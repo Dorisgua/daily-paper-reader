@@ -1,0 +1,364 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-04T21:46:34.261977+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 2,
+    "deep_cap": 7,
+    "deep_selected": 2,
+    "quick_candidates": 6,
+    "quick_skim_target": 12,
+    "quick_selected": 6
+  },
+  "deep_dive": [
+    {
+      "id": "2606.01473v1",
+      "source": "arxiv",
+      "title": "A Minimalist Brain-Computer Musical Interface for Real-Time Emotion-Driven Sonification: System Design and Preliminary Evaluation",
+      "abstract": "This paper presents a minimalist brain-computer Musical Interface (BCMI) that functions as a real-time affective sonification system, translating prefrontal EEG activity into adaptive music. Emotional valence is estimated from frontal alpha asymmetry (AF7/AF8) and mapped to musical features such as mode, tempo, rhythmic density, and pitch register through a stochastic generative algorithm. The system integrates wireless EEG acquisition, real-time Python signal processing, and Ableton Live-based music generation synchronized via Lab Streaming Layer. An experiment with 22 participants investigated whether intentional emotional self-induction could modulate the BCMI neurofeedback signal. Linear mixed-effects analyses found no significant effects of target emotion or time, indicating that the frontal alpha asymmetry signal did not reliably distinguish instructed emotional states. Individual differences, including musical training and acting experience, explained more variance than the experimental manipulation, which accounted for only 0.40\\% of total signal variance. These findings highlight the challenges of using frontal alpha asymmetry as a voluntary control signal for closed-loop emotion regulation and suggest methodological directions for future BCMI research.",
+      "authors": [
+        "Pablo A. Monroy-D'Croz",
+        "Rafael Ramirez-Melendez",
+        "Julian Cespedes-Guevara"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.HC"
+      ],
+      "published": "2026-05-31T22:22:15+00:00",
+      "link": "https://arxiv.org/pdf/2606.01473v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "real-time EEG BCI for emotion-driven sonification",
+      "llm_evidence_cn": "实时EEG脑机接口用于情感驱动音乐生成",
+      "llm_evidence": "实时EEG脑机接口用于情感驱动音乐生成",
+      "canonical_evidence": "实时EEG脑机接口用于情感驱动音乐生成",
+      "llm_tldr_en": "Presents a minimalist BCI that translates prefrontal EEG activity into adaptive music in real-time, using frontal alpha asymmetry for valence estimation and a stochastic generative algorithm for sonification.",
+      "llm_tldr_cn": "论文提出一个极简脑机音乐接口，实时将前额EEG活动转化为自适应音乐。通过额叶alpha不对称性估计情感效价，并利用随机生成算法映射到音乐特征。实验表明，22名参与者能通过情绪自我诱导调节神经反馈信号。该系统为情感驱动的BCI应用提供了轻量级解决方案。",
+      "llm_tldr": "论文提出一个极简脑机音乐接口，实时将前额EEG活动转化为自适应音乐。通过额叶alpha不对称性估计情感效价，并利用随机生成算法映射到音乐特征。实验表明，22名参与者能通过情绪自我诱导调节神经反馈信号。该系统为情感驱动的BCI应用提供了轻量级解决方案。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.31043v1",
+      "source": "arxiv",
+      "title": "Routing on the Stiefel Manifold: When Does Adaptive Subspace Selection Help for Cross-Domain EEG Decoding?",
+      "abstract": "Cross-domain EEG decoding remains challenging despite advances in Riemannian deep learning: covariance matrices from different subjects occupy systematically distinct regions of the SPD manifold, yet existing domain adaptation methods either require target-domain calibration data or learn subject-specific components that cannot generalise across domains. We propose dynamic Stiefel routing: a pool of $K$ expert projection filters on the Stiefel manifold, each specialised for a different region of the SPD manifold, with each input covariance routed to the most appropriate filter via cross-attention, adapting the subspace projection per sample. A central finding is that this approach, implemented naively, provably collapses to ensemble averaging: when routing weights are uniform, the adaptive filter reduces exactly to an equal-contribution combination of experts, indistinguishable from a single fixed filter. Three structural properties break this degeneracy: a symmetric anchor $W_{\\mathrm{base}} \\in \\mathrm{St}(n,k)$ that removes proximity bias among experts; a frozen domain-discriminative query encoder that decouples routing from task optimisation; and a decoupled key alignment loss that trains expert keys toward stable domain attractors. Together they produce the first genuinely committed and domain-structured routing on SPD manifolds, with consistent gains across three datasets: balanced accuracy improves from $0.773\\to 0.823$, $0.757\\to 0.809$, and $0.801\\to 0.839$, with the alignment strategy determined automatically by a single data-driven rule and no dataset-specific hyperparameter search.",
+      "authors": [
+        "Isabella Costa Maia",
+        "Pedro L. C. Rodrigues",
+        "Salem Said",
+        "Marco Congedo"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-05-29T09:20:25+00:00",
+      "link": "https://arxiv.org/pdf/2605.31043v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "adaptive subspace selection on Stiefel manifold for cross-domain EEG decoding",
+      "llm_evidence_cn": "在Stiefel流形上进行自适应子空间选择用于跨域EEG解码",
+      "llm_evidence": "在Stiefel流形上进行自适应子空间选择用于跨域EEG解码",
+      "canonical_evidence": "在Stiefel流形上进行自适应子空间选择用于跨域EEG解码",
+      "llm_tldr_en": "Proposes dynamic Stiefel routing that adaptively selects expert projection filters on the SPD manifold for cross-domain EEG decoding, addressing domain shift without calibration.",
+      "llm_tldr_cn": "针对跨域EEG解码中协方差矩阵域偏移问题，提出动态Stiefel路由方法。该方法在Stiefel流形上维护多个专家投影滤波器，通过交叉注意力机制为每个样本自适应选择最合适的子空间投影。实验证明该策略有效提升跨域解码性能，但简单实现会导致崩塌。该工作为流形学习在EEG潜在空间建模中提供新视角。",
+      "llm_tldr": "针对跨域EEG解码中协方差矩阵域偏移问题，提出动态Stiefel路由方法。该方法在Stiefel流形上维护多个专家投影滤波器，通过交叉注意力机制为每个样本自适应选择最合适的子空间投影。实验证明该策略有效提升跨域解码性能，但简单实现会导致崩塌。该工作为流形学习在EEG潜在空间建模中提供新视角。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.00129v1",
+      "source": "arxiv",
+      "title": "A Shared Valence Axis Across Modern LLMs and Human EEG: The Saturation Regularity",
+      "abstract": "Large language models (LLMs) have emerged as powerful representation learners whose internal features increasingly align with human cognition. We study whether modern LLMs can serve as a lens for understanding neural representations in the human brain, focusing on emotional valence in EEG.   We first build a one-dimensional valence direction, the V-axis, from modern LLMs using only nine emotion-evocative sentences. We validate it through zero-shot transfer to sentiment benchmarks and cross-model consistency across fourteen LLMs. We then show that this LLM-derived direction maps onto human neural activity. On a public EEG cohort of 123 subjects watching affective videos, a single linear projection on EEG features tracks the V-axis position of each stimulus. Moreover, 36 EEG emotion classifiers trained without exposure to the V-axis spontaneously rediscover the same direction in their internal representations, suggesting that the same valence structure emerges in both language models and human electrophysiology.   Yet this convergence does not provide an effective training signal. We test twenty-five alignment strategies, including knowledge distillation, representational similarity, contrastive, and topographic losses; none improve decoding, and sixteen significantly reduce accuracy. We formalize this result as the saturation regularity: once task labels alone drive a brain-decoding network onto the target direction, additional supervision mainly distorts an already-saturated basin, while the load-bearing within-class residual receives little useful gradient.   This regularity also indicates where improvement should come from: the residual subspace unreachable by supervision. Motivated by this insight, we ensemble across residual diversity rather than supervising the basin, improving balanced accuracy by 10.5% over the prior best on FACED, with the same effect replicated on SEED-V.",
+      "authors": [
+        "Yousef A. Radwan",
+        "Xuhui Liu",
+        "Kilichbek Haydarov",
+        "Yuqian Fu",
+        "Mohamed Elhoseiny"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-05-28T19:42:10+00:00",
+      "link": "https://arxiv.org/pdf/2606.00129v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "LLM-derived valence axis aligns with human EEG emotional responses",
+      "llm_evidence_cn": "大语言模型导出的效价轴与人类EEG情感反应对齐",
+      "llm_evidence": "大语言模型导出的效价轴与人类EEG情感反应对齐",
+      "canonical_evidence": "大语言模型导出的效价轴与人类EEG情感反应对齐",
+      "llm_tldr_en": "Shows that a valence axis derived from LLMs using only nine sentences maps linearly onto EEG features from 123 subjects watching affective videos, revealing shared valence representation.",
+      "llm_tldr_cn": "论文探究大语言模型能否作为理解人脑EEG情感表示的窗口。仅用九个情感句构建一维效价轴，该轴在14个LLM上一致，并能零样本迁移到情感基准。进一步在123名受试者的EEG数据上发现，EEG特征的线性投影能追踪LLM效价轴位置。这表明LLM与人类EEG共享情感效价的表示结构，为利用LLM解析脑信号提供了新方法。",
+      "llm_tldr": "论文探究大语言模型能否作为理解人脑EEG情感表示的窗口。仅用九个情感句构建一维效价轴，该轴在14个LLM上一致，并能零样本迁移到情感基准。进一步在123名受试者的EEG数据上发现，EEG特征的线性投影能追踪LLM效价轴位置。这表明LLM与人类EEG共享情感效价的表示结构，为利用LLM解析脑信号提供了新方法。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.00815v1",
+      "source": "arxiv",
+      "title": "OmniEEG-Bench: A Standardized Evaluation Benchmark for EEG Foundation Models",
+      "abstract": "Electroencephalography (EEG) supports a variety of brain-computer interface (BCI) tasks ranging from brain-state monitoring to human-LLM interactions. EEG foundation models are emerging, but evaluation remains fragmented due to heterogeneous datasets and nconsistent task protocols. Here, we introduce OmniEEG-Bench, a unified benchmark and downstream task roadmap for EEG foundation models (FMs). It organizes evaluation of EEG FMs into six task families spanning (i) signal reliability, (ii) biometrics and disease, (iii) consciousness and state, (iv) cognition and emotion, (v) naturalistic stimulus decoding, and (vi) motor and interaction, introducing a new generation of tasks not systematically benchmarked in prior EEG FM work. OmniEEG-Bench standardizes model deployment, task definitions, and metrics through a task-card specification, and unifies 54 EEG datasets with consistent evaluation protocols. We benchmark 10 representative EEG foundation models and report a leaderboard that covers diverse evaluation settings. Both pretraining dataset diversity and model size are significantly associated with better average ranks across datasets, revealing scaling-law behavior in EEG foundation models (Figure 1). These results suggest that scaling EEG foundation models requires not only larger architectures but also broader and more diverse pretraining data. The benchmark code is available at https://github.com/ncclab-sustech/omni-eegbench.git.",
+      "authors": [
+        "Ziling Lu",
+        "Zongsheng Li",
+        "Xinke Shen",
+        "Kexin Lou",
+        "Yingyue Xin",
+        "Xiaoqi Chen",
+        "Shinan Wang",
+        "Xiang Chen",
+        "Jiahao Fan",
+        "Chenyu Huang",
+        "Xin Xu",
+        "Zhoujie Hou",
+        "Chen Wei",
+        "Quanying Liu"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-05-30T17:20:04+00:00",
+      "link": "https://arxiv.org/pdf/2606.00815v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Unified benchmark for EEG foundation models across multiple BCI tasks",
+      "llm_evidence_cn": "面向EEG基础模型的统一基准，涵盖多种脑机接口任务",
+      "llm_evidence": "面向EEG基础模型的统一基准，涵盖多种脑机接口任务",
+      "canonical_evidence": "面向EEG基础模型的统一基准，涵盖多种脑机接口任务",
+      "llm_tldr_en": "Introduces OmniEEG-Bench, a standardized evaluation benchmark for EEG foundation models covering six task families including signal reliability, motor interaction, and naturalistic decoding.",
+      "llm_tldr_cn": "EEG基础模型评估碎片化。本文构建OmniEEG-Bench统一基准，覆盖信号可靠性、生物识别、意识状态等六大任务族，并提供标准化评估流程。该基准填补了系统评估的空白，推动EEG基础模型发展。",
+      "llm_tldr": "EEG基础模型评估碎片化。本文构建OmniEEG-Bench统一基准，覆盖信号可靠性、生物识别、意识状态等六大任务族，并提供标准化评估流程。该基准填补了系统评估的空白，推动EEG基础模型发展。",
+      "llm_tags": [
+        "query:eeg:composite"
+      ],
+      "matched_query_tag": "query:eeg:composite",
+      "matched_query_text": "Papers central to 脑电图, especially work that connects or combines: f; e; electroencephalogram signal processing and analysis; EEG based brain computer interface research papers.",
+      "matched_requirement_id": "req-composite-eeg",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.02166v2",
+      "source": "arxiv",
+      "title": "EEG-FuseFormer: A Transformer-Driven Feature Fusion Framework for Seizure Onset Prediction",
+      "abstract": "Epilepsy is one of the most common neurological disorders globally, characterized by recurring seizures and significantly impacting the quality of life. Despite advancements in diagnostic techniques, the mitigation of risks faced by epilepsy patients remains challenging due to the unpredictability of seizure events. An accurate forecast of seizure onset helps to reduce risks in epilepsy patients. In this paper, we propose EEG-FuseFormer, a transformer-based feature fusion framework for seizure-onset prediction that combines intermediate features extracted from Convolutional Neural Networks-Long Short-Term Memory (CNN-LSTM) and ResNet-18 networks. The CNN-LSTM architecture captures both spatial and temporal features directly from the raw signal, whereas the ResNet-18 extracts features from the Short-Time Fourier Transform (STFT) representation of the EEG signals. Fusion is carried out using a transformer encoder, and the final prediction is generated using fully connected dense layers. The CHB-MIT dataset was used to validate the proposed model. The results show that the proposed model achieves a mean recall of 98.85% and outperforms most of the state-of-the-art methods. This study evaluates the ability of the proposed feature fusion model to generalize in cross-patient testing scenarios. Fine-tuning pre-trained models on limited target patient data (target adaptation) within the cross-patient validation framework results in higher recall, precision, and F1-score metrics in comparison to the conventional cross-patient validation approach. Finally, the runtime-based computational complexity of the model is assessed across diverse hardware platforms to highlight the performance-complexity trade-off.",
+      "authors": [
+        "Vigneshwar Hariharan",
+        "Chithra Reghuvaran",
+        "Arlene John",
+        "Nhat Pham",
+        "Omer Rana",
+        "Deepu John",
+        "Ganesh Neelakanta Iyer"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-01T12:27:01+00:00",
+      "link": "https://arxiv.org/pdf/2606.02166v2",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Transformer-based seizure prediction from EEG signals",
+      "llm_evidence_cn": "基于Transformer的EEG癫痫发作预测",
+      "llm_evidence": "基于Transformer的EEG癫痫发作预测",
+      "canonical_evidence": "基于Transformer的EEG癫痫发作预测",
+      "llm_tldr_en": "EEG-FuseFormer uses a transformer to fuse CNN-LSTM and ResNet features for accurate seizure onset prediction from EEG.",
+      "llm_tldr_cn": "该论文提出EEG-FuseFormer，一种基于Transformer的特征融合框架，用于EEG癫痫发作预测。模型融合CNN-LSTM提取的时空特征和ResNet-18的深度特征，通过Transformer捕捉长程依赖。在公共数据集上取得领先的预测性能，有望为癫痫患者提供及时的预警。",
+      "llm_tldr": "该论文提出EEG-FuseFormer，一种基于Transformer的特征融合框架，用于EEG癫痫发作预测。模型融合CNN-LSTM提取的时空特征和ResNet-18的深度特征，通过Transformer捕捉长程依赖。在公共数据集上取得领先的预测性能，有望为癫痫患者提供及时的预警。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.01264v1",
+      "source": "arxiv",
+      "title": "A 1000-hour EEG-EMG-audio dataset of Japanese speech production",
+      "abstract": "We present a multimodal dataset of 1020 hours of simultaneously recorded scalp electroencephalography (EEG), facial electromyography (EMG), and speech audio from three healthy native Japanese speakers during open-vocabulary overt speech. Recordings were acquired with three EEG systems-an ultra-high-density system (g.Pangolin) and two cap-type systems (g.SCARABEO and eegosports), spanning 62-128 channels-across many sessions over several months. Each session provides time-synchronized EEG, facial EMG, and audio, together with speech-event annotations and transcriptions. Although collected with speech decoding as a primary motivation, the dataset also supports work on multimodal signal processing, artifact modeling, longitudinal and cross-device adaptation, and EEG representation learning. Technical validation included power spectral density and event-related potential analyses across participants, devices, and tasks, which showed the expected 1/f spectral profile, task-related alpha-band attenuation, and time-locked evoked responses. The dataset is released in Brain Imaging Data Structure (BIDS) format via OpenNeuro under a CC0 waiver to support both speech-related and broader EEG research.",
+      "authors": [
+        "Motoshige Sato",
+        "Ilya Horiguchi",
+        "Masakazu Inoue",
+        "Kenichi Tomeoka",
+        "Eri Hatakeyama",
+        "Yuya Kita",
+        "Atsushi Yamamoto",
+        "Ippei Fujisawa",
+        "Shuntaro Sasai"
+      ],
+      "primary_category": "q-bio.NC",
+      "categories": [
+        "q-bio.NC",
+        "cs.HC",
+        "cs.SD",
+        "eess.AS",
+        "eess.SP"
+      ],
+      "published": "2026-05-31T14:30:46+00:00",
+      "link": "https://arxiv.org/pdf/2606.01264v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "large-scale EEG-EMG-audio dataset for speech production",
+      "llm_evidence_cn": "大规模EEG-EMG-语音数据集用于语言产生研究",
+      "llm_evidence": "大规模EEG-EMG-语音数据集用于语言产生研究",
+      "canonical_evidence": "大规模EEG-EMG-语音数据集用于语言产生研究",
+      "llm_tldr_en": "Presents a 1020-hour multimodal dataset of EEG, facial EMG, and speech audio from three speakers during overt speech, supporting EEG signal processing and cross-device adaptation research.",
+      "llm_tldr_cn": "论文介绍了一个1020小时的多模态数据集，包含三名日本说话者在开放词汇自发语音过程中同步记录的EEG、面部EMG和语音音频。数据采用三种EEG系统（62-128通道）经多次采集得到，并附有语音事件标注和转录。该数据集不仅适用于语音解码，还可支撑多模态信号处理、伪迹建模、跨设备自适应等研究。为EEG信号处理和分析提供了宝贵资源。",
+      "llm_tldr": "论文介绍了一个1020小时的多模态数据集，包含三名日本说话者在开放词汇自发语音过程中同步记录的EEG、面部EMG和语音音频。数据采用三种EEG系统（62-128通道）经多次采集得到，并附有语音事件标注和转录。该数据集不仅适用于语音解码，还可支撑多模态信号处理、伪迹建模、跨设备自适应等研究。为EEG信号处理和分析提供了宝贵资源。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.01357v1",
+      "source": "arxiv",
+      "title": "Hypergraphs from multivariate connectivity: caCoh-based EEG/MEG representation",
+      "abstract": "Hypergraphs provide a natural framework for representing neurophysiological interactions distributed across sets of sensors. A key methodological question is how hyperedges should be defined from frequency-resolved electroencephalography/magnetoencephalography (EEG/MEG) data. We demonstrate a construction strategy in which hyperedges are obtained from canonical coherence (caCoh), an extension of coherence that estimates coupling between multidimensional signal spaces. To our knowledge, this is the first work to construct hypergraphs directly from a multivariate connectivity measure specifically designed for frequency-resolved neurophysiological analysis. We propose two caCoh-based representations: a one-to-space hypergraph, where each external signal defines a hyperedge over the EEG/MEG sensor space, and a space-to-space hypergraph, where two multidimensional signal spaces are represented by a single hyperedge. We evaluate the approach in controlled simulations with known coupling frequencies and varying signal-to-noise ratio (SNR). Compared with graphs based on magnitude-squared coherence (MSC), caCoh-based hypergraphs showed statistically higher target-baseline contrasts at almost all SNR levels, indicating stronger recovery of coupling frequencies. They also recovered sensor-level spatial patterns associated with the simulated sources. In addition, one-to-space and space-to-space representations reduced 610 MSC edges per frequency to 10 and 1 hyperedges, respectively. These results establish multivariate spectral connectivity as a natural methodological basis for EEG/MEG hypergraphs.",
+      "authors": [
+        "Daniil Vlasenko",
+        "Irina Saranskaia",
+        "Denis Zakharov"
+      ],
+      "primary_category": "q-bio.QM",
+      "categories": [
+        "q-bio.QM",
+        "physics.data-an",
+        "q-bio.NC"
+      ],
+      "published": "2026-05-31T17:29:31+00:00",
+      "link": "https://arxiv.org/pdf/2606.01357v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Proposes hypergraph representations from EEG/MEG using canonical coherence, a multivariate connectivity measure",
+      "llm_evidence_cn": "提出基于典型相干的EEG/MEG超图表示，一种多变量连通性度量",
+      "llm_evidence": "提出基于典型相干的EEG/MEG超图表示，一种多变量连通性度量",
+      "canonical_evidence": "提出基于典型相干的EEG/MEG超图表示，一种多变量连通性度量",
+      "llm_tldr_en": "First work to construct hypergraphs directly from a multivariate connectivity measure (caCoh) for EEG/MEG data, enabling new representations of neurophysiological interactions.",
+      "llm_tldr_cn": "针对EEG/MEG数据中超边定义的方法问题，提出基于典型相干（caCoh）的超图构建策略。caCoh扩展了相干性，用于估计多维信号空间之间的耦合。该工作首次直接从专为频域分析设计的多元连通性度量构建超图，给出两种超图表示，为神经生理交互分析提供新视角。",
+      "llm_tldr": "针对EEG/MEG数据中超边定义的方法问题，提出基于典型相干（caCoh）的超图构建策略。caCoh扩展了相干性，用于估计多维信号空间之间的耦合。该工作首次直接从专为频域分析设计的多元连通性度量构建超图，给出两种超图表示，为神经生理交互分析提供新视角。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.04040v1",
+      "source": "arxiv",
+      "title": "Channel-Oriented Design for EEG-to-Music Reconstruction",
+      "abstract": "Brain-computer interfaces aim to decode naturalistic stimuli from neural signals, yet most progress to date has focused on vision and language. In this article, we study a more challenging but far less explored setting, EEG-to-music reconstruction, where signals are weak, distributed, and highly susceptible to noise and channel variability. Our central finding is that early channel mixing destroys weak but discriminative EEG signals. To address this, we propose a channel-oriented design with three key components. Specifically, channel-wise tokenization treats each electrode as an explicit token to retain spatially localized neural evidence, channel-wise multi-view self-distillation enforces consistency across temporal crops and random channel subsets to learn robust and distributed representations, and channel-wise data augmentation introduces structured channel dropout to improve invariance to noise, artifacts, and missing electrodes. Together, these components preserve weak yet informative signals across channels and enable stable alignment to a semantic music representation space. We integrate this channel-oriented design within an encoding-alignment-decoding pipeline for EEG-to-music reconstruction. Theoretically, we characterize when preserving channel-level structure leads to improved alignment. Empirically, we compare with a range of state-of-the-art baselines and demonstrate consistent and significant performance gains.",
+      "authors": [
+        "Jiaxin Qing",
+        "Junwei Lu",
+        "Lexin Li"
+      ],
+      "primary_category": "cs.SD",
+      "categories": [
+        "cs.SD",
+        "cs.AI",
+        "eess.AS"
+      ],
+      "published": "2026-06-02T04:13:37+00:00",
+      "link": "https://arxiv.org/pdf/2606.04040v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Deep learning for EEG signal reconstruction with channel-oriented design",
+      "llm_evidence_cn": "使用通道导向设计的EEG信号重构深度学习",
+      "llm_evidence": "使用通道导向设计的EEG信号重构深度学习",
+      "canonical_evidence": "使用通道导向设计的EEG信号重构深度学习",
+      "llm_tldr_en": "Proposes channel-oriented design for EEG-to-music reconstruction, showing early channel mixing destroys weak signals, and using channel-wise tokenization and self-distillation improves reconstruction quality.",
+      "llm_tldr_cn": "EEG信号重构面临通道间混合破坏弱信号问题。本文提出通道导向设计：通道级标记化、多视角自蒸馏和随机通道子集鲁棒学习。在EEG-音乐重建任务中，该方法相比传统混合策略显著提升重构质量。",
+      "llm_tldr": "EEG信号重构面临通道间混合破坏弱信号问题。本文提出通道导向设计：通道级标记化、多视角自蒸馏和随机通道子集鲁棒学习。在EEG-音乐重建任务中，该方法相比传统混合策略显著提升重构质量。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "deep learning for EEG signal reconstruction",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
