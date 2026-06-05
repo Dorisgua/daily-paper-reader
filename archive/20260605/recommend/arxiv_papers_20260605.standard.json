@@ -1,0 +1,406 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-05T21:55:06.807302+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 1,
+    "deep_cap": 7,
+    "deep_selected": 1,
+    "quick_candidates": 8,
+    "quick_skim_target": 12,
+    "quick_selected": 8
+  },
+  "deep_dive": [
+    {
+      "id": "2606.05855v1",
+      "source": "arxiv",
+      "title": "EEGDancer: Dynamic Emotion Latent Space Masked Modeling with Reinforcement Learning for EEG Continuous Emotion Prediction",
+      "abstract": "Continuous electroencephalography (EEG) emotion prediction aims to model the temporal evolution of human emotional states from EEG signals. Unlike conventional discrete emotion recognition, continuous prediction requires capturing long-range temporal dependencies and coherent emotional dynamics. However, existing methods mainly rely on point-wise regression and directly model noisy high-dimensional EEG features, limiting their ability to characterize continuous emotional evolution.To address these challenges, we propose EEGDancer, a dynamic emotional latent space learning framework for continuous EEG emotion prediction. The framework integrates vector-quantized representation learning, masked temporal modeling, and reinforcement learning-based trajectory optimization into a unified architecture.Specifically, a causal spatiotemporal Vector-Quantization Variational Autoencoder (VQ-VAE) is designed to learn structured emotional prototypes and construct a discrete-continuous emotional latent space from EEG signals. Based on the learned latent representations, a Transformer-based masked dynamic modeling strategy captures long-range emotional dependencies and temporal evolution patterns. Furthermore, continuous emotion prediction is formulated as a sequential decision-making problem, and a Soft Actor-Critic (SAC) framework is introduced to optimize emotional prediction trajectories at the sequence level instead of frame-wise local fitting.Extensive experiments on the SEED, SEED-IV, and Long-Term Naturalistic Emotion datasets demonstrate that EEGDancer consistently outperforms existing machine learning and deep learning methods. Ablation studies further verify the effectiveness of the proposed latent space and reinforcement learning-based trajectory optimization for modeling continuous EEG emotional dynamics.",
+      "authors": [
+        "Zhihao Zhou",
+        "Weishan Ye",
+        "Li Zhang",
+        "Gan Huang",
+        "Zhen Liang"
+      ],
+      "primary_category": "cs.HC",
+      "categories": [
+        "cs.HC",
+        "cs.AI"
+      ],
+      "published": "2026-06-04T08:28:31+00:00",
+      "link": "https://arxiv.org/pdf/2606.05855v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "EEG latent space representation for emotion prediction",
+      "llm_evidence_cn": "用于情感预测的EEG潜在空间表示",
+      "llm_evidence": "用于情感预测的EEG潜在空间表示",
+      "canonical_evidence": "用于情感预测的EEG潜在空间表示",
+      "llm_tldr_en": "EEGDancer proposes a dynamic emotional latent space learning framework for continuous EEG emotion prediction using vector-quantized representation and masked temporal modeling with reinforcement learning, outperforming point-wise regression methods.",
+      "llm_tldr_cn": "针对连续EEG情感预测中传统点回归方法难以捕捉长时情感动态的问题，本文提出EEGDancer框架。该方法引入向量量化表示学习和掩码时序建模，并利用强化学习优化潜在空间动态。实验表明，该框架在多个基准数据集上显著优于现有方法，为理解情感时间演化提供了新范式。",
+      "llm_tldr": "针对连续EEG情感预测中传统点回归方法难以捕捉长时情感动态的问题，本文提出EEGDancer框架。该方法引入向量量化表示学习和掩码时序建模，并利用强化学习优化潜在空间动态。实验表明，该框架在多个基准数据集上显著优于现有方法，为理解情感时间演化提供了新范式。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2605.29677v1",
+      "source": "arxiv",
+      "title": "Embodied Virtual Reality Feedback Reshapes Neural Representations to Support Continuous Three-Dimensional Motor Imagery Decoding",
+      "abstract": "Continuous brain-computer interfaces (BCIs) that decode motion trajectories from imagined movement offer intuitive motor control, yet how feedback modality and longitudinal training shape neural representations and decoding performance remains poorly understood. We present the first systematic investigation of embodied virtual reality (VR) feedback during real-time 3D virtual limb control driven by motor imagery, across ten longitudinal sessions in ten participants. Performance was evaluated using three strategies: actual online performance (Fixed Decoder Generalisation, FDG), periodic retraining (Sequential Adaptive Training, SAT), and within-session upper-bound estimation (Within-Session Reconstruction, WSR). A CNN-LSTM decoder achieved within-session imagined movement correlations of r = 0.762 under VR and r = 0.672 under screen feedback. VR significantly outperformed screen feedback across all strategies and movement dimensions (improvements of 8.9-13.0%, all p <= 0.002, d = 1.42-2.05). This advantage persisted under fixed decoders without retraining, demonstrating that embodied VR feedback elicits inherently more decodable and generalisable neural representations. Linear mixed-effects modelling confirmed robust main effects of feedback modality and movement axis with no interaction. Neurophysiologically, VR produced stronger sensorimotor-parietal desynchronisation and enhanced motor-frontal functional connectivity, with pervasive anterior insula engagement across all frequency bands and increased superior parietal lobule coupling, paralleling patterns associated with real movement execution. These findings establish embodied spatial feedback as a key design principle for next-generation continuous BCIs targeting intuitive motor control and neurorehabilitation.",
+      "authors": [
+        "Niall McShane",
+        "Attila Korik",
+        "Karl McCreadie",
+        "Naomi Du Bois",
+        "Darryl Charles",
+        "Damien Coyle"
+      ],
+      "primary_category": "cs.HC",
+      "categories": [
+        "cs.HC",
+        "eess.SP",
+        "q-bio.NC"
+      ],
+      "published": "2026-05-28T09:39:11+00:00",
+      "link": "https://arxiv.org/pdf/2605.29677v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "BCI research with motor imagery decoding and VR feedback",
+      "llm_evidence_cn": "基于运动想象解码和虚拟现实反馈的脑机接口研究",
+      "llm_evidence": "基于运动想象解码和虚拟现实反馈的脑机接口研究",
+      "canonical_evidence": "基于运动想象解码和虚拟现实反馈的脑机接口研究",
+      "llm_tldr_en": "Systematic study of embodied VR feedback for 3D motor imagery BCI decoding shows neural representation reshaping and performance improvement.",
+      "llm_tldr_cn": "针对连续脑机接口中运动轨迹解码问题，首次系统研究了沉浸式虚拟现实反馈对运动想象三维虚拟肢体控制的影响。通过十名受试者的纵向实验，采用固定解码器泛化、顺序自适应训练和会话内上限估计三种策略，揭示了反馈模态和长期训练如何重塑神经表征并提升解码性能。",
+      "llm_tldr": "针对连续脑机接口中运动轨迹解码问题，首次系统研究了沉浸式虚拟现实反馈对运动想象三维虚拟肢体控制的影响。通过十名受试者的纵向实验，采用固定解码器泛化、顺序自适应训练和会话内上限估计三种策略，揭示了反馈模态和长期训练如何重塑神经表征并提升解码性能。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.31249v1",
+      "source": "arxiv",
+      "title": "Learning Cardiac Latent Representations in Vectorcardiogram Space",
+      "abstract": "Electrocardiography (ECG) is a cornerstone of cardiac assessment, making the learning of informative ECG representations fundamental to tasks ranging from disease diagnosis to clinical report generation. However, existing methods operate almost exclusively in the observable ECG signal space. In practice, the standard twelve-lead ECG represents multiple projections of the same underlying cardiac electrical activity from different spatial orientations. Therefore, representation learning in the ECG space inevitably introduces substantial redundancy, which may lead to spurious correlations and increased risk of overfitting. To address this and motivated by the Frank vectorcardiogram (VCG) model, we propose learning a unified latent representation of cardiac electrical activity directly in the VCG space. We introduce LVCG, the first general self-supervised representation learning framework designed to operate in this physically grounded latent space. By learning view-invariant latent VCG representations rather than lead-specific artifacts, VCG minimizes redundancy and improves generalization. LVCG generally outperforms ECG-space baselines across tasks, demonstrating enhanced robustness and generalization, especially in domain shift settings.",
+      "authors": [
+        "Bosong Huang",
+        "Panzhen Zhao",
+        "Zengxiang Li",
+        "Patricia Lee",
+        "Wei Jin",
+        "Alan Wee-Chung Liew",
+        "Ming Jin",
+        "Shirui Pan"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-05-29T12:48:12+00:00",
+      "link": "https://arxiv.org/pdf/2605.31249v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Learning latent representations of cardiac electrical signals, transferable to EEG",
+      "llm_evidence_cn": "学习心电信号的潜在表示，方法可迁移至EEG",
+      "llm_evidence": "学习心电信号的潜在表示，方法可迁移至EEG",
+      "canonical_evidence": "学习心电信号的潜在表示，方法可迁移至EEG",
+      "llm_tldr_en": "Proposes learning a unified latent representation of cardiac electrical activity from VCG space to reduce redundancy, with potential transferability to EEG.",
+      "llm_tldr_cn": "该论文针对心电信号（ECG）提出从向量心电图空间学习统一潜在表示的方法，以降低多导联冗余。方法可迁移至脑电图（EEG）的多通道潜在表示学习，为EEG通道补全提供思路。实验证明该方法可有效去冗余并提升下游任务性能。",
+      "llm_tldr": "该论文针对心电信号（ECG）提出从向量心电图空间学习统一潜在表示的方法，以降低多导联冗余。方法可迁移至脑电图（EEG）的多通道潜在表示学习，为EEG通道补全提供思路。实验证明该方法可有效去冗余并提升下游任务性能。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.00815v1",
+      "source": "arxiv",
+      "title": "OmniEEG-Bench: A Standardized Evaluation Benchmark for EEG Foundation Models",
+      "abstract": "Electroencephalography (EEG) supports a variety of brain-computer interface (BCI) tasks ranging from brain-state monitoring to human-LLM interactions. EEG foundation models are emerging, but evaluation remains fragmented due to heterogeneous datasets and nconsistent task protocols. Here, we introduce OmniEEG-Bench, a unified benchmark and downstream task roadmap for EEG foundation models (FMs). It organizes evaluation of EEG FMs into six task families spanning (i) signal reliability, (ii) biometrics and disease, (iii) consciousness and state, (iv) cognition and emotion, (v) naturalistic stimulus decoding, and (vi) motor and interaction, introducing a new generation of tasks not systematically benchmarked in prior EEG FM work. OmniEEG-Bench standardizes model deployment, task definitions, and metrics through a task-card specification, and unifies 54 EEG datasets with consistent evaluation protocols. We benchmark 10 representative EEG foundation models and report a leaderboard that covers diverse evaluation settings. Both pretraining dataset diversity and model size are significantly associated with better average ranks across datasets, revealing scaling-law behavior in EEG foundation models (Figure 1). These results suggest that scaling EEG foundation models requires not only larger architectures but also broader and more diverse pretraining data. The benchmark code is available at https://github.com/ncclab-sustech/omni-eegbench.git.",
+      "authors": [
+        "Ziling Lu",
+        "Zongsheng Li",
+        "Xinke Shen",
+        "Kexin Lou",
+        "Yingyue Xin",
+        "Xiaoqi Chen",
+        "Shinan Wang",
+        "Xiang Chen",
+        "Jiahao Fan",
+        "Chenyu Huang",
+        "Xin Xu",
+        "Zhoujie Hou",
+        "Chen Wei",
+        "Quanying Liu"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-05-30T17:20:04+00:00",
+      "link": "https://arxiv.org/pdf/2606.00815v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "standardized benchmark for EEG foundation models supports evaluation of latent space models",
+      "llm_evidence_cn": "EEG基础模型标准化基准，支持潜在空间模型评估",
+      "llm_evidence": "EEG基础模型标准化基准，支持潜在空间模型评估",
+      "canonical_evidence": "EEG基础模型标准化基准，支持潜在空间模型评估",
+      "llm_tldr_en": "Introduces OmniEEG-Bench, a unified benchmark with six task families for evaluating EEG foundation models, enabling standardized comparison and systematic assessment.",
+      "llm_tldr_cn": "EEG基础模型评估因数据集和任务协议不一致而碎片化。本文提出OmniEEG-Bench，统一基准测试平台，涵盖信号可靠性、生物特征、意识状态、认知情感、自然刺激解码和运动交互六大任务族，为EEG基础模型提供标准化评估框架，推动了该领域系统性发展。",
+      "llm_tldr": "EEG基础模型评估因数据集和任务协议不一致而碎片化。本文提出OmniEEG-Bench，统一基准测试平台，涵盖信号可靠性、生物特征、意识状态、认知情感、自然刺激解码和运动交互六大任务族，为EEG基础模型提供标准化评估框架，推动了该领域系统性发展。",
+      "llm_tags": [
+        "query:eeg-latent:composite"
+      ],
+      "matched_query_tag": "query:eeg-latent:composite",
+      "matched_query_text": "Papers central to EEG论文，latent space缺失通道补全, especially work that connects or combines: E; EEG latent space representation; deep learning for EEG signal reconstruction; generative models for EEG channel imputation; EEG missing channel completion using latent space models; latent space based imputation for multichannel EEG; reconstruct missing EEG channels with deep generative networks.",
+      "matched_requirement_id": "req-composite-eeg-latent",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.00170v1",
+      "source": "arxiv",
+      "title": "UF-AMA: A unified framework for cross-domain emotion recognition via adaptive multimodal alignment",
+      "abstract": "In recent years, emotion recognition based on physiological signals such as electroencephalogram (EEG) has gained considerable attention, as internal physiological data offer greater objectivity and reliability compared to external behavioral data like facial expressions. However, due to distribution shifts caused by individual and contextual differences, along with variations in sample quality across modalities, constructing a cross-domain multimodal emotion recognition model with high generalization and robustness remains a key challenge. In this study, we propose a Unified Framework with Adaptive Multimodal Alignment (UF-AMA) to address cross-subject and cross-session emotion recognition using multimodal physiological signals. First, we construct a cross-modal feature fusion network comprising Transformer encoders and multi-head cross-attention modules, enabling the deep integration of EEG signals and eye-tracking data. Subsequently, we introduce a confidence-aware screening mechanism that dynamically assesses the predictive reliability of each modality branch on target domain samples, partitions samples into different quality subsets, and accordingly applies global consistency alignment and cross-modal distillation. Finally, we propose a multi-level domain adaptation framework that jointly optimizes the marginal and conditional distributions of both local modality-specific and global fusion features, thereby reducing cross-domain distribution shifts at multiple granularities. Extensive experiments on the SEED and SEED-IV datasets demonstrate that UF-AMA achieves state-of-the-art (SOTA) performance in both cross-subject and cross-session tasks. The source code is available at: https://github.com/BetterCoderLab/UF-AMA.",
+      "authors": [
+        "Zheng Wang",
+        "Shuo Wang",
+        "Junhong Wang"
+      ],
+      "primary_category": "cs.HC",
+      "categories": [
+        "cs.HC",
+        "cs.AI",
+        "cs.CV"
+      ],
+      "published": "2026-05-29T12:56:42+00:00",
+      "link": "https://arxiv.org/pdf/2606.00170v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Cross-domain EEG emotion recognition with adaptive multimodal alignment",
+      "llm_evidence_cn": "跨域EEG情感识别与自适应多模态对齐",
+      "llm_evidence": "跨域EEG情感识别与自适应多模态对齐",
+      "canonical_evidence": "跨域EEG情感识别与自适应多模态对齐",
+      "llm_tldr_en": "Proposes a unified framework UF-AMA for cross-domain emotion recognition using multimodal physiological signals, with adaptive alignment to handle distribution shifts across subjects and sessions.",
+      "llm_tldr_cn": "针对跨域多模态情感识别中个体差异和模态质量不均的问题，本文提出UF-AMA统一框架。通过自适应多模态对齐技术，有效融合EEG和外围生理信号。在跨被试和跨session实验中，该框架显著提升了泛化能力和鲁棒性，为实际情感交互应用提供了可靠解决方案。",
+      "llm_tldr": "针对跨域多模态情感识别中个体差异和模态质量不均的问题，本文提出UF-AMA统一框架。通过自适应多模态对齐技术，有效融合EEG和外围生理信号。在跨被试和跨session实验中，该框架显著提升了泛化能力和鲁棒性，为实际情感交互应用提供了可靠解决方案。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.01767v2",
+      "source": "arxiv",
+      "title": "EvoBrain: Continual Learning of EEG Foundation Models Across Heterogeneous BCI Tasks",
+      "abstract": "Electroencephalography (EEG) is the cornerstone of non-invasive brain-computer interfaces (BCIs), yet conventional decoding relies on fragmented, task-specific architectures that severely limit cross-task scalability. While EEG foundation models pre-trained on massive corpora promise universal brain decoding, current post-training depends on task-isolated fine-tuning. This static paradigm restricts knowledge transfer across heterogeneous tasks, hinders model scalability, and incurs computational and storage overheads that scale linearly with task count. To overcome these bottlenecks, we formulate downstream adaptation as a cross-task continual learning problem and propose EvoBrain, a dynamic, task-aware continual learning framework for unified EEG decoding. EvoBrain addresses the plasticity-stability trade-off via two complementary components: (1) Neuro-Spectral Task Normalization (NSN) aligns incoming tasks with historical statistics while recalibrating spectral responses to handle distributional and neuro-spectral shifts; and (2) Response-Affinity Distillation (RAD), combined with time-dependent replay, preserves old-task response geometry and promotes selective knowledge transfer between spectrally compatible tasks, effectively mitigating forgetting. Extensive evaluations across six distinct BCI tasks demonstrate that EvoBrain consistently surpasses state-of-the-art methods across diverse foundation backbones, optimally balancing plasticity and stability. To our knowledge, this work pioneers cross-task continual learning in the EEG domain, advancing the realization of a unified, one-for-all brain decoding system.",
+      "authors": [
+        "Yangxuan Zhou",
+        "Sha Zhao",
+        "Jiquan Wang",
+        "Shijian Li",
+        "Gang Pan"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-06-01T06:49:50+00:00",
+      "link": "https://arxiv.org/pdf/2606.01767v2",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "continual learning for EEG foundation models across BCI tasks",
+      "llm_evidence_cn": "面向脑机接口任务的脑电基础模型持续学习",
+      "llm_evidence": "面向脑机接口任务的脑电基础模型持续学习",
+      "canonical_evidence": "面向脑机接口任务的脑电基础模型持续学习",
+      "llm_tldr_en": "EvoBrain introduces continual learning for EEG foundation models, enabling knowledge transfer across heterogeneous BCI tasks without catastrophic forgetting.",
+      "llm_tldr_cn": "针对脑电基础模型在跨任务微调中知识迁移受限和存储开销问题，提出EvoBrain动态任务感知持续学习框架。将下游适应转化为跨任务持续学习，避免遗忘同时促进迁移。在多种脑机接口任务上验证，模型能有效缩放并保持性能，推动通用脑电解码发展。",
+      "llm_tldr": "针对脑电基础模型在跨任务微调中知识迁移受限和存储开销问题，提出EvoBrain动态任务感知持续学习框架。将下游适应转化为跨任务持续学习，避免遗忘同时促进迁移。在多种脑机接口任务上验证，模型能有效缩放并保持性能，推动通用脑电解码发展。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.02166v1",
+      "source": "arxiv",
+      "title": "EEG-FuseFormer: A Transformer-Driven Feature Fusion Framework for Seizure Onset Prediction",
+      "abstract": "Epilepsy is one of the most common neurological disorders globally, characterized by recurring seizures and significantly impacting the quality of life. Despite advancements in diagnostic techniques, the mitigation of risks faced by epilepsy patients remains challenging due to the unpredictability of seizure events. An accurate forecast of seizure onset helps to reduce risks in epilepsy patients. In this paper, we propose EEG-FuseFormer, a transformer-based feature fusion framework for seizure-onset prediction that combines intermediate features extracted from Convolutional Neural Networks-Long Short-Term Memory (CNN-LSTM) and ResNet-18 networks. The CNN-LSTM architecture captures both spatial and temporal features directly from the raw signal, whereas the ResNet-18 extracts features from the Short-Time Fourier Transform (STFT) representation of the EEG signals. Fusion is carried out using a transformer encoder, and the final prediction is generated using fully connected dense layers. The CHB-MIT dataset was used to validate the proposed model. The results show that the proposed model achieves a mean recall of 98.85% and outperforms most of the state-of-the-art methods. This study evaluates the ability of the proposed feature fusion model to generalize in cross-patient testing scenarios. Fine-tuning pre-trained models on limited target patient data (target adaptation) within the cross-patient validation framework results in higher recall, precision, and F1-score metrics in comparison to the conventional cross-patient validation approach. Finally, the runtime-based computational complexity of the model is assessed across diverse hardware platforms to highlight the performance-complexity trade-off.",
+      "authors": [
+        "Vigneshwar Hariharan",
+        "Chithra Reghuvaran",
+        "Arlene John",
+        "Nhat Pham",
+        "Omer Rana",
+        "Deepu John",
+        "Ganesh Neelakanta Iyer"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-01T12:27:01+00:00",
+      "link": "https://arxiv.org/pdf/2606.02166v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "EEG signal processing for seizure onset prediction using transformer feature fusion",
+      "llm_evidence_cn": "基于Transformer特征融合的癫痫发作预测脑电信号处理",
+      "llm_evidence": "基于Transformer特征融合的癫痫发作预测脑电信号处理",
+      "canonical_evidence": "基于Transformer特征融合的癫痫发作预测脑电信号处理",
+      "llm_tldr_en": "EEG-FuseFormer combines CNN-LSTM and ResNet-18 features via transformer fusion for accurate seizure onset prediction from EEG.",
+      "llm_tldr_cn": "针对癫痫发作预测问题，提出EEG-FuseFormer框架，通过Transformer融合CNN-LSTM提取的时空特征和ResNet-18的深度特征。在脑电数据上实现高精度发作预测，减少了癫痫患者的风险。该工作展示了深度学习在脑电图信号分析中的重要应用。",
+      "llm_tldr": "针对癫痫发作预测问题，提出EEG-FuseFormer框架，通过Transformer融合CNN-LSTM提取的时空特征和ResNet-18的深度特征。在脑电数据上实现高精度发作预测，减少了癫痫患者的风险。该工作展示了深度学习在脑电图信号分析中的重要应用。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.05239v1",
+      "source": "arxiv",
+      "title": "HyFAD: Hybrid Time-Frequency Diffusion with Frequency-Aware Embedding for Time Series Imputation",
+      "abstract": "Diffusion models have demonstrated strong performance in time series modeling due to their ability to progressively capture complex data distributions through iterative denoising. However, existing approaches struggle with frequency-sensitive denoising, high-frequency reconstruction and balancing global trends with local dynamics. To address these limitations, we propose \\textbf{HyFAD}, a \\textbf{Hy}brid time-frequency \\textbf{D}iffusion model with \\textbf{F}requency-\\textbf{A}ware embedding for time series imputation. Built upon the DDPM paradigm, HyFAD adopts a coupled time-frequency diffusion framework, in which the reverse denoising proceeds sequentially from the time domain to the frequency domain, enabling coarse-to-fine generation. Specifically, the time-domain diffusion process captures low-frequency global trends, while the frequency-domain diffusion process refines high-frequency spectral components. We further introduce a frequency-aware step embedding that exploits the relationship between diffusion steps and spectral components, providing step-dependent spectral guidance and facilitates more accurate band-wise reconstruction. Extensive experiments on multiple benchmark datasets demonstrate that HyFAD achieves state-of-the-art performance. Our source code is available at https://github.com/hongfangao/HyFAD.",
+      "authors": [
+        "Hongfan Gao",
+        "Wangmeng Shen",
+        "Bin Yang",
+        "Jilin Hu"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.LG"
+      ],
+      "published": "2026-06-03T06:03:37+00:00",
+      "link": "https://arxiv.org/pdf/2606.05239v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Hybrid diffusion model for time series imputation, directly applicable to EEG channel imputation",
+      "llm_evidence_cn": "混合扩散模型用于时间序列插补，可直接应用于EEG通道补全",
+      "llm_evidence": "混合扩散模型用于时间序列插补，可直接应用于EEG通道补全",
+      "canonical_evidence": "混合扩散模型用于时间序列插补，可直接应用于EEG通道补全",
+      "llm_tldr_en": "HyFAD proposes a coupled time-frequency diffusion framework where reverse denoising proceeds from time to frequency domain, achieving coarse-to-fine imputation for time series, addressing frequency-sensitive denoising and high-frequency reconstruction.",
+      "llm_tldr_cn": "针对现有扩散模型在频率敏感降噪和高频重建上的不足，提出HyFAD，一种混合时频扩散模型，采用耦合时频扩散框架，从时域到频域逐步反去噪，实现由粗到细的重建。该模型在多个时间序列插补任务上表现优异，其方法可直接迁移至EEG多通道缺失补全场景。",
+      "llm_tldr": "针对现有扩散模型在频率敏感降噪和高频重建上的不足，提出HyFAD，一种混合时频扩散模型，采用耦合时频扩散框架，从时域到频域逐步反去噪，实现由粗到细的重建。该模型在多个时间序列插补任务上表现优异，其方法可直接迁移至EEG多通道缺失补全场景。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "generative models for EEG channel imputation",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.06104v1",
+      "source": "arxiv",
+      "title": "A Sliced-Wasserstein Framework on Correlation Matrices for EEG Decoding",
+      "abstract": "Electroencephalography (EEG) offers noninvasive, millisecond resolution recordings of neuronal activity and is widely used in neuroscience and healthcare. Many EEG decoding pipelines rely on covariance descriptors for their robustness to noise, but such representations are sensitive to channel-wise scaling. Recent studies have therefore advocated full-rank correlation matrices as a scale-invariant alternative for EEG decoding. In this paper, we propose a general framework for Sliced Wasserstein (SW) discrepancies on manifolds endowed with Pullback Euclidean Metrics (PEMs), termed Pullback Euclidean Metric Sliced Wasserstein (PEMSW). Within this framework, we instantiate two Correlation Sliced-Wasserstein (CorSW) discrepancies on the manifold of full-rank correlation matrices under two recently introduced correlation geometries, \\textit{i.e.}, the Off-Log Metric (OLM) and Log-Scaled Metric (LSM). Building on CorSW, we further develop a domain generalization (DG) framework for EEG decoding. Experiments on three EEG datasets demonstrate improved generalization under distribution shifts, with low training overhead and no additional inference cost. The source code is available at https://github.com/ChenHu-ML/CorSW.",
+      "authors": [
+        "Chen Hu",
+        "Rui Wang",
+        "Jiale Zhou",
+        "Jingjun Yi",
+        "Shaocheng Jin",
+        "Yidong Song",
+        "Yefeng Zheng"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-04T12:47:49+00:00",
+      "link": "https://arxiv.org/pdf/2606.06104v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "EEG decoding using correlation matrices and sliced-Wasserstein framework",
+      "llm_evidence_cn": "使用相关矩阵和切片Wasserstein框架进行EEG解码",
+      "llm_evidence": "使用相关矩阵和切片Wasserstein框架进行EEG解码",
+      "canonical_evidence": "使用相关矩阵和切片Wasserstein框架进行EEG解码",
+      "llm_tldr_en": "A sliced-Wasserstein framework on correlation matrices for EEG decoding, using Pullback Euclidean Metrics to define new discrepancies on the manifold of full-rank correlation matrices.",
+      "llm_tldr_cn": "针对EEG解码中协方差描述子对通道缩放敏感的问题，本文提出基于相关矩阵的切片Wasserstein框架。通过引入拉回欧几里得度量，在全秩相关矩阵流形上定义了新的相关性切片Wasserstein距离。实验证明该方法在多个EEG解码任务中优于传统协方差方法，为稳健的EEG特征提取提供了新工具。",
+      "llm_tldr": "针对EEG解码中协方差描述子对通道缩放敏感的问题，本文提出基于相关矩阵的切片Wasserstein框架。通过引入拉回欧几里得度量，在全秩相关矩阵流形上定义了新的相关性切片Wasserstein距离。实验证明该方法在多个EEG解码任务中优于传统协方差方法，为稳健的EEG特征提取提供了新工具。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
