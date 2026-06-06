@@ -1,0 +1,228 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-06T21:01:24.278291+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 0,
+    "deep_cap": 7,
+    "deep_selected": 0,
+    "quick_candidates": 5,
+    "quick_skim_target": 12,
+    "quick_selected": 5
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2605.31173v1",
+      "source": "arxiv",
+      "title": "MindVoice: Reconstructing Intelligible Speech from Non-invasive Neural Signals with Pretrained Priors",
+      "abstract": "Reconstructing continuous speech from non-invasive neural recordings is a fundamental problem for probing human auditory perception and building safe, scalable speech brain-computer interfaces. Despite recent progress, intelligible reconstruction remains elusive, as non-invasive recordings are inherently noisy, spatially blurred, and only partially preserve information about perceived speech. Existing methods directly map neural activity to entangled speech representations before synthesizing waveforms with neural vocoders, resulting in spectral-similar but unintelligible results. To overcome these limitations, we introduce MindVoice, a neuro-to-speech reconstruction framework that uses pretrained models to compensate for the incomplete semantic and acoustic information in neural recordings. MindVoice disentangles reconstruction into two complementary pathways: one recovers high-level semantic content, while the other estimates fine-grained acoustic attributes. These inferred representations are then fused with powerful speech generation models and in-context voice cloning to synthesize natural and intelligible utterances. Extensive experiments on EEG and MEG demonstrate that MindVoice substantially outperforms existing methods on various metrics. These results show that pretrained priors provide a principled way to bridge the gap between noisy neural recordings and natural speech, highlighting a promising attempt for auditory neuroscience research and non-invasive speech brain-computer interfaces.",
+      "authors": [
+        "Guangyin Bao",
+        "Taiping Zeng",
+        "Jianfeng Feng",
+        "Xiangyang Xue"
+      ],
+      "primary_category": "cs.SD",
+      "categories": [
+        "cs.SD",
+        "cs.AI"
+      ],
+      "published": "2026-05-29T11:38:38+00:00",
+      "link": "https://arxiv.org/pdf/2605.31173v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "speech reconstruction from non-invasive neural signals for BCI",
+      "llm_evidence_cn": "从非侵入神经信号重建语音，用于脑机接口",
+      "llm_evidence": "从非侵入神经信号重建语音，用于脑机接口",
+      "canonical_evidence": "从非侵入神经信号重建语音，用于脑机接口",
+      "llm_tldr_en": "MindVoice uses pretrained priors to reconstruct intelligible speech from non-invasive neural recordings, enabling scalable speech BCIs.",
+      "llm_tldr_cn": "非侵入神经信号重建连续语音是脑机接口的关键难题。现有方法直接映射神经活动到纠缠的语音表示，导致结果不可理解。本文提出MindVoice框架，利用预训练模型补偿噪声和空间模糊，显著提升重建可懂度。实验表明，该方法在多个数据集上达到当前最优的语音可懂度，为可扩展的语音脑机接口奠定了基础。",
+      "llm_tldr": "非侵入神经信号重建连续语音是脑机接口的关键难题。现有方法直接映射神经活动到纠缠的语音表示，导致结果不可理解。本文提出MindVoice框架，利用预训练模型补偿噪声和空间模糊，显著提升重建可懂度。实验表明，该方法在多个数据集上达到当前最优的语音可懂度，为可扩展的语音脑机接口奠定了基础。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.31061v1",
+      "source": "arxiv",
+      "title": "STEP: Learning STructured Embeddings for Progressive Time Series",
+      "abstract": "We present a novel method for learning interpretable representations of progressive time series, that is, data capturing irreversible state transitions such as degradation or task completion. Our approach uses a self-supervised contrastive objective to learn a low-dimensional latent space whose geometry is itself the interpretation: each observation becomes a point on a manifold anchored between two fixed orthogonal prototype vectors, and a trajectory becomes a path across that manifold. From this structure we read a latent compass, the polar coordinates (θ, r) of the latent vector, in which θ tracks the progression of the underlying state (e.g., from healthy to failed) and r identifies the active mode (e.g., the operating condition), without any proxy labels. We evaluate the approach against the state of the art on diverse domains, including industrial degradation, robotic tasks, and neural activity, validating three key capabilities: (1) end-state prediction, (2) multi-step forecasting, and (3) interpretable phase separation. Our method matches or improves over black-box counterparts on all of these while providing transparency about the underlying mechanisms. A simple linear regressor on top of the latent compass coordinates is competitive with deep architectures, direct quantitative evidence that the underlying state is encoded in a geometrically accessible form.",
+      "authors": [
+        "Lucas Thil",
+        "Jesse Read",
+        "Rim Kaddah",
+        "Guillaume Doquet"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-05-29T09:33:34+00:00",
+      "link": "https://arxiv.org/pdf/2605.31061v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "learns interpretable low-dimensional latent space for time series, transferable to EEG",
+      "llm_evidence_cn": "学习可解释的低维时间序列潜在空间，可迁移到EEG",
+      "llm_evidence": "学习可解释的低维时间序列潜在空间，可迁移到EEG",
+      "canonical_evidence": "学习可解释的低维时间序列潜在空间，可迁移到EEG",
+      "llm_tldr_en": "STEP learns structured embeddings for progressive time series via contrastive learning, yielding a latent compass interpretable as progression state and mode.",
+      "llm_tldr_cn": "渐进时间序列（如退化或任务完成）的表示学习面临可解释性挑战。本文提出STEP方法，通过自监督对比学习在低维流形上构建潜在空间，其极坐标直接对应状态进展和模式。在多个时间序列数据集上，STEP不仅实现了高预测精度，还提供了直观的潜在解释，有望迁移到EEG信号的潜在表示学习中。",
+      "llm_tldr": "渐进时间序列（如退化或任务完成）的表示学习面临可解释性挑战。本文提出STEP方法，通过自监督对比学习在低维流形上构建潜在空间，其极坐标直接对应状态进展和模式。在多个时间序列数据集上，STEP不仅实现了高预测精度，还提供了直观的潜在解释，有望迁移到EEG信号的潜在表示学习中。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.00635v1",
+      "source": "arxiv",
+      "title": "How Neural Losses Shape VAE Latents",
+      "abstract": "Modern VAEs are rarely trained with the pointwise likelihood implied by the standard $β$-VAE objective. In practice, pointwise reconstruction is often combined with perceptual and adversarial losses, despite a lack of understanding of how this changes the latent dynamics of the model. We show that the choice of reconstruction loss reshapes the rate-distortion problem itself, altering both the information content and the geometry of the learned latent space in ways that may be invisible from reconstructions alone. First, we prove and verify empirically that augmenting pointwise reconstruction with neural terms, such as perceptual and adversarial objectives, reduces the amount of information stored in the latent representations. Second, we show that neural reconstruction losses systematically change the geometry of the latent space: they make representations more isotropic and distribute uncertainty more evenly across latent dimensions, producing different posterior variance profiles. These findings highlight how the rate-distortion tradeoff is not a comprehensive lens to understand the behavior of VAEs, and we propose a more mechanistic approach to investigate how the choice of a distortion metric reshapes the optimization problem.",
+      "authors": [
+        "Giorgio Strano",
+        "Luca Cerovaz",
+        "Michele Mancusi",
+        "Tommaso Mencattini",
+        "Emanuele Rodolà"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-05-30T09:20:56+00:00",
+      "link": "https://arxiv.org/pdf/2606.00635v1",
+      "tags": [
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "studies latent space geometry under neural losses, relevant to EEG latent representation",
+      "llm_evidence_cn": "研究神经损失下的潜在空间几何，与EEG潜在表示相关",
+      "llm_evidence": "研究神经损失下的潜在空间几何，与EEG潜在表示相关",
+      "canonical_evidence": "研究神经损失下的潜在空间几何，与EEG潜在表示相关",
+      "llm_tldr_en": "Shows how neural reconstruction losses reshape VAE latent space, informing EEG latent representation design.",
+      "llm_tldr_cn": "该论文证明重建损失的选择会重塑VAE潜在空间的信息内容和几何结构，减少存储的信息量并改变表示。这一发现对设计EEG潜在空间表示具有方法论指导意义，因为它揭示了损失函数对潜在编码的关键影响，可应用于改进EEG信号的潜在重建模型。",
+      "llm_tldr": "该论文证明重建损失的选择会重塑VAE潜在空间的信息内容和几何结构，减少存储的信息量并改变表示。这一发现对设计EEG潜在空间表示具有方法论指导意义，因为它揭示了损失函数对潜在编码的关键影响，可应用于改进EEG信号的潜在重建模型。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.05073v1",
+      "source": "arxiv",
+      "title": "Learning What Not to Impute: An Uncertainty-Aware Diffusion Framework for Meaningful Missingness",
+      "abstract": "Missing value imputation is a fundamental task in machine learning, with most existing methods assuming that all missing entries correspond to unobserved regular values. In many real-world datasets, however, missingness may arise from two distinct sources: some entries are meaningfully missing (intrinsically absent and semantically valid), while others are missing due to the observation process and should be imputed. We formalize this distinction as a selective imputation problem, where the goal is to jointly infer which missing entries should be preserved and which should be recovered. To address this challenge, we propose Diff-Joint, a diffusion-based framework that jointly models tabular data together with a latent missingness mask. The method alternates between conditional sampling and uncertainty-aware aggregation to iteratively refine both imputed values and missingness labels. Empirical results on synthetic and real-world datasets demonstrate that Diff-Joint effectively identifies meaningfully missing entries while achieving competitive imputation accuracy and improved downstream task performance.",
+      "authors": [
+        "Lixing Zhang",
+        "Yidong Ouyang",
+        "Weifu Li",
+        "Shixiang Zhu",
+        "Guang Cheng",
+        "Liyan Xie"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-03T16:31:54+00:00",
+      "link": "https://arxiv.org/pdf/2606.05073v1",
+      "tags": [
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "diffusion-based selective imputation with latent missingness modeling",
+      "llm_evidence_cn": "基于扩散的选择性插补与潜在缺失建模",
+      "llm_evidence": "基于扩散的选择性插补与潜在缺失建模",
+      "canonical_evidence": "基于扩散的选择性插补与潜在缺失建模",
+      "llm_tldr_en": "Proposes Diff-Joint, a diffusion framework that jointly models data and latent missingness types for selective imputation.",
+      "llm_tldr_cn": "本文针对实际数据中存在有意义缺失和观测缺失的混合问题，提出Diff-Joint扩散框架。该框架联合建模表格数据和潜在缺失类型，区分哪些缺失应保留、哪些应插补。通过不确定性学习避免对有意义缺失的错误插补，在多个基准上提升了插补质量和下游任务性能。",
+      "llm_tldr": "本文针对实际数据中存在有意义缺失和观测缺失的混合问题，提出Diff-Joint扩散框架。该框架联合建模表格数据和潜在缺失类型，区分哪些缺失应保留、哪些应插补。通过不确定性学习避免对有意义缺失的错误插补，在多个基准上提升了插补质量和下游任务性能。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "latent space based imputation for multichannel EEG",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.00815v1",
+      "source": "arxiv",
+      "title": "OmniEEG-Bench: A Standardized Evaluation Benchmark for EEG Foundation Models",
+      "abstract": "Electroencephalography (EEG) supports a variety of brain-computer interface (BCI) tasks ranging from brain-state monitoring to human-LLM interactions. EEG foundation models are emerging, but evaluation remains fragmented due to heterogeneous datasets and nconsistent task protocols. Here, we introduce OmniEEG-Bench, a unified benchmark and downstream task roadmap for EEG foundation models (FMs). It organizes evaluation of EEG FMs into six task families spanning (i) signal reliability, (ii) biometrics and disease, (iii) consciousness and state, (iv) cognition and emotion, (v) naturalistic stimulus decoding, and (vi) motor and interaction, introducing a new generation of tasks not systematically benchmarked in prior EEG FM work. OmniEEG-Bench standardizes model deployment, task definitions, and metrics through a task-card specification, and unifies 54 EEG datasets with consistent evaluation protocols. We benchmark 10 representative EEG foundation models and report a leaderboard that covers diverse evaluation settings. Both pretraining dataset diversity and model size are significantly associated with better average ranks across datasets, revealing scaling-law behavior in EEG foundation models (Figure 1). These results suggest that scaling EEG foundation models requires not only larger architectures but also broader and more diverse pretraining data. The benchmark code is available at https://github.com/ncclab-sustech/omni-eegbench.git.",
+      "authors": [
+        "Ziling Lu",
+        "Zongsheng Li",
+        "Xinke Shen",
+        "Kexin Lou",
+        "Yingyue Xin",
+        "Xiaoqi Chen",
+        "Shinan Wang",
+        "Xiang Chen",
+        "Jiahao Fan",
+        "Chenyu Huang",
+        "Xin Xu",
+        "Zhoujie Hou",
+        "Chen Wei",
+        "Quanying Liu"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-05-30T17:20:04+00:00",
+      "link": "https://arxiv.org/pdf/2606.00815v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Standardized benchmark for EEG foundation models evaluation",
+      "llm_evidence_cn": "EEG基础模型标准化评估基准",
+      "llm_evidence": "EEG基础模型标准化评估基准",
+      "canonical_evidence": "EEG基础模型标准化评估基准",
+      "llm_tldr_en": "Introduces OmniEEG-Bench, a unified benchmark and downstream task roadmap for EEG foundation models, organizing evaluation into six task families.",
+      "llm_tldr_cn": "现有EEG基础模型评估因异构数据集和不一致任务协议而碎片化。本文提出OmniEEG-Bench，一个统一的EEG基础模型评估基准与下游任务路线图，涵盖信号可靠性、生物特征与疾病、意识与状态、认知与情绪、自然刺激解码、运动与交互六大任务族，填补了系统化基准的空白。该工作标准化了EEG模型的评估流程，对推动BCI领域发展具有重要意义。",
+      "llm_tldr": "现有EEG基础模型评估因异构数据集和不一致任务协议而碎片化。本文提出OmniEEG-Bench，一个统一的EEG基础模型评估基准与下游任务路线图，涵盖信号可靠性、生物特征与疾病、意识与状态、认知与情绪、自然刺激解码、运动与交互六大任务族，填补了系统化基准的空白。该工作标准化了EEG模型的评估流程，对推动BCI领域发展具有重要意义。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

@@ -1,0 +1,1891 @@
+Title: Learning What Not to Impute: An Uncertainty-Aware Diffusion Framework for Meaningful Missingness
+
+URL Source: https://arxiv.org/pdf/2606.05073v1
+
+Published Time: Thu, 04 Jun 2026 01:22:32 GMT
+
+Number of Pages: 28
+
+Markdown Content:
+# Learning What Not to Impute: An Uncertainty-Aware Diffusion Framework for Meaningful Missingness 
+
+Lixing Zhang 1 Yidong Ouyang 2 Weifu Li 1 Shixiang Zhu 3
+
+Guang Cheng 2 Liyan Xie 11University of Minnesota 2University of California, Los Angeles 
+
+> 3
+
+Carnegie Mellon University 
+
+§ Code: https://github.com/lxzhang1/Diff-Joint 
+
+Abstract 
+
+Missing value imputation is a fundamental task in machine learning, with most existing methods assuming that all missing entries correspond to unobserved regular values. In many real-world datasets, however, missingness may arise from two distinct sources: some entries are 
+
+meaningfully missing (intrinsically absent and semantically valid), while others are missing due to the observation process and should be imputed. We formalize this distinction as a selective imputation problem, where the goal is to jointly infer which missing entries should be preserved and which should be recovered. To address this challenge, we propose Diff-Joint, a diffusion-based framework that jointly models tabular data together with a latent missingness mask. The method alternates between conditional sampling and uncertainty-aware aggregation to iteratively refine both imputed values and missingness labels. Empirical results on synthetic and real-world datasets demonstrate that Diff-Joint effectively identifies meaningfully missing entries while achieving competitive imputation accuracy and improved downstream task performance. 
+
+# 1 Introduction 
+
+Missing value imputation is a common and important problem in machine learning, statistics, and data mining [ 1, 2]. In many applications, training datasets contain missing entries that must be imputed either as quantities of direct interest or as a preprocessing step for downstream modeling, analysis, and decision-making. A broad range of methods have been developed to recover missing entries from the observed data values, ranging from classical statistical procedures [ 3, 4, 5, 6] to modern deep generative models [7, 8, 9, 10]. Under the conventional imputation task, all missing entries are typically treated as unobserved regular values that need to be fully recovered. However, it is important to notice that in some datasets, the missing value can arise from two distinct sources: an entry may be meaningfully missing in the complete record, or a regular value that went missing during the observation process [ 11 ]. For example, in clinical records, a laboratory measurement may be missing because the test was not ordered, but the absence of the test order itself may carry clinical meaning [ 12 ]. In survey data, a response such as “n/a” may be a valid answer rather than an unobserved value; for instance, income from employment is genuinely not applicable for a respondent who is not employed [ 13 ]. In e-commerce or recommender-system data, the absence of a product attribute may indicate that the attribute is inapplicable to the item, rather than that the attribute was accidentally omitted [ 14 , 15 ]. See Figure 1 for a conceptual illustration. 
+
+> Main contact: liyanxie@umn.edu
+
+1                  
+
+> arXiv:2606.05073v1 [cs.LG] 3 Jun 2026 Product Category Price band Battery life
+> ABook Low NA
+> BLaptop High 10h
+> Product Category Price band Battery life
+> ANA Low NA
+> BLaptop NA NA
+> both appear as NA observation process
+> meaningfully missing in complete data
+> regular values hidden by the observation process
+> initial observed missing value NA
+
+Figure 1: An illustrative example of “meaningful missingness.” This distinction implies that not all observed missing entries should be treated in the same way. Some entries are missing because the missing state itself is part of the underlying record. When a missing entry is meaningful, imputing it with a regular value can distort the data distri-bution, remove useful semantic information, and introduce bias to the learned data distribution. The central goal is therefore not only to estimate the value of a missing entry, but also to determine whether the entry should be imputed. This problem is challenging because the two sources of missingness are not directly labeled in the ob-served data. Moreover, the distinction is entry-wise and context-dependent: the same missing token may be mean-ingful for one sample but observation-induced for another. This calls for new imputation methods that can decide not only how to impute , but also when not to impute . In particular, the goal is to preserve missing entries that are meaningful while imputing only those entries that are missing due to the observation process. To this end, we propose a new learning framework that performs selective imputation : rather than completing all missing entries, the method jointly identifies meaningfully missing states and recovers observation-induced missing values. We instantiate this framework using diffusion models [ 16 , 17 ], which provide a flexible backbone for modeling complex tabular distributions and imputation [ 10 , 18 ]. The proposed method, Diff-Joint, introduces a joint diffusion state (x, c), where x represents the completed tabular values and c is a binary mask indicating which entries are meaningfully missing. Starting from a random initialization, Diff-Joint alternates between two steps. First, it trains a diffusion model on the current joint state. Second, it draws multiple conditional samples given the observed entries and aggregates these samples to update both the imputed values and the meaningfully-missing mask. The aggregation step leverages the entrywise uncertainty scores :high posterior uncertainty provides evidence that an observed “ na ” may correspond to a meaningful missing state rather than a recoverable regular value. Through this iterative refinement, the model learns both the data distribution and the missingness structure. Our contributions are summarized as follows. 1. We formulate a selective imputation problem for tabular data with two latent sources of observed missingness: meaningfully missing entries that should be preserved, and observation-induced missing entries that should be imputed. 2. We propose Diff-Joint, a diffusion-based framework that jointly models completed tabular values and meaningfully-missing masks. By alternating between diffusion-model training and uncertainty-aware aggregation of conditional samples, Diff-Joint iteratively refines both the imputed values and the labels of meaningfully missing entries. 3. We evaluate the proposed method on both a synthetic Bayesian-network dataset and a real-world dataset based on MIMIC-IV-ED. The results show that Diff-Joint can identify meaningfully missing entries while maintaining competitive imputation performance and improving downstream predictive performance. 
+
+Related Work. Missing-value imputation has been extensively studied, and existing approaches can be roughly divided into two categories: classical statistical methods and modern deep generative 2models. Classical missing-data theory separates the underlying data distribution from the observation process, and commonly categorizes missingness mechanisms as missing completely at random (MCAR), missing at random (MAR), or missing not at random (MNAR) [ 11 , 19 ]. This perspective underlies many classical imputation methods, including likelihood-based estimation with the EM algorithm [ 3], chained-equation imputation [ 5], and random-forest imputation for mixed-type data [6]. These methods mainly treat missing entries as unobserved regular values to be recovered. Deep generative models now provide a flexible framework for imputation. Representative approaches include adversarial imputation with GAIN [ 7], latent-variable modeling with MIWAE [8], adaptive iterative imputation with HyperImpute [ 20 ], and masked-reconstruction methods such as ReMasker and CACTI [ 21 , 22 ]. Diffusion and score-based generative models have become a powerful class of generative models [ 16 , 23 , 17 , 24 ]. For missing-data problems, CSDI trains conditional score-based models for probabilistic time-series imputation, while TabCSDI adapts this idea to mixed-type tabular data [ 9, 10 ]. Forest-Diffusion combines diffusion or flow-based generative modeling with gradient-boosted trees for tabular generation and imputation [ 25 ]. Closest to our iterative training procedure, DiffPuter combines diffusion models with an EM-style refinement loop to learn from incomplete data and update missing-value estimates through conditional sampling [ 18 ]. These diffusion-based methods mainly focus on completing all missing values in the data rather than modeling the meaningful-missingness explicitly. Another related line of work recognizes that missingness patterns themselves can carry useful information. In this direction, missing-data handling has been studied for robust prediction from incomplete inputs [ 26 ], and recurrent models for clinical time series incorporate masks and time gaps as predictive features [ 27 ]. Recent work on synthetic data generation also emphasizes that preserving missingness distributions can be important for downstream utility [ 28 ]. These works show that missingness should not always be ignored or naively filled. However, they typically use the observed missingness pattern as an auxiliary feature and do not explicitly model the entry-wise distinction between missing states. Our work makes this distinction explicit by introducing a meaningfully-missing mask and learning it jointly with the underlying data distribution. 
+
+# 2 Problem Setup and Preliminaries 
+
+We consider mixed-type tabular data with d features (columns). For the j-th feature, let Xj denote its domain of regular values, and define the augmented domain ¯Xj = Xj ∪ { na }, where na is used throughout the paper to denote the observed missing values. We represent a complete data point as xtrue = ( x1, . . . , x d) ∈ ¯X1 × · · · × ¯Xd, drawn from the underlying data-generating distribution on the augmented domain. If xj = na in xtrue , then the j-th entry is meaningfully missing (MM), meaning that the value is intrinsically absent and should be treated as a valid state. To model such meaningfully missing entries, we associate each complete data instance xtrue with a binary mask 
+
+c = ( c1, . . . , c d) ∈ { 0, 1}d, cj = 1{xtrue  
+
+> j
+
+= na }. (1) In particular, cj = 1 indicates that the j-th entry is intrinsically missing. In addition to such intrinsically missing entries, an observed record may also exhibit observation-induced missingness , arising from the observation process after the underlying data instance is generated. Typical causes include incomplete data collection, recording errors, and data transfer failures. These observation-induced missing entries are also recorded using the same symbol na in the observed data. We encode this second source using another binary mask r = ( r1, . . . , r d) ∈ { 0, 1}d,where rj = 1 indicates that the j-th entry is missing due to the observation process. 3The final observation is then determined jointly by meaningful missingness and observation-induced missingness. We define the observation mask ω = ( ω1, . . . , ω d) ∈ { 0, 1}d with ωj =(1 − cj )(1 − rj ). Given (xtrue , ω), the observed record xobs = ( xobs 1 , . . . , x obs  
+
+> d
+
+) is defined as xobs  
+
+> j
+
+= xj
+
+if ωj = 1 , and xobs  
+
+> j
+
+= na otherwise. In other words, the same symbol na is observed regardless of whether the underlying cause is meaningful missingness or observation-induced missingness. Consequently, these two types of missingness are not directly distinguishable from the observed data alone. Our framework therefore assumes that the two missingness mechanisms induce distinct statistical properties in the conditional distribution of missing entries given the observed context. We formalize this mechanism-separation perspective and establish identifiability conditions in Section 3.2. Given n observed records xobs 1 , . . . , xobs  
+
+> n
+
+, our goal is to infer which entries are meaningfully missing and to impute only those entries that are observation-induced missing. Specifically, we first aim to infer the meaningful-missingness mask bci = ( bci, 1, . . . , bci,d ) to determine which entries of each record should remain na . Second, for entries not identified as meaningfully missing, we estimate their regular values and output an imputed value bxi,j ∈ X j . Thus, the final imputed record preserves 
+
+na for entries with bci,j = 1 , while replacing observation-induced missing entries with their imputed values bxi,j .
+
+2.1 Preliminaries: Diffusion Models 
+
+This work uses diffusion models to learn the data distribution [ 16 ]. Diffusion models are characterized by their forward and backward processes. The forward process perturbs the data distribution p(x)
+
+by injecting Gaussian noise, as described by the following continuous-time equation [17]: 
+
+dxt = f (xt, t )d t + g(t)d w, t ∈ [0 , T ], (2) where w is the standard Brownian motion, f (·, t ) : Rd → Rd is a drift coefficient, and g(·) : R → R is a diffusion coefficient. The marginal distribution of xt at time t is denoted as pt(xt), and p0 is the distribution of the initial value x0, which equals the true data distribution. Then, we can reverse the forward process (2) for generation, defined as: 
+
+dxt = f (xt, t ) − g(t)2∇x log pt(x) dt + g(t)d w, (3) where w is a standard Brownian motion when time flows backwards from T to 0. The key of the backward process is estimating the score function of each marginal distribution, ∇x log pt(x), by training a score network sθ(xt, t ) [29, 30, 31] 
+
+θ∗ = arg min 
+
+> θ
+
+Et∼Unif [0 ,T ]
+
+n
+
+λ(t)Ept(xt)
+
+h
+
+∥sθ(xt, t ) − ∇ xt log pt(xt)∥22
+
+io 
+
+, (4) where λ(t) : [0 , T ] → R>0 is a positive weighting function. It is worthwhile mentioning that since tabular data may contain both continuous and discrete variables, we use an encoder described in Appendix D.1 to map each record into a continuous model space for diffusion-model training and sampling. The corresponding decoder maps generated samples back to the original mixed-type tabular space. For notational simplicity, we use x for both the original and encoded representations in the rest of the paper; the distinction is clear from context. 
+
+# 3 Methodology 
+
+3.1 Diff-Joint: Joint Diffusion for Selective Imputation 
+
+To model meaningful missingness, we define the joint diffusion state s = ( x, c), where c is the meaningful-missingness (MM) mask. Based on such joint state representation, we propose Diff-Joint, 4Observed NA may come                                 
+
+> from different causes
+> Training data
+> Age Spouse
+> income
+> Lab
+> value
+> 142 NA NA
+> 265 NA 0.8
+> Initial latent state
+> Age Spouse
+> income
+> Lab
+> value
+> 142 55k 1.1
+> 265 48k 0.8
+> 𝒙 (𝟎 )𝒄 (𝟎 )
+> Spouse
+> income
+> Lab
+> value
+> 00
+> 00
+> Current guesses
+> Fit diffusion model
+> Train on current joint
+> state (𝒙 (𝒕 ),𝒄 (𝒕 ))
+> Conditional samples
+> Meaningfully missing ( 𝒄 =1)Imputed regular value ( 𝒄 =0)Observed NA cell
+> Update latent state
+> Age Spouse
+> income
+> Lab
+> value
+> 42 54k 1.1
+> 65 50k 0.8
+> 𝒙 (𝒕 +𝟏 )𝒄 (𝒕 +𝟏 )
+> Spouse
+> income
+> Lab
+> value
+> 10
+> 00
+> Aggregated from samples
+> Sample 1
+> Sample 2
+
+Figure 2: Overview of Diff-Joint. Starting from incomplete observations xobs , Diff-Joint alternates between diffusion-model training on the current joint state bs(t) = ( bx(t), bc(t)), and latent state update via conditional sampling and aggregation. an iterative framework for jointly modeling tabular values and meaningful-missingness patterns. As illustrated in Figure 2, given the observed dataset {xobs  
+
+> i
+
+}ni=1 , the Diff-Joint framework initializes the observed missing values by randomly filling the missing entries in each xobs  
+
+> i
+
+to obtain bx(0)  
+
+> i
+
+, and setting bc(0)  
+
+> i
+
+= 0. This yields the initial joint state bs(0)  
+
+> i
+
+= ( bx(0)  
+
+> i
+
+, bc(0)  
+
+> i
+
+) for each data point. That is, all observed missing entries are initially treated as observation-induced missingness. Starting from {bs(0)  
+
+> i
+
+}ni=1 , Diff-Joint alternates between the following two steps at each iteration t: (i) Model Update: train a diffusion model on the given collection of joint data state {bs(t) 
+
+> i
+
+}ni=1 to capture dependencies between data values and meaningful-missingness patterns; and (ii ) Latent-state Update: 
+
+draw multiple conditional samples from the current diffusion model and update the joint state to 
+
+{bs(t+1)  
+
+> i
+
+}ni=1 . In the following, we describe the latent-state update and present the overall procedure in Algorithm 1. Detailed algorithms for each step are provided in Appendix A. 
+
+Latent-state Update. At each iteration t, conditioning on each observed training data xobs ,we use the current updated joint-state diffusion model (parameterized by θ(t)) to draw K samples 
+
+{(x(t,k ), c(t,k ))}Kk=1 . Here K is a pre-specified sample size. We then aggregate these K conditional samples to update both the imputed values and the meaningful-missingness mask for each data point. First, for each missing j-th entry in xobs , we update its imputed value to bx(t+1)  
+
+> j
+
+as 
+
+bx(t+1)  
+
+> j
+
+=
+
+
+
+mode  {x(t, 1)  
+
+> j
+
+, . . . , x (t,K ) 
+
+> j
+
+}, if feature j is discrete ,
+
+> 1
+> K
+
+PKk=1 x(t,k ) 
+
+> j
+
+, if feature j is continuous ,
+
+(5) where x(t,k ) 
+
+> j
+
+denotes the j-th entry in the generated conditional sample x(t,k ).Then, for each j such that the j-th entry of xobs is missing, to quantify how uncertain the model is about this missing entry, we define the following uncertainty score: 
+
+u(t+1)  
+
+> j
+
+=
+
+
+
+− X
+
+> v∈X j
+
+ˆp(t) 
+
+> j
+
+(v) log ˆ p(t) 
+
+> j
+
+(v), if feature j is discrete ,
+
+q 1
+
+> K
+
+PKk=1 (x(t,k ) 
+
+> j
+
+− 1
+
+> K
+
+PKℓ=1 x(t,ℓ ) 
+
+> j
+
+)2, if feature j is continuous ,
+
+(6) where ˆpj (v) = 1
+
+> K
+
+PKk=1 1(x(t,k ) 
+
+> j
+
+= v) is the empirical probability mass function of these K samples. That is, the uncertainty score is defined as empirical entropy for discrete variables and empirical standard deviation for continuous ones. In both cases, a larger uncertainty score indicates greater posterior uncertainty about the missing entry, i.e. , the generated conditional samples are more diverse. 5Algorithm 1 Diff-Joint for Selective Imputation 
+
+Input: Observed data table Xobs = {xobs  
+
+> i
+
+}i∈[n], observation mask Ω = {ωi}i∈[n], MM search column set T , number of samples K, number of iterations tmax .
+
+Output: Final completed data bX, meaningful-missingness mask bC, and trained model parameters 
+
+θ. 
+
+> 1:
+
+Initialize: randomly fill the missing entries in Xobs to obtain bX(0) . 
+
+> 2:
+
+Set the initial meaningful-missingness mask bC(0) ← 0n×d. 
+
+> 3:
+
+Form the initial joint representation bS(0) ← ( bX(0) , bC(0) ). 
+
+> 4:
+
+for t = 0 , 1, 2, . . . , t max do  
+
+> 5:
+
+θ(t) ← Model–Update ( bS(t)) using Algorithm 2  
+
+> 6:
+
+S(t) ← Conditional–Sample (θ(t), X obs , Ω, K ) using Algorithm 3  
+
+> 7:
+
+( bX(t+1) , bC(t+1) ) ← Aggregate (S(t), Ω, T ) using Algorithm 4  
+
+> 8:
+
+Form bS(t+1) ← ( bX(t+1) , bC(t+1) ). 
+
+> 9:
+
+end for  
+
+> 10:
+
+bX ← bX(t+1) ⊙ (1 − bC(t+1) ) + na ⊙ bC(t+1) . 
+
+> 11:
+
+return ( bX, bC(t+1) , θ(t)).Finally, we compute the imputation (5) and the uncertainty score (6) for missing entries in each data point xobs  
+
+> i
+
+, i = 1 , . . . , n . That is, let Mj ⊂ { 1, . . . , n } denote the set of samples whose j-th observed entry is na , then the above calculation yields the uncertainty score {u(t+1)  
+
+> i,j
+
+: i ∈ M j } for the j-th variable. We then apply k-means clustering with k = 2 to separate these entries with high 
+
+uncertainty from those with low uncertainty. Specifically, we denote the two resulting clusters by 
+
+C(t+1) 0,j and C(t+1) 1,j . Without loss of generality, we assume C(t+1) 1,j is the cluster with higher average uncertainty values, thus treated as the meaningful-missingness cluster. In parallel, the sampled masks provide a direct MM signal through the majority vote that equals mode  {c(t,k ) 
+
+> i,j
+
+}Kk=1 
+
+. We combine these two signals conservatively to update the second part of the joint state: 
+
+bc(t+1)  
+
+> i,j
+
+= 1{i ∈ C (t+1) 1,j } ∨ mode  {c(t,k ) 
+
+> i,j
+
+}Kk=1 
+
+. (7) Here ∨ denotes the logical OR operator. Thus, an entry is classified as meaningfully missing if either the sampled masks or the uncertainty pattern supports the MM interpretation. The overall procedure can be viewed as an iterative scheme: the model-update step refits the diffusion model using the current joint-state estimates, while the latent-state-update step refines the MM indicators and imputed values using the learned model. Ablation studies in Appendix D.3 show that the full proposed algorithm outperforms both related baseline method and variants with individual components removed, demonstrating that iterative refinement, joint-state characterization, and the uncertainty-based aggregation rule are all essential and contribute to its strong performance. 
+
+3.2 Identifiability of Meaningful Missingness 
+
+In this section, we provide theoretical insights into the identifiability of meaningful missingness when it is mixed with observation-induced missingness in the observed record. The following Proposition formalizes two representative regimes under which meaningful missingness can be identified. The proof of Proposition 3.1 is provided in Appendix B.1. Intuitively, the following proposition shows that meaningful missingness is identifiable when the observation-induced missingness channel is either known or can be recovered from the table’s structural information. The two regimes are chosen and analyzed for technical simplicity, and the same principle should extend to more general settings where the observation-induced missingness is itself identifiable or can be separated from the MM 6mechanism through auxiliary structure, validation information, or certain parametric conditions. Our numerical experiments in Section 4 further show that the proposed algorithm remains fairly robust and maintains stable performance across various observation-induced missingness mechanisms. 
+
+Proposition 3.1 (Identifiability) . Assume that the meaningful missing mechanism satisfies Pr (cj =1 | xtrue  
+
+> −j
+
+) = ϕθ(xtrue  
+
+> −j
+
+; j) with unknown parameter θ, and the function ϕθ satisfies that ϕθ̸ = ϕθ′ for any θ̸ = θ′. We consider the following two scenarios. (i) Assume the observation-induced missingness is MCAR with known probabilities pj = P(rj =1) < 1 for all j. Then the meaningful missing is identifiable from the observed data xobs , i.e., θ
+
+can be uniquely determined. (ii ) Assume that there exists a known subset S ⊆ { 1, . . . , d }, Sc̸ = ∅, such that P(cj = 1) = 0 for 
+
+j / ∈ S. That is, meaningful missingness will only occur in the columns in S. Assume further that the observation-induced missingness is MCAR with a common but unknown probability 
+
+pj = p < 1, j = 1 , . . . , d . Then the meaningful missing is identifiable from the observed data 
+
+xobs , i.e., θ can be uniquely determined. Remark 3.2 . We comment that Proposition 3.1 holds for general meaningfully-missing mechanisms 
+
+ϕθ. One example that satisfies the assumption is the logistic scheme ϕθ(x; j) = σ(α⊤ 
+
+> j
+
+x + βj ), with parameters αj ∈ Rd and βj ∈ R identifiable under assumptions in Proposition 3.1. We provide more discussions under this special case in the Appendix B.1. 
+
+Remark 3.3 . Proposition 3.1 characterizes what is theoretically identifiable from the observed-data distribution, while practical recovery depends on the empirical effectiveness of the algorithm used. The uncertainty score is our key design for separating MM entries from observation-induced missing entries in practice. It relies on a heuristic uncertainty-gap assumption: observation-induced missing entries correspond to regular values and tend to have concentrated conditional predictive distributions, whereas MM entries may not be well explained by any single regular state and thus tend to have larger uncertainty scores. We show in Appendix B.2 that, under certain conditions, the first-step iteration can guarantee that those MM entries exhibit higher uncertainty scores in expectation than non-MM entries, thus can be separated. Moreover, as the diffusion model better approximates the joint distribution, the K conditional samples {c(t,k )}Kk=1 become more informative of the true MM indicators, enabling the logical OR update in Eq. (7) to more effectively complement the uncertainty-gap-based update. 
+
+# 4 Numerical Experiments 
+
+Datasets and Numerical Setup. We evaluate Diff-Joint on two mixed-type tabular datasets: a synthetic Bayesian-network dataset [ 23 ] and a real-world dataset constructed from MIMIC-IV-ED [32 ]. Table 6 in Appendix C summarizes the main statistics of the two datasets. In both datasets, we generate the ground-truth meaningful-missingness via a pre-specified mechanism, which allows us to evaluate whether a method can recover meaningful missingness from observed data. Specifically, in the Bayesian-network dataset, meaningful missingness is induced by the synthetic data-generating process and can occur in both continuous and discrete variables. In the MIMIC-IV-ED data, ground-truth meaningful-missingness labels are not directly available, so we introduce synthetic meaningful missingness through clinically motivated rules on selected discrete target variables. The detailed Bayesian-network construction and MIMIC-IV-ED feature construction are provided in Appendix C.1 and Appendix C.2, respectively. We then introduce an additional observation-induced missing layer. We evaluate our method under missing completely at random (MCAR), missing at random (MAR), or missing not at random (MNAR) mechanisms. For the Bayesian-network 7Table 1: Method comparison on Bayesian Network data under various missing mechanisms/ratios.                                                                                                                                                            
+
+> Method Ratio (%) MCAR MAR MNAR ACC out ↑RMSE out ↓ACC out ↑RMSE out ↓ACC out ↑RMSE out ↓
+> Diff-Joint 10 78.34% 5.09 75.32% 5.15 72.51% 5.16 CMAE 10 35.21% 4.52 24.67% 4.98 30.43% 5.05
+> DiffPuter 10 31.74% 5.07 23.54% 5.26 26.90% 5.29 missForest 10 30.40% 4.76 19.12% 5.17 23.26% 5.16 Mean/Mode 10 30.40% 4.85 19.12% 5.04 23.26% 5.08 Diff-Joint 20 69.35% 5.08 66.16% 5.24 65.85% 4.88
+> CMAE 20 47.18% 4.74 34.25% 5.03 42.14% 5.07 DiffPuter 20 44.61% 5.20 34.79% 5.32 37.48% 5.36 missForest 20 42.40% 5.01 30.98% 5.16 34.44% 5.14 Mean/Mode 20 42.40% 4.96 30.98% 5.07 34.44% 5.07 Diff-Joint 30 63.65% 5.06 57.06% 5.33 67.91% 5.32 CMAE 30 52.26% 4.88 40.83% 5.06 45.29% 5.08 DiffPuter 30 51.89% 5.28 43.48% 5.24 45.04% 5.27 missForest 30 49.23% 5.04 41.19% 6.40 42.40% 5.20 Mean/Mode 30 49.23% 5.02 41.19% 5.05 42.40% 5.05
+> Diff-Joint 40 65.92% 4.99 67.99% 5.42 60.38% 5.21 CMAE 40 54.09% 5.44 45.15% 5.06 50.30% 5.05 DiffPuter 40 56.18% 5.20 45.27% 5.27 49.47% 5.22 missForest 40 53.83% 5.21 42.08% 5.13 48.26% 5.12 Mean/Mode 40 53.83% 5.00 42.08% 5.06 48.26% 5.02
+
+dataset, we report results under all three ordinary-missingness mechanisms. For the MIMIC-IV-ED dataset, we use MCAR ordinary missingness with different masking ratios. The formal definitions of these observation-induced missingness mechanisms and their specific implementations are given in Appendix C.3. 
+
+Evaluation Criteria. We evaluate Diff-Joint along two dimensions: meaningful-missingness (MM) identification and observation-induced-missing-value imputation. For MM identification, we report precision and recall over the missing entries, Precision = TP TP+FP , Recall = TP TP+FN , where TP, FP, and FN are true positives, false positives, and false negatives, computed by treating meaningful missingness as the positive class. For discrete variables, we additionally report token-level recovery accuracy, which is defined as ACC = 1
+
+> |M disc |
+
+P 
+
+> (i,j )∈M disc
+
+1{ˆxi,j = xi,j }, where Mdisc denotes the set of missing entries in discrete MM candidate columns; xi,j ∈ ¯Xj and ˆxi,j ∈ ¯Xj denote the true and imputed values, respectively. We note that this metric is stricter than MM-label accuracy: for non-MM entries, the imputed discrete value must also match the ground truth. For continuous variables, we report RMSE (and MAE) on ordinary-missing entries in continuous columns that are not allowed to contain meaningful missingness. In all tables, “out” denotes test-set performance. 
+
+Baselines. We compare Diff-Joint against representative baselines from four families: simple statistical imputation, classical iterative imputation, masked autoencoding, and diffusion-based generative imputation. Mean/Mode imputes each column independently using the empirical mean for continuous variables and the empirical mode for categorical variables. We use missForest [ 6]as a strong tree-based iterative baseline for mixed-type tabular data, providing a computationally practical classical alternative on the large-scale MIMIC-IV-ED dataset. As modern deep-learning baselines, we include CACTI [ 22 ], a recent strong masked-autoencoding method reported to improve over several prior autoencoding baselines, and DiffPuter [ 18 ], a recent diffusion-based imputation 8method reported to outperform several prior diffusion baselines. On the Bayesian Network dataset, whose column names carry no semantic information, we use the non-embedding variant of CACTI, denoted CMAE. These baselines are designed to impute missing values rather than to identify meaningful missingness; therefore, their MM precision and recall are not measurable and we only report their imputation error. Additional implementation details are provided in Appendix E. Table 2: Evaluation of Diff-Joint on the Bayesian Network dataset under ordi-nary MCAR with five random seeds.                             
+
+> Ratio Recall out ↑Precision out ↑
+> 10 92 .02% ±1.34% 73 .45% ±0.34%
+> 20 84 .19% ±2.86% 59 .33% ±1.19%
+> 30 76 .55% ±2.55% 50 .80% ±2.50%
+> 40 76 .99% ±3.48% 43 .54% ±2.26%
+
+Results on the Synthetic Dataset. Table 1 reports out-of-sample results on the Bayesian-network synthetic dataset under three different types of observation-induced missing: MCAR, MAR, and MNAR. It is worthwhile noting that Diff-Joint is the only method that explicitly identifies meaningful missingness. In terms of discrete token-level recovery, Diff-Joint achieves the best accuracy across all ratios, substantially outperforming standard imputation baselines. This shows that modeling na as a semantic state improves recovery of the final entry state. Moreover, Diff-Joint maintains stable MM recovery performance, indicating that the uncertainty-based update is not tied to a specific missing pattern. For continuous imputation, Diff-Joint is competitive but not always the best point imputer, since its objective jointly balances ordinary-value recovery and MM identification. Furthermore, Table 2 presents the MM precision and recall of Diff-Joint and it can be seen that Diff-Joint achieves consistently high MM recall ( 92 .02% to 76 .99% )as the observation-induced missing ratio increases from 10% to 40% . Precision decreases at higher missing ratios, reflecting the increasing difficulty of distinguishing semantic absence from randomly masked entries. Additional precision and recall results under other missing mechanisms and datasets are provided in Appendix D.2. We further evaluate the effectiveness of Diff-Joint via two downstream multi-class classification tasks for target variables D2 and D3 . The results are reported in Table 3 using Macro-F1, Weighted-F1, ROC-AUC, and accuracy as classification metrics. More details can be found in Appendix D.1. It can be seen that the proposed method achieves the best performance among all baseline methods, indicating that the selective imputation can significantly improve the downstream task performance when na is explicitly considered as a meaningfully missing state. 
+
+Results on the MIMIC-IV-ED Dataset. Table 4 presents the results on the MIMIC-IV-ED dataset under MCAR-type observation-induced missing with varying missing ratios. Diff-Joint still achieves the best accuracy in terms of discrete token-level recovery for relatively small missing ratios, and it is the only method that can explicitly identify meaningful missingness. For continuous imputation, even though Diff-Joint does not always have the best performance, it remains competitive and stays as the second-best result in most cases, with very little difference from the best-performing method. This demonstrates that Diff-Joint enjoys a much better tradeoff between imputation performance for continuous features and the overall accuracy for discrete features. Furthermore, we also evaluate downstream predictive performance in Table 5, where each method is used as a preprocessing step before predicting four target discrete outcome variables. Diff-Joint achieves consistently stronger Macro-F1 and ROC-AUC across the outcomes, with especially large gains on predicting Critical and ICU transfer 12h . This suggests that preserving meaningful missingness provides useful predictive signal for clinically severe outcomes, rather than simply improving cell-level imputation. 9Table 3: Downstream performance on Bayesian Network for variables D2 and D3 .
+
+Method Ratio D2 D3 
+
+Macro-F1 ROC-AUC Weighted-F1 Acc. Macro-F1 ROC-AUC Weighted-F1 Acc. Diff-Joint 10 75.54 94.81 71.42 89.38 79.16 86.01 77.48 84.72 
+
+Mean/Mode 10 46.50 73.38 40.21 72.65 41.69 52.92 36.32 62.23 missForest 10 45.70 72.12 39.24 72.39 41.74 52.94 36.38 62.27 CMAE 10 40.82 70.39 32.02 70.10 38.85 56.64 32.54 61.42 DiffPuter 10 45.97 74.01 39.58 72.52 41.44 55.33 36.03 62.10 Diff-Joint 20 75.44 95.26 71.23 89.72 79.16 86.25 77.48 84.72 
+
+Mean/Mode 20 40.03 69.54 32.47 71.25 41.74 52.83 36.38 62.27 missForest 20 39.59 68.44 31.97 70.83 41.74 52.88 36.38 62.25 CMAE 20 42.10 72.79 33.48 70.72 40.88 54.82 35.12 62.25 DiffPuter 20 46.38 73.92 40.07 72.62 41.45 53.98 36.04 62.13 Diff-Joint 30 76.55 95.49 72.57 90.00 78.89 85.91 77.17 84.65 
+
+Mean/Mode 30 37.12 68.25 28.97 70.75 41.21 53.21 35.76 62.00 missForest 30 36.54 66.04 28.36 69.90 40.97 53.23 35.49 61.88 CMAE 30 45.25 72.42 37.12 71.85 41.66 56.51 36.26 62.23 DiffPuter 30 46.47 74.72 40.17 72.65 41.59 53.68 36.21 62.18 Diff-Joint 40 61.11 94.77 53.94 86.15 75.13 86.42 72.73 83.15 
+
+Mean/Mode 40 35.11 70.68 26.49 70.89 35.27 53.15 28.83 59.69 missForest 40 33.97 68.49 25.22 69.94 34.76 52.96 28.24 59.42 CMAE 40 38.85 69.95 29.62 69.08 39.83 63.21 33.43 62.23 DiffPuter 40 43.23 74.30 36.11 72.18 41.62 53.33 36.23 62.23 
+
+Table 4: Evaluation on MIMIC-IV-ED under MCAR. 
+
+Method Ratio MAE out ↓ RMSE out ↓ Acc out ↑
+
+Diff-Joint 10 4.59 ± 0.03 8.31 ± 0.07 72 .00 % ± 0.50 %
+
+DiffPuter 10 4.61 ± 0.04 8.30 ± 0.08 61 .54% ± 0.78% 
+
+CACTI 10 4.55 ± 0.03 8.24 ± 0.07 63 .85% ± 0.61% 
+
+Mean/Mode 10 6.32 ± 0.00 11 .39 ± 0.00 57 .98% ± 0.00% 
+
+missForest 10 4.69 ± 0.02 8.60 ± 0.03 62 .29% ± 0.12% 
+
+Diff-Joint 20 4.78 ± 0.03 8.68 ± 0.04 72 .46 % ± 0.20 %
+
+DiffPuter 20 4.80 ± 0.04 8.68 ± 0.07 69 .00% ± 0.71% 
+
+CACTI 20 4.73 ± 0.03 8.60 ± 0.06 70 .48% ± 0.59% 
+
+Mean/Mode 20 6.31 ± 0.00 11 .37 ± 0.00 65 .32% ± 0.00% 
+
+missForest 20 5.02 ± 0.02 9.23 ± 0.03 69 .63% ± 0.14% 
+
+Diff-Joint 30 4.99 ± 0.03 9.05 ± 0.05 71 .84% ± 0.66% 
+
+DiffPuter 30 5.01 ± 0.03 9.13 ± 0.07 71 .39% ± 0.84% 
+
+CACTI 30 4.94 ± 0.03 9.04 ± 0.06 72 .71 % ± 0.57 %
+
+Mean/Mode 30 6.31 ± 0.00 11 .38 ± 0.00 68 .26% ± 0.00% 
+
+missForest 30 5.36 ± 0.02 9.86 ± 0.04 72 .07% ± 0.15% 
+
+Diff-Joint 40 5.20 ± 0.03 9.39 ± 0.05 69 .54% ± 0.52% 
+
+DiffPuter 40 5.27 ± 0.03 9.50 ± 0.06 73 .11% ± 0.89% 
+
+CACTI 40 5.05 ± 0.03 9.25 ± 0.06 73 .52% ± 0.64% 
+
+Mean/Mode 40 6.32 ± 0.00 11 .39 ± 0.00 69 .77% ± 0.00% 
+
+missForest 40 5.70 ± 0.02 10 .44 ± 0.04 73 .92 % ± 0.17 %
+
+10 Table 5: Downstream performance on MIMIC-IV-ED across four target outcome variables. 
+
+Method Ratio Hospitalization Critical Macro-F1 ROC-AUC Weighted-F1 Acc. Macro-F1 ROC-AUC Weighted-F1 Acc. Diff-Joint 10 49.14 70.98 43.71 61.66 88.25 98.56 84.58 95.92 
+
+Mean/Mode 10 40.45 66.37 34.03 58.97 51.28 76.26 34.35 88.56 missForest 10 45.36 68.38 38.41 63.75 47.93 78.37 28.81 88.50 DiffPuter 10 45.18 68.01 38.19 63.62 48.06 79.12 29.18 88.44 CACTI 10 45.65 68.44 38.68 64.11 48.52 79.60 29.64 88.72 Diff-Joint 20 48.99 70.36 44.34 57.95 90.11 98.35 86.79 96.87 
+
+Mean/Mode 20 37.20 64.71 31.12 55.83 53.75 75.81 38.32 88.42 missForest 20 45.40 68.28 38.46 63.81 48.86 78.27 30.23 88.80 DiffPuter 20 45.03 67.94 38.08 63.54 48.47 78.91 30.12 88.52 CACTI 20 45.67 68.60 38.67 64.11 49.12 79.40 30.69 88.78 Diff-Joint 30 49.24 71.42 45.22 54.63 85.82 98.70 80.84 96.04 
+
+Mean/Mode 30 34.95 63.81 29.11 54.52 54.01 75.36 38.76 88.42 missForest 30 45.58 68.69 38.58 64.19 48.02 78.18 28.88 88.63 DiffPuter 30 44.91 67.88 37.94 63.41 48.19 79.08 29.57 88.31 CACTI 30 45.50 68.30 38.53 63.88 48.72 79.71 30.10 88.59 Diff-Joint 40 43.32 70.37 40.36 45.21 81.79 97.86 75.29 95.14 
+
+Mean/Mode 40 31.54 63.15 26.05 52.22 52.25 76.43 36.23 88.14 missForest 40 45.46 68.64 38.44 64.07 48.24 78.19 29.26 88.60 DiffPuter 40 45.12 68.07 38.16 63.73 48.56 79.21 29.88 88.47 CACTI 40 45.73 68.60 38.74 64.21 49.08 79.76 30.54 88.90 Method Ratio ICU Transfer 12h CCI CHF Macro-F1 ROC-AUC Weighted-F1 Acc. Macro-F1 ROC-AUC Weighted-F1 Acc. Diff-Joint 10 90.99 99.65 87.81 97.32 47.92 83.44 33.32 80.60 
+
+Mean/Mode 10 51.66 76.88 34.71 88.71 36.64 73.24 19.13 79.59 missForest 10 46.79 77.55 26.73 88.46 42.30 74.19 26.75 80.20 DiffPuter 10 47.64 80.21 28.42 88.19 42.76 73.91 27.21 79.84 CACTI 10 48.11 80.77 28.99 88.48 43.15 74.40 27.97 80.23 Diff-Joint 20 90.65 99.54 87.41 97.20 47.50 82.62 32.58 80.13 
+
+Mean/Mode 20 53.25 74.85 37.31 88.74 35.53 73.22 17.66 79.45 missForest 20 46.94 77.59 27.07 88.32 42.42 74.00 27.25 79.72 DiffPuter 20 48.51 79.88 29.96 88.11 42.91 73.16 27.84 79.71 CACTI 20 49.03 80.34 30.62 88.35 43.53 73.60 28.60 80.05 Diff-Joint 30 88.91 99.63 84.71 97.32 48.08 82.69 33.32 79.32 Mean/Mode 30 51.72 76.17 35.17 88.52 33.61 71.50 15.06 79.12 missForest 30 46.92 78.63 27.06 88.31 42.02 72.15 26.46 79.99 DiffPuter 30 46.88 79.31 27.21 88.06 42.54 73.22 27.36 79.87 CACTI 30 47.32 79.84 27.70 88.38 43.27 73.85 28.09 80.26 
+
+Diff-Joint 40 85.09 99.37 79.42 96.43 46.30 82.44 30.84 78.92 Mean/Mode 40 50.38 76.49 33.31 88.22 34.44 73.06 16.20 79.19 missForest 40 48.52 77.94 29.17 89.35 41.90 72.09 26.27 79.93 DiffPuter 40 47.41 80.46 28.02 88.39 42.08 73.31 26.79 79.66 CACTI 40 48.03 81.03 28.69 88.72 42.67 73.84 27.28 80.12 
+
+# 5 Conclusion 
+
+We introduced Diff-Joint, an uncertainty-aware diffusion framework for selective imputation that distinguishes meaningfully missing (MM) entries from observation-induced missing entries. By jointly modeling tabular values and MM masks, Diff-Joint learns when to preserve na as a semantic state and when to recover a regular value. Experiments on synthetic Bayesian-network data and MIMIC-IV-ED show that the proposed method effectively identifies meaningful missingness and yields strong downstream predictive performance. One potential limitation of the current framework is that it assumes known MM candidate columns and a detectable uncertainty gap. Although our empirical results suggest that this gap is stable across various missing mechanisms, future work could relax the current identifiability conditions. Additionally, the iterative diffusion procedure is also more computationally expensive than non-iterative baselines. However, its cost can be controlled 11 through the user-specified number of iterations, and our ablation study shows that only a small number of iterations is often sufficient. Future work will strengthen theoretical guarantees, improve scalability, and evaluate the framework on more real-world datasets. 
+
+# References 
+
+[1] A Rogier T Donders, Geert JMG Van Der Heijden, Theo Stijnen, and Karel GM Moons. A gentle introduction to imputation of missing values. Journal of clinical epidemiology , 59(10):1087–1091, 2006. [2] Tlamelo Emmanuel, Thabiso Maupong, Dimane Mpoeleng, Thabo Semong, Banyatsang Mphago, and Oteng Tabona. A survey on missing data in machine learning. Journal of Big data , 8(1):140, 2021. [3] Arthur P. Dempster, Nan M. Laird, and Donald B. Rubin. Maximum likelihood from incomplete data via the EM algorithm. Journal of the Royal Statistical Society: Series B (Methodological) ,39(1):1–22, 1977. [4] Donald B Rubin. An overview of multiple imputation. In Proceedings of the survey research methods section of the American statistical association , volume 79, page 84, 1988. [5] Stef van Buuren and Karin Groothuis-Oudshoorn. mice: Multivariate imputation by chained equations in r. Journal of Statistical Software , 45(3):1–67, 2011. [6] Daniel J. Stekhoven and Peter Bühlmann. MissForest—non-parametric missing value imputation for mixed-type data. Bioinformatics , 28(1):112–118, 2012. [7] Jinsung Yoon, James Jordon, and Mihaela Schaar. Gain: Missing data imputation using generative adversarial nets. In International conference on machine learning , pages 5689–5698. PMLR, 2018. [8] Pierre-Alexandre Mattei and Jes Frellsen. MIWAE: Deep generative modelling and imputation of incomplete data sets. In International conference on machine learning , pages 4413–4423. PMLR, 2019. [9] Yusuke Tashiro, Jiaming Song, Yang Song, and Stefano Ermon. Csdi: Conditional score-based diffusion models for probabilistic time series imputation. Advances in neural information processing systems , 34:24804–24816, 2021. [10] Shuhan Zheng and Nontawat Charoenphakdee. Diffusion models for missing value imputation in tabular data. In NeurIPS 2022 First Table Representation Learning Workshop , 2022. [11] Donald B Rubin. Inference and missing data. Biometrika , 63(3):581–592, 1976. [12] Zachary C Lipton, David C Kale, Charles Elkan, and Randall Wetzel. Learning to diagnose with lstm recurrent neural networks. arXiv preprint arXiv:1511.03677 , 2015. [13] Paul D Allison. Missing data. The SAGE handbook of quantitative methods in psychology ,23:72–89, 2009. [14] Yifan Hu, Yehuda Koren, and Chris Volinsky. Collaborative filtering for implicit feedback datasets. In 2008 Eighth IEEE international conference on data mining , pages 263–272. IEEE, 2008. 12 [15] Steffen Rendle, Christoph Freudenthaler, Zeno Gantner, and Lars Schmidt-Thieme. BPR: Bayesian personalized ranking from implicit feedback. arXiv preprint arXiv:1205.2618 , 2012. [16] Jonathan Ho, Ajay Jain, and Pieter Abbeel. Denoising diffusion probabilistic models. Advances in neural information processing systems , 33:6840–6851, 2020. [17] Yang Song, Jascha Sohl-Dickstein, Diederik P Kingma, Abhishek Kumar, Stefano Ermon, and Ben Poole. Score-based generative modeling through stochastic differential equations. In 
+
+International Conference on Learning Representations , 2021. [18] Hengrui Zhang, Liancheng Fang, Qitian Wu, and Philip S. Yu. DiffPuter: Empowering diffusion models for missing data imputation. In The Thirteenth International Conference on Learning Representations , 2025. [19] Roderick JA Little and Donald B Rubin. Statistical analysis with missing data . John Wiley & Sons, 2019. [20] Daniel Jarrett, Bogdan Cebere, Tennison Liu, Alicia Curth, and Mihaela van der Schaar. HyperImpute: Generalized iterative imputation with automatic model selection. In Proceedings of the 39th International Conference on Machine Learning , volume 162 of Proceedings of Machine Learning Research , pages 9916–9937. PMLR, 2022. [21] Tianyu Du, Luca Melis, and Ting Wang. Remasker: Imputing tabular data with masked autoencoding. In The Twelfth International Conference on Learning Representations , 2024. [22] Aditya Gorla, Ryan Wang, Zhengtong Liu, Ulzee An, and Sriram Sankararaman. CACTI: Leveraging copy masking and contextual information to improve tabular data imputation. In Proceedings of the 42nd International Conference on Machine Learning , volume 267 of 
+
+Proceedings of Machine Learning Research , pages 20187–20225, 2025. [23] Yidong Ouyang, Liyan Xie, Chongxuan Li, and Guang Cheng. Missdiff: Training diffusion models on tabular data with missing values. arXiv preprint arXiv:2307.00467 , 2023. [24] Namjoon Suh, Yuning Yang, Din-Yin Hsieh, Qitong Luan, Shirong Xu, Shixiang Zhu, and Guang Cheng. Timeautodiff: A unified framework for generation, imputation, forecasting, and time-varying metadata conditioning of heterogeneous time series tabular data. Transactions on Machine Learning Research , 2025. [25] Alexia Jolicoeur-Martineau, Kilian Fatras, and Tal Kachman. Generating and imputing tabular data via diffusion and flow-based gradient-boosted trees. In International conference on artificial intelligence and statistics , pages 1288–1296. PMLR, 2024. [26] Pedro J. García-Laencina, José-Luis Sancho-Gómez, and Aníbal R. Figueiras-Vidal. Pattern classification with missing data: a review. Neural Computing and Applications , 19:263–282, 2010. [27] Zhengping Che, Sanjay Purushotham, Kyunghyun Cho, David Sontag, and Yan Liu. Recurrent neural networks for multivariate time series with missing values. Scientific reports , 8(1):6085, 2018. [28] Xinyue Wang, Hafiz Asif, and Jaideep Vaidya. Preserving missing data distribution in synthetic data. In Proceedings of the ACM Web Conference 2023 , pages 2110–2121, 2023. 13 [29] Aapo Hyvärinen and Peter Dayan. Estimation of non-normalized statistical models by score matching. Journal of Machine Learning Research , 6(4), 2005. [30] Pascal Vincent. A connection between score matching and denoising autoencoders. Neural computation , 23(7):1661–1674, 2011. [31] Yang Song, Sahaj Garg, Jiaxin Shi, and Stefano Ermon. Sliced score matching: A scalable approach to density and score estimation. In Uncertainty in artificial intelligence , pages 574–584. PMLR, 2020. [32] Alistair Johnson, Lucas Bulgarelli, Tom Pollard, Leo Anthony Celi, Roger Mark, and S Horng IV. Mimic-iv-ed. PhysioNet , 2021. [33] Tero Karras, Miika Aittala, Timo Aila, and Samuli Laine. Elucidating the design space of diffusion-based generative models. Advances in neural information processing systems , 35:26565– 26577, 2022. [34] Akim Kotelnikov, Dmitry Baranchuk, Ivan Rubachev, and Artem Babenko. TabDDPM: Modelling tabular data with diffusion models. In Andreas Krause, Emma Brunskill, Kyunghyun Cho, Barbara Engelhardt, Sivan Sabato, and Jonathan Scarlett, editors, Proceedings of the 40th International Conference on Machine Learning , volume 202 of Proceedings of Machine Learning Research , pages 17564–17579. PMLR, 23–29 Jul 2023. [35] Ulzee An, Ali Pazokitoroudi, Marcus Alvarez, Lianyun Huang, Silviu Bacanu, Andrew J. Schork, Kenneth Kendler, Päivi Pajukanta, Jonathan Flint, Noah Zaitlen, Na Cai, Andy Dahl, and Sriram Sankararaman. Deep learning-based phenotype imputation on population-scale biobank data increases genetic discoveries. Nature Genetics , 55:2269–2276, 2023. [36] Wenhui Wang, Furu Wei, Li Dong, Hangbo Bao, Nan Yang, and Ming Zhou. MiniLM: Deep self-attention distillation for task-agnostic compression of pre-trained transformers. In Advances in Neural Information Processing Systems , 2020. 
+
+# A Algorithm Details 
+
+We provide the detailed algorithms for the Model–Update step (Algorithm 2), Conditional– Sample step (Algorithm 3), and the Aggregate step (Algorithm 4) used in Algorithm 1. 
+
+# B Theoretical Properties 
+
+We provide several basic theoretical properties of the proposed framework. 
+
+B.1 Proof of Proposition 3.1 
+
+Proof. Case 1. For each coordinate j, the observation process defines a known channel Kj from 
+
+xtrue  
+
+> j
+
+to xobs  
+
+> j
+
+:
+
+Kj (xobs  
+
+> j
+
+| xtrue  
+
+> j
+
+) = 
+
+
+
+1, xtrue  
+
+> j
+
+= na , xobs  
+
+> j
+
+= na ,
+
+1 − pj , xtrue  
+
+> j
+
+∈ X j , xobs  
+
+> j
+
+= xtrue  
+
+> j
+
+,pj , xtrue  
+
+> j
+
+∈ X j , xobs  
+
+> j
+
+= na ,
+
+0, otherwise .
+
+14 Algorithm 2 Model–Update : Model Update 
+
+Input: Current joint representation bS(t) = ( bX(t), bC(t)).
+
+Output: Updated diffusion model parameters θ(t). 
+
+> 1:
+
+while not converged do  
+
+> 2:
+
+Sample a joint training example s ∼ p bS(t) (s). 
+
+> 3:
+
+Sample diffusion time tdiff ∼ p(t). 
+
+> 4:
+
+Sample Gaussian noise ε ∼ N (0, I). 
+
+> 5:
+
+Form the noisy sample stdiff = s + σ(tdiff )ε. 
+
+> 6:
+
+Compute the score-matching loss 
+
+ℓ(θ) = ϵθ(stdiff , t diff ) − −ε
+
+σ(tdiff )
+
+> 22
+
+. 
+
+> 7:
+
+Update θ via Adam.  
+
+> 8:
+
+end while  
+
+> 9:
+
+return θ(t) ← θ.
+
+Algorithm 3 Conditional–Sample 
+
+Input: Diffusion model θ(t), observed data Xobs , observation mask Ω, number of samples K, number of reverse steps M .
+
+Output: Monte Carlo sample collection S(t) = {(Xk, C k)}Kk=1 . 
+
+> 1:
+
+for k = 1 to K do  
+
+> 2:
+
+Sample initial noise ˜s(k) 
+
+> tM
+
+∼ N (0, σ 2(tM )I). 
+
+> 3:
+
+for i = M, M − 1, . . . , 1 do  
+
+> 4:
+
+Sample Gaussian noise ε ∼ N (0, I). 
+
+> 5:
+
+Compute forward-noised observed part: sforward ,(k) 
+
+> ti−1
+
+= sobs + σ(ti−1)ε. 
+
+> 6:
+
+Compute reverse update using the learned diffusion model: 
+
+sreverse ,(k) 
+
+> ti−1
+
+= ReverseUpdate θ(s) (˜ s(k) 
+
+> ti
+
+, t i, t i−1). 
+
+> 7:
+
+Merge observed and missing coordinates: 
+
+˜s(k) 
+
+> ti−1
+
+= ω ⊙ sforward ,(k) 
+
+> ti−1
+
++ (1 − ω) ⊙ sreverse ,(k) 
+
+> ti−1
+
+. 
+
+> 8:
+
+end for  
+
+> 9:
+
+Decode ˜s(k) 
+
+> t0
+
+into completed sample (Xk, C k). 
+
+> 10:
+
+end for  
+
+> 11:
+
+return S(t) = {(Xk, C k)}Kk=1 .Since pj < 1, the channel Kj is injective. Indeed, for any a ∈ X j ,
+
+P(xobs  
+
+> j
+
+= a) = (1 − pj )P(xtrue  
+
+> j
+
+= a),
+
+and hence 
+
+P(xtrue  
+
+> j
+
+= a) = P(xobs  
+
+> j
+
+= a)1 − pj
+
+.
+
+15 Algorithm 4 Aggregate : Aggregate Monte Carlo Samples 
+
+Input: Observed Data Xobs , observation mask Ω, Monte Carlo sample collection S =
+
+{(x(k) 
+
+> i
+
+, c(k) 
+
+> i
+
+)}i∈[n],k ∈[K], MM search column set T .
+
+Output: Updated joint state ( bX′, bC′) 
+
+> 1:
+
+Initialize bX′ ← Xobs , bC′ ← 0n×d, M ← { (i, j ) | i ∈ [n], j ∈ [d], ω i,j = 0 }. 
+
+> 2:
+
+for all (i, j ) ∈ M do  
+
+> 3:
+
+Compute bxi,j , ui,j , according to (5), (6).  
+
+> 4:
+
+Set bX′ 
+
+> i,j
+
+← bxi,j . 
+
+> 5:
+
+end for  
+
+> 6:
+
+for all j ∈ T do  
+
+> 7:
+
+Let Mj ← { i : ( i, j ) ∈ M} . 
+
+> 8:
+
+Run k-means clustering with k = 2 on {ui,j : i ∈ M j } to obtain two clusters.  
+
+> 9:
+
+Identify the high-uncertainty cluster C1,j . 
+
+> 10:
+
+for all i ∈ M j do  
+
+> 11:
+
+Set bC′ 
+
+> i,j
+
+← bci,j according to (7).  
+
+> 12:
+
+end for  
+
+> 13:
+
+end for  
+
+> 14:
+
+return ( bX′, bC′).Moreover, 
+
+P(xobs  
+
+> j
+
+= na) = P(xtrue  
+
+> j
+
+= na) + pj P(xtrue  
+
+> j
+
+∈ X j ) = P(xtrue  
+
+> j
+
+= na) + pj (1 − P(xtrue  
+
+> j
+
+= na)) ,
+
+so P(xtrue  
+
+> j
+
+= na) is also uniquely determined by the distribution of xobs  
+
+> j
+
+and the known value of pj .For the full vector, the observation channel is 
+
+K = K1 ⊗ · · · ⊗ Kd.
+
+Since each Kj is injective, the product channel K is also injective. Therefore the complete-data distribution P(xtrue ) is uniquely determined by the observed-data distribution P(xobs ).Now fix a coordinate j. Since 
+
+cj = 1{xtrue  
+
+> j
+
+= na },
+
+we have, for any z such that P(xtrue  
+
+> −j
+
+= z) > 0,
+
+ϕθ(z) = P(cj = 1 | xtrue  
+
+> −j
+
+= z) = P(xtrue  
+
+> j
+
+= na | xtrue  
+
+> −j
+
+= z).
+
+The right-hand side can be written as 
+
+P(xtrue  
+
+> j
+
+= na | xtrue  
+
+> −j
+
+= z) = P(xtrue  
+
+> j
+
+= na , xtrue  
+
+> −j
+
+= z)
+
+P(xtrue  
+
+> −j
+
+= z) .
+
+Both numerator and denominator are determined by the complete-data distribution P(xtrue ), which has already been shown to be identifiable from P(xobs ). Therefore ϕθ(z) is identifiable for every z in the support of xtrue  
+
+> −j
+
+.Therefore ϕθ is identifiable: if another parameter θ′ gives the same observed-data distribution, then it must satisfy ϕθ′ (z) = ϕθ(z) for all z with Pr (xtrue  
+
+> −j
+
+= z) > 0. By the assumed identifiability of the parametric family {ϕθ}, this implies θ′ = θ. Therefore the meaningful-missingness mechanism is identifiable from the observed data. 16 Case 2. Recall that ωj denotes the final observation indicator. First consider any j / ∈ S. By assumption, cj = 0 almost surely. Therefore the only possible source of observed missingness in column j is observation-induced missingness. Hence ωj = 1 − rj . Since rj ∼ Bernoulli (p), we have 
+
+P(rj = 1) = p. The left-hand side is determined by the observed-data distribution, so p is identifiable. Now consider j ∈ S. By definition, we have ωj = 0 implies cj = 1 or rj = 1 . Since rj is MCAR and independent of (cj , xtrue  
+
+> −j
+
+),
+
+P(ωj = 0 | xtrue  
+
+> −j
+
+= z) = P(cj = 1 | xtrue  
+
+> −j
+
+= z) + P(cj = 0 , r j = 1 | xtrue  
+
+> −j
+
+= z).
+
+Thus 
+
+P(ωj = 0 | xtrue  
+
+> −j
+
+= z) = ϕθ(z) + p{1 − ϕθ(z)}.
+
+Equivalently, 
+
+P(ωj = 0 | xtrue  
+
+> −j
+
+= z) = p + (1 − p)ϕθ(z).
+
+Because p < 1 is identifiable from the non-MM columns, we obtain 
+
+ϕθ(z) = P(ωj = 0 | xtrue  
+
+> −j
+
+= z) − p
+
+1 − p .
+
+The right-hand side is identifiable from the observed-data distribution. Therefore ϕθ is identifiable on the support of xtrue  
+
+> −j
+
+.Finally, suppose another parameter θ′ gives the same observed-data distribution. Then it gives the same function ϕθ′ (z) on the support of xtrue  
+
+> −j
+
+. Hence ϕθ′ (z) = ϕθ(z) for all z in the support. By the identifiability assumption on the parametric family, this implies θ′ = θ. Therefore θ is identifiable. 
+
+B.2 More Discussions 
+
+Discussion of Remark 3.2 According to proof under Case 2, we obtain 
+
+ϕθ(z) = σ(α⊤ 
+
+> j
+
+z + βj ) = P(ωj = 0 | xtrue  
+
+> −j
+
+= z) − p
+
+1 − p .
+
+In typical applications, the sample size is much larger than the number of covariates. Moreover, under a mild assumption that for any (α, β ),
+
+α⊤Z + β = 0 a.s. implies α = 0 and β = 0 1, the linear predictor α⊤ 
+
+> j
+
+z + βj is uniquely determined, and hence (αj , β j )
+
+is unique. 
+
+Discussion of Remark 3.3 We provide a more in-depth discussion of the uncertainty separation exhibited in the first iteration. For a distribution P on Xj , define the population uncertainty functional 
+
+Uj (P ) = 
+
+
+
+− X
+
+> v∈X j
+
+P (v) log P (v), if feature j is discrete ,
+
+pVar Y ∼P (Y ), if feature j is continuous .       
+
+> 1This assumption can be induced by the general assumption ϕθ̸=ϕθ′for any θ̸=θ′.
+
+17 Proposition B.1 (First-iteration weak separation) . Fix a candidate feature j. For each random sample xobs := {xobs 1 , . . . , x obs  
+
+> d
+
+}, let Fobs  
+
+> j
+
+=
+
+
+
+xobs  
+
+> −j
+
+, ω−j
+
+
+
+be the observed context excluding the target coordinate j. Suppose that the observation-induced missingness is MCAR, rj ∼ Bernoulli (ρj ), and that the meaningful-missingness mechanism is MAR with respect to the observed context: 
+
+P(cj = 1 | F obs  
+
+> j
+
+) = πj (Fobs  
+
+> j
+
+).
+
+Let ¯πj = E
+
+h
+
+πj (Fobs  
+
+> j
+
+)
+
+i
+
+. Define the population conditional distribution of the initialized first-round value by 
+
+P (0)  
+
+> j
+
+(A | F ) := P
+
+ bX(0)  
+
+> j
+
+∈ A | F obs  
+
+> j
+
+= F
+
+
+
+, A ⊆ X j .
+
+The corresponding first-iteration population uncertainty score for the j-th coordinate is U (1)  
+
+> j
+
+:= 
+
+Uj
+
+
+
+P (0)  
+
+> j
+
+(· | F obs  
+
+> i,j
+
+)
+
+
+
+. Assume that ρj > 0, U (1)  
+
+> j
+
+has finite first moment and Cov 
+
+
+
+πj (Fobs  
+
+> j
+
+), U (1) 
+
+> j
+
+
+
+> 0.Then the first-iteration population uncertainty score is larger on average for meaningfully missing entries than for observation-induced missing entries: 
+
+E
+
+h
+
+U (1)  
+
+> j
+
+| cj = 1 
+
+i
+
+> E
+
+h
+
+U (1)  
+
+> j
+
+| cj = 0 , r j = 1 
+
+i
+
+.
+
+Proof. By definition, U (1)  
+
+> j
+
+= Uj
+
+
+
+P (0)  
+
+> j
+
+(· | F obs  
+
+> j
+
+)
+
+
+
+, so U (1)  
+
+> j
+
+is measurable with respect to Fobs  
+
+> j
+
+. Since 
+
+P(cj = 1 | F obs  
+
+> j
+
+) = πj (Fobs  
+
+> j
+
+), we have 
+
+E
+
+h
+
+U (1)  
+
+> j
+
+| cj = 1 
+
+i
+
+=
+
+E
+
+h
+
+U (1)  
+
+> j
+
+1{cj = 1 }
+
+i
+
+P(cj = 1) =
+
+E
+
+h
+
+U (1)  
+
+> j
+
+P(cj = 1 | F obs  
+
+> j
+
+)
+
+i
+
+¯πj
+
+=
+
+E
+
+h
+
+πj (Fobs  
+
+> j
+
+)U (1) 
+
+> j
+
+i
+
+¯πj
+
+.
+
+Similarly, since rj is MCAR and independent of (cj , Fobs  
+
+> j
+
+),
+
+E
+
+h
+
+U (1)  
+
+> j
+
+| cj = 0 , r j = 1 
+
+i
+
+= E
+
+h
+
+U (1)  
+
+> j
+
+| cj = 0 
+
+i
+
+=
+
+E
+
+h
+
+U (1)  
+
+> j
+
+1{cj = 0 }
+
+i
+
+P(cj = 0) =
+
+E
+
+h
+
+U (1) 
+
+> j
+
+
+
+1 − πj (Fobs  
+
+> j
+
+)
+
+i 
+
+1 − ¯πj
+
+.
+
+Therefore, 
+
+E
+
+h
+
+U (1)  
+
+> j
+
+| cj = 1 
+
+i
+
+−E
+
+h
+
+U (1)  
+
+> j
+
+| cj = 0 , r j = 1 
+
+i
+
+=
+
+E
+
+h
+
+πj (Fobs  
+
+> j
+
+)U (1) 
+
+> j
+
+i
+
+¯πj
+
+−
+
+E
+
+h 
+
+1 − πj (Fobs  
+
+> j
+
+)
+
+
+
+U (1) 
+
+> j
+
+i
+
+1 − ¯πj
+
+=
+
+E
+
+h
+
+πj (Fobs  
+
+> j
+
+)U (1) 
+
+> j
+
+i
+
+− ¯πj E
+
+h
+
+U (1) 
+
+> j
+
+i
+
+¯πj (1 − ¯πj ) =Cov 
+
+
+
+πj (Fobs  
+
+> j
+
+), U (1) 
+
+> j
+
+
+
+¯πj (1 − ¯πj ) .
+
+By the results in Proposition B.1, there exists a threshold τj such that 
+
+P
+
+
+
+U (1)  
+
+> j
+
+> τ j | cj = 1 
+
+
+
+> P
+
+
+
+U (1)  
+
+> j
+
+> τ j | cj = 0 , r j = 1 
+
+
+
+.
+
+For such a threshold, the high-uncertainty group can thus be distinguished from the observation-induced missing group. 18 Remark B.2 (Interpretation of the covariance condition) . The covariance condition in Proposition B.1 is natural under the random uniform initialization used by Diff-Joint. Let Gj denote the empirical initialization distribution Unif( bXj ) in Appendix D.1. For any measurable set A ⊆ X j , define 
+
+Qj (A | F ) := P(Xj ∈ A | cj = 0 , Fobs  
+
+> j
+
+= F ),
+
+the context-specific conditional distribution. Since every observed missing entry is initially filled from Gj , while an observed regular entry keeps its true value, the first-round initialized distribution satisfies 
+
+P (0)  
+
+> j
+
+(· | F ) = (1 − αj (F )) Qj (· | F ) + αj (F )Gj , αj (F ) = ρj + (1 − ρj )πj (F ).
+
+Thus, the mixture weight on the random-initialization component increases with the MM propensity 
+
+πj (F ). The initialization distribution Gj ignores the sample-specific context F and spreads mass over the column-level regular-value support, whereas Qj (· | F ) is constrained by the observed context and is typically more concentrated when the regular value is recoverable. Therefore, higher-MM-propensity contexts tend to induce larger first-iteration uncertainty, U (1)  
+
+> j
+
+= Uj (P (0)  
+
+> j
+
+(· | F obs  
+
+> j
+
+)) , giving a positive association between πj (Fobs  
+
+> j
+
+) and U (1)  
+
+> j
+
+.
+
+# C Dataset and Missingness Construction 
+
+This appendix describes the synthetic and real-world datasets used in the experiments, as summarized in Table 6. For each dataset, we first specify the underlying data or feature construction, then define the meaningful-missingness mechanism, and finally introduce an additional missing mask to represent the observation-induced missingness. The observation-induced missing mechanisms are shared across two datasets and are therefore presented first. Throughout the experiments, the set of MM candidate columns is assumed to be known, and MM identification is performed only on missing entries in these candidate columns. Table 6: Summary of the datasets used in the experiments.                   
+
+> Dataset #Train #Test #Continuous #Discrete #Continuous MM #Discrete MM Bayesian Network 14000 6000 2312MIMIC-IV-ED 353150 88287 14 16 04
+
+C.1 Bayesian Network Synthetic Data Construction 
+
+We construct the synthetic tabular dataset from a Bayesian network so that both the underlying data-generating process and the meaningful-missingness mechanism are fully controlled. This synthetic data contains five variables: two continuous variables C1 and C2 , and three discrete variables D1 , D2 ,and D3 . The corresponding graph structure is shown in Figure 3. According to the underlying dependence in Figure 3, we first sample C1 ∼ N (25 , 2) . Next, conditional on C1 , we generate 
+
+C2 | C1 ∼ N (0 .1 · C1 + 50 , 5) .
+
+19 C2 C1  
+
+> D1 D3
+> D2
+
+Figure 3: Bayesian network used to generate the synthetic tabular data. C1 and C2 are continuous variables, while D1 , D2 , and D3 are discrete variables. We then generate D1 ∼ Bernoulli (0 .3) , where Bernoulli (ξ) denotes the Bernoulli distribution with mean ξ. The variable D2 is generated conditionally on C1 , C2 , and D1 as 
+
+D2 | C1 , C2 , D1 ∼
+
+
+
+Ca (0 .3, 0.6, 0.1) , C1 > 26 , C2 > 55 , D1 = 1 ,Ca (0 .2, 0.3, 0.5) , C1 > 26 , C2 ≤ 55 , D1 = 1 ,Ca (0 .7, 0.1, 0.2) , C1 ≤ 26 , C2 > 55 , D1 = 1 ,
+
+na , C1 ≤ 26 , C2 ≤ 55 , D1 = 1 ,Ca (0 .05 , 0.05 , 0.9) , D1 = 0 ,
+
+where Ca (p1, p 2, 1 − p1 − p2) denotes a categorical distribution over three regular categories. Finally, D3 is generated conditionally on D2 as 
+
+D3 | D2 ∼
+
+
+
+Bernoulli(0 .2) D2 = 0; na D2 = 1; Bernoulli(0 .8) D2 = 2; na D2 = na .
+
+After generating the five variables, we further introduce meaningful missingness on C1 by recoding large values of C1 into a semantic missing state: 
+
+C1 =
+
+(
+
+na , C1 > 27 ,
+
+C1 , C1 ≤ 27 .
+
+Overall, the data-generating distribution for this synthetic dataset has meaningfully missing variables in both the continuous variable C1 and two discrete variables D2 , D3 .
+
+C.2 MIMIC-IV-ED Dataset 
+
+We extract the real-world dataset from MIMIC-IV-ED [ 32 ] by selecting a structured feature subset and then injecting synthetic meaningful missingness on pre-specified target columns. 
+
+Cohort and Feature Construction. Our real-data dataset is constructed from MIMIC-IV-ED using a selected subset of structured ED variables [ 32 ]. We retain 30 non-object columns, including 14 numerical variables and 16 discrete variables, covering triage measurements, last-recorded vital signs, prior utilization counts, clinical scores, outcomes, chief complaint indicators, and comorbidity indicators; the full list is given in Table 7. 20 The feature subset is chosen so that the recorded values can serve as reliable ground truth for controlled evaluation and so that the selected covariates support the construction of clinically meaningful MM mechanisms on a subset of target columns. Based on this subset, we later introduce synthetic meaningful missingness and additional observation-induced missingness to form the final dataset. Table 7: Selected 30-column feature subset used to construct the MIMIC-IV-ED real-data dataset.                            
+
+> Group Columns Type
+> Triage vitals triage_temperature ,triage_heartrate ,
+> triage_resprate ,triage_o2sat ,triage_sbp ,
+> triage_dbp ,triage_pain ,triage_acuity
+> Continuous Last recorded vitals ed_temperature_last ,ed_heartrate_last ,
+> ed_resprate_last ,ed_o2sat_last ,ed_sbp_last ,
+> ed_dbp_last
+> Continuous Demographics / utilization
+> age ,n_ed_365d ,n_hosp_365d ,n_icu_365d Discrete Clinical scores score_CCI ,score_NEWS Discrete Outcomes outcome_hospitalization ,outcome_critical ,
+> outcome_icu_transfer_12h
+> Discrete Chief complaint indicators chiefcom_chest_pain ,
+> chiefcom_shortness_of_breath ,
+> chiefcom_abdominal_pain ,chiefcom_fever_chills
+> Discrete Comorbidity indicators cci_CHF ,cci_Renal ,eci_Pulmonary Discrete
+
+Meaningful-Missingness Mechanisms on MIMIC-IV-ED. After constructing the MIMIC-IV-ED cohort, we introduce synthetic meaningful missingness on a pre-specified subset of discrete variables. In the current dataset, the MM target columns are 
+
+outcome_critical , outcome_icu_transfer_12h , outcome_hospitalization , cci_CHF .
+
+Table 8 reports the resulting MM rates, computed before adding the additional observation-induced missingness mask. Table 8: Meaningful-missingness rates induced by the synthetic MM mechanisms on selected MIMIC-IV-ED target columns. Feature MM Rate (%) 
+
+outcome_critical 9.06 
+
+outcome_icu_transfer_12h 8.70 
+
+outcome_hospitalization 13.82 
+
+cci_CHF 15.17 
+
+MM on outcome_critical . We set ci,j = 1 for j = outcome_critical if triage_acuity i ≤ 2
+
+and at least one of the following conditions holds: 
+
+triage_o2sat i < 95 , triage_resprate i ≥ 22 , triage_heartrate i ≥ 110 ,
+
+and set ci,j = 0 otherwise. 21 MM on outcome_icu_transfer_12h . We set ci,j = 1 for j = outcome_icu_transfer_12h if 
+
+triage_acuity i ≤ 2 and at least one of the following conditions holds: 
+
+triage_o2sat i < 95 , triage_resprate i ≥ 22 , n_icu_365d i ≥ 1,
+
+and set ci,j = 0 otherwise. 
+
+MM on outcome_hospitalization . For hospitalization, we define the score 
+
+shosp  
+
+> i
+
+=1{triage_acuity i ≤ 2} + 1{score_NEWS i ≥ 2}
+
++ 1{age i ≥ 70 } + 1{n_hosp_365d i ≥ 1},
+
+and map it to a missingness probability phosp  
+
+> i
+
+= clip 
+
+
+
+0.02 + 0 .10 shosp  
+
+> i
+
+, 0, 0.45 
+
+
+
+. We then sample 
+
+ci,j ∼ Bernoulli 
+
+
+
+phosp 
+
+> i
+
+
+
+, j = outcome_hospitalization .
+
+MM on cci_CHF . For the CHF comorbidity indicator, we define 
+
+sCHF  
+
+> i
+
+=1{age i ≥ 75 } + 1{n_hosp_365d i ≥ 2}
+
++ 1{triage_sbp i < 110 } + 1{score_CCI i ≥ 4},
+
+and map it to a probability pCHF  
+
+> i
+
+= clip  0.03 + 0 .16 sCHF  
+
+> i
+
+, 0, 0.70 . We then sample 
+
+ci,j ∼ Bernoulli  pCHF 
+
+> i
+
+ , j = cci_CHF .
+
+C.3 Observation-induced Missingness Mechanisms 
+
+For both the synthetic and real-data datasets, we introduce an additional observation-induced ordinary missingness mask R = ( ri,j ) on top of the underlying samples. Depending on the experiment, this mask is generated under MCAR, MAR, or MNAR mechanisms as defined below. 
+
+Missing Completely at random (MCAR). Under the MCAR mechanism, each entry is masked independently with a fixed probability p, regardless of the data values. Formally, for each sample i
+
+and feature j, the mask variable ri,j is generated as 
+
+P(ri,j = 1 | X) = p. 
+
+Therefore, the resulting mask is completely random and has expected missing proportion p.
+
+Missing at Random (MAR). Under the MAR mechanism, the missingness of some variables depends on a subset of variables that remain fully observed. Specifically, the features are first split into two disjoint sets: 
+
+Jobs ∪ J miss = {1, . . . , d }, Jobs ∩ J miss = ∅,
+
+where variables in Jobs are always observed, and variables in Jmiss may be masked. For each 
+
+j ∈ J miss , the masking probability is defined through a logistic model: 
+
+P(ri,j = 1 | X) = P(ri,j = 1 | Xi, Jobs ) = σ X⊤ 
+
+> i, Jobs
+
+wj + bj
+
+,
+
+22 where σ(x) = 1 /(1 + e−x) is the sigmoid function, wj is a randomly generated coefficient vector, and 
+
+bj is chosen so that the average masking rate is approximately p. Then the mask is sampled as 
+
+ri,j ∼ Bernoulli 
+
+
+
+σ X⊤ 
+
+> i, Jobs
+
+wj + bj
+
+
+
+, j ∈ J miss .
+
+Hence, the probability of missingness depends only on other observed variables, not on the masked entry itself, which is exactly the defining property of MAR. 
+
+Missing Not at Random (MNAR). Under the MNAR logistic mechanism, the features are first partitioned into two sets: 
+
+Jparam ∪ J miss = {1, . . . , d }, Jparam ∩ J miss = ∅.
+
+The variables in Jparam are used as inputs to a logistic masking model, while variables in Jmiss are masked according to 
+
+P(ri,j = 1 | X) = σ X⊤ 
+
+> i, Jparam
+
+wj + bj
+
+, j ∈ J miss .
+
+Thus, 
+
+ri,j ∼ Bernoulli 
+
+
+
+σ X⊤ 
+
+> i, Jparam
+
+wj + bj
+
+
+
+, j ∈ J miss .
+
+After this, the input variables themselves are additionally masked at random: 
+
+ri,j ∼ Bernoulli( p), j ∈ J param .
+
+Therefore, the missingness of variables in Jmiss depends on values from Jparam , but those driving variables may themselves become missing. As a result, the masking probability depends on information that is not fully observed in the final dataset, so the mechanism is Missing Not At Random. 
+
+# D Implementation Details and Additional Numerical Results 
+
+D.1 Implementation Details 
+
+We implement Diff-Joint using the EDM diffusion framework [ 33 ]. At each outer iteration, the model is trained on the current joint state 
+
+s = [ xmodel , c] ∈ Rdx+dc ,
+
+where xmodel is the normalized encoded tabular vector and c is the current predicted meaningful-missingness mask in the original raw-column space. The mask coordinates are represented as scalar binary variables and concatenated directly with the encoded data representation. We use the same TabDDPM-style MLP denoising backbone as DiffPuter [ 34 , 18 ], applied to the joint diffusion state rather than to the encoded data vector alone. The EDM network consists of an input projection, a sinusoidal noise embedding passed through a two-layer time MLP and added to the projected state, three fully connected layers with SiLU activations, and a linear output layer matching the joint-state dimension. Thus, the denoiser is trained to reconstruct both the tabular coordinates and the MM-mask coordinates under the standard EDM preconditioning. Noise levels during training follow the EDM log-normal noise distribution, and sampling uses the standard EDM 
+
+ρ-schedule with Heun’s second-order sampler. We use the same architecture across all datasets and missingness settings. 23 Random Initialization. At initialization, all predicted meaningful-missingness indicators are set to zero, i.e., bC(0) = 0 , so every observed missing entry is initially treated as observation-induced missingness. For each feature j, we form the empirical regular-value support from the observed entries, bXj = {xobs  
+
+> ℓ,j
+
+: ωℓ,j = 1 , ℓ ∈ [n]}.
+
+Then, for every missing entry (i, j ), we initialize 
+
+bx(0)  
+
+> i,j
+
+= Gi,j , Gi,j ∼ Unif( bXj ),
+
+independently across missing entries. 
+
+Discrete-variable Handling. We distinguish integer-valued and categorical discrete variables. Integer-valued columns are encoded as scalar coordinates in the diffusion model. During decoding, these coordinates are rounded to the nearest valid integer value. Categorical columns are expanded into one-hot blocks before training. After sampling, each categorical block is decoded by taking the 
+
+arg max over the block. 
+
+Diff-Joint Hyperparameters. We use 10 iterations for the Bayesian Network and 3 iterations for MIMIC-IV-ED. Except for the number of refinement iterations, we use a fixed hyperparameter configuration across datasets, missingness ratios, missingness mechanisms, and random seeds. The remaining default settings are summarized in Table 9. 
+
+Hardware and Runtime. All experiments were conducted on a single NVIDIA RTX 5090 GPU. Each combination of random seed, missingness mechanism, and missingness ratio takes approximately 15 minutes on the Bayesian-network dataset and 2 hours on MIMIC-IV-ED. 
+
+Downstream Task Setup. All downstream tasks are formulated as multi-class classification problems on the augmented feature domain, where na may be treated as a valid semantic class when it appears in the target variable. We evaluate downstream utility using a train-on-generated, test-on-real classification protocol. For each method, dataset, missingness ratio, and random seed, let bXtr denote the method-specific generated or completed training table obtained from the observed training data. Let the j-th variable be the target variable of the downstream classification task. The classifier is trained with bXtr ,−j as features and bXtr ,j as labels. Hyperparameters are selected on the real augmented-domain training split, and final performance is evaluated on the real augmented-domain test split. The same classifier family, feature-processing pipeline, and hyperparameter grid are used for all methods under the same downstream task. When the target variable contains a meaningful-missing state, na is treated as a valid semantic class rather than as an unobserved label. Categorical na values in input features are encoded as ordinary categorical states, while continuous MM candidate columns are removed from the downstream feature set. On the Bayesian Network dataset, we evaluate two multi-class tasks with target variables D2 and D3 . On MIMIC-IV-ED, we evaluate four discrete clinical prediction tasks: outcome_hospitalization , outcome_critical , outcome_icu_transfer_12h , and cci_CHF .We use an XGBoost classifier for all tasks and select the model by validation Macro-F1 on the real training split. We report Macro-F1, Weighted-F1, ROC-AUC, and accuracy. Macro-F1 is the unweighted average of class-wise F1 scores. Weighted-F1 denotes the class-balanced weighted F1 score used by our evaluator, where the class-wise F1 score for class ℓ is weighted by 1−pℓ 
+
+> L−1
+
+, with L denoting the 24 Table 9: Default hyperparameters for Diff-Joint. Hyperparameter Value Number of samples K 30 
+
+Sampling steps 50 
+
+MLP hidden/time-embedding dimension 1024 
+
+Batch size 4096 
+
+Optimizer Adam Learning rate 10 −4
+
+Maximum epochs per outer iteration 1001 
+
+Early stopping patience 200 
+
+Pmean , Pstd −1.2, 1.2
+
+σdata 0.5
+
+σmin , σmax , ρ 0.002 , 80 , 7
+
+Inner inpainting repeats per noise level 10 
+
+number of classes and pℓ denoting the class proportion. This weighting assigns larger relative weights to lower-support classes. ROC-AUC measures the ranking quality of predicted class probabilities and uses one-vs-rest aggregation for multi-class tasks. Accuracy is the fraction of correctly classified test examples. 
+
+D.2 Additional Results 
+
+We also provide the precision and recall of the proposed Diff-Joint algorithm under three different missing mechanisms in Table 10, and the precision and recall of Diff-Joint on the MIMIC-IV-ED dataset under MCAR in Table 11. Table 10: Summary of final-iteration out-of-sample performance under different missing ratios and missing mechanisms.                                                              
+
+> Method Ratio MCAR MAR MNAR Rout ↑Pout ↑ACC out ↑Rout ↑Pout ↑ACC out ↑Rout ↑Pout ↑ACC out ↑
+> Diff-Joint 10 90.86 73.62 78.34 87.25 80.39 75.32 90.24 71.67 72.51 Diff-Joint 20 82.39 58.67 69.35 88.09 65.42 66.16 86.03 58.76 65.85 Diff-Joint 30 78.69 49.40 63.65 65.13 43.98 57.06 76.66 55.00 67.91 Diff-Joint 40 76.79 45.88 65.92 74.60 57.59 67.99 77.14 41.34 60.38
+
+Table 11: Precision and recall of Diff-Joint on MIMIC-IV-ED under ordinary MCAR.                                  
+
+> Method Ratio Rout ↑Pout ↑
+> Diff-Joint 10 61 .06% ±4.82% 71 .99% ±0.67%
+> Diff-Joint 20 55 .34% ±6.69% 56 .49% ±0.81%
+> Diff-Joint 30 59 .90% ±6.62% 44 .82% ±2.58%
+> Diff-Joint 40 65 .12% ±4.19% 34 .61% ±1.24%
+
+25 D.3 Ablation Studies 
+
+Effect of Iterative Latent-State Refinement. We first study whether the refinement loop is necessary. Figure 4 reports performance as a function of the number of refinement iterations. Across both datasets, most improvements occur in the first few refinement iterations. MM-detection and final-state accuracy typically improve substantially from the first iteration to the third iteration, while observation-induced-missing-value imputation error stabilizes after a small number of iterations. We therefore use a fixed small number of refinement iterations in the main experiments. 
+
+Figure 4: Effect of iterative latent-state refinement on Bayesian Network and MIMIC-IV-ED under ordinary MCAR at 10% missing ratio. Curves show the mean over five seeds, with shaded regions indicating one standard deviation. Results under the zeroth iteration are obtained with a randomly initialized denoising network, with all other components kept the same as in Diff-Joint. 
+
+Component Ablation. We ablate the main components of Diff-Joint on the Bayesian Network dataset under ordinary MCAR. DiffPuter is a standard diffusion imputer and does not output MM labels, whereas Diff-Joint models the joint state (x, c) to capture dependencies between tabular values and MM labels. We further compare a one-refinement variant with the full model, which uses 10 outer refinement iterations. Table 12 shows that joint (x, c) modeling substantially improves final-state recovery over standard diffusion imputation, and iterative refinement further improves MM F1, final-state accuracy, and RMSE. Table 12: Component ablation on the Bayesian Network dataset under ordinary MCAR.                                                
+
+> Missing Ratio Method Joint (x,c)Refinement MM F1 out ↑Acc out .↑RMSE out ↓
+> 20 DiffPuter ✗✓–44.61% 5.1962 20 Diff-Joint, 1-refine ✓✗69.85% 71.11% 5.1371 20 Diff-Joint, 10-iterations ✓✓73.39% 76.18% 5.0832
+> 30 DiffPuter ✗✓–51.89% 5.2764 30 Diff-Joint, 1-refine ✓✗58.99% 60.26% 5.1461 30 Diff-Joint, 10-iterations ✓✓64.76% 72.67% 4.9987
+
+26 Aggregation-Rule Ablation. We conduct an ablation study on the rule used to update the meaningful-missingness mask during iterative latent-state refinement. Let U denote the uncertainty-based signal obtained from the high-uncertainty cluster, and let V denote the sampled-mask signal obtained from the joint diffusion model. Table 13 reports the aggregation-rule ablation results. Majority-vote-only collapses from the all-zero MM-mask initialization, and the AND rule inherits this conservativeness. Uncertainty-only provides a nontrivial bootstrap signal, while OR fusion achieves the best MM F1 and final-state accuracy among the tested closed-loop rules. This supports using OR fusion as the default refinement rule, as it achieves the best overall performance in accurately identifying meaningful missingness. Table 13: Aggregation-rule ablation on the Bayesian Network dataset under ordinary MCAR at missing ratio 30.                                   
+
+> Rule Recall out ↑Precision out ↑MM F1 out ↑ACC out ↑RMSE out ↓
+> Uncertainty-only 66.83% 46.14% 54.59% 56.42% 5.026 Majority-vote-only 0.00% 0.00% 0.00% 51.27% 5.006 Uncertainty ∧majority vote 0.00% 0.00% 0.00% 51.32% 4.942
+> Uncertainty ∨majority vote (ours) 76.33% 54.08% 63.31% 66.95% 5.168
+
+Remark D.1 . The results in Tables 12 and 13 are based on a single randomized run for each configuration and are intended mainly for qualitative comparison among variants. Due to random-seed variation, the absolute values are not expected to exactly match the corresponding main-table results. 
+
+# E More Implementation Details on Baseline methods 
+
+We compare against recent deep-learning baselines for tabular imputation. Specifically, we include CACTI [ 22 ], a recent strong masked-autoencoding method whose original benchmark reports improvements over autoencoding baselines such as ReMasker [ 21 ] and AutoComplete [ 35 ]. We also include DiffPuter [ 18 ], a recent diffusion-based imputation method that outperforms prior diffusion baselines such as TabCSDI [ 10 ] and MissDiff [ 23 ] on standard imputation benchmarks. On the Bayesian Network dataset, whose column names carry no semantic information, we use the non-embedding variant of CACTI, denoted CMAE. All baselines are trained and evaluated on exactly the same observed datasets and the same train/test splits as Diff-Joint. When compatible, we use the same preprocessing pipeline as in the main experiments; otherwise, we follow the model-specific preprocessing required by the official implementation. Since these baselines are not designed to explicitly infer meaningful-missingness labels, MM precision and recall are not applicable and are therefore omitted for them. 
+
+Implementation Sources. We implement the baseline methods according to the following description or publicly available codebases. 
+
+• Mean/Mode : Missing continuous entries are filled with the empirical mean of the corresponding column, and missing discrete entries are filled with the empirical mode. Both statistics are computed from observed entries in the training split and then reused for test-set imputation. This baseline has no tunable hyperparameters. 
+
+• missForest [6]: We use the implementations provided in the official HyperImpute [ 20 ] repository: 
+
+https://github.com/vanderschaarlab/hyperimpute .27 • CACTI/CMAE [ 22 ]: We use the official implementation of CACTI at https://github.com/ sriramlab/CACTI . On MIMIC-IV-ED, we run CACTI with contextual column-name embed-dings. Specifically, we precompute feature-name embeddings using sentence-transformers/ all-MiniLM-L6-v2 [ 36 ] and use the resulting embeddings_colnames_MiniLM.npz file as CACTI’s column-context input. On the Bayesian Network dataset, the column names are synthetic and carry no semantic information. We therefore disable the column-name embedding module and denote the resulting non-contextual variant as CMAE. This change removes arbitrary column-name semantics while keeping the masked autoencoding architecture and the remaining model configuration unchanged. 
+
+• DiffPuter [18 ]: We use the official implementation at https://github.com/hengruizhang98/ DiffPuter .
+
+Hyperparameter Settings. We use a fixed hyperparameter protocol for all baseline methods. Hyperparameters are selected, when needed, using only the training split and an internal validation configuration. The validation criterion is ordinary-value imputation performance on held-out validation entries. We do not tune any method on the test set, downstream prediction performance, or MM precision/recall/F1. Mean/Mode has no tunable hyperparameters. For CACTI/CMAE and DiffPuter, we follow the recommended or default configurations from the corresponding official implementations, except for dataset-specific changes required by input dimensionality, memory constraints, or contextual inputs. For missForest, we use the hyperimpute search space and perform hyperparameter selection separately for each random seed, using only the corresponding training and validation split. The detailed baseline configurations are listed in Table 14. Final results are summarized as the mean and standard deviation over five random seeds. Table 14: Hyperparameter settings used for the baseline methods in the main experiments.                                                        
+
+> Model Hyperparameters / configuration Mean/Mode No tunable hyperparameters.
+> missForest Implemented using the hyperimpute package. For each random seed, we sample 50 hyperparameter configurations from the package-provided search space and report the best-performing configuration for that seed. Final results are summarized as mean and standard deviation over five seeds.
+> CMAE Used on the Bayesian Network dataset. CMAE uses the CACTI masked-autoencoding architec-ture with the column-name embedding module disabled, because the synthetic column names carry no semantic information. The optimization settings are epochs = 300 ,warmup_epochs = 50 ,batch_size = 128 ,lr = 1e-3 ,min_lr = 5e-6 ,weight_decay = 1e-3 ,grad_clip = 5.0 ,
+> mask_ratio = 0.9 ,embed_dim = 64 ,nencoder = 10 , and ndecoder = 4 .
+> CACTI Used on MIMIC-IV-ED. CACTI uses the same optimization settings as CMAE:
+> epochs = 300 ,warmup_epochs = 50 ,batch_size = 128 ,lr = 1e-3 ,min_lr = 5e-6 ,
+> weight_decay = 1e-3 ,grad_clip = 5.0 ,mask_ratio = 0.9 ,embed_dim = 64 ,nencoder = 10 ,and ndecoder = 4 .Column-name embeddings are precomputed using
+> sentence-transformers/all-MiniLM-L6-v2 [36].
+> DiffPuter Bayesian Network: max_iter = 10 .MIMIC-IV-ED: max_iter = 10 .Common settings are
+> hid_dim = 1024 ,num_trials = 10 ,num_steps = 50 ,num_epochs = 1000 ,batch_size = 4096 ,
+> learning_rate = 1e-4 ,scheduler_patience = 40 , and early_stop_patience = 200 .
+
+28
