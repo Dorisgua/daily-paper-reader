@@ -1,0 +1,349 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-07T21:08:58.419652+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 0,
+    "deep_cap": 7,
+    "deep_selected": 0,
+    "quick_candidates": 8,
+    "quick_skim_target": 12,
+    "quick_selected": 8
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2606.00557v1",
+      "source": "arxiv",
+      "title": "Normalized Relevance Measure as a Unifying Framework to Explain Neural Network Latent Structures",
+      "abstract": "To understand how a neural network (NN) functions and makes predictions, it has become increasingly clear that analyzing only the input domain is insufficient -- one must also examine its internal inference mechanisms to capture the complete picture. To explain the internal inference mechanisms of such models, it is essential to analyze the importance of latent representations for a given task. In this paper, we propose the \\emph{normalized relevance measure} (NRM) framework -- a novel general explanation procedure that attributes relevance to \\emph{arbitrary sets of neurons across layers of arbitrary architectures}. In the NRM framework, relevance of selected neurons is explicitly defined as a normalized signed measure, constructed using simple operations -- marginalization and conditioning based on additive and multiplicative laws -- in analogy to the probability measures. The normalization property further guarantees comparability across layers. The NRM framework subsumes existing propagation-based explanation algorithms by explicitly identifying the underlying quantity being computed. We demonstrate the utility of the framework in computer vision applications, where joint relevance analysis across multiple layers reveals key information flows in VGG16 networks. Overall, the NRM framework provides a general, mathematically grounded approach to understanding how modern NNs propagate information, offering a versatile and broadly applicable foundation for explainable artificial intelligence.",
+      "authors": [
+        "Ping Xiong",
+        "Thomas Schnake",
+        "Grégoire Montavon",
+        "Klaus-Robert Müller",
+        "Shinichi Nakajima"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-05-30T06:15:44+00:00",
+      "link": "https://arxiv.org/pdf/2606.00557v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "normalized relevance measure framework for explaining latent structures of neural networks",
+      "llm_evidence_cn": "归一化相关度量框架用于解释神经网络潜在结构",
+      "llm_evidence": "归一化相关度量框架用于解释神经网络潜在结构",
+      "canonical_evidence": "归一化相关度量框架用于解释神经网络潜在结构",
+      "llm_tldr_en": "Proposes Normalized Relevance Measure (NRM) framework to attribute importance to arbitrary neuron sets, enabling explanation of latent representations in any neural network.",
+      "llm_tldr_cn": "该论文针对神经网络内部潜在表示解释困难的问题，提出归一化相关度量（NRM）框架，可对任意层任意神经元子集计算显式归一化相关值。方法通用且理论严谨，可用于分析EEG深度学习模型的潜在空间，贡献了一个通用的潜在结构解释工具。",
+      "llm_tldr": "该论文针对神经网络内部潜在表示解释困难的问题，提出归一化相关度量（NRM）框架，可对任意层任意神经元子集计算显式归一化相关值。方法通用且理论严谨，可用于分析EEG深度学习模型的潜在空间，贡献了一个通用的潜在结构解释工具。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.01172v1",
+      "source": "arxiv",
+      "title": "Revisiting Neural Processes via Fourier Transform and Volterra Series",
+      "abstract": "Modeling unknown latent functions from finite, irregularly sampled measurements is a recurring challenge across science and engineering. Neural processes (NPs), a family of probabilistic functional models, are promising solutions -- especially when endowed with domain-specific symmetries like translation equivariance, which improve sample efficiency and generalization. Yet existing translation-equivariant NPs face two limitations: (i) they stack generic components with non-linearities, obscuring the induced function class and limiting interpretability; and (ii) convolutional designs rely on kernels with local receptive fields and require dense uniform input grids, while attention-based methods avoid these issues but scale quadratically with the number of observations. We address both with two contributions. First, using the Volterra expansion, we characterize continuous translation-equivariant operators as sums of higher-order convolutions, yielding analytical transparency while admitting efficient approximation by first-order convolutions. Second, we introduce set Fourier convolutions (SFConvs), a frequency-domain parameterization that operates directly on irregularly sampled points, achieves approximately global receptive fields, and scales linearly in the number of observations. Building on these ideas, we propose two conditional NPs (CNPs): SFConvCNPs, which stack SFConv blocks with non-linearities, and SFVConvCNPs, which integrate the Volterra formulation. Experiments on synthetic and real-world datasets demonstrate our methods' efficacy against state-of-the-art baselines.",
+      "authors": [
+        "Peiman Mohseni",
+        "Nick Duffield",
+        "Raymond K. W. Wong"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "stat.ME",
+        "stat.ML"
+      ],
+      "published": "2026-05-31T11:27:48+00:00",
+      "link": "https://arxiv.org/pdf/2606.01172v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "models latent functions via Fourier transform and Volterra series",
+      "llm_evidence_cn": "通过傅里叶变换和Volterra级数对潜在函数建模",
+      "llm_evidence": "通过傅里叶变换和Volterra级数对潜在函数建模",
+      "canonical_evidence": "通过傅里叶变换和Volterra级数对潜在函数建模",
+      "llm_tldr_en": "This paper revisits neural processes using Fourier transforms and Volterra series to model latent functions from irregular samples, offering interpretability and improved generalization.",
+      "llm_tldr_cn": "该论文通过傅里叶变换和Volterra级数重新审视神经过程，用于从非均匀采样中建模未知潜在函数。方法提升了解释性和泛化能力，可应用于EEG潜在空间表示和信号重建等任务，为处理不规则采样数据提供新视角。",
+      "llm_tldr": "该论文通过傅里叶变换和Volterra级数重新审视神经过程，用于从非均匀采样中建模未知潜在函数。方法提升了解释性和泛化能力，可应用于EEG潜在空间表示和信号重建等任务，为处理不规则采样数据提供新视角。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.00584v1",
+      "source": "arxiv",
+      "title": "Spectra-Guided Neural Tucker Factorization",
+      "abstract": "This paper proposes Spectra-Guided Neural Tucker Factorization (SG-NTF) for High-Dimensional and Incomplete (HDI) tensor completion. Circumventing discrete representational limits, SG-NTF maps scalar timestamps into a continuous spectral space to abstract temporal periodicities. Concurrently, a Spatio-Temporal Co-Gating (STCG) mechanism explicitly filters latent interactions via multiplicative modulation on spatiotemporal contexts. Evaluations on real-world HDI tensors verify that SG-NTF maintains competitive completion accuracy with parameter efficiency.",
+      "authors": [
+        "Fusheng Wang",
+        "Yikai Hou"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.LG"
+      ],
+      "published": "2026-05-30T07:24:54+00:00",
+      "link": "https://arxiv.org/pdf/2606.00584v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "tensor completion for high-dimensional incomplete data using latent spectral space",
+      "llm_evidence_cn": "使用潜在光谱空间的高维不完整张量补全",
+      "llm_evidence": "使用潜在光谱空间的高维不完整张量补全",
+      "canonical_evidence": "使用潜在光谱空间的高维不完整张量补全",
+      "llm_tldr_en": "SG-NTF performs tensor completion by mapping timestamps to a continuous spectral space and using spatio-temporal co-gating to filter latent interactions, achieving competitive accuracy on real-world HDI tensors.",
+      "llm_tldr_cn": "该论文提出光谱引导神经Tucker分解（SG-NTF），用于高维不完整张量补全。方法将标量时间戳映射到连续光谱空间以抽象时间周期性，并通过时空共同门控机制过滤潜在交互。在真实世界数据上验证了参数效率下的竞争性完成精度。该技术可直接应用于EEG通道缺失值插补，为生成模型填补缺失通道提供新思路。",
+      "llm_tldr": "该论文提出光谱引导神经Tucker分解（SG-NTF），用于高维不完整张量补全。方法将标量时间戳映射到连续光谱空间以抽象时间周期性，并通过时空共同门控机制过滤潜在交互。在真实世界数据上验证了参数效率下的竞争性完成精度。该技术可直接应用于EEG通道缺失值插补，为生成模型填补缺失通道提供新思路。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "generative models for EEG channel imputation",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.01346v1",
+      "source": "arxiv",
+      "title": "FlowSDR: Sufficient Dimension Reduction via Conditional Normalizing Flows",
+      "abstract": "Sufficient dimension reduction (SDR) seeks a low-dimensional linear projection of predictors that preserves the conditional distribution of the response. Existing methods target this conditional distribution indirectly, via inverse moments, local forward regression, or neural ensemble regression. We propose FlowSDR, a likelihood-based framework that jointly learns the projection and the conditional density by maximizing a conditional log-likelihood, with the density parameterized by monotone rational-quadratic spline flows. The estimator is Fisher consistent under the SDR model, and its sample objective admits a population interpretation in terms of mutual information. As a complementary model within the same likelihood framework, we introduce the neural Gaussian SDR, a heteroscedastic conditional Gaussian model whose mean and variance are parameterized by shared neural-network functions of the projected predictors. In simulations spanning Gaussian errors, heavy-tailed distributions, two-component mixtures, and settings with tail behavior not captured by mean-variance structure, FlowSDR recovers the central subspace more accurately than existing SDR methods and the neural Gaussian SDR baseline. We further validate these advantages on a face-age prediction task using the UTKFace dataset.",
+      "authors": [
+        "Yuexiao Dong",
+        "Kenichiro Mcalinn",
+        "Edoardo Airoldi",
+        "Lei Li"
+      ],
+      "primary_category": "stat.ME",
+      "categories": [
+        "stat.ME",
+        "stat.ML"
+      ],
+      "published": "2026-05-31T16:54:56+00:00",
+      "link": "https://arxiv.org/pdf/2606.01346v1",
+      "tags": [
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "sufficient dimension reduction via conditional normalizing flows for latent space learning",
+      "llm_evidence_cn": "通过条件归一化流进行充分降维，学习潜在空间",
+      "llm_evidence": "通过条件归一化流进行充分降维，学习潜在空间",
+      "canonical_evidence": "通过条件归一化流进行充分降维，学习潜在空间",
+      "llm_tldr_en": "Proposes FlowSDR, a likelihood-based framework that jointly learns a low-dimensional linear projection and the conditional density via normalizing flows for sufficient dimension reduction.",
+      "llm_tldr_cn": "该论文针对充分降维问题，提出FlowSDR框架，通过条件归一化流联合学习投影和条件密度。方法具有Fisher相合性，目标函数可解释为互信息。可应用于EEG潜在空间学习，为高维EEG信号的低维表示提供了概率框架。",
+      "llm_tldr": "该论文针对充分降维问题，提出FlowSDR框架，通过条件归一化流联合学习投影和条件密度。方法具有Fisher相合性，目标函数可解释为互信息。可应用于EEG潜在空间学习，为高维EEG信号的低维表示提供了概率框架。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.01776v1",
+      "source": "arxiv",
+      "title": "A 32-Channel 3.53-μW Per Channel Brain-Machine Interface SoC Featuring Dual-Threshold Delta-modulation, In-Memory Spike Detection and Bi-SNN Based Motor Decoding",
+      "abstract": "With the scaling of sensor channel counts, systems confront challenges in frontend data sensing and on-implant data processing. This work presents a 32-channel fully event-based iBMI SoC in 65nm CMOS for an efficient neuromorphic signal processing pipeline. The SoC integrates a 32-channel dual-threshold delta modulation (DTDM) frontend array that provides up to 26x data compression at the frontend, an in-memory computing (IMC) spike detector (SPD) for efficient in-pixel spike detection, and a bipolar LIF-based spiking neural network (Bi-SNN) decoder for on-chip motor intention decoding (MID). Consuming only 3.53 μW per channel and achieving ~0.62 decoding R2 with a compact 0.034 mm2 per-channel area, the chip enables high-efficiency signal recording, processing, and decoding for implantable devices.",
+      "authors": [
+        "Ye Ke",
+        "Zhengnan Fu",
+        "Pao-Sheng Vincent Sun",
+        "An Guo",
+        "Shuai Dong",
+        "Junyi Yang",
+        "Yahan Yang",
+        "Abdelrahman B. M. Eldaly",
+        "Xin Si",
+        "Leanne Chan",
+        "Arindam Basu"
+      ],
+      "primary_category": "eess.SP",
+      "categories": [
+        "eess.SP"
+      ],
+      "published": "2026-06-01T06:58:57+00:00",
+      "link": "https://arxiv.org/pdf/2606.01776v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Low-power BCI SoC with 32 channels, spike detection, and motor decoding",
+      "llm_evidence_cn": "低功耗BCI片上系统，32通道，尖峰检测和运动解码",
+      "llm_evidence": "低功耗BCI片上系统，32通道，尖峰检测和运动解码",
+      "canonical_evidence": "低功耗BCI片上系统，32通道，尖峰检测和运动解码",
+      "llm_tldr_en": "A 32-channel 3.53uW/channel BCI SoC with DTDM frontend, IMC spike detector, and Bi-SNN decoder for motor decoding.",
+      "llm_tldr_cn": "随着通道数增加，植入式BCI面临数据感知和处理挑战。本文提出一款32通道全事件驱动BCI片上系统，集成了双阈值增量调制前端（压缩比26x）、内存计算尖峰检测器和双极性LIF脉冲神经网络解码器，用于运动意图解码。功耗仅3.53μW每通道，解码R2约0.62。为低功耗BCI硬件提供了高效方案。",
+      "llm_tldr": "随着通道数增加，植入式BCI面临数据感知和处理挑战。本文提出一款32通道全事件驱动BCI片上系统，集成了双阈值增量调制前端（压缩比26x）、内存计算尖峰检测器和双极性LIF脉冲神经网络解码器，用于运动意图解码。功耗仅3.53μW每通道，解码R2约0.62。为低功耗BCI硬件提供了高效方案。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.01468v1",
+      "source": "arxiv",
+      "title": "Computation-Aware Kalman Filtering with Model Selection for Neural Dynamics",
+      "abstract": "Due to their explicit priors and ability to model uncertainty, Bayesian methods have played a major role in dynamical latent variable modeling of single-cell neural recordings. However, modern-sized datasets have made overparameterized deep networks the preferred methods of choice due to their predictive power and favorable computational scaling. While many posterior approximations exist, all incur approximation errors. Recent work accounts for this error in the form of computational uncertainty but comes at the cost of quadratic complexity and assumes fixed model hyperparameters. Here we extend this development to model selection, including a novel training loss and optimization scheme, which yields tractable inference in large state-spaces. We introduce a framework, the Computation-Aware State-Space Model (CASSM), specifically designed for the scale-imbalanced regime, where the number of trials is significantly lower than the number of recorded neurons. In this regime, for both synthetic and real data, we show that our method is competitive with data-hungry deep networks, with significantly improved uncertainty calibration over previous attempts to scale Bayesian methods. Our experiments provide a roadmap to neuroscience researchers in choosing from a host of potential dynamical latent variable models given key dataset properties and constraints.",
+      "authors": [
+        "JR Huml",
+        "Jonathan Wenger",
+        "John P. Cunningham"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-05-31T22:02:13+00:00",
+      "link": "https://arxiv.org/pdf/2606.01468v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "latent variable modeling for neural dynamics, applicable to EEG latent space",
+      "llm_evidence_cn": "神经动力学的潜变量建模，可应用于EEG潜在空间",
+      "llm_evidence": "神经动力学的潜变量建模，可应用于EEG潜在空间",
+      "canonical_evidence": "神经动力学的潜变量建模，可应用于EEG潜在空间",
+      "llm_tldr_en": "Extends Kalman filtering with model selection and computational uncertainty for tractable latent variable modeling of neural data.",
+      "llm_tldr_cn": "该论文扩展了卡尔曼滤波，引入模型选择和计算不确定性，用于神经数据的潜变量建模。提出新的训练损失和优化方案，使得在大状态空间中可进行推断。虽然面向单细胞记录，但其潜在变量方法可应用于EEG潜在空间表示和动态建模。",
+      "llm_tldr": "该论文扩展了卡尔曼滤波，引入模型选择和计算不确定性，用于神经数据的潜变量建模。提出新的训练损失和优化方案，使得在大状态空间中可进行推断。虽然面向单细胞记录，但其潜在变量方法可应用于EEG潜在空间表示和动态建模。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.06285v1",
+      "source": "arxiv",
+      "title": "TRACE: A Temporal Conditional Estimation for Multimodal Time Series Foundation Models",
+      "abstract": "Time series foundation models (TS-FMs) aim to learn generalizable temporal representations that can be adapted to a wide range of downstream tasks. In real-world multimodal settings, time series are frequently affected by temporal misalignment and partial modality missingness, where different modalities are observed at heterogeneous time scales or are partially absent. Existing approaches typically rely on naive imputation or masking strategies, which fail to account for cross-modal dependencies and often lead to misaligned or degraded representations. We propose TRACE, a conditional estimation paradigm for multimodal time series foundation model pipelines under missingness and irregular sampling, allowing incomplete target modalities to be systematically inferred from available auxiliary modalities. We evaluate TRACE on diverse multimodal benchmarks spanning healthcare and affective computing, including the MIMIC-IV clinical dataset and the CMU-MOSI and CMU-MOSEI benchmarks for multimodal sentiment analysis. Across a range of downstream prediction tasks and missing-modality settings, TRACE consistently outperforms prior multimodal fusion approaches, demonstrating improved robustness to severe modality missingness and more reliable cross-modal representations.",
+      "authors": [
+        "Ziwen Kan",
+        "Yishuo Chen",
+        "Kecheng Li",
+        "Andrew Wen",
+        "Xiaomeng Wang",
+        "Liwei Wang",
+        "Jihao Duan",
+        "Song Wang",
+        "Hongfang Liu",
+        "Tianlong Chen"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-06-04T15:25:03+00:00",
+      "link": "https://arxiv.org/pdf/2606.06285v1",
+      "tags": [
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "conditional estimation for missing modalities in time series",
+      "llm_evidence_cn": "时间序列中缺失模态的条件估计",
+      "llm_evidence": "时间序列中缺失模态的条件估计",
+      "canonical_evidence": "时间序列中缺失模态的条件估计",
+      "llm_tldr_en": "TRACE proposes a conditional estimation paradigm for multimodal time series foundation models under missingness and irregular sampling, enabling effective imputation of incomplete target modalities.",
+      "llm_tldr_cn": "多模态时间序列经常面临时间错位和部分模态缺失问题，现有方法依赖简单插补或掩码策略，无法捕捉跨模态依赖。TRACE提出了一种条件估计范式，在缺失和不规则采样条件下，通过条件估计恢复不完整的目标模态，从而生成对齐且鲁棒的表示。在多个真实世界数据集上，TRACE在插补质量和下游任务性能上均显著优于基线方法，为时间序列基础模型提供了通用缺失处理框架。",
+      "llm_tldr": "多模态时间序列经常面临时间错位和部分模态缺失问题，现有方法依赖简单插补或掩码策略，无法捕捉跨模态依赖。TRACE提出了一种条件估计范式，在缺失和不规则采样条件下，通过条件估计恢复不完整的目标模态，从而生成对齐且鲁棒的表示。在多个真实世界数据集上，TRACE在插补质量和下游任务性能上均显著优于基线方法，为时间序列基础模型提供了通用缺失处理框架。",
+      "llm_tags": [
+        "query:eeg-latent:composite"
+      ],
+      "matched_query_tag": "query:eeg-latent:composite",
+      "matched_query_text": "Papers central to EEG论文，latent space缺失通道补全, especially work that connects or combines: E; EEG latent space representation; deep learning for EEG signal reconstruction; generative models for EEG channel imputation; EEG missing channel completion using latent space models; latent space based imputation for multichannel EEG; reconstruct missing EEG channels with deep generative networks.",
+      "matched_requirement_id": "req-composite-eeg-latent",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.06328v1",
+      "source": "arxiv",
+      "title": "PAMF: Prior-Aware Multimodal Fusion for Incomplete Time Series Data",
+      "abstract": "In healthcare, multimodal time series tasks often operate on incomplete observations in practice, for example when ECG segments are lost because electrodes detach or an entire respiratory channel is unavailable during overnight monitoring. Such missingness typically appears in two structurally distinct patterns: within-modality missing, where values are absent within an otherwise observed modality, and modality-level missing, where an entire modality is unavailable. Existing methods typically represent unobserved data implicitly through masks or missing embeddings, without learning instance-specific missing information, and most are designed for only one missingness pattern. A natural approach is to explicitly estimate the missing data; however, existing imputation methods treat missingness uniformly despite their different structural priors, and the imputation process is often isolated from downstream tasks, preventing downstream tasks from guiding imputation toward more informative representations. To address these limitations, we present PAMF, a multimodal time-series framework that explicitly handles different missingness patterns while coupling imputation with downstream prediction through prior-aware flow matching and weight sharing. Specifically, the method initializes the flow-matching source state with type-specific priors to distinguish two missing types. It further connects imputation and classification through architecturally matched encoders with weight sharing, transferring task-relevant representations into the imputation process. Experiments on multiple multimodal healthcare time-series benchmarks show that the proposed method achieves the strongest overall downstream performance across diverse datasets and missing settings compared with existing baselines.",
+      "authors": [
+        "Ziwen Kan",
+        "Wugeng Zheng",
+        "Tianlong Chen",
+        "Song Wang"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-06-04T16:04:21+00:00",
+      "link": "https://arxiv.org/pdf/2606.06328v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "generative model for incomplete time series imputation, applicable to EEG channel missingness",
+      "llm_evidence_cn": "用于不完整时间序列补全的生成模型，可应用于EEG通道缺失",
+      "llm_evidence": "用于不完整时间序列补全的生成模型，可应用于EEG通道缺失",
+      "canonical_evidence": "用于不完整时间序列补全的生成模型，可应用于EEG通道缺失",
+      "llm_tldr_en": "Proposes PAMF, a prior-aware multimodal fusion framework that explicitly estimates missing data in time series, handling both within-modality and modality-level missingness.",
+      "llm_tldr_cn": "该论文针对多模态时间序列中缺失数据问题（如心电图导联脱落），提出先验感知多模态融合（PAMF）框架，显式估计缺失数据以处理模态内缺失和模态级缺失。方法具有通用性，可应用于EEG通道缺失补全，为生成模型用于EEG插补提供了可行方案。",
+      "llm_tldr": "该论文针对多模态时间序列中缺失数据问题（如心电图导联脱落），提出先验感知多模态融合（PAMF）框架，显式估计缺失数据以处理模态内缺失和模态级缺失。方法具有通用性，可应用于EEG通道缺失补全，为生成模型用于EEG插补提供了可行方案。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "generative models for EEG channel imputation",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

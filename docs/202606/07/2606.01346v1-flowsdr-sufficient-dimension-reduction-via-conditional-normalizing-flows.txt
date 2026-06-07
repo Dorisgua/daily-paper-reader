@@ -1,0 +1,1105 @@
+Title: FlowSDR: Sufficient Dimension Reduction via Conditional Normalizing Flows
+
+URL Source: https://arxiv.org/pdf/2606.01346v1
+
+Published Time: Tue, 02 Jun 2026 01:39:25 GMT
+
+Number of Pages: 20
+
+Markdown Content:
+# FlowSDR: Sufficient Dimension Reduction via Conditional Normalizing Flows 
+
+Yuexiao Dong 
+
+Temple University Philadelphia, PA 19102 
+
+Kenichiro Mcalinn 
+
+Temple University Philadelphia, PA 19102 
+
+Edoardo Airoldi 
+
+Temple University Philadelphia, PA 19102 
+
+Lei Li 
+
+LunarAI LLC Newark, DE 19702 
+
+## Abstract 
+
+Sufficient dimension reduction (SDR) seeks a low-dimensional linear projection 
+
+B⊤X of predictors that preserves the conditional distribution of the response 
+
+Y . Existing methods target this conditional distribution indirectly, via inverse moments, local forward regression, or neural ensemble regression. We pro-pose FlowSDR, a likelihood-based framework that jointly learns the projection 
+
+B⊤X and the conditional density f (Y |B⊤X) by maximizing a conditional log-likelihood, with the density parameterized by monotone rational-quadratic spline flows. The estimator is Fisher consistent under the SDR model, and its sample objective admits a population interpretation in terms of mutual information. As a complementary model within the same likelihood framework, we introduce the neural Gaussian SDR, a heteroscedastic conditional Gaussian model whose mean and variance are parameterized by shared neural-network functions of B⊤X. In simulations spanning Gaussian errors, heavy-tailed distributions, two-component mixtures, and settings with tail behavior not captured by mean–variance structure, FlowSDR recovers the central subspace more accurately than existing SDR meth-ods and the neural Gaussian SDR baseline. We further validate these advantages on a face-age prediction task using the UTKFace dataset. 
+
+## 1 Introduction and related work 
+
+High-dimensional predictors are ubiquitous in modern applications, yet the information relevant to predicting a response often lies in a low-dimensional subspace. Sufficient dimension reduction (SDR) (Li, 1991; Cook, 2007; Li, 2018; Cook, 2026) provides a principled framework for identi-fying such structure by seeking a low-dimensional projection of the predictors that preserves the conditional distribution of the response. Formally, given a predictor X ∈ Rp and a response Y ∈ R,SDR aims to find a matrix B ∈ Rp×d with d < p , such that 
+
+Y ⊥⊥ X | B⊤X, (1) where ⊥⊥ means statistical independence. Model (1) implies that the projected feature B⊤X ∈ Rd
+
+is sufficient for modeling the conditional distribution of Y . The subspace spanned by the columns of B satisfying (1) is called a dimension reduction subspace. Among all such subspaces, their inter-section defines the central subspace, which is the minimal subspace that preserves the conditional distribution of Y given X. Sufficient dimension reduction has played critical roles in various statisti-cal and machine learning problems, such as conditional density estimation (Tangkaratt et al., 2014), function approximation (Zhang et al., 2019), classification (Meng et al., 2020; Zhang et al., 2020), 
+
+> Preprint.
+> arXiv:2606.01346v1 [stat.ME] 31 May 2026
+
+survival analysis (Ding et al., 2020), online learning (Cai et al., 2020; Artemiou et al., 2021), inter-action detection (Tang et al., 2020), and causal inference (Luo and Zhu, 2020; Luo, 2022). These applications highlight the importance of identifying low-dimensional structures that retain predictive information while mitigating the curse of dimensionality. Classical sufficient dimension reduction methods, including sliced inverse regression (SIR) (Li, 1991) and sliced average variance estimation (SAVE) (Cook and Weisberg, 1991), estimate the low-dimensional central subspace through moment-based or inverse-regression techniques. By combin-ing local linear regression with predictor dimension reduction, minimum average variance estima-tion (MAVE) (Xia et al., 2002) and its variation central subspace MAVE (csMAVE) (Wang and Xia, 2008) achieve sufficient dimension reduction via forward regression. Despite their success, tradi-tional SDR methods face several limitations. Inverse-regression approaches such as SIR and SAVE rely on restrictive assumptions about the predictor distribution, which may not hold in applications. Forward-regression methods like MAVE and csMAVE improve flexibility but can be sensitive to bandwidth selection. This line of work has been extended through machine learning techniques, including local SDR (Wu et al., 2008), principal support vector machines (Li et al., 2011), RKHS-based methods (Fukumizu et al., 2004, 2009; Hsing and Ren, 2009), and nonlinear SDR (Yeh et al., 2008; Li and Song, 2017). More recently, neural-network-based SDR methods have been proposed to further enhance modeling flexibility (Kapla et al., 2022; Liang et al., 2022; Chen et al., 2024; Yang and Yang, 2025; Tang and Li, 2026). Despite the increased flexibility offered by these approaches, most existing SDR methods focus pri-marily on estimating the central subspace, rather than directly modeling the conditional distribution 
+
+fY |X (y|x). As a result, they may fail to fully capture complex relationships between predictors and response, particularly in settings involving heavy-tailed errors, heteroscedasticity, or multimodal conditional structures. To address these limitations, it is desirable to develop an SDR framework that directly targets the conditional distribution while preserving the dimension reduction structure. In this paper, we pro-pose a novel SDR approach based on normalizing flows. Normalizing flows (Papamakarios et al., 2017; Dinh et al., 2017; Papamakarios et al., 2021) provide a flexible yet tractable class of invert-ible transformations that map complex distributions to simple base distributions. As a result, they can approximate conditional distributions fY |X (y|x) with high fidelity, capturing non-Gaussian fea-tures such as skewness, multimodality, and heteroscedasticity. Our contributions are summarized as follows: 1. We propose FlowSDR, a likelihood-based sufficient dimension reduction method that jointly learns a low-dimensional representation B⊤X and the conditional density 
+
+f (Y |B⊤X) using conditional normalizing flows. We establish a population-level inter-pretation of the proposed objective through an information index closely related to mutual information, show that the resulting population target is Fisher consistent under the SDR model, and prove consistency of the sample-level estimator. 2. As a complementary likelihood-based baseline, we introduce neural Gaussian SDR, a het-eroscedastic conditional Gaussian model that clarifies the role of flexible conditional den-sity estimation within the SDR framework. We further show that the population-level target of neural Gaussian SDR is closely connected to MAVE, a prominent classical SDR estima-tor. 3. Through simulations involving heteroscedasticity, heavy-tailed errors, multimodal re-sponses, and tail-dependent conditional structures, we demonstrate that FlowSDR substan-tially improves central subspace recovery compared with existing SDR methods. 4. We further validate the proposed framework on the UTKFace age prediction task, where FlowSDR achieves strong predictive and conditional density estimation performance while naturally enabling conformal prediction intervals. 
+
+## 2 FlowSDR 
+
+2.1 Conditional flow model 
+
+Let W = B⊤X ∈ Rd denote the projected feature satisfying Y ⊥⊥ X | W . We model the 2conditional distribution of Y | W = w using a conditional normalizing flow. Let Tθ ( · ; w) : R → R be an invertible transformation indexed by the conditioning value W = w.Define 
+
+Z = Tθ (Y ; W ).
+
+The model assumes that, for each w, the transformed response Z has a fixed base density f0, typi-cally the standard normal density: 
+
+Z | W = w ∼ f0.
+
+Equivalently, all dependence of the conditional distribution of Y on w is represented through the transformation Tθ ( · ; w), while the base distribution itself is free of w. By the change-of-variables formula, the induced conditional density of Y given W = w is 
+
+fθ (y|w) = f0{Tθ (y; w)} ∂T θ (y; w)
+
+∂y . (2) We parameterize Tθ ( · ; w) using monotone rational-quadratic splines (RQS) (Durkan et al., 2019). For each w, the transformation is defined by a piecewise rational-quadratic function whose parame-ters, which include bin widths, heights, and derivatives, are produced by a neural network. Specifically, define knot sequences for fixed w and fixed number of bins K as 
+
+y0(w) < y 1(w) < · · · < y K (w), and z0(w) < z 1(w) < · · · < z K (w).
+
+Let sk(w) > 0 denote the derivatives at the knots. All quantities {yk(w), z k(w), s k(w)}Kk=0 are determined by a neural network ϕθ (w), typically by outputting unconstrained parameters that are transformed to satisfy positivity and ordering constraints. Let ∆yk(w) = yk+1 (w) − yk(w) and ∆zk(w) = zk+1 (w) − zk(w). For y ∈ [yk(w), y k+1 (w)] ,define 
+
+rk(w) = ∆zk(w)∆yk(w) and ξ(y, w ) = y − yk(w)∆yk(w) ∈ [0 , 1] .
+
+Then the transformation is 
+
+Tθ (y; w) = zk(w) + ∆ zk(w) rk(w) ξ(y, w )2 + sk(w) ξ(y, w ) 1 − ξ(y, w )
+
+rk(w) +  sk+1 (w) + sk(w) − 2rk(w) ξ(y, w ) 1 − ξ(y, w ) .
+
+Under the constraints ∆yk(w) > 0, ∆zk(w) > 0, and sk(w) > 0, the transformation Tθ (y; w) is strictly monotone in y for each fixed w, continuously differentiable, invertible, and admits a closed-form derivative. This yields a flexible family of smooth, invertible transformations with tractable Jacobians. While general-purpose normalizing flows such as NICE (Dinh et al., 2014), RealNVP (Dinh et al., 2017), and MAF (Papamakarios et al., 2017) are widely used for multivariate density estima-tion, they are less well-suited for modeling univariate conditional distributions. In one dimension, coupling-based flows such as NICE and RealNVP reduce to affine transformations, while autore-gressive flows (MAF) parameterize location–scale transformations of a base distribution, thereby limiting the expressiveness of the transformation in the response variable. In contrast, monotone spline-based flows directly parameterize a rich class of nonlinear transformations, making them particularly effective for conditional density estimation in one dimension. 
+
+2.2 Central subspace estimation 
+
+Given an i.i.d. sample {(Xi, Y i)}ni=1 , the log-likelihood under the conditional flow model (2) can be written as 
+
+ℓn(B, θ ) = 
+
+> n
+
+X
+
+> i=1
+
+log fθ (Yi|B⊤Xi)=
+
+> n
+
+X
+
+> i=1
+
+log f0{Tθ (Yi; B⊤Xi)} + log ∂T θ (y; B⊤Xi)
+
+∂y y=Yi
+
+ .
+
+3Let Θ denote the parameter space indexing the conditional normalizing flow family {fθ (Y |B⊤X) : 
+
+θ ∈ Θ}. For a fixed matrix B, define the empirical profile log-likelihood 
+
+Mn(B) = sup 
+
+> θ∈Θ
+
+1
+
+n ℓn(B, θ ) = sup 
+
+> θ∈Θ
+
+1
+
+n
+
+> n
+
+X
+
+> i=1
+
+log fθ (Yi|B⊤Xi). (3) Our proposed method estimates the sufficient reduction subspace by solving 
+
+ˆB = arg max 
+
+> B∈Rp×d
+
+Mn(B) subject to B⊤B = Id. (4) The constraint B⊤B = Id in (4) restricts B to lie on the Stiefel manifold, and the optimization is carried out using gradient-based methods on this manifold (Edelman et al., 1998). The column space of ˆB, or span( ˆB), is taken as the final FlowSDR estimator of the central subspace. 
+
+2.3 Population-level targets 
+
+For notational convenience, we use f (Y |X) for the conditional density of Y given X, and f (Y ) as the marginal density of Y . The symbol f is used generically to denote densities in each context. For 
+
+A ∈ Rp×q with q ≤ p, denote f (Y |A⊤X) as the conditional density of Y given A⊤X. Consider the following information index J (A)
+
+J (A) = E log f (Y |A⊤X) . (5) Since J (A) − E{log f (Y )} coincides with the mutual information between Y and A⊤X, and 
+
+E{log f (Y )} does not depend on A, maximizing J (A) is equivalent to maximizing the mutual information between Y and A⊤X. Moreover, J (A) depends only on the subspace spanned by the columns of A. In particular, for any orthogonal matrix C ∈ Rq×q satisfying C⊤C = Iq , we have 
+
+J (A) = J (AC ).Recent works such as Nguyen et al. (2010); Belghazi et al. (2018); van den Oord et al. (2018) propose variational lower bounds for mutual information that avoid explicit density estimation by learning a critic function. In contrast, our approach directly models the conditional density f (Y |B⊤X) under model (1) via conditional normalizing flows, enabling likelihood-based estimation of the central subspace. At the population level, the target parameter of FlowSDR is defined as 
+
+B0 = arg max 
+
+> B∈Rp×d
+
+J (B) subject to B⊤B = Id. (6) As shown in Appendix A, under model (1), the above objective is Fisher consistent in the sense that the column space of any maximizer B0 coincides with the true central subspace. For a fixed projection matrix B ∈ Rp×d, we model the conditional density f (Y |B⊤X) using a conditional normalizing flow family fθ (Y |B⊤X) : θ ∈ Θ . The corresponding population profile log-likelihood for a fixed B is 
+
+M (B) = sup 
+
+> θ∈Θ
+
+E log fθ (Y |B⊤X) . (7) The criterion M (B) can be viewed as a model-based approximation to J (B) in (6), where the conditional density is restricted to the flow family. This defines the intermediate target parameter 
+
+B† = arg max 
+
+> B∈Rp×d
+
+M (B) subject to B⊤B = Id. (8) We leave the detailed sample-level asymptotic analysis of ˆB to Appendix B. The estimator ˆB in (4) is the sample analogue of the population profile target B† in (8). Meanwhile, the population target 
+
+B0 in (6) is Fisher consistent under the SDR model (1). We next clarify the connection between B†
+
+and B0.Suppose the conditional flow family is sufficiently rich in the sense that, for each fixed B,
+
+sup 
+
+> θ∈Θ
+
+E log fθ (Y |B⊤X) ≈ E log f (Y |B⊤X) . (9) Then the profile likelihood criterion M (B) approximates the information index J (B). Con-sequently, the maximizers are approximately equivalent up to subspace identifiability, namely 
+
+span( B†) ≈ span( B0).43 Neural Gaussian SDR 
+
+As a secondary contribution, we consider the following likelihood-based SDR model 
+
+Y | B⊤X = w ∼ N  μγ (w), σ 2 
+
+> γ
+
+(w), (10) where μγ (·) and σ2 
+
+> γ
+
+(·) are flexible functions jointly parameterized by a shared heteroscedastic neural network ψγ (w). See, for example, Stirn et al. (2023), where a neural heteroscedastic regression model is used to characterize the relationship between Y and X without the linear projection B⊤X.Given an i.i.d. sample {(Xi, Y i)}ni=1 , the log-likelihood under model (10) is 
+
+ℓG 
+
+> n
+
+(B, γ ) = 
+
+> n
+
+X
+
+> i=1
+
+(
+
+− 12 log  2πσ 2 
+
+> γ
+
+(B⊤Xi) −
+
+ Yi − μγ (B⊤Xi)2
+
+2σ2 
+
+> γ
+
+(B⊤Xi)
+
+)
+
+.
+
+The empirical profile log-likelihood becomes 
+
+M G 
+
+> n
+
+(B) = sup 
+
+> γ∈Γ
+
+1
+
+n ℓG 
+
+> n
+
+(B, γ ),
+
+where Γ denotes the parameter space of neural network ψγ (w). The neural Gaussian SDR estimator is obtained by solving 
+
+ˆBG = arg max 
+
+> B∈Rp×d
+
+M G 
+
+> n
+
+(B) subject to B⊤B = Id.
+
+As in FlowSDR, the orthogonality constraint restricts B to the Stiefel manifold, and the estimated central subspace is given by span( ˆBG). This formulation provides a useful conceptual bridge be-tween FlowSDR and conditional normalizing flows. In FlowSDR, we learn a transformation that maps the conditional distribution Y |B⊤X to a simple base distribution, typically standard normal. When the true conditional distribution is already Gaussian, this transformation reduces to a location-scale standardization, 
+
+Z = Y − μγ (B⊤X)
+
+σγ (B⊤X) .
+
+In this sense, the neural Gaussian SDR model can be viewed as a special case of the conditional flow framework, where the expressiveness is concentrated entirely in modeling the conditional mean and variance of the Gaussian distribution. From an information-theoretic perspective, the objective remains aligned with the population target 
+
+J (B) = E log f (Y |B⊤X) .
+
+The key distinction is that, instead of optimizing over a rich nonparametric class induced by in-vertible transformations, we restrict the conditional density to the Gaussian family with flexible mean and variance functions. Consequently, the neural Gaussian SDR estimator can be interpreted as a constrained version of FlowSDR, where the conditional likelihood is approximated within the heteroscedastic normal class. 
+
+## 4 Numerical experiments 
+
+4.1 Methods for empirical comparison 
+
+In Cook (2026), it is noted that there have been 17 articles and four books providing substantial reviews of SDR since Burges (2010). As it is infeasible to compare with all existing SDR methods, we focus on a representative set of widely used approaches, including MAVE (Xia et al., 2002), csMAVE (Wang and Xia, 2008), neural network SDR (NN-SDR) (Kapla et al., 2022), and belted and ensembled neural network SDR (BENN-SDR) (Tang and Li, 2026). MAVE and csMAVE are among the most prominent forward-regression SDR methods, but they can be computationally inten-sive and less effective when the predictor dimension p is large. Unlike classical inverse-regression methods, such as SIR (Li, 1991) and SAVE (Cook and Weisberg, 1991), which rely on assumptions about the predictor distribution, NN-SDR and BENN-SDR impose fewer distributional restrictions 5Table 1: Results for Model I with n = 2000 and varying ambient dimension p. The mean, median, and standard deviation of ∆op and ∆F over 100 replications are reported.                                                                                                                                                                 
+
+> pMethod ∆op mean ±SD ∆op median ∆Fmean ±SD ∆Fmedian 5NN-SDR 0.5172 ±0.0631 0.5157 0.7800 ±0.1015 0.7804
+> BENN-SDR 0.3859 ±0.0974 0.3735 0.5657 ±0.1365 0.5558
+> MAVE 0.8136 ±0.1875 0.8519 1.1838 ±0.2643 1.2534
+> csMAVE 0.1420 ±0.0509 0.1375 0.2124 ±0.0711 0.2050
+> neural Gaussian SDR 0.0481 ±0.0501 0.0358 0.0729 ±0.0710 0.0570
+> FlowSDR 0.0393 ±0.0144 0.0392 0.0601 ±0.0211 0.0585
+> 10 NN-SDR 0.9698 ±0.0133 0.9714 1.4216 ±0.0273 1.4190
+> BENN-SDR 0.9827 ±0.0196 0.9897 1.4250 ±0.0406 1.4272
+> MAVE 0.9052 ±0.1107 0.9484 1.3752 ±0.1570 1.4203
+> csMAVE 0.2500 ±0.0666 0.2446 0.3782 ±0.0908 0.3636
+> neural Gaussian SDR 0.0853 ±0.0599 0.0672 0.1347 ±0.0851 0.1124
+> FlowSDR 0.0638 ±0.0139 0.0621 0.1055 ±0.0222 0.1035
+> 20 NN-SDR 0.9598 ±0.0106 0.9600 1.4844 ±0.0390 1.4812
+> BENN-SDR 0.8149 ±0.1284 0.8317 1.2671 ±0.1745 1.2874
+> MAVE 0.9200 ±0.0854 0.9492 1.5159 ±0.1338 1.5395
+> csMAVE 0.4565 ±0.1382 0.4217 0.6856 ±0.1906 0.6350
+> neural Gaussian SDR 0.1504 ±0.0861 0.1174 0.2436 ±0.1184 0.1976
+> FlowSDR 0.1148 ±0.0256 0.1093 0.1969 ±0.0374 0.1926
+
+and can flexibly model complex relationships, often leading to improved estimation accuracy in practice. More detailed population-level comparisons between these benchmark methods and our proposed approaches are provided in Appendix C. We note that principal fitted components (PFC) (Cook, 2007) and likelihood acquired directions (LAD) (Cook and Forzani, 2009) are established likelihood-based SDR methods. These approaches are typically developed under structured para-metric modeling frameworks formulated through inverse regression. In contrast, our method directly models the forward conditional distribution Y |X using a flexible nonparametric family. Given this difference in modeling focus, we do not include them in our empirical comparisons. 
+
+4.2 Simulation 
+
+Let Vp,d = {B ∈ Rp×d : BT B = Id} be the Stiefel manifold, and let B0 ∈ V p,d be an orthonormal basis of the true central subspace. For an estimator ˆB ∈ V p,d , define 
+
+∆F( ˆB) = ∥ ˆB ˆB⊤ − B0B⊤ 
+
+> 0
+
+∥F and ∆op ( ˆB) = ∥ ˆB ˆB⊤ − B0B⊤ 
+
+> 0
+
+∥op ,
+
+where ∥ · ∥ F and ∥ · ∥ op denote the Frobenius norm and the operator norm, respectively. Based on 100 replications, we report the mean, median and standard deviation of ∆F and ∆op for six dif-ferent estimators: NN-SDR, BENN-SDR, MAVE, csMAVE, neural Gaussian SDR, and FlowSDR. The implementation details of all the estimators are provided in Appendix D. Throughout the sim-ulations, we treat the structural dimension d of the central subspace as given, and estimation of d is discussed in Appendix E. In Model I, we follow the linear SDR setting of Tang and Li (2026). Let X1, . . . , X p
+
+> i.i.d.
+
+∼ N (2 , 1) ,
+
+ϵ ∼ N (0 , 1) is independent of {Xj }pj=1 , and 
+
+Y = 2 sin {(X1 + X2)π/ 20 } + 3 sin 2{(X3 + 3 X4)π/ 30 }ϵ. .
+
+The central subspace is spanned by β1 = (1 , 1, 0, . . . , 0) ⊤ and β2 = (0 , 0, 1, 3, 0, . . . , 0) ⊤.From Table 1, FlowSDR achieves the best overall performance across all settings, with neural Gaus-sian SDR consistently performing as a close second. MAVE performs poorly because it fails to recover β2, which appears only through the conditional variance. By design, csMAVE addresses this limitation and substantially improves over the original MAVE. NN-SDR and BENN-SDR are both outperformed by csMAVE as well as our new proposals. In Model II, we keep all other settings the same as in Model I, except that the normal error is replaced by ϵ ∼ t3/√3.From Table 2, FlowSDR again achieves the best overall performance across all settings. Neural Gaussian SDR performs similarly to csMAVE when p = 5 , but is outperformed by csMAVE when 
+
+p = 10 and 20 . Compared with Model I, the advantage of FlowSDR over neural Gaussian SDR 6Table 2: Results for Model II with n = 2000 and varying ambient dimension p. The mean, median, and standard deviation of ∆op and ∆F over 100 replications are reported. 
+
+p Method ∆op mean ± SD ∆op median ∆F mean ± SD ∆F median 5 NN-SDR 0.5281 ± 0.0647 0.5296 0.7913 ± 0.1038 0.7806 
+
+BENN-SDR 0.4911 ± 0.1262 0.4929 0.7422 ± 0.1934 0.7343 
+
+MAVE 0.8122 ± 0.1824 0.8728 1.1821 ± 0.2649 1.2552 
+
+csMAVE 0.1165 ± 0.0436 0.1160 0.1778 ± 0.0628 0.1782 
+
+neural Gaussian SDR 0.1175 ± 0.1255 0.0782 0.1752 ± 0.1835 0.1155 
+
+FlowSDR 0.0469 ± 0.0176 0.0474 0.0704 ± 0.0252 0.0713 
+
+10 NN-SDR 0.9713 ± 0.0120 0.9732 1.4281 ± 0.0304 1.4222 
+
+BENN-SDR 0.9524 ± 0.0569 0.9697 1.4460 ± 0.1174 1.4403 
+
+MAVE 0.8964 ± 0.1221 0.9529 1.3567 ± 0.1715 1.4182 
+
+csMAVE 0.1819 ± 0.0389 0.1792 0.2964 ± 0.0534 0.2943 
+
+neural Gaussian SDR 0.2079 ± 0.2070 0.1373 0.3213 ± 0.3068 0.2241 
+
+FlowSDR 0.0766 ± 0.0165 0.0760 0.1201 ± 0.0252 0.1163 
+
+20 NN-SDR 0.9591 ± 0.0156 0.9592 1.4943 ± 0.0707 1.4826 
+
+BENN-SDR 0.9162 ± 0.0825 0.9373 1.5336 ± 0.1663 1.5274 
+
+MAVE 0.9319 ± 0.0714 0.9608 1.4927 ± 0.1187 1.5104 
+
+csMAVE 0.2626 ± 0.0352 0.2660 0.4445 ± 0.0479 0.4394 
+
+neural Gaussian SDR 0.3143 ± 0.2382 0.2178 0.5128 ± 0.3870 0.3757 
+
+FlowSDR 0.1190 ± 0.0246 0.1161 0.1971 ± 0.0406 0.1918 
+
+Table 3: Results for Model III with p = 20 and varying sample size n. The mean, median, and standard deviation of ∆op and ∆F over 100 replications are reported. 
+
+n Method ∆op mean ± SD ∆op median ∆F mean ± SD ∆F median 2000 NN-SDR 0.9791 ± 0.0401 0.9969 1.4412 ± 0.0576 1.4583 
+
+BENN-SDR 0.9955 ± 0.0109 0.9983 1.4305 ± 0.0173 1.4321 
+
+MAVE 0.9391 ± 0.0759 0.9724 1.3696 ± 0.1039 1.4131 
+
+csMAVE 0.8161 ± 0.1700 0.8774 1.1821 ± 0.2373 1.2829 
+
+neural Gaussian SDR 0.4804 ± 0.1284 0.4548 0.7063 ± 0.1772 0.6674 
+
+FlowSDR 0.6334 ± 0.1784 0.6155 0.9207 ± 0.2468 0.8869 
+
+5000 NN-SDR 0.9878 ± 0.0295 0.9959 1.4173 ± 0.0408 1.4262 
+
+BENN-SDR 0.9982 ± 0.0019 0.9988 1.4193 ± 0.0040 1.4196 
+
+MAVE 0.9542 ± 0.0551 0.9745 1.3654 ± 0.0775 1.3955 
+
+csMAVE 0.5549 ± 0.2326 0.4819 0.7987 ± 0.3258 0.7005 
+
+neural Gaussian SDR 0.2963 ± 0.0694 0.2851 0.4340 ± 0.0954 0.4220 
+
+FlowSDR 0.2875 ± 0.0618 0.2824 0.4230 ± 0.0842 0.4154 
+
+10000 NN-SDR 0.9921 ± 0.0150 0.9945 1.4122 ± 0.0206 1.4144 
+
+BENN-SDR 0.9983 ± 0.0012 0.9985 1.4154 ± 0.0021 1.4155 
+
+MAVE 0.9347 ± 0.0829 0.9665 1.3302 ± 0.1169 1.3751 
+
+csMAVE 0.3411 ± 0.1851 0.2860 0.4937 ± 0.2593 0.4189 
+
+neural Gaussian SDR 0.2109 ± 0.0504 0.2021 0.3092 ± 0.0691 0.2979 
+
+FlowSDR 0.1905 ± 0.0344 0.1902 0.2809 ± 0.0468 0.2778 
+
+becomes more pronounced in Model II, reflecting the robustness of FlowSDR to violations of the Gaussian distribution assumption. In Model III, we consider a two-component mixture response model. For X = ( X1, . . . , X 20 ), let 
+
+X ∼ N (0 , I 20 ). Let 
+
+Y | X ∼ 0.3 N (β⊤
+
+3 X, 1) + 0 .7 N (β⊤
+
+4 X, 1) ,
+
+where β3 = (1 , 0.5, 0, . . . , 0) ⊤ and β4 = (−1, 0, 0.5, 0, . . . , 0) ⊤. The central subspace is 
+
+span( β3, β 4).From Table 3, FlowSDR and neural Gaussian SDR substantially outperform the competing SDR methods across all sample sizes. When n = 2000 , neural Gaussian SDR achieves the best perfor-mance, while FlowSDR becomes the top-performing method with n = 5000 and 10000 . While csMAVE, FlowSDR, and neural Gaussian SDR improve as n increases, MAVE, NN-SDR, and BENN-SDR remain close to random guessing in this multimodal setting. In Model IV, we consider a conditional distribution where the tail behavior is not captured by the mean–variance structure. For X = ( X1, . . . , X 20 ), let X ∼ N (0 , I 20 ). Let W = β⊤
+
+5 X, where 
+
+β5 = (1 , 1, 0, . . . , 0) ⊤/√2. We generate the response as 
+
+Y | X ∼
+
+N (0 , 1) , if W > 0,t3/√3, if W ≤ 0.
+
+7Table 4: Results for Model IV with p = 20 and varying sample size n. The mean, median, and standard deviation of ∆op and ∆F over 100 replications are reported.                                                                                                                                                                 
+
+> nMethod ∆op mean ±SD ∆op median ∆Fmean ±SD ∆Fmedian 2000 NN-SDR 0.9315 ±0.0375 0.9315 1.3173 ±0.0531 1.3173
+> BENN-SDR 0.9224 ±0.0478 0.9257 1.3044 ±0.0676 1.3092
+> MAVE 0.9749 ±0.0382 0.9912 1.3788 ±0.0541 1.4018
+> csMAVE 0.8939 ±0.1268 0.9446 1.2642 ±0.1793 1.3359
+> neural Gaussian SDR 0.9678 ±0.0522 0.9858 1.3687 ±0.0738 1.3941
+> FlowSDR 0.5733 ±0.1692 0.5635 0.8108 ±0.2393 0.7969
+> 5000 NN-SDR 0.9138 ±0.0496 0.9185 1.2923 ±0.0702 1.2990
+> BENN-SDR 0.9124 ±0.0509 0.9190 1.2904 ±0.0720 1.2997
+> MAVE 0.9697 ±0.0466 0.9843 1.3714 ±0.0659 1.3921
+> csMAVE 0.7584 ±0.2246 0.8367 1.0726 ±0.3177 1.1833
+> neural Gaussian SDR 0.9513 ±0.0572 0.9715 1.3454 ±0.0810 1.3739
+> FlowSDR 0.2512 ±0.0789 0.2371 0.3553 ±0.1116 0.3353
+> 10000 NN-SDR 0.9180 ±0.0414 0.9235 1.2982 ±0.0586 1.3060
+> BENN-SDR 0.9233 ±0.0413 0.9225 1.3057 ±0.0584 1.3046
+> MAVE 0.9731 ±0.0396 0.9905 1.3762 ±0.0560 1.4008
+> csMAVE 0.4035 ±0.2684 0.2853 0.5706 ±0.3796 0.4034
+> neural Gaussian SDR 0.9587 ±0.0574 0.9841 1.3558 ±0.0812 1.3917
+> FlowSDR 0.1449 ±0.1080 0.1245 0.2049 ±0.1528 0.1761
+
+Both regimes have mean zero and variance one, so the sufficient direction enters only through the tail shape of the conditional distribution. The central subspace is span( β5).From Table 4, we clearly observe the distinction between FlowSDR and neural Gaussian SDR. Neural Gaussian SDR remains close to random guessing as n increases. This is expected because neither the conditional mean nor the conditional variance of Y | X captures the SDR direction. Although csMAVE improves substantially when n = 10000 , FlowSDR is the only method that reliably recovers the tail direction, reducing the mean operator error from 0.5733 at n = 2000 to 
+
+0.1449 at n = 10000 .
+
+4.3 UTKFace age analysis 
+
+We evaluate FlowSDR on the UTKFace face-age dataset, where each image filename encodes age, gender, ethnicity, and timestamp. The response variable is the continuous age label. Our analysis is feature-based rather than end-to-end image training. From the aligned and cropped images, we extract HOG descriptors (Dalal and Triggs, 2005) and RGB color histograms, yielding 1812 features for each of 23705 usable images. We use a single stratified split consisting of 70% training, 15% validation, and 15% test samples, where the stratification is based on age bins. The validation set is used for early stopping and model selection during neural network training, while the test set is reserved exclusively for final evaluation. We provide the implementation details of this analysis in Appendix D. Across different methods, we report test data MAE, RMSE and NLL in Table 5. In addition to the methods compared in the simulation studies, we also include PLS (Wold et al., 2001) and the full MLP Gaussian method, which corresponds to neural Gaussian SDR without dimension reduction. MAVE and csMAVE are not designed to handle large predictor dimensions directly. We therefore apply marginal correlation screening to select the top 100 features from X ∈ R1812 , and then fit MAVE and csMAVE using the screened features. Since the true structural dimension d of the central subspace is unknown, Table 5 include d ∈{2, 4, 6, 8} as the working structural dimension. FlowSDR achieves the strongest overall prediction performance. Specifically, the best MAE 7.5672 is achieved by FlowSDR with d = 8 , and the best NLL 0.4547 is achieved by FlowSDR with d = 4 . While the best RMSE 10 .8607 is achieved by BENN-SDR with d = 8 , the RMSE values based on FlowSDR are not much larger. One advantage of the proposed likelihood-based framework is that it directly estimates the condi-tional density f (Y |B⊤X). This naturally facilitates the construction of conformal prediction inter-vals (Vovk et al., 2005; Lei et al., 2018). A key component of conformal prediction is the use of a calibration set to estimate the conformal quantile required for finite-sample distribution-free cov-erage on future test observations. The detailed development of conformal prediction for FlowSDR and neural Gaussian SDR is provided in Appendix F. 8Table 5: UTKFace age prediction results.                                                                                                                             
+
+> Method dMAE RMSE NLL Mean age –15.3632 19.9325 1.4220 Full MLP Gaussian 1812 9.1305 12.6048 0.8202 PLS 211.0413 14.2752 1.0887 PLS 410.1378 13.2021 1.0115 PLS 69.8602 12.8915 0.9885 PLS 89.7677 12.7086 0.9744 MAVE (screened) 210.2714 14.0034 0.9599 MAVE (screened) 410.3170 14.1961 0.9651 MAVE (screened) 610.1772 14.1088 0.9669 MAVE (screened) 810.0990 13.9373 0.9467 csMAVE (screened) 29.9563 13.9294 0.9221 csMAVE (screened) 410.1548 13.9639 0.9228 csMAVE (screened) 69.9163 13.7077 0.9549 csMAVE (screened) 89.8385 13.7456 0.9415 NN-SDR 28.1268 11.4577 0.7246 NN-SDR 47.8089 11.0967 0.6673 NN-SDR 67.6483 10.8639 0.6636 NN-SDR 87.7730 11.1074 0.7098 BENN-SDR 28.1844 11.3808 0.7068 BENN-SDR 47.8504 10.9783 0.6397 BENN-SDR 67.7110 10.9905 0.7004 BENN-SDR 87.6103 10.8607 0.7362 neural Gaussian SDR 28.2245 11.6220 0.7047 neural Gaussian SDR 47.9063 11.3618 0.7357 neural Gaussian SDR 68.1976 11.6335 0.7812 neural Gaussian SDR 88.0622 11.5171 0.8557 FlowSDR 27.7877 11.4942 0.4742 FlowSDR 47.5981 11.2485 0.4547
+> FlowSDR 67.7559 11.4290 0.5287 FlowSDR 87.5672 11.2708 0.5224
+
+We use a single stratified split consisting of 70% training, 10% validation, 10% calibration, and 10% test samples, and compare prediction interval performance on the test set at the 95% nominal level with working structural dimension d = 4 . Prediction intervals based on neural Gaussian SDR achieve an empirical coverage of 93.8% with average interval length 42 .53 . FlowSDR achieves improved empirical coverage of 94.5% together with a shorter average interval length of 37 .19 .
+
+## 5 Concluding remarks 
+
+We develop a novel likelihood-based framework for joint representation learning and conditional density estimation. Superior SDR performance is demonstrated across a range of synthetic exam-ples, while the estimated conditional density naturally enables the construction of conformal predic-tion intervals. Conditional normalizing flows play a central role in this framework by transporting the unknown conditional distribution to a fixed base distribution. Although we focus on linear SDR with a uni-variate response in this paper, the proposed framework can be naturally extended to nonlinear SDR with multivariate responses. Specifically, for predictor X ∈ Rp and response Y ∈ Rq , the goal is to learn a low-dimensional nonlinear representation τ (X) satisfying 
+
+Y ⊥⊥ X | τ (X).
+
+The corresponding nonlinear FlowSDR objective becomes 
+
+max  
+
+> τ,θ
+
+E {log fθ (Y | τ (X)) } ,
+
+where fθ (Y | τ (X)) is modeled using a multivariate conditional normalizing flow. Since normalizing flows are closely connected to stochastic interpolation and transport-based gener-ative modeling (Albergo and Vanden-Eijnden, 2023; Albergo et al., 2025; Xu et al., 2025), sufficient dimension reduction along this direction warrants further investigation. 9References 
+
+Michael Albergo and Eric Vanden-Eijnden. Building normalizing flows with stochastic interpolants. In International Conference on Learning Representations , 2023. Michael Albergo, Nicholas M. Boffi, and Eric Vanden-Eijnden. Stochastic interpolants: A unifying framework for flows and diffusions. Journal of Machine Learning Research , 26(209):1–80, 2025. Andreas Artemiou, Yuexiao Dong, and Seung Jun Shin. Real-time sufficient dimension reduction through principal least squares support vector machines. Pattern Recognition , 112:107768, 2021. Mohamed Ishmael Belghazi, Aristide Baratin, Sai Rajeshwar, Sherjil Ozair, Yoshua Bengio, Aaron Courville, and Devon Hjelm. Mutual information neural estimation. In International Conference on Machine Learning , 2018. Christopher J. C. Burges. Dimension reduction: A guided tour. Foundations and Trends® in Fi-nance , 2(4):275–365, 2010. Zhanrui Cai, Runze Li, and Liping Zhu. Online sufficient dimension reduction through sliced inverse regression. Journal of Machine Learning Research , 21(10):1–25, 2020. Yinfeng Chen, Yuling Jiao, Rui Qiu, and Zhou Yu. Deep nonlinear sufficient dimension reduction. 
+
+The Annals of Statistics , 52(3):1201–1226, 2024. R. Dennis Cook. Fisher lecture: Dimension reduction in regression. Statistical Science , 22(1):1–26, 2007. R. Dennis Cook. On the foundational arguments of sufficient dimension reduction. Wiley Interdis-ciplinary Reviews: Computational Statistics , 2026. doi: 10.1002/wics.70064. Forthcoming. R. Dennis Cook and Liliana Forzani. Likelihood-based sufficient dimension reduction. Journal of the American Statistical Association , 104(485):197–208, 2009. R. Dennis Cook and Sanford Weisberg. Discussion of Sliced Inverse Regression for Dimension Reduction. Journal of the American Statistical Association , 86(414):328–332, 1991. Navneet Dalal and Bill Triggs. Histograms of oriented gradients for human detection. In IEEE Computer Society Conference on Computer Vision and Pattern Recognition , 2005. Shanshan Ding, Wei Qian, and Lan Wang. Double-slicing assisted sufficient dimension reduction for high-dimensional censored data. The Annals of Statistics , 48(4):2132–2154, 2020. Laurent Dinh, David Krueger, and Yoshua Bengio. Nice: Non-linear independent components esti-mation. arXiv preprint arXiv:1410.8516 , 2014. Laurent Dinh, Jascha Sohl-Dickstein, and Samy Bengio. Density estimation using real NVP. In 
+
+International Conference on Learning Representations , 2017. Conor Durkan, Artur Bekasov, Iain Murray, and George Papamakarios. Neural spline flows. In 
+
+Advances in Neural Information Processing Systems , 2019. Alan Edelman, Tomás A. Arias, and Steven T. Smith. The geometry of algorithms with orthogonality constraints. SIAM Journal on Matrix Analysis and Applications , 20(2):303–353, 1998. Kenji Fukumizu, Francis R. Bach, and Michael I. Jordan. Dimensionality reduction for supervised learning with reproducing kernel hilbert spaces. Journal of Machine Learning Research , 5:73–99, 2004. Kenji Fukumizu, Francis R. Bach, and Michael I. Jordan. Kernel dimension reduction in regression. 
+
+The Annals of Statistics , 37(4):1871–1905, 2009. Tailen Hsing and Haobo Ren. An RKHS formulation of the inverse regression dimension-reduction problem. The Annals of Statistics , 37(2):726–755, 2009. 10 Nicholas J. Irons, Meyer Scetbon, Soumik Pal, and Zaid Harchaoui. Triangular flows for generative modeling: Statistical consistency, smoothness classes, and fast rates. In International Conference on Artificial Intelligence and Statistics (AISTATS) , 2022. Daniel Kapla, Lukas Fertl, and Efstathia Bura. Fusing sufficient dimension reduction with neural networks. Computational Statistics & Data Analysis , 168:107390, 2022. Ivan Kobyzev, Simon J. D. Prince, and Marcus A. Brubaker. Normalizing flows: An introduction and review of current methods. IEEE Transactions on Pattern Analysis and Machine Intelligence ,43(11):3964–3979, 2020. Jing Lei, Max G’Sell, Alessandro Rinaldo, Ryan Tibshirani, and Larry Wasserman. Distribution-free predictive inference for regression. Journal of the American Statistical Association , 113 (523):1094–1111, 2018. Bing Li. Sufficient Dimension Reduction: Methods and Applications with R . Chapman and Hall/CRC, 2018. Bing Li and Jun Song. Nonlinear sufficient dimension reduction for functional data. The Annals of Statistics , 45(3):1059–1095, 2017. Bing Li, Andreas Artemiou, and Lexin Li. Principal support vector machines for linear and nonlinear sufficient dimension reduction. Annals of Statistics , 39(6):3182–3210, 2011. Ker-Chau Li. Sliced inverse regression for dimension reduction. Journal of the American Statistical Association , 86(414):316–327, 1991. Siqi Liang, Yan Sun, and Faming Liang. Nonlinear sufficient dimension reduction with a stochastic neural network. In Advances in Neural Information Processing Systems , 2022. Wei Luo. On efficient dimension reduction with respect to the interaction between two response variables. Journal of the Royal Statistical Society Series B: Statistical Methodology , 84(2):269– 294, 2022. Wei Luo and Yeying Zhu. Matching using sufficient dimension reduction for causal inference. 
+
+Journal of Business & Economic Statistics , 38(4):888–900, 2020. Cheng Meng, Jun Yu, Jingyi Zhang, Ping Ma, and Wenxuan Zhong. Sufficient dimension reduction for classification using principal optimal transport direction. In Advances in Neural Information Processing Systems , 2020. XuanLong Nguyen, Martin J. Wainwright, and Michael I. Jordan. Estimating divergence functionals and the likelihood ratio by convex risk minimization. IEEE Transactions on Information Theory ,56(11):5847–5861, 2010. George Papamakarios, Theo Pavlakou, and Iain Murray. Masked autoregressive flow for density estimation. In Advances in Neural Information Processing Systems , volume 30, 2017. George Papamakarios, Eric Nalisnick, Danilo Jimenez Rezende, Shakir Mohamed, and Balaji Lak-shminarayanan. Normalizing flows for probabilistic modeling and inference. Journal of Machine Learning Research , 22(57):1–64, 2021. Andrew Stirn, Harm Wessels, Megan Schertzer, Laura Pereira, Neville Sanjana, and David Knowles. Faithful heteroscedastic regression with neural networks. In International Conference on Artificial Intelligence and Statistics , 2023. Cheng Yong Tang, Ethan X. Fang, and Yuexiao Dong. High-dimensional interactions detection with sparse principal hessian matrix. Journal of Machine Learning Research , 21(19):1–25, 2020. Yin Tang and Bing Li. Belted and ensembled neural network for linear and nonlinear suf-ficient dimension reduction. Journal of the American Statistical Association , 2026. doi: 10.1080/01621459.2025.2590775. Forthcoming. 11 Voot Tangkaratt, Ning Xie, and Masashi Sugiyama. Conditional density estimation with dimension-ality reduction via squared-loss conditional entropy minimization. Neural Computation , 27(1): 228–254, 2014. Aaron van den Oord, Yazhe Li, and Oriol Vinyals. Representation learning with contrastive predic-tive coding. arXiv preprint arXiv:1807.03748 , 2018. Vladimir Vovk, Alexander Gammerman, and Glenn Shafer. Algorithmic Learning in a Random World . Springer, 2005. Hansheng Wang and Yingcun Xia. Sliced regression for dimension reduction. Journal of the Amer-ican Statistical Association , 103(482):811–821, 2008. Svante Wold, Michael Sjöström, and Lennart Eriksson. PLS-regression: a basic tool of chemomet-rics. Chemometrics and Intelligent Laboratory Systems , 58(2):109–130, 2001. Qiang Wu, Sayan Mukherjee, and Feng Liang. Localized sliced inverse regression. In Advances in Neural Information Processing Systems , 2008. Yingcun Xia, Howell Tong, W. K. Li, and Li-Xing Zhu. An adaptive estimation of dimension reduction space. Journal of the Royal Statistical Society Series B: Statistical Methodology , 64(3): 363–410, 2002. Shuntuo Xu, Zhou Yu, and Jian Huang. On conditional stochastic interpolation for generative non-linear sufficient dimension reduction. arXiv preprint arXiv:2512.18971 , 2025. Wenjing Yang and Yuhong Yang. Golden ratio-based sufficient dimension reduction. IEEE Trans-actions on Information Theory , 71(8), 2025. Yi-Ren Yeh, Su-Yun Huang, and Yuh-Jye Lee. Nonlinear dimension reduction with kernel sliced inverse regression. IEEE Transactions on Knowledge and Data Engineering , 21(11):1590–1603, 2008. Xiangrong Yin and R. Dennis Cook. Dimension reduction for the conditional k th moment in regression. Journal of the Royal Statistical Society Series B: Statistical Methodology , 64(2):159– 175, 2002. Xiangrong Yin, Bing Li, and R. Dennis Cook. Successive direction extraction for estimating the central subspace in a multiple-index regression. Journal of Multivariate Analysis , 99(8):1733– 1757, 2008. Guannan Zhang, Jiaxin Zhang, and Jacob Hinkle. Learning nonlinear level sets for dimensionality reduction in function approximation. In Advances in Neural Information Processing Systems ,2019. Xin Zhang, Qing Mai, and Hui Zou. The maximum separation subspace in sufficient dimension reduction with categorical response. Journal of Machine Learning Research , 21(29):1–36, 2020. 12 Appendix A Fisher consistency of the information index maximizer 
+
+First we formally define the central subspace of the response Y versus the predictor X. Recall from (1) that 
+
+Y ⊥⊥ X | B⊤X. 
+
+The conditional independence above holds when B is replaced with any matrix whose columns form a basis of span( B). We refer to span( B) as the dimension reduction subspace (DRS) for the regression of Y on X. Let SY |X denote the intersection of all DRS’s. Under the conditions of Proposition 5 in Yin et al. (2008), SY |X remains a DRS, which we refer to as the central subspace (CS). We assume that the CS exists throughout this Appendix. The dimension d of SY |X is called the structural dimension of the regression. The following Lemma is parallel to Proposition 1 of Yin et al. (2008). 
+
+Lemma A.1 (Ordering and characterization properties of the information index) . Let Aj be a p × qj
+
+matrix, j = 1 , 2, and let A be a p × q matrix. For the information index J (A) defined in (5): 
+
+J (A) = E log f (Y |A⊤X) ,
+
+the following properties hold: 1. If span( A) ⊆ span( A1), then J (A) ≤ J (A1). If span( A) = span( A1), then J (A) = 
+
+J (A1).2. J (A) = J (Ip) if and only if Y ⊥⊥ X | A⊤X.3. J (A) ≥ 0 for all A, and J (A) = 0 if and only if Y ⊥⊥ A⊤X.4. Let α be a basis matrix for the central subspace SY |X . Then 
+
+J (α) ≥ J (A),
+
+with equality if and only if span( A) = span( α).5. If q1 < q 2 < d , where d = dim( SY |X ), then 
+
+J (Ip) = J (α) > max J (Aq2 ) > max J (Aq1 ),
+
+where the maxima are taken over all p × qj matrices Aqj .
+
+Proof : Yin et al. (2008) defined information index 
+
+I(A) = E 
+
+
+
+log f (Y |A⊤X)
+
+f (Y )
+
+
+
+,
+
+which coincides with the mutual information between Y and A⊤X. It follows that 
+
+J (A) = I(A) + E {log f (Y )} .
+
+Since E{log f (Y )} does not depend on A, the ordering and maximization properties of J (A) follow directly from Proposition 1 of Yin et al. (2008), where the corresponding results are established for 
+
+I(A).Part 4 of Lemma A.1 implies that searching over p × d matrices yields a basis for the central sub-space (CS). Part 5 further suggests that the CS can be recovered at the population level via multi-dimensional optimization. In particular, by considering successively larger subspaces, a basis for the CS is obtained when the maximum is attained for the first time. Let Vp,d = {B ∈ Rp×d : BT B = Id} denote the Stiefel manifold. The Fisher consistency of the information index maximizer follows directly from Lemma A.1. Therefore we state the result without proof. 
+
+Theorem A.1 (Fisher consistency) . For B0 = arg max B∈V p,d J (B) defined in (6), we have 
+
+span( B0) = SY |X .
+
+13 B Consistency of the FlowSDR estimator 
+
+Throughout the main text, Θ denotes a generic conditional flow class. For asymptotic analysis, we consider a sequence of sieve spaces {Θn} that increases in richness with sample size n.
+
+Lemma B.1 (Uniform convergence over sieve class) . Let Θn denote the conditional flow class at sample size n. For each B ∈ V p,d , define 
+
+Mn(B) = sup 
+
+> θ∈Θn
+
+1
+
+n
+
+> n
+
+X
+
+> i=1
+
+log fθ (Yi|B⊤Xi), (11) 
+
+and its population counterpart 
+
+M pop  
+
+> n
+
+(B) = sup 
+
+> θ∈Θn
+
+Elog fθ (Y |B⊤X) . (12) 
+
+Assume that the class (x, y ) 7 → log fθ (y|B⊤x) : θ ∈ Θn, B ∈ V p,d 
+
+satisfies a uniform law of large numbers (ULLN). Then 
+
+sup 
+
+> B∈V p,d
+
+|Mn(B) − M pop  
+
+> n
+
+(B)| p
+
+−→ 0.
+
+Proof : Let Pn denote the empirical measure such that Png = 1
+
+> n
+
+Pni=1 g(Xi, Y i). Let Pg =E{g(X, Y )} denote the corresponding population expectation. Note that log fθ (Y |B⊤X) is a mea-surable function of (X, Y ), so the uniform law of large numbers applies directly to this function class despite the conditional form of the density. For any fixed B ∈ V p,d , let 
+
+an,θ (B) = Pn log fθ (Y |B⊤X) and aθ (B) = P log fθ (Y |B⊤X).
+
+Then 
+
+Mn(B) = sup 
+
+> θ∈Θn
+
+an,θ (B) and M pop  
+
+> n
+
+(B) = sup 
+
+> θ∈Θn
+
+aθ (B).
+
+Using the elementary inequality 
+
+sup 
+
+> θ∈Θn
+
+an,θ (B) − sup 
+
+> θ∈Θn
+
+aθ (B) ≤ sup 
+
+> θ∈Θn
+
+|an,θ (B) − aθ (B)| ,
+
+we obtain 
+
+sup 
+
+> B∈V p,d
+
+|Mn(B) − M pop  
+
+> n
+
+(B)| ≤ sup 
+
+> B∈V p,d
+> θ∈Θn
+
+Pn log fθ (Y |B⊤X) − P log fθ (Y |B⊤X) .
+
+The right-hand side converges to zero in probability by the assumed uniform law of large numbers. Hence we get the desired result sup B∈V p,d |Mn(B) − M pop  
+
+> n
+
+(B)| p
+
+−→ 0.We remark that the ULLN assumption in Lemma B.1 is satisfied by conditional rational-quadratic spline flow classes under standard sieve restrictions, including uniformly bounded network weights, spline derivatives, knot locations, and tail behavior, together with suitably controlled growth of model complexity with n. See, for example, Kobyzev et al. (2020) and Irons et al. (2022). We further note that Mn(B) in (11) coincides with Mn(B) in (3) of the main text, while M pop  
+
+> n
+
+(B) in (12) corresponds to the population profile criterion in (7). 
+
+Lemma B.2 (Uniform approximation of the population target) . For the information index J (B) = E log f (Y |B⊤X) defined in (5) and the population profile log-likelihood M pop  
+
+> n
+
+(B) in (12), as-sume that the sieve approximation error satisfies 
+
+sup 
+
+> B∈V p,d
+
+|M pop  
+
+> n
+
+(B) − J (B)| ≤ εn, for some εn → 0. (13) 
+
+In addition, assume the ULLN assumption in Lemma B.1 is satisfied. Then 
+
+sup 
+
+> B∈V p,d
+
+|Mn(B) − J (B)| p
+
+−→ 0.
+
+14 Proof : By the triangle inequality, 
+
+sup 
+
+> B∈V p,d
+
+|Mn(B) − J (B)| ≤ sup 
+
+> B∈V p,d
+
+|Mn(B) − M pop  
+
+> n
+
+(B)| + sup 
+
+> B∈V p,d
+
+|M pop  
+
+> n
+
+(B) − J (B)| .
+
+The first term converges to zero in probability by Lemma B.1, while the second term is bounded by 
+
+εn = o(1) . Therefore we get the desired result sup B∈V p,d |Mn(B) − J (B)| p
+
+−→ 0.We remark that the approximation in (9) of the main text is formally characterized by the uniform sieve approximation condition (13). This condition is plausible for conditional rational-quadratic spline flow classes, since monotone rational-quadratic splines provide flexible one-dimensional den-sity transforms, and neural networks can approximate the dependence of spline parameters on the conditioning variable B⊤X. However, this condition is not automatic. It requires standard regu-larity conditions on the true conditional density, as well as compactness or appropriate tail control, bounded spline parameters, and sufficiently rich yet controlled sieve growth. We therefore impose it as a sieve approximation assumption and leave its formal verification for future work. For A, B ∈ V p,d , define 
+
+∆( A, B ) = ∥AA ⊤ − BB ⊤∥F,
+
+where ∥ · ∥ F denotes the Frobenius norm. This metric depends only on the column spaces of A and 
+
+B, and therefore quantifies the distance between the subspaces span( A) and span( B).
+
+Theorem B.1 (Consistency of the estimated central subspace) . Suppose SY |X exists and has struc-tural dimension d. Assume that the uniform law of large numbers (ULLN) condition in Lemma B.1 and the uniform sieve approximation condition in Lemma B.2 hold. Then 
+
+∆( ˆB, B 0) p
+
+−→ 0,
+
+where ˆB = arg max B∈V p,d Mn(B) is defined in (4) and B0 = arg max B∈V p,d J (B) is defined in (6). 
+
+Proof : By Lemma B.2, 
+
+sup 
+
+> B∈V p,d
+
+|Mn(B) − J (B)| p
+
+−→ 0.
+
+Part 4 of Lemma A.1 suggests that J (B) has a unique maximizer among B ∈ V p,d , which is denoted as B0. For any ϵ > 0, define 
+
+Aϵ = {B ∈ V p,d : ∆( B, B 0) ≥ ϵ}.
+
+The set Aϵ is compact and does not contain B0. By the subspace-level uniqueness of the maximizer, 
+
+sup 
+
+> B∈A ϵ
+
+J (B) < J (B0).
+
+Let 
+
+ηϵ = J (B0) − sup 
+
+> B∈A ϵ
+
+J (B) > 0.
+
+On the event 
+
+sup 
+
+> B∈V p,d
+
+|Mn(B) − J (B)| < η ϵ/3,
+
+we have 
+
+Mn(B0) > J (B0) − ηϵ/3
+
+and, for every B ∈ A ϵ,
+
+Mn(B) < J (B) + ηϵ/3 ≤ J (B0) − ηϵ + ηϵ/3 = J (B0) − 2ηϵ/3.
+
+Therefore, 
+
+Mn(B0) > sup 
+
+> B∈A ϵ
+
+Mn(B).
+
+Thus any maximizer ˆB arg max B∈V p,d Mn(B) cannot belong to Aϵ. Hence, 
+
+Pr {∆( ˆB, B 0) ≥ ϵ} ≤ Pr 
+
+(
+
+sup 
+
+> B∈V p,d
+
+|Mn(B) − J (B)| ≥ ηϵ/3
+
+)
+
+−→ 0.
+
+Since this holds for every ϵ > 0, we conclude that ∆( ˆB, B 0) p
+
+−→ 0.15 C Population-level comparisons with the benchmark methods 
+
+BENN-SDR (Tang and Li, 2026) considers a parametric family of functions 
+
+G = {g(·, t ) : t ∈ C} ,
+
+where C is a subset of R. For example, Gm = {g(y, t ) = yt : t = 1 , 2, . . . , m } defines the first m
+
+moment functions. With the ensemble G, the population-level linear BENN-SDR solves 
+
+min 
+
+> B,h
+
+Z
+
+> C
+
+E g(Y, t ) − ht(B⊤X) 2 dμ (t),
+
+where ht(·) belongs to a sufficiently rich function class, and μ is a finite measure on C. At the sample level, BENN-SDR models ht(·) with a standard feedforward multilayer perceptron (MLP). In the special case where G = Gm with m = 1 , BENN-SDR reduces to NN-SDR of Kapla et al. (2022). When we choose Gm with m > 1, BENN employs a feedforward MLP with a low-dimensional bottleneck layer and an m-dimensional output layer corresponding to the ensemble functions, so that 
+
+{ht(·)}mt=1 can be learned simultaneously. In this case, BENN targets the moment-based dimension reduction problem 
+
+E{(Y, Y 2, . . . , Y m) | X} = E {(Y, Y 2, . . . , Y m) | B⊤X},
+
+which was first studied in Yin and Cook (2002). Although both linear BENN and FlowSDR target the same sufficient predictor B⊤X, they differ in the way the conditional distribution is learned. BENN recovers the central subspace through a least-squares regression of an ensemble of transformed responses on B⊤X, whereas FlowSDR directly maximizes a conditional likelihood induced by a flexible conditional normalizing flow family. The population-level MAVE (Xia et al., 2002) solves 
+
+min  
+
+> B
+
+E
+
+n Y − E(Y | B⊤X)2o
+
+,
+
+which is equivalent to 
+
+min  
+
+> B
+
+E Var( Y | B⊤X) .
+
+Under the neural Gaussian SDR working model (10), we assume 
+
+Y | B⊤X = w ∼ N  μ(w), σ 2(w).
+
+Ignoring the constant − log(2 π)/2, the corresponding population log-likelihood becomes 
+
+ℓG(B, μ, σ 2) = − 12 E
+
+
+
+log σ2(B⊤X) + (Y − μ(B⊤X)) 2
+
+σ2(B⊤X)
+
+
+
+.
+
+For a fixed B, the population profile log-likelihood is 
+
+M G(B) = sup 
+
+> μ,σ 2
+
+ℓG(B, μ, σ 2).
+
+The population-level neural Gaussian SDR estimand is then defined as 
+
+BG = arg max 
+
+> B∈V p,d
+
+M G(B). (14) The next proposition states that the population-level target of neural Gaussian SDR is closely related to MAVE. In fact, we can view it as a log conditional variance analogue of MAVE. 
+
+Proposition C.1 (Profile Gaussian likelihood) . Assume that Var( Y | B⊤X) > 0 almost surely for each B ∈ V p,d . The population-level neural Gaussian SDR estimand satisfies 
+
+BG = arg min 
+
+> B∈V p,d
+
+E log Var( Y | B⊤X) .
+
+16 Proof. From the law of iterated expectations, we have 
+
+ℓG(B, μ, σ 2) = − 12 E
+
+
+
+E
+
+
+
+log σ2(B⊤X) + (Y − μ(B⊤X)) 2
+
+σ2(B⊤X) B⊤X
+
+ 
+
+.
+
+Conditioning on B⊤X = w and for fixed σ2(w), the term involving μ(w) is 
+
+−E (Y − μ(w)) 2 | B⊤X = w /σ 2(w),
+
+which is maximized at 
+
+μB (w) = E( Y | B⊤X = w).
+
+Substituting this value gives the conditional contribution 
+
+− 12
+
+
+
+log σ2(w) + Var( Y | B⊤X = w)
+
+σ2(w)
+
+
+
+.
+
+For fixed w, differentiating with respect to σ2(w) yields 
+
+− 1
+
+σ2(w) + Var( Y | B⊤X = w)
+
+σ4(w) = 0 ,
+
+and the maximizer is 
+
+σ2 
+
+> B
+
+(w) = Var( Y | B⊤X = w).
+
+At this optimum, the ratio term equals one. Therefore 
+
+M G(B) = sup 
+
+> μ,σ 2
+
+ℓG(B, μ, σ 2) = − 12 E log Var( Y | B⊤X) + 1 .
+
+The result then follows directly from the definition of BG in (14). 
+
+## D Implementation details 
+
+All experiments are carried out on a single NVIDIA RTX 5090 GPU. MAVE and csMAVE are implemented via the R package “ MAVE ”. NN-SDR and BENN-SDR are implemented following Tang and Li (2026) and BENN-codes GitHub repository. The neural Gaussian SDR model uses a two-hidden-layer multilayer perceptron with architecture 
+
+d → 64 tanh 
+
+−−−→ 64 tanh 
+
+−−−→ 2.
+
+The network maps the reduced predictor B⊤X ∈ Rd to the conditional mean and log-standard-deviation of Y | B⊤X.For FlowSDR, the model have two parts: 1. 
+
+X → W with W = B⊤X. 
+
+2. 
+
+(W, Y ) MLP 
+
+−−−→ Z with Z ∼ N (0 , 1) .
+
+For the MLP in part 2, we use a two-hidden-layer multilayer perceptron with architecture 
+
+(d + 1) → 64 tanh 
+
+−−−→ 64 tanh 
+
+−−−→ spline parameters .
+
+For both neural Gaussian SDR and FlowSDR, gradient descent is carried out jointly over the neural network parameters and the SDR projection matrix B using the Adam optimizer. Separate learning rates are used for the two parameter groups: the flow network parameters use step size 10 −3, while the projection matrix B uses a larger step size 10 −2.17 After each Adam update, the projection matrix B is orthonormalized through QR decomposition to enforce the Stiefel manifold constraint B⊤B = Id. Specifically, if eB denotes the unconstrained gradient update, then its QR decomposition eB = QR is computed, and the orthonormal factor Q
+
+is taken as the updated value of B. This operation can be viewed as a retraction step that maps the unconstrained gradient iterate back onto the Stiefel manifold Vp,d .For the real data analysis, we summarize the protocol in Table 6. We use a single stratified split consisting of 70% training, 15% validation, and 15% test samples, where the stratification is based on age bins, and filenames are saved to ensure identical examples across all methods. The validation set is used for early stopping and model selection during neural network training, while the test set is reserved exclusively for final evaluation. Table 6: UTKFace data analysis protocol. Component Specification Dataset UTKFace face images with continuous age labels Response Age in years, parsed from filename Image preprocessing Aligned and cropped images resized to 64 × 64 
+
+Feature extractor HOG descriptors concatenated with RGB color histograms Feature dimension X ∈ R1812 
+
+SDR index W = B⊤X with B ∈ R1812 ×d
+
+Candidate dimensions d ∈ { 2, 4, 6, 8}
+
+Split 70% train, 15% validation, 15% test Split control Stratify by age bins Metrics MAE, RMSE, and NLL on the test data 
+
+## E Order determination 
+
+Estimating the structural dimension d is known as order determination in the SDR literature. Se-quential tests and BIC-type procedures are commonly used for order determination in classical SDR methods. However, order determination is substantially more challenging for neural-network-based SDR methods. To the best of our knowledge, there is currently no theoretically grounded procedure for estimating d other than the approach proposed in Yang and Yang (2025). Specifically, among 1 ≤ k ≤ p, the estimator of d is defined as the minimizer of the criterion 
+
+C(k) = MSE validation (k) + k × pen( nvalidation , n train ),
+
+where MSE validation (k) denotes the validation MSE obtained under working dimension k, and 
+
+pen( nvalidation , n train ) is a penalty term depending on both the validation sample size nvalidation 
+
+and the training sample size ntrain . Yang and Yang (2025) established the consistency of ˆd =arg min k C(k), by deriving precise convergence rates for the corresponding neural-network-based SDR estimator of the central subspace. In contrast, while we establish consistency of FlowSDR, we do not derive convergence rates for the estimated central subspace. Consequently, we do not yet have a fully developed penalized-MSE framework for provably consistent order determination. Instead, we evaluate unpenalized MAE and RMSE for order determination. In particular, we use ntrain = 2000 , nvalidation = 1000 ,and ntest = 2000 . The validation data are used for tuning and selecting the fitted neural-network model within each fixed working dimension k, while the final criterion (MAE or RMSE) for order determination is evaluated on the test data set. 18 Table 7: Results of estimating d = 2 in Model I with 100 replications                                                                           
+
+> pMethod Criterion ˆd= 1 ˆd= 2 ˆd= 3 ˆd≥2
+> 5neural Gaussian SDR MAE 064 36 100 neural Gaussian SDR RMSE 058 42 100 FlowSDR MAE 061 39 100 FlowSDR RMSE 056 44 100 10 neural Gaussian SDR MAE 070 30 100 neural Gaussian SDR RMSE 070 30 100 FlowSDR MAE 068 32 100 FlowSDR RMSE 063 37 100 20 neural Gaussian SDR MAE 060 40 100 neural Gaussian SDR RMSE 060 40 100 FlowSDR MAE 077 23 100 FlowSDR RMSE 075 25 100
+
+Table 8: Results of estimating d = 2 in Model II with 100 replications                                                                           
+
+> pMethod Criterion ˆd= 1 ˆd= 2 ˆd= 3 ˆd≥2
+> 5neural Gaussian SDR MAE 051 49 100 neural Gaussian SDR RMSE 048 52 100 FlowSDR MAE 072 28 100 FlowSDR RMSE 157 42 99 10 neural Gaussian SDR MAE 055 45 100 neural Gaussian SDR RMSE 051 49 100 FlowSDR MAE 075 25 100 FlowSDR RMSE 260 38 98 20 neural Gaussian SDR MAE 056 44 100 neural Gaussian SDR RMSE 050 50 100 FlowSDR MAE 067 33 100 FlowSDR RMSE 066 34 100
+
+From Tables 7 and 8, we see that unpenalized MAE and RMSE tend to overestimate d. This is consistent with the findings of Yang and Yang (2025), where a penalized MSE criterion was shown to yield consistent estimation of d. We argue that moderate overestimation of d is not a major concern. On one hand, part 5 of Lemma A.1 suggests that using ˆd > d does not lead to loss of information. On the other hand, neural-network-based methods empirically appear less sensitive to overfitting than many classical statistical methods. For Model II with heavy-tailed errors, we see from Table 8 that using RMSE may underestimate 
+
+d, whereas MAE does not appear to suffer from this issue. This is a more serious concern, since the conditional distribution f (Y | ˆB⊤X) can differ substantially from f (Y |X) when ˆB is estimated under ˆd < d . We expect that a penalized MSE criterion may encounter similar issues, as penalization tends to favor more parsimonious models. Developing a penalized MAE-type criterion that is robust to heavy-tailed distributions warrants further investigation. 
+
+## F Conformal prediction intervals 
+
+Conformal Neural Gaussian prediction intervals. Let {(Xi, Y i)}ncal  
+
+> i=1
+
+denote an independent cal-ibration set, and let ˆμ(·) and ˆσ(·) be the fitted mean and standard deviation functions from the neural Gaussian SDR model, together with the estimated central subspace basis ˆB. We define the heteroscedastic conformal scores as 
+
+Ri = Yi − ˆμ( ˆB⊤Xi)
+
+ˆσ( ˆB⊤Xi) , i = 1 , . . . , n cal .
+
+Let 
+
+ˆq1−α = the ⌈(ncal + 1)(1 − α)⌉ -th order statistic of {Ri}ncal  
+
+> i=1
+
+.
+
+Then, for a new input Xnew , the conformal neural Gaussian prediction interval at level 1−α is given by 
+
+C1−α(Xnew ) = 
+
+h
+
+ˆμ( ˆB⊤Xnew ) − ˆq1−α ˆσ( ˆB⊤Xnew ), ˆμ( ˆB⊤Xnew ) + ˆ q1−α ˆσ( ˆB⊤Xnew )
+
+i
+
+.
+
+19 Under the assumption of exchangeability, this interval satisfies the finite-sample coverage guarantee 
+
+Pr  Ynew ∈ C 1−α(Xnew ) ≥ 1 − α. 
+
+Compared with the Gaussian model-based interval 
+
+ˆμ( ˆB⊤Xnew ) ± z1−α/ 2 ˆσ( ˆB⊤Xnew ),
+
+the conformal interval replaces the normal critical value with a data-driven quantile ˆq1−α, thereby correcting for model misspecification and estimation error. 
+
+Conformal FlowSDR prediction intervals. Let {(Xi, Y i)}ncal  
+
+> i=1
+
+denote an independent calibration set, and let ˆF ( · | ˆB⊤x) denote the fitted conditional distribution function from the FlowSDR model, together with the estimated central subspace basis ˆB. Denote the corresponding conditional quantile function by 
+
+ˆQτ ( ˆB⊤x) = inf {y : ˆF (y | ˆB⊤x) ≥ τ }.
+
+For a target miscoverage level α ∈ (0 , 1) , define the model-based central interval as 
+
+h ˆQα/ 2( ˆB⊤x), ˆQ1−α/ 2( ˆB⊤x)
+
+i
+
+.
+
+To correct for model misspecification, we define conformal scores on the calibration set as 
+
+Ri = max 
+
+n ˆQα/ 2( ˆB⊤Xi) − Yi, Y i − ˆQ1−α/ 2( ˆB⊤Xi), 0
+
+o
+
+, i = 1 , . . . , n cal .
+
+Let 
+
+ˆq1−α = the ⌈(ncal + 1)(1 − α)⌉ -th order statistic of {Ri}ncal  
+
+> i=1
+
+.
+
+Then, for a new input Xnew , the conformal FlowSDR prediction interval is given by 
+
+C1−α(Xnew ) = 
+
+h ˆQα/ 2( ˆB⊤Xnew ) − ˆq1−α, ˆQ1−α/ 2( ˆB⊤Xnew ) + ˆ q1−α
+
+i
+
+.
+
+Under exchangeability, this interval satisfies the finite-sample coverage guarantee 
+
+Pr  Ynew ∈ C 1−α(Xnew ) ≥ 1 − α. 
+
+Compared with the neural Gaussian SDR interval, which assumes a parametric Gaussian form, FlowSDR directly models the full conditional distribution and captures non-Gaussian features such as skewness and multimodality. The conformal correction further ensures valid coverage under model misspecification and finite-sample effects. 20
