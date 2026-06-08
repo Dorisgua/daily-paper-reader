@@ -1,0 +1,54 @@
+{
+  "label": "2026-06-08",
+  "date": "2026-06-08",
+  "generated_at": "2026-06-08T21:51:43",
+  "count": 3,
+  "papers": [
+    {
+      "paper_id": "202606/08/2606.07351v1-sleepexplain-explainable-non-rapid-eye-movement-and-rapid-eye-movement-sleep-stage-classification-from-eeg-signal",
+      "section": "deep",
+      "title_en": "SleepExplain: Explainable Non-Rapid Eye Movement and Rapid Eye Movement Sleep Stage Classification from EEG Signal",
+      "authors": "Rafsan Jany, Md. Hamjajul Ashmafee, Iqram Hussain, Md Azam Hossain",
+      "date": "2026-06-05",
+      "pdf": "https://arxiv.org/pdf/2606.07351v1",
+      "score": "9.0",
+      "evidence": "SleepExplain基于EEG信号的可解释性NREM/REM睡眠阶段分类",
+      "tldr": "睡眠阶段分类是诊断睡眠障碍的关键，但现有黑箱模型缺乏可解释性。本文利用EEG信号，采用随机森林、XGBoost和梯度提升集成模型对NREM和REM睡眠阶段进行分类，最高准确率达94.30%。进一步引入SHAP可解释方法，提出SleepExplain模型，增强了预测的透明度和可信度。该研究为睡眠分析提供了高性能且可解释的解决方案。",
+      "tags": "query:eeg",
+      "abstract_en": "Classification of sleep stages is one of the most important diagnostic approaches for a variety of sleep-related disorders. Electroencephalography (EEG) is regarded as a powerful tool for examining the association between neurological effects and sleep phases since it correctly identifies sleep-related neurological alterations. During Non-Rapid Eye Movement (NREM) and Rapid Eye Movement (REM) sleep phases, a number of nerve and bodily functions are affected and therefore hold an important role both in their functionalities. This work aims to classify NREM and REM sleep stages from sleep EEG data and present a noble SleepExplain model, an explainable NREM and REM sleep stage classification to explain its predictions. In this work, sleep stages were classified using Random Forest, XGBoost, and Gradient Boosting ensemble classification models. Overall, we obtained an accuracy of 92.54% (Random Forest), 94.25% (Gradient Boosting), and 94.30% (XGBoost). For explainable classification model, we utilized a game theoretic approach, SHAP (SHapley Addictive exPlanations) to offer a convincing explanation for the prediction.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/08/2606.06647v1-the-identity-trap-in-eeg-foundation-models-a-diagnostic-audit",
+      "section": "deep",
+      "title_en": "The Identity Trap in EEG Foundation Models: A Diagnostic Audit",
+      "authors": "Jun-You Lin, Ying Choon Wu, Tzyy-Ping Jung",
+      "date": "2026-06-04",
+      "pdf": "https://arxiv.org/pdf/2606.06647v1",
+      "score": "8.0",
+      "evidence": "提出FMScope诊断EEG基础模型中的潜在表示",
+      "tldr": "EEG基础模型的高准确率可能源于受试者身份特征而非临床生物标志，称为身份陷阱。本文提出FMScope协议，通过方差分解、受试者轴擦除等五种诊断方法检测该陷阱。在三个预训练模型和四个数据集上发现，身份陷阱普遍存在且可擦除，去除后标签解码提升6-12个百分点，其中1/f成分是主要载体。FMScope能区分真实生物标记与身份特征，为评估基础模型提供诊断框架。",
+      "tags": "query:eeg-latent",
+      "abstract_en": "Objective. EEG foundation models (FMs) report strong accuracy on clinical resting-state EEG. However, high accuracy under subject-disjoint cross-validation remains ambiguous: it can reflect a genuine clinical biomarker, or subject-identity features that correlate with the label. We name this the Identity Trap and ask whether it can be diagnosed at the representation level before fine-tuning.   Approach. We propose FMScope, a frozen-representation protocol packaging five diagnostics: variance decomposition, subject-axis erasure, aperiodic 1/f ablation, layer-wise label probing, and within-subject direction consistency. We apply it to three pretrained FMs (LaBraM, CBraMod, REVE) across four datasets in a 2x2 layout: subject relation of label x presence of a consensus cross-subject EEG marker.   Main results. (i) The Identity Trap is universal: frozen subject-variance is 13-89x a random null in 12/12 pairs, rising in all 12 under fine-tuning (+10 to +63 pp). This dominance is a removable linear axis: erasing it improves label decoding where the label varies within subject (+6 to +12 pp in primary cells; +4 to +27 pp across external cohorts). (ii) Aperiodic 1/f is one subject carrier: removing it drops the subject probe by 9-19 pp on LaBraM and CBraMod. REVE saturates subject identity without measurable aperiodic dependence. (iii) Fine-tuning amplifies label-variance only in cells with a literature-established cross-subject marker.   Significance. The Identity Trap is a physically-grounded instance of shortcut learning: the preferred cue has a measurable physiological component, and subject-disjoint splitting alone cannot rule it out. FMScope separates gains reflecting a biological marker from those reflecting subject identity.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/08/2606.07066v1-modeling-semantic-association-in-self-paced-reading-with-language-model-embeddings",
+      "section": "quick",
+      "title_en": "Modeling semantic association in self-paced reading with language model embeddings",
+      "authors": "Sara Møller Østergaard, Kenneth Enevoldsen, Afra Alishahi, Bruno Nicenboim",
+      "date": "2026-06-05",
+      "pdf": "https://arxiv.org/pdf/2606.07066v1",
+      "score": "7.0",
+      "evidence": "利用EEG数据分析阅读中语义关联",
+      "tldr": "语义关联对阅读理解至关重要，但其量化方法多样。本研究利用语言模型嵌入，在十种不同实现（变化嵌入模型和上下文长度）下评估语义关联对N400和自定步速阅读时间的影响。贝叶斯分析表明，嵌入模型选择显著改变效应估计，且仅基于句子嵌入的实现能可靠捕获超越词可预测性的语义关联。结果强调了方法选择在量化语义关联中的关键作用。",
+      "tags": "query:eeg",
+      "abstract_en": "Semantic association between a word and its context has been identified as an important component of reading comprehension, even when word predictability is accounted for. Recent research has highlighted the potential of language model ( LM) embeddings to quantify semantic association. Yet, embedding-based semantic association have been operationalized in a myriad of ways. In this study, we use embeddings from LMs to estimate semantic association on a corpus of joint electroencephalography (EEG) and self-paced reading of natural, Dutch texts. Semantic association is calculated in ten different implementations that vary the embedding model and context lengths. The effects of semantic association across the different implementations on the N400 and self-paced reading times are examined using Bayesian hierarchical models and Bayes factor. The results show that the choice of embedding model can alter the estimated effect of semantic association on both the N400 and self-paced reading times. Furthermore, the results demonstrate a promising potential of sentence embeddings for capturing semantic association, as only implementations relying on sentence embeddings indicate reliable results of semantic association beyond word predictability on both neural and behavioral measures. Together, these findings highlight the importance of methodological choices in quantifying semantic association.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

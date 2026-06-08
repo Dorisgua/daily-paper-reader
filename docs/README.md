@@ -6,45 +6,31 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-07
-- 运行时间：2026-06-07 21:14:32 UTC
+- 最新运行日期：2026-06-08
+- 运行时间：2026-06-08 21:51:34 UTC
 - 运行状态：成功
-- 本次总论文数：8
-- 精读区：0
-- 速读区：8
+- 本次总论文数：3
+- 精读区：2
+- 速读区：1
 
 ### 今日简报（AI）
-今天速读8篇论文，聚焦神经网络可解释性、张量分解与脑机接口芯片三个方向。最值得关注的是《Normalized Relevance Measure》提出的解释框架和《A 32-Channel Brain-Machine Interface SoC》的低功耗设计。建议优先精读这三篇7.0分论文，把握各自领域的核心创新点。
-- 详情：[/202606/07/README](/202606/07/README)
+今日精选3篇论文，精读聚焦睡眠EEG分期可解释性与基础模型身份偏差问题。
+最值得关注的是《SleepExplain》以9.0高分提出可解释的NREM/REM分类方法，以及《Identity Trap》对EEG基础模型中身份泄露陷阱的诊断审计。
+建议普通读者优先了解睡眠分期可解释性如何提升临床可靠性，同时关注EEG模型公平性评估。
+- 详情：[/202606/08/README](/202606/08/README)
 
 ### 精读区论文标签
-- 本次无精读推荐。
+1. [SleepExplain: Explainable Non-Rapid Eye Movement and Rapid Eye Movement Sleep Stage Classification from EEG Signal](/202606/08/2606.07351v1-sleepexplain-explainable-non-rapid-eye-movement-and-rapid-eye-movement-sleep-stage-classification-from-eeg-signal)  
+   标签：评分：9.0/10、query:eeg
+   evidence：SleepExplain基于EEG信号的可解释性NREM/REM睡眠阶段分类
+2. [The Identity Trap in EEG Foundation Models: A Diagnostic Audit](/202606/08/2606.06647v1-the-identity-trap-in-eeg-foundation-models-a-diagnostic-audit)  
+   标签：评分：8.0/10、query:eeg-latent
+   evidence：提出FMScope诊断EEG基础模型中的潜在表示
 
 ### 速读区论文标签
-1. [Normalized Relevance Measure as a Unifying Framework to Explain Neural Network Latent Structures](/202606/07/2606.00557v1-normalized-relevance-measure-as-a-unifying-framework-to-explain-neural-network-latent-structures)  
-   标签：评分：7.0/10、query:eeg-latent
-   evidence：归一化相关度量框架用于解释神经网络潜在结构
-2. [Spectra-Guided Neural Tucker Factorization](/202606/07/2606.00584v1-spectra-guided-neural-tucker-factorization)  
-   标签：评分：7.0/10、query:eeg-latent
-   evidence：使用潜在光谱空间的高维不完整张量补全
-3. [A 32-Channel 3.53-μW Per Channel Brain-Machine Interface SoC Featuring Dual-Threshold Delta-modulation, In-Memory Spike Detection and Bi-SNN Based Motor Decoding](/202606/07/2606.01776v1-a-32-channel-353-w-per-channel-brain-machine-interface-soc-featuring-dual-threshold-delta-modulation-in-memory-spike-detection-and-bi-snn-based-motor-decoding)  
+1. [Modeling semantic association in self-paced reading with language model embeddings](/202606/08/2606.07066v1-modeling-semantic-association-in-self-paced-reading-with-language-model-embeddings)  
    标签：评分：7.0/10、query:eeg
-   evidence：低功耗BCI片上系统，32通道，尖峰检测和运动解码
-4. [TRACE: A Temporal Conditional Estimation for Multimodal Time Series Foundation Models](/202606/07/2606.06285v1-trace-a-temporal-conditional-estimation-for-multimodal-time-series-foundation-models)  
-   标签：评分：7.0/10、query:eeg-latent
-   evidence：时间序列中缺失模态的条件估计
-5. [Revisiting Neural Processes via Fourier Transform and Volterra Series](/202606/07/2606.01172v1-revisiting-neural-processes-via-fourier-transform-and-volterra-series)  
-   标签：评分：6.0/10、query:eeg-latent
-   evidence：通过傅里叶变换和Volterra级数对潜在函数建模
-6. [FlowSDR: Sufficient Dimension Reduction via Conditional Normalizing Flows](/202606/07/2606.01346v1-flowsdr-sufficient-dimension-reduction-via-conditional-normalizing-flows)  
-   标签：评分：6.0/10、query:eeg-latent
-   evidence：通过条件归一化流进行充分降维，学习潜在空间
-7. [Computation-Aware Kalman Filtering with Model Selection for Neural Dynamics](/202606/07/2606.01468v1-computation-aware-kalman-filtering-with-model-selection-for-neural-dynamics)  
-   标签：评分：6.0/10、query:eeg-latent
-   evidence：神经动力学的潜变量建模，可应用于EEG潜在空间
-8. [PAMF: Prior-Aware Multimodal Fusion for Incomplete Time Series Data](/202606/07/2606.06328v1-pamf-prior-aware-multimodal-fusion-for-incomplete-time-series-data)  
-   标签：评分：6.0/10、query:eeg-latent
-   evidence：用于不完整时间序列补全的生成模型，可应用于EEG通道缺失
+   evidence：利用EEG数据分析阅读中语义关联
 
 
 <div class="dpr-home-promo-card">
