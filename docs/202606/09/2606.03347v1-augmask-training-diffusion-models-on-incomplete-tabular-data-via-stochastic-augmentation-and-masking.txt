@@ -1,0 +1,3144 @@
+Title: AugMask: Training Diffusion Models on Incomplete Tabular Data via Stochastic Augmentation and Masking
+
+URL Source: https://arxiv.org/pdf/2606.03347v1
+
+Published Time: Wed, 03 Jun 2026 00:51:56 GMT
+
+Number of Pages: 33
+
+Markdown Content:
+# AugMask: Training Diffusion Models on Incomplete Tabular Data via Stochastic Augmentation and Masking 
+
+Jungkyu Kim 1 Taeyoung Park 1 * Kibok Lee 1 * 
+
+Abstract 
+
+Score-based diffusion models have emerged as prominent deep generative models; however, their application to tabular data remains challenging because their backbones assume fully specified inputs, whereas real-world tabular data often contain missing values. We propose AugMask ,a plug-and-play training framework that adapts missing-unaware backbones to incomplete data by separating conditioning from supervision. Aug-Mask 1) constructs numeric inputs via condi-tional stochastic augmentation using lightweight auxiliary models, and 2) applies denoising su-pervision only to observed coordinates. In ef-fect, augmented missing entries serve as uncer-tain conditioning context rather than training targets . We connect this training rule to a Rao– Blackwellized objective and show that marginal-izing missing entries yields a variance-weighted sensitivity penalty, discouraging over-reliance on uncertain completions. Across diverse datasets and missingness regimes, AugMask enables stan-dard diffusion-based tabular generators to outper-form specialized missing-aware baselines. 
+
+1. Introduction 
+
+Deep generative models have been successfully applied to synthesize tabular data, addressing challenges including data scarcity and privacy (Jordon et al., 2018). However, real-world tabular data often contain missing values, hin-dering the direct application of these models to practical settings (Cui et al., 2024). Standard generative architec-tures are typically designed under the assumption of fully observed inputs. This makes them missing-unaware , creat-
+
+> *
+
+Co-corresponding authors. 1Department of Statistics and Data Science, Yonsei University, South Korea. Correspon-dence to: Kibok Lee <kibok@yonsei.ac.kr >, Taeyoung Park 
+
+<tpark@yonsei.ac.kr >.
+
+Proceedings of the 43 rd International Conference on Machine Learning , Seoul, South Korea. PMLR 306, 2026. Copyright 2026 by the author(s). 
+
+ing a critical mismatch with the inherent incompleteness of real-world tabular data. Bridging this gap is non-trivial because standard neural-network-based generators cannot inherently handle unde-fined values (NaNs) and therefore require fully specified inputs. A common way is to make a model missing-aware 
+
+by first replacing missing entries with a constant placeholder, such as zeros, column means, or special tokens, and then modifying the objective or inputs to reduce the placeholder’s influence (Mattei & Frellsen, 2019; Nazabal et al., 2020; Ouyang et al., 2023). Depending on the method, this may involve weighting or masking the loss to observed coordi-nates, or providing the observation mask as the condition. However, zero-filling forces the model to treat missing en-tries identically to valid zeros (Collier et al., 2020) and can induce sparsity bias , making predictions depend on the miss-ingness level (Yi et al., 2019). In turn, constant placehold-ers induce an artificially consistent input pattern and can introduce imputation-induced distortions in the learned net-work (Ipsen et al., 2022). These modifications can change which coordinates contribute to the objective, but not what the model receives as input. Even when missing coordinates are excluded from the loss, the filled values remain in the input and can become deterministic missingness cues. On the other hand, instead of using a constant placeholder, missing entries can be iteratively updated during train-ing via self-imputation , as in diffusion-based Expectation-Maximization (EM) approaches such as DiffPuter (Zhang et al., 2025). While this can mitigate imputation-induced distortions from constant placeholders, it introduces a fun-damental optimization challenge, where the model is trained on its own evolving predictions. Because diffusion objec-tives seek diversity rather than accuracy (Chen et al., 2024), such a strategy can yield overly dispersed completions in practice. Feeding these shifting completions back into train-ing creates a moving target , resulting in noisy gradients and non-stationary dynamics that complicate convergence. These issues suggest that training from incomplete data should provide stable numeric inputs without treating filled-in missing values as ground-truth targets. We propose Aug-Mask , a training strategy that separates these roles. It uses stochastic augmentation to construct plausible context-1
+
+> arXiv:2606.03347v1 [cs.LG] 2 Jun 2026 AugMask: Stochastic Augmentation and Masking
+
+dependent inputs and masks the loss so that only originally observed coordinates contribute to training. The stochastic-ity of the augmentation is crucial as it encodes uncertainty inherent in missingness. High conditional variance discour-ages reliance on uncertain fills, while low variance permits stronger use as context. A local analysis of the objective for-malizes this by showing that marginalizing missing coordi-nates over plausible completions yields a variance-weighted sensitivity penalty . Our contributions are as follows: • A training principle for incomplete tabular diffu-sion. We introduce AugMask 1, which separates condi-tioning from supervision: stochastic completions pro-vide numeric, uncertainty-aware context, while the denoising loss is applied only to observed coordinates. • A marginalization view of stochastic augmentation. 
+
+We analyze AugMask through a Rao–Blackwellized objective and show that marginalizing uncertain miss-ing entries yields a variance-weighted sensitivity penalty, explaining why stochastic completions are useful beyond point-wise imputation accuracy. • A plug-and-play recipe for missing-unaware back-bones. We provide a lightweight framework that adapts standard score-based diffusion models for incomplete tabular data without architectural changes, and validate it across datasets, missingness regimes, and missing-aware baselines. 
+
+2. Preliminaries 
+
+We observe partially observed samples (xobs , m) and train a denoiser Dθ by applying the loss only to truly observed coordinates. Restricting the denoising loss to observed coor-dinates is a standard choice under missingness, but it does 
+
+not solve by itself the practical issue that standard neural networks cannot process inputs containing NaN . Missing parts must therefore be replaced with numeric values, which then become part of the denoiser’s conditioning signal. 
+
+Score-based diffusion models. Let X0 ∼ p0 denote a clean sample at diffusion time t = 0 from the data, and sample t ∼ π(t), where π is a distribution over noise levels with the corresponding noise scale σ(t). The for-ward process that corrupts the clean sample is defined as 
+
+q(Xt | X0, t ) = N (X0, σ (t)2I). Under Gaussian corrup-tion, the denoising score matching is equivalent (up to a 
+
+t-dependent scaling) to the denoising autoencoder (DAE) objective (Vincent, 2011). We use the DAE form for clarity: 
+
+LDAE  
+
+> θ
+
+= Et∼π, X0, Xt∼q(·| X0,t )
+
+h
+
+Dθ (Xt, t ) − X0 22
+
+i
+
+.
+
+(1)     
+
+> 1Code is available at: https://github.com/ normal-kim/AugMask
+
+Incomplete data. Let X = ( X1, . . . , X d)⊤ denote a ran-dom tabular sample, and let M ∈ { 0, 1}d be an observation mask with Mj = 1 if Xj is observed. Let Xobs denote the observed parts of X induced by M; accordingly, we observe a realization of (Xobs , M) rather than that of the complete 
+
+X, which we write as (xobs , m). In our implementation, we write missing entries as: 
+
+˜xj =
+
+(
+
+xobs  
+
+> j
+
+, mj = 1 ,
+
+NaN , mj = 0 . (2) Our main method focuses on ignorable missingness, namely Missing Completely At Random (MCAR) and Missing At Random (MAR). Details are provided in Appendix C.3. 
+
+Masked denoising objective and the completion problem. 
+
+Following the likelihood-bound perspective for diffusion models (Song et al., 2021), prior work shows that restricting the denoising loss to observed coordinates gives a principled objective under incomplete data (Ouyang et al., 2023). In practice, this objective is evaluated as an empirical average over partially observed samples (xobs , m) from the training set, with randomness from t ∼ π and the forward noising process. However, since Dθ cannot take NaN as input, missing entries must be replaced with numeric completions .A common choice is a constant placeholder cpl (e.g., zero-filling) that forms 
+
+¯x0 
+
+> j
+
+:= mj xobs  
+
+> j
+
++ (1 − mj ) cpl  
+
+> j
+
+. (3) With ¯x0 as input to the forward process, the denoising ob-jective over the observed coordinates becomes 
+
+LMissDiff  
+
+> θ
+
+:= Et∼π, ¯xt∼q(·| ¯x0,t )
+
+h
+
+m⊙ Dθ (¯ xt,t )−¯x0 22
+
+i
+
+.
+
+(4) Notably, masking removes supervision on missing coordi-nates, but it does not remove conditioning . The denoiser still receives the completion values cpl as part of its input, so the model may learn to depend on a deterministic signal correlated with missingness. 
+
+3. Method 
+
+3.1. Augmented Data 
+
+To provide a fully numeric input without forcing the de-noiser to condition on a deterministic placeholder, we replace missing entries with samples from a context-dependent augmentation rule. For each feature j, let 
+
+T (· | xobs , m) denote the distribution used to fill Xj when 
+
+mj = 0 . We draw Zj ∼ T (· | xobs , m) and define the augmented clean input 
+
+xA, 0 
+
+> j
+
+:= mj xobs  
+
+> j
+
++ (1 − mj ) Zj . (5) 2AugMask: Stochastic Augmentation and Masking Noise level Miss ing                                  
+
+> 𝐈𝐧𝐜𝐨𝐦𝐩𝐥𝐞𝐭𝐞 𝐃𝐚𝐭𝐚 (෤𝐱 )
+> Training
+> Input
+> Noisy
+> Training
+> Input
+> 𝐀𝐮𝐠𝐅𝐮𝐥𝐥 𝐀𝐮𝐠𝐌𝐚𝐬𝐤
+> Denoised
+> Output
+> ?Augment ation Observed
+> 𝐃𝐞𝐧𝐨𝐢𝐬𝐞𝐫 𝐃 𝜽 (⋅)𝐃𝐞𝐧𝐨𝐢𝐬𝐞𝐫 𝐃 𝜽 (⋅)
+> 𝐀𝐮𝐠𝐦𝐞𝐧𝐭𝐞𝐝 𝐃𝐚𝐭𝐚 (𝐱 𝑨 )
+> ?
+> 𝑻 (⋅|𝐱 𝐨𝐛𝐬 ,𝐦 )
+> Augmentation
+> 𝐃𝐞𝐧𝐨𝐢𝐬𝐞𝐫 𝐃 𝜽 (⋅)
+> 𝐍𝐨𝐀𝐮𝐠 +𝐅𝐮𝐥𝐥 𝐋𝐨𝐬𝐬 + Augmentation + Masking Baseline
+> Masked
+> (no loss )
+> Step 1 :Input Construction (Stochastic Augmentation )
+> Step 2 :Objective (Full vs .Observed Only )
+> Placeholder (𝐟𝐢𝐱𝐞𝐝 )Augmented (𝐬𝐭𝐨𝐜𝐡𝐚𝐬𝐭𝐢𝐜 )Augmented (𝐬𝐭𝐨𝐜𝐡𝐚𝐬𝐭𝐢𝐜 )
+> Loss
+> 𝑐 pl
+
+Figure 1. AugMask: Two-step training strategy. Stochastic conditional augmentation for inputs and loss masking for targets. 
+
+The constant-placeholder in Eq. (3) is recovered as the de-generate case T = δcpl 
+
+> j
+
+, for which Var T (Zj | xobs , m) = 0 .The choice of T determines the information that enters the denoiser through the completed input. We distinguish three families. A constant placeholder is context-free and de-terministic. A deterministic conditional augmentation 
+
+is context-dependent but still uses a point estimate, e.g., 
+
+T = δˆμj (xobs ,m). A stochastic conditional augmentation 
+
+is both context-dependent and non-degenerate, sampling completions with nonzero conditional variance. We use the term augmentation deliberately. Sampled completions provide possible conditioning contexts for the denoiser, not ground-truth targets to reconstruct. 
+
+3.2. AugMask: Augmented Conditioning with Observed-Only Supervision 
+
+AugMask trains a feature-space denoiser on incomplete tabular data through two steps, illustrated in Fig. 1. First, 
+
+augmentation constructs a fully numeric input xA, 0 by sampling missing entries from T (· | xobs , m). Second, 
+
+observed-only supervision applies the denoising loss only to the coordinates that were originally observed. Thus, aug-mented missing entries enter the model through noisy input 
+
+xA,t , but are not treated as supervised targets. Given xA, 0 and its noised version xA,t ∼ q(· | xA, 0, t ),AugMask optimizes 
+
+LAugMask  
+
+> θ
+
+:= EZ, t, xA,t 
+
+h
+
+m ⊙  Dθ (xA,t , t ) − xA, 0 22
+
+i
+
+.
+
+(6) The expectation includes incomplete training sample, aug-mentation draw, diffusion time, and forward noise. The mask removes supervision on the augmented values, while the augmented values provide the conditioning context. For comparison, AugFull uses the same augmented inputs but applies the denoising loss to all coordinates: 
+
+LAugFull  
+
+> θ
+
+:= E
+
+h
+
+Dθ (xA,t , t ) − xA, 0 22
+
+i
+
+= LAugMask  
+
+> θ
+
++E
+
+h
+
+(1 − m) ⊙  Dθ (xA,t , t ) − xA, 0 22
+
+i
+
+.
+
+(7) Thus, AugFull treats completed missing entries as targets, whereas AugMask uses them only as context. This com-parison isolates whether the model should fit the completed values or only use them as context. 
+
+Remark 3.1 (AugMask vs. AugFull) . AugFull can reduce estimation variance when the augmentation rule T is ac-curate and informative, but it can introduce bias when T
+
+is misspecified because the model is supervised on inaccu-rately completed values. AugMask avoids this pseudo-target bias by not supervising originally missing coordinates. Ap-pendix B gives a Gaussian toy example in which the addi-tional AugFull term transitions from variance reduction to bias domination as augmentation mismatch increases. 
+
+Remark 3.2 (Scope of applicability) . AugFull is broadly applicable to missing-unaware generative models because it only requires complete numeric inputs. AugMask, in contrast, relies on an observed-coordinate reconstruction objective and is therefore most natural for denoising or score-based models operating directly in feature space. Ex-tending observed-only supervision to latent diffusion, VAEs, or adversarial objectives is nontrivial because missing coor-dinates interact with inference, decoding, or discrimination; we leave these extensions to future work. 
+
+3.3. Theoretical Analysis: Conditional Variance as Sensitivity Regularization 
+
+We next explain why stochasticity in T is useful beyond point-wise imputation accuracy. The analysis studies how the denoiser’s reconstruction of observed coordinates changes as an augmented missing coordinate varies. 
+
+One-missing-coordinate setup. To build intuition, sup-pose only coordinate j may be missing and the remaining block −j is observed. Fix a clean observed block x0 
+
+> −j
+
+.For a completion value z, define xA, 0(z) := ( x0 
+
+> −j
+
+, z ) and 
+
+xA,t (z) = xA, 0(z) + σ(t)ε with ε ∼ N (0, I ). Let 
+
+gθ (z) := Et, ε
+
+h
+
+Dθ (xA,t (z), t )−j − x0
+
+> −j
+> 22
+
+i
+
+(8) be the observed-coordinate reconstruction loss induced by completion z. Any augmentation rule T induces the marginalized per-sample objective 
+
+lT (θ; x0 
+
+> −j
+
+) := EZj ∼T (·| x0 
+
+> −j)
+
+gθ (Zj ). (9) As an oracle benchmark within this family, define the Rao– Blackwellized (RB) ideal by using the true conditional 3AugMask: Stochastic Augmentation and Masking 
+
+distribution: 
+
+lRB (θ; x0 
+
+> −j
+
+) := EZj ∼pdata (·| x0 
+
+> −j)
+
+gθ (Zj ). (10) 
+
+Proposition 3.3 (Local RB approximation) . Let μj := 
+
+E[Zj | x0 
+
+> −j
+
+] and σ2 
+
+> j
+
+:= Var( Zj | x0 
+
+> −j
+
+) under the ora-cle conditional distribution. Under the local smoothness and moment conditions in Appendix A, 
+
+lRB (θ; x0 
+
+> −j
+
+) = gθ (μj ) + 12 σ2 
+
+> j
+
+g′′  
+
+> θ
+
+(μj ) + Rj , (11) 
+
+where Rj is a higher-order local remainder. Moreover, writing the mean reconstruction function as ¯ϕθ (z) := 
+
+Et, ε
+
+Dθ (xA,t (z), t )−j
+
+, and the error as eθ (z) := ¯ϕθ (z)−
+
+x0 
+
+> −j
+
+, Eq. (10) admits the approximation: 
+
+lRB (θ; x0 
+
+> −j
+
+) ≈ ∥ eθ (μj )∥22 + σ2 
+
+> j
+
+∥ ¯ϕ′ 
+
+> θ
+
+(μj )∥22, (12) 
+
+where derivatives are with respect to the scalar value z.
+
+Interpretation. The second term in Eq. (12) is the lead-ing nonnegative component of the local RB correction. It measures how strongly the denoiser’s mean reconstruction of the observed block changes as the completed value z
+
+varies. When the conditional variance σ2 
+
+> j
+
+is large, the ob-jective penalizes sensitivity to that uncertain completion, discouraging the denoiser from relying too strongly on it. When σ2 
+
+> j
+
+is small, the completion is more reliable and can be used more directly as context. This view clarifies the role of different completion rules. A constant placeholder has zero augmentation variance and may also have mismatched mean. It is therefore both biased and unregularized. A deterministic conditional mean can reduce mean mismatch, but it remains degenerate and there-fore omits the variance-weighted sensitivity term. Stochas-tic conditional augmentation activates this term, so the de-noiser’s reliance on completed context adapts to conditional uncertainty. Thus, AugMask does not require the augmen-tation rule to be a perfect point imputer; its role is to pro-vide plausible context together with uncertainty. The ap-proximation is local: higher-order terms may matter for heavily skewed or heavy-tailed conditionals, as detailed in Appendix A. 
+
+Extension to multiple missing coordinates. Let S = {j :
+
+mj = 0 } and O = {j : mj = 1 } denote the missing and observed coordinate blocks for a sample. For a missing block S, define the observed-coordinate reconstruction loss induced by a block completion zS as 
+
+gθ (zS ) := Et, ε
+
+h
+
+Dθ (xA,t (zS ), t )O − x0
+
+> O
+> 22
+
+i
+
+, (13) where xA, 0(zS )O = x0 
+
+> O
+
+and xA, 0(zS )S = zS . A general augmentation rule induces 
+
+lT (θ; x0 
+
+> O
+
+, m) = EZS ∼T (·| x0  
+
+> O,m)
+
+[gθ (ZS )] . (14) The joint RB ideal corresponds to T ⋆(· | x0 
+
+> O
+
+, m) =
+
+pdata (· | x0 
+
+> O
+
+, m). A local multivariate Taylor expansion around the conditional mean μ = E[ZS | x0 
+
+> O
+
+, m] with covariance Σ = Cov( ZS | x0 
+
+> O
+
+, m) gives 
+
+lRB (θ; x0 
+
+> O
+
+, m) ≈ gθ (μ) + 12 tr ( Hg (μ)Σ) . (15) Under a Gauss–Newton sensitivity approximation, 
+
+Hg (μ) ≈ 2Γ with Γ = J ¯ϕ(μ)⊤J ¯ϕ(μ), where J ¯ϕ is the Jacobian of the mean reconstruction function with respect to the missing block. Then the leading term becomes 
+
+tr(ΓΣ) = X
+
+> j∈S
+
+Γjj Σjj 
+
+| {z }
+
+> Pdiag
+
++ 2 X
+
+> j<k j,k ∈S
+
+Γjk Σjk 
+
+| {z }
+
+> ∆
+
+. (16) The diagonal term Pdiag is the additive variance-weighted sensitivity penalty captured by coordinate-wise stochastic augmentation, while ∆ is the cross-coordinate interaction correction involving both conditional covariance and de-noiser coupling. An augmenter can model the full covariance Σ and capture both Pdiag and ∆. Our practical augmenter uses the per-coordinate sampler in Eq. (17) , which cap-tures the diagonal uncertainty terms but ignores cross-coordinate interactions. A useful diagnostic for this gap is |∆| 
+
+> Pdiag
+
+≤ max j∈S
+
+P  
+
+> k̸=j
+
+IkAjk |ρjk |O |, where Ik := 
+
+1{k ∈ S} is the indicator for the missing parts, Ajk := 
+
+|Γjk |/pΓjj Γkk measures denoiser coupling, and ρjk |O := Σjk /pΣjj Σkk is the conditional correlation. Averaging 
+
+Ik introduces the co-missingness rate qjk := Pr( Ik =1|Ij = 1 , x O ), yielding a co-missingness-weighted quan-tity, P  
+
+> k̸=j
+
+qjk Ajk |ρjk |O |, that bounds |∆| 
+
+> Pdiag
+
+on average. Thus, the factorized approximation is most accurate when co-missing features are weakly correlated or coupled by the denoiser, and may be less accurate under block missingness, strong redundancy, or MNAR mechanisms. 
+
+3.4. Practical Implementation: Factorized Conditional Stochastic Augmentation 
+
+AugMask is defined for any missing-block augmentation rule T (· | xobs , m). While T may, in principle, be a joint conditional sampler, we use a lightweight factorized variant as default: 
+
+TF(zS | xobs , m) = Y
+
+> j∈S
+
+Tj (zj | ˜x−j , m−j ) . (17) Each factor conditions on all available covariates and their missingness pattern, but samples missing coordinates inde-pendently given this context. Thus, the factorization is a practical implementation choice of the AugMask objective. 4AugMask: Stochastic Augmentation and Masking 
+
+Algorithm 1 Factorized Conditional Stochastic Augmenta-tion via Per-Feature Models 
+
+1: Input: Incomplete dataset D = {(˜ xi, mi)}Ni=1 ;smoothing α; stability ϵ; category cardinalities {Kj }.
+
+2: Output: Augmented dataset DA (constructed once and kept fixed during training). 
+
+3: Models: ˆf NUM( μ) 
+
+> j
+
+is a conditional mean regressor for 
+
+Xj , ˆf NUM( σ) 
+
+> j
+
+is a log-variance regressor, and ˆf CAT  
+
+> j
+
+is a conditional classifier (probability predictor). 
+
+4: Initialize xAi ← ˜xi for all i.
+
+5: for j = 1 to d do 
+
+6: Ωobs ← { i | mij = 1 }.
+
+7: Let ui = (˜ xi, −j , mi, −j ).
+
+8: Xtrain ← { ui | i ∈ Ωobs }.
+
+9: if feature j is continuous then 
+
+10: Fit ˆf NUM( μ) 
+
+> j
+
+using Xtrain and targets {˜xij }i∈Ωobs .
+
+11: ri ← ˜xij − ˆf NUM( μ) 
+
+> j
+
+(ui) for i ∈ Ωobs .
+
+12: vi ← log( r2 
+
+> i
+
++ ϵ) for i ∈ Ωobs .
+
+13: Fit ˆf NUM( σ) 
+
+> j
+
+using Xtrain and targets {vi}i∈Ωobs .
+
+14: for i = 1 to N do 
+
+15: if mij = 0 then 
+
+16: ˆμij ← ˆf NUM( μ) 
+
+> j
+
+(ui).
+
+17: ˆσij ← exp   12 ˆf NUM( σ) 
+
+> j
+
+(ui).
+
+18: xAij ∼ N (ˆ μij , ˆσ2 
+
+> ij
+
+).
+
+19: end if 
+
+20: end for 
+
+21: else if feature j is categorical then 
+
+22: Fit ˆf CAT  
+
+> j
+
+using Xtrain and labels {˜xij }i∈Ωobs .
+
+23: for i = 1 to N do 
+
+24: if mij = 0 then 
+
+25: ˆpij ← ˆf CAT  
+
+> j
+
+(ui).
+
+26: ˆpij ← (1 − α)ˆ pij + α · 1 
+
+> Kj
+
+1.
+
+27: xAij ∼ Categorical(ˆ pij ).
+
+28: end if 
+
+29: end for 
+
+30: end if 
+
+31: end for 
+
+32: DA ← { (xAi , mi)}Ni=1 .
+
+33: return DA.Motivated by Proposition 3.3, the practical goal is to esti-mate both conditional location and uncertainty rather than to optimize a standalone imputer. Algorithm 1 constructs a single augmented dataset by fitting per-feature models on observed cells without any hyperparameter tuning and sampling missing cells from the corresponding factors. 
+
+Feature-wise factors. For continuous features, Tj is mod-eled as a heteroskedastic Gaussian: we fit a conditional mean regressor ˆμij ≈ E[Xij | ˜xi, −j , mi, −j ] and a sec-ond regressor on log-squared residuals to estimate ˆσ2 
+
+> ij
+
+(Har-
+
+Table 1. Augmentation rules and computational cost. The high-lighted column is our default factorized stochastic implementation of T . The bottom row reports the mean wall-clock time for con-structing the augmented dataset on Adult.                                                                     
+
+> Univariate Baselines Multivariate Baselines Property Zero Mean Noise E-CDF MICE Hyper. LGBM-D LGBM-S
+> Stochastic? ✗✗✓✓✗✗✗✓
+> Multivariate? ✗✗✗✗✓✓✓✓
+> Model-based? ✗✗✗✗✓✓✓✓
+> Efficiency ••••◦◦••Time (s) 0.041 0.084 0.107 0.176 26.22 109.4 6.04 9.87
+> • High efficiency ◦Iterative/Lower efficiency Zero Mean Noise E-CDF Mice Hyper. LGBM-D LGBM-S(Ours)
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0
+> Quality
+> +117.9%
+> +31.4% +93.0% +7.4%
+> +3.5% +61.4% +11.8%
+> +7.6%
+> Univariate Multivariate
+> AugFull AugMask Deterministic Stochastic Quality (Bars) ML Task (Lines)
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0
+> ML Task
+
+Figure 2. Comparison of augmentation rules and masking. 
+
+Sample Quality (bars) and ML Task (lines) metrics across univari-ate and multivariate methods. AugMask (green) shows consistent gains over AugFull (blue). Deterministic modules are shown as solid; stochastic modules are shown with hatched patterns. 
+
+vey, 1976), then sample Zij ∼ N (ˆ μij , ˆσ2 
+
+> ij
+
+). For categor-ical features, Tj is a conditional classifier estimating ˆpij ,from which we sample Zij ∼ Categorical(ˆ pij ) after label smoothing ˆpij ← (1 − α)ˆ pij + αK −1 
+
+> j
+
+1 with α = 0 .05 .
+
+Augmentation rule selection and scope. We instantiate Eq. (17) with LightGBM (Ke et al., 2017) using default hyperparameters for all datasets and features. Gradient-boosted trees are efficient for mixed-type tabular data and can directly incorporate the mask mi, −j as context (Grinsz-tajn et al., 2022). Unless stated otherwise, we use LGBM-S ;
+
+LGBM-D denotes the deterministic variant that uses Light-GBM point predictions without sampling. Table 1 summa-rizes alternatives. See Appendix C.5 for more details. Figure 2 supports two design choices. First, AugMask im-proves over AugFull when both use the same augmented inputs, suggesting that completions should serve as context rather than targets. Second, stochastic conditional augmen-tation provides better context than its deterministic variant. The factorized LightGBM stage is run once offline and can be parallelized across features, making it practical for the moderate-dimensional benchmarks studied here. For ultra-high-dimensional data, strong block missingness, or depen-dence among co-missing features, AugMask can instead be paired with a joint conditional sampler for T .5AugMask: Stochastic Augmentation and Masking Real  Data                             
+
+> Classifier/Regressor
+> 𝑓 (𝑫 𝐫𝐞𝐚𝐥 )
+> Real Data
+> 𝑓
+> ො𝑦 test 𝑦 test 𝑋 test 𝑋 train 𝑦 train
+> Train
+> Downstream Task
+> Model
+> (1) T RTR(Train on Real, Test on Real)
+> (2) T STR(Train on Synthetic, Test on Real)
+> (3) TMTC(Train on Missing, Test on Complete)
+> Evaluate
+> Synthetic Data
+> Classifier/Regressor
+> 𝑓 (𝑫 𝐬𝐲𝐧 )
+> Real Data
+> 𝑓
+> ො𝑦 test 𝑦 test 𝑋 test 𝑋 train 𝑦 train
+> Train
+> Downstream Task
+> Model
+> Evaluate
+> ?
+> ?
+> ?
+> Missing Data
+> Tabular Generator
+> 𝐺 (𝑫 𝐦𝐢𝐬𝐬𝐢𝐧𝐠 )
+> Complete
+> Synthetic Data
+> ?
+> ?
+> 𝑋 train 𝑦 train
+> Train Generator
+> Under Missingness Complete
+> Real Data
+> Evaluate
+
+Figure 3. Evaluation protocols for missing-aware generators .(1) TRTR (Train on Real, Test on Real) trains and evaluates downstream models on complete real data, providing an upper bound. (2) TSTR (Train on Synthetic, Test on Real) trains down-stream task models on synthetic data and evaluates on real test data (Esteban et al., 2017). (3) TMTC (Train on Missing, Test on 
+
+Complete) trains generator on incomplete data and its synthetic samples are evaluated against the complete real data. 
+
+Table 2. Baseline models categorized by their missing-awareness.             
+
+> Category Model Reference
+> Missing-aware
+> MIWAE (Mattei & Frellsen, 2019) MissDiff (Ouyang et al., 2023) ForestDiff (Jolicoeur-Martineau et al., 2024) DiffPuter (Zhang et al., 2025)
+> Missing-unaware
+> TVAE / CTGAN (Xu et al., 2019) ARF (Watson et al., 2023) TabSyn (Zhang et al., 2023) TabDDPM (Kotelnikov et al., 2023) TabDiff (Shi et al., 2025) CDTD (Mueller et al., 2025)
+
+Constructing the augmented dataset. For each training sample, we draw the missing block once, Zi,S i ∼ T (· | 
+
+xobs  
+
+> i
+
+, mi), construct xAi , and keep DA = {(xAi , mi)}Ni=1 
+
+fixed during diffusion training. This gives stochastic but sta-tionary conditioning: uncertainty enters through the initial draw, while inputs do not drift across epochs. Appendix C.5 discusses cycling cached augmentations. 
+
+4. Experiments 
+
+We assess whether our training strategy enables missing-unaware models to generate faithful complete synthetic tabular data when they are trained from incomplete data. 
+
+4.1. Experimental Setup Baselines. We assess our training strategy on missing-unaware models against missing-aware baselines (Table 2). 
+
+Training strategies. We consider three strategies (Fig. 1): (1) Baseline ( NoAug ) uses feature-wise mean/mode filling with no loss masking, serving as control. (2) AugFull ap-plies stochastic augmentation (Alg. 1) without loss-masking (applied to all missing-unaware baselines), measuring the gain from augmentation. (3) AugMask further applies loss-masking to observed parts (applied to diffusion baselines only), measuring the gain from loss-masking. 
+
+Datasets and Missingness. We follow the prior dataset curation of Zhang et al. (2023); see Ap-pendix C.1. We simulate MCAR/MAR missingness at ra-tios {0.1, 0.3, 0.5, 0.7, 0.9} (C.3). For preprocessing, we fit the transformer/scaler on observed entries (C.2) before constructing the augmented dataset (sampled once for sta-bility; C.5). We split train/val/test as 60/20/20. 
+
+Implementation details. We provide details in the Ap-pendix: baseline implementations (C.6), loss masking for diffusion models (C.7), and hardware specifications (C.8). 
+
+4.2. Evaluation Protocols Under Missingness 
+
+We evaluate generative quality , which measures how faith-ful the synthetic data are, and machine learning utility ,which measures how useful they are for downstream tasks. 
+
+Evaluation metrics. We evaluate using the protocols de-scribed in Figure 3, focusing on two main measures. 1. Generative Quality: It measures how accurately the generator recovers the data distribution from incom-plete observations. Following Zhang et al. (2023), we report sample-level fidelity criterion with (i) α-Precision and (ii) β-Recall (Alaa et al., 2022), and (iii) feature-level pairwise correlations metric ( Trend )and (iv) column-level density proximity ( Shape ). 2. Machine Learning Utility: We evaluate downstream task performance using AUROC (classification) or RMSE (regression) under TSTR protocol and normal-ize the values using the TRTR performance. 
+
+5. Analysis 
+
+5.1. Quantitative Comparison to State of the Art 
+
+Table 3 shows two effects of AugMask. First, condi-tional stochastic augmentation alone already provides use-ful missing-aware context: +AugFull improves missing-unaware baselines across architectures, including latent dif-fusion (TabSyn: Trend ∗∗ +8.0; Shape ∗ +9.8). Second, for feature-space diffusion backbones, masking the loss further improves performance by preventing completed entries from becoming supervised pseudo-targets. With +AugMask ,score-based diffusion reaches the best overall ranks among 6AugMask: Stochastic Augmentation and Masking 
+
+Table 3. MCAR Results (90 Scenarios): Comparative Rank Analysis. Cells display Average Rank ( ↓) ± Standard Deviation across 90 scenarios: 6 datasets × 5 missing ratios [0.1–0.9] × 3 seeds. Ranks are computed per experimental block; Summary Rank is the mean rank across all metrics within each block. ∆ denotes absolute rank gain over the +NoAug baseline. ∗∗ and ∗ indicate statistical Gain and 
+
+Match via Wilcoxon test ( p < 0.05 ) against the best-performing missing-aware baseline per block among: MIWAE, MissDiff, DiffPuter, or ForestDiff. Boldface denotes results statistically superior to this entire baseline group. See Appendix D for MAR and detailed results. 
+
+Generative Quality Utility Method α-Precision β-Recall Trend Shape ML Task Summary 
+
+Rank ∆ Rank ∆ Rank ∆ Rank ∆ Rank ∆ Rank ∆
+
+(A) Missing-aware baselines 
+
+MIWAE 6.9 ± 3.8 – 10.0 ± 4.6 – 8.9 ± 4.6 – 8.4 ± 4.6 – 10.4 ± 4.9 – 8.9 –MissDiff 16.1 ± 4.6 – 17.3 ± 4.4 – 13.3 ± 4.0 – 15.7 ± 2.9 – 16.8 ± 2.7 – 15.8 –DiffPuter 12.7 ± 4.5 – 13.2 ± 4.9 – 12.8 ± 3.9 – 12.8 ± 3.7 – 17.2 ± 4.2 – 13.7 –ForestDiff 10.7 ± 4.1 – 5.4 ± 4.9 – 8.4 ± 4.3 – 9.5 ± 4.0 – 6.4 ± 3.7 – 8.1 –
+
+(B) Missing-unaware baselines 
+
+TVAE 18.1 ± 3.3 – 18.1 ± 2.6 – 17.7 ± 1.9 – 18.7 ± 2.2 – 15.7 ± 3.0 – 17.7 –
+
+⌞ +AugFull 11.7 ± 5.2 (+6.4) 11.8 ± 4.8 (+6.3) 10.6 ± 2.8 (+7.2) 11.0 ± 1.8 (+7.7) 10.9 ± 3.4 (+4.9) 11.2 (+6.5) CTGAN 12.4 ± 3.9 – 16.7 ± 3.0 – 15.9 ± 3.1 – 16.5 ± 2.6 – 17.6 ± 2.6 – 15.8 –
+
+⌞ +AugFull 12.1 ± 4.7 (+0.4) 13.6 ± 5.0 (+3.1) 12.4 ± 3.2 (+3.5) 11.1 ± 3.6 (+5.4) 15.0 ± 3.8 (+2.7) 12.8 (+3.0) ARF 17.1 ± 2.7 – 18.4 ± 1.9 – 20.4 ± 0.8 – 20.0 ± 0.9 – 16.7 ± 3.3 – 18.5 –
+
+⌞ +AugFull 8.4 ± 5.3 (+8.7) 12.1 ± 4.8 (+6.3) 18.4 ± 2.9 (+2.0) 12.1 ± 5.7 (+7.9) 11.0 ± 5.2 (+5.7) 12.4 (+6.1) TabSyn 13.6 ± 3.6 – 13.7 ± 2.0 – 13.3 ± 2.8 – 14.9 ± 3.4 – 13.2 ± 3.5 – 13.7 –
+
+⌞ +AugFull 6.8 ± 2.4 (+6.8) 7.6 ± 1.9 (+6.1) 5.3 ± 1.9 ∗∗ (+8.0) 5.0 ± 2.6 ∗ (+9.8) 6.5 ± 3.3 (+6.7) 6.3 ∗ (+7.5) TabDDPM 15.5 ± 3.2 – 12.0 ± 2.3 – 15.0 ± 2.2 – 13.5 ± 1.9 – 11.4 ± 2.9 – 13.5 –
+
+⌞ +AugFull 7.1 ± 5.6 ∗ (+8.3) 7.5 ± 3.1 (+4.5) 8.8 ± 5.1 (+6.2) 7.5 ± 5.0 ∗ (+6.0) 6.5 ± 4.0 (+4.9) 7.5 (+6.0) 
+
+⌞ +AugMask 8.0 ± 5.4 (+7.4) 5.3 ± 4.2 ∗ (+6.7) 8.6 ± 5.1 (+6.4) 7.6 ± 4.9 ∗ (+5.9) 5.7 ± 5.3 ∗ (+5.7) 7.0 ∗ (+6.4) 
+
+CDTD 13.1 ± 3.3 – 14.4 ± 3.3 – 13.2 ± 2.8 – 15.5 ± 2.4 – 12.8 ± 3.4 – 13.8 –
+
+⌞ +AugFull 5.6 ± 2.6 ∗ (+7.5) 6.4 ± 2.6 (+8.1) 4.9 ± 2.3 ∗∗ (+8.3) 5.3 ± 1.7 ∗ (+10.3) 6.8 ± 2.9 (+6.0) 5.8 ∗ (+8.0) 
+
+⌞ +AugMask 4.0 ± 3.3 ∗∗ (+9.1) 4.2 ± 3.2 ∗ (+10.3) 3.0 ± 2.2 ∗∗ (+10.2) 3.5 ± 2.4 ∗∗ (+12.1) 4.4 ± 2.7 ∗ (+8.4) 3.8 ∗∗ (+10.0) 
+
+TabDiff 16.4 ± 3.1 – 11.0 ± 3.1 – 12.1 ± 2.8 – 13.1 ± 3.2 – 11.1 ± 3.8 – 12.7 –
+
+⌞ +AugFull 6.1 ± 4.0 ∗ (+10.3) 6.1 ± 3.7 (+4.8) 3.8 ± 2.3 ∗∗ (+8.3) 4.0 ± 2.3 ∗∗ (+9.1) 5.9 ± 2.9 (+5.3) 5.2 ∗∗ (+7.6) 
+
+⌞ +AugMask 4.7 ± 4.9 ∗∗ (+11.7) 3.3 ± 4.4 ∗∗ (+7.7) 2.3 ± 2.2 ∗∗ (+9.8) 3.0 ± 3.0 ∗∗ (+10.1) 3.0 ± 2.4 ∗∗ (+8.1) 3.2 ∗∗ (+9.5) 0.1 0.3 0.5 0.7 0.9              
+
+> Missing Ratio
+> 0.0
+> 0.1
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> Quality Score
+> ( Prec ×  Rec × Trend × Shape) 1/4
+> +13.8% +1.3%
+> +27.3%
+> +54.3% +0.1%
+> +26.2%
+> +94.8%
+> +24.6%
+> +158.6% +39.1%
+> +23.9%
+> +354.2% +112.8%
+> +12.8%
+> High-missingness regime
+> Generative Quality
+> 0.1 0.3 0.5 0.7 0.9
+> Missing Ratio
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0
+> ML Task Score
+> +3.7% +0.6%
+> +6.6%
+> +9.1% +0.5%
+> +7.7%
+> +11.3%
+> +7.0%
+> +18.1% +0.9%
+> +6.3%
+> +24.0% +12.5%
+> +1.8%
+> High-missingness regime
+> Machine Learning Utility
+> CDTD (NoAug) CDTD + AugFull (Ours) CDTD + AugMask (Ours) ForestDiff MIWAE
+
+Figure 4. Robustness across missing ratios (MCAR). Our stochastic augmentation and masking strategy for the missing-unaware CDTD 
+
+baseline shows a hierarchical gain ( NoAug → AugFull → AugMask ) that matches or surpasses top missing-aware baselines ( ForestDiff ,
+
+MIWAE ) in Sample Quality (Left) and Utility (Right). See Appendix D for MAR and further comparison. 
+
+compared methods (TabDiff: 3.2 ∗∗ ; CDTD: 3.8 ∗∗ ), while also improving downstream utility (ML Task +8.1/+8.4). Thus, the gain comes not only from constructing complete inputs, but also from how those completions are used during training: as conditioning context rather than targets. 
+
+5.2. Robustness Across Missing Ratios 
+
+Figure 4 shows that the benefit of AugMask becomes more pronounced as missingness increases. The trajectory fol-lows a clear hierarchy: NoAug degrades sharply under high 7AugMask: Stochastic Augmentation and Masking 
+
+Figure 5. Sensitivity to augmentation misspecification. We perturb one fitted LGBM-S augmenter by varying context bias η and stochasticity λ. Here, η = 0 preserves the conditional LGBM estimate and η = 1 reverts to a marginal baseline; λ = 1 keeps the estimated uncertainty, while λ = 0 gives deterministic filling. The right panel reports ∆ Quality = AugMask − AugFull under matched augmented inputs. The gap remains positive across all settings, showing that AugMask is less vulnerable to misspecified completions because it uses them as context rather than supervised targets. 
+
+Figure 6. Visualizing augmentations (LGBM-D vs. LGBM-S). We overlay marginal densities (columns 1-3) and joint kernel densities (columns 4-6) of the ground truth (unknown) and augmented data. (a) Deterministic conditional mean (LGBM-D): Significant shrinkage 
+
+occurs from ignoring conditional variance (e.g., fnlwgt ), resulting in artificial spikes and restricted support in the joint plots. (b) Stochastic conditional augmentation (Ours, LGBM-S): It captures marginal and conditional variability. While (a) matches first moments, preserving second moment provides better context about the data distribution. Categorical values are integer-encoded for clarity. 
+
+missingness, AugFull recovers part of the lost distributional structure through stochastic context, and AugMask further stabilizes both sample quality and downstream utility. At the extreme pmiss = 0 .9 regime, AugMask avoids the se-vere degradation observed in other missing-aware baselines. Under high uncertainty, completions are useful as context, but treating them as ground-truth targets can amplify errors. 
+
+5.3. Sensitivity to Augmentation Misspecification 
+
+A natural question is whether AugMask depends mainly on having a strong augmenter. We test this by start-ing from one fitted LGBM-S augmenter and perturbing only its context bias η and stochasticity λ, while using the same augmented inputs for AugMask and AugFull. For each missing continuous feature, we sample Zij ∼N  ˜μij (η), ˜σ2 
+
+> ij
+
+(λ) , ˜μij (η) = (1 − η)ˆ μij + η ¯μj , ˜σij (λ) = 
+
+λˆσij , where (ˆ μij , ˆσij ) are the LGBM-S conditional esti-mates and ¯μj is the marginal mean. For categorical fea-tures, define qij (η) = (1 − η)ˆ pij + η ¯πj , ˜pij (η, λ ) =     
+
+> qij (η)1/λ
+> P
+> kqijk (η)1/λ
+
+(λ > 0) , where ˆpij is the conditional class-probability estimate and ¯πj is the marginal class frequency. For λ = 0 , we use the deterministic value, i.e., a point mass at arg max k qijk (η). Thus, η = 0 preserves conditional context, while η = 1 reverts to marginal context; λ = 1 
+
+keeps the estimated stochasticity, λ < 1 makes samples under-dispersed, λ > 1 makes them over-dispersed and 
+
+λ = 0 gives a deterministic variant. Figure 5 shows that the robustness gap is positive across the 8AugMask: Stochastic Augmentation and Masking CDTD(NoAug) 
+
+> (IoU: 0.1574)
+> CDTD+AugMask(Ours)
+> (IoU: 0.9285)
+> MIWAE
+> (IoU: 0.8339)
+> ForestDiff
+> (IoU: 0.7946)
+> 1.0
+> 0.5
+> 0.0
+> 0.5
+> 1.0
+
+Figure 7. UMAP comparison of real and synthetic data. Gener-ators are trained on incomplete Adult dataset ( pmiss = 0 .7). Top row : Grey kernel density in the background indicates the com-plete real data. Blue contours represent synthetic density, with overlap measured by IoU. Bottom row : Kernel density estimate residuals ( KDE Syn − KDE Real ). Blue indicates synthetic over-representation; red indicates mode collapse relative to ground truth. 
+
+entire 5 × 5 sweep. The endpoints recover original rules: 
+
+(η, λ ) = (0 , 1) is LGBM-S , (0 , 0) is closest to LGBM-D ,and (1 , 0) collapses to marginal mean/mode filling. As η or 
+
+λ deviates from the default setting, AugFull becomes more vulnerable because it is trained to reconstruct misspecified inputs. 
+
+5.4. Qualitative Analysis 
+
+Figure 6 visualizes why deterministic conditional comple-tion can be insufficient. Although LGBM-D matches condi-tional means, it collapses conditional variability, producing spiky marginals and restricted joint support. In contrast, 
+
+LGBM-S restores realistic marginal and joint variation by sampling from an estimated conditional distribution. This is consistent with the variance-weighted sensitivity view: stochastic completions expose the denoiser to plausible al-ternatives rather than a single overconfident point estimate. Figure 7 shows the effect on generated samples under heavy missingness. Without augmentation, the baseline diffusion model (CDTD) suffers severe support mismatch and mode collapse (IoU = 0 .157 ). With AugMask, the generated den-sity overlaps the real-data density much more closely (IoU 
+
+= 0 .929 ), capturing the modes better. Together with the misspecification study, these results indicate that AugMask improves the distributional coverage. 
+
+6. Related Work 
+
+Generative models for complete/incomplete tabular data. 
+
+Deep generative models for complete tabular data include GAN-based (Xu et al., 2019; Zhao et al., 2021), VAE-based (Ma et al., 2020), and diffusion/score-based ap-proaches (Kotelnikov et al., 2023; Kim et al., 2022; Lee et al., 2023; Mueller et al., 2025; Shi et al., 2025). In con-trast, methods for incomplete data have primarily focused on imputation (Yoon et al., 2018; Mattei & Frellsen, 2019; Ipsen et al., 2020; Zheng & Charoenphakdee, 2022; Zhang et al., 2025). Fewer methods directly address generation from incomplete data: MissDiff (Ouyang et al., 2023) uti-lizes an observed-only loss but neglects input conditioning, while a recent tree-based model (Jolicoeur-Martineau et al., 2024) addresses both imputation and generation. 
+
+Marginal score matching. Givens et al. (2025) formu-late score matching under missingness by integrating out missing entries so that the objective depends only on ob-served coordinates, and estimate this objective via impor-tance sampling. AugMask pursues a similar marginalization principle in a practical training pipeline, where stochastic conditional augmentation samples plausible missing values as input context, while the loss is applied only to origi-nally observed coordinates. This yields an objective regu-larized by variance-induced sensitivity that reduces reliance on uncertain missing entries without requiring importance sampling. 
+
+Augmentation as implicit regularization. Stochastic per-turbations and data augmentation are often viewed as im-plicit regularization, where injected randomness induces Jacobian-type penalties and improves robustness (Bishop, 1995; Wager et al., 2013; Rifai et al., 2011; Dao et al., 2019). Here, stochasticity instead addresses missingness . Values are unobserved, yet diffusion backbones require fully speci-fied inputs. We sample context-conditioned augmentations, using their uncertainty to limit dependence on missing co-ordinates. This links marginalizing out missing values to sensitivity regularization; both make missing entries effec-tively ignorable, with uncertainty setting the strength. 
+
+7. Conclusion 
+
+We propose AugMask , a plug-and-play training strategy that enables missing-unaware diffusion models to train on incomplete tabular data. By using conditional stochastic augmentation while excluding completed entries from su-pervision, AugMask achieves the best performance among the compared methods. 
+
+Scope and limitations. Our strategy targets score-based models that operate directly in feature space, where observed-only supervision is natural. Extending AugMask to latent diffusion pipelines (Zhang et al., 2023) is non-trivial, as missingness-induced uncertainty must be transmit-ted through the encoder/decoder and the training objective redefined in latent space. Handling missingness in such high-dimensional settings is an important direction. Finally, we focus on generation; extensions to imputation-specific objectives and privacy-related settings are left for future work. 9AugMask: Stochastic Augmentation and Masking 
+
+Acknowledgements 
+
+This work was supported by the National Research Founda-tion of Korea (NRF) grant funded by the Korea government (MSIT) (RS-2023-00217705, RS-2024-00341749, RS-2026-25487501), the MSIT (Ministry of Science and ICT), Korea, under the ICAN (ICT Challenge and Advanced Network of HRD) support program (RS-2023-00259934), Developing the Next-Generation General AI with Reliability, Ethics, and Adaptability (RS-2025-02283048), and the Leading Generative AI Human Resources Development (RS-2026-25544647) supervised by the IITP (Institute for Information & Communications Technology Planning & Evaluation), and the Ministry of Trade, Industry and Resources (MOTIR), Korea, under the project “Industrial Technology Infrastruc-ture Program” (RS-2024-00466693). 
+
+Impact Statement 
+
+This paper studies training score-based diffusion models for incomplete tabular data. Improved generative modeling under missingness can help researchers and practitioners construct synthetic benchmarks, study robustness to miss-ing data, and reduce the barrier to using tabular datasets in settings where missing values are common. At the same time, AugMask does not provide formal privacy guaran-tees; generated samples should be audited for memorization and sensitive attribute leakage before release. Missingness patterns can also encode social, clinical, institutional, or measurement biases. We suggest domain-specific valida-tion, fairness and privacy audits, and transparent reporting of the data source, missingness, and evaluation protocol before using generated data in high-stakes applications. 
+
+References 
+
+Alaa, A., Van Breugel, B., Saveliev, E. S., and Van Der Schaar, M. How faithful is your synthetic data? sample-level metrics for evaluating and auditing gener-ative models. In International conference on machine learning , pp. 290–306. PMLR, 2022. Bishop, C. M. Training with noise is equivalent to tikhonov regularization. Neural computation , 7(1):108–116, 1995. Chen, Z., Li, H., Wang, F., Zhang, O., Xu, H., Jiang, X., Song, Z., and Wang, H. Rethinking the diffusion models for missing data imputation: A gradient flow perspective. 
+
+Advances in Neural Information Processing Systems , 37: 112050–112103, 2024. Collier, M., Nazabal, A., and Williams, C. K. Vaes in the presence of missing data. arXiv preprint arXiv:2006.05301 , 2020. Cui, L., Li, H., Chen, K., Shou, L., and Chen, G. Tabular data augmentation for machine learning: Progress and prospects of embracing generative ai. arXiv preprint arXiv:2407.21523 , 2024. Dao, T., Gu, A., Ratner, A., Smith, V., De Sa, C., and R ´e, C. A kernel theory of modern data augmentation. In 
+
+International conference on machine learning , pp. 1528– 1537. PMLR, 2019. Esteban, C., Hyland, S. L., and R ¨atsch, G. Real-valued (medical) time series generation with recurrent condi-tional gans. arXiv preprint arXiv:1706.02633 , 2017. Givens, J., Liu, S., and Reeve, H. W. Score matching with missing data. arXiv preprint arXiv:2506.00557 , 2025. Grinsztajn, L., Oyallon, E., and Varoquaux, G. Why do tree-based models still outperform deep learning on typical tabular data? Advances in neural information processing systems , 35:507–520, 2022. Harvey, A. C. Estimating regression models with multi-plicative heteroscedasticity. Econometrica: journal of the Econometric Society , pp. 461–465, 1976. Ipsen, N. B., Mattei, P.-A., and Frellsen, J. not-miwae: Deep generative modelling with missing not at random data. 
+
+arXiv preprint arXiv:2006.12871 , 2020. Ipsen, N. B., Mattei, P.-A., and Frellsen, J. How to deal with missing data in supervised deep learning? In 10th International Conference on Learning Representations ,2022. Jarrett, D., Cebere, B. C., Liu, T., Curth, A., and van der Schaar, M. Hyperimpute: Generalized iterative imputa-tion with automatic model selection. In International Con-ference on Machine Learning , pp. 9916–9937. PMLR, 2022. Jolicoeur-Martineau, A., Fatras, K., and Kachman, T. Gen-erating and imputing tabular data via diffusion and flow-based gradient-boosted trees. In International conference on artificial intelligence and statistics , pp. 1288–1296. PMLR, 2024. Jordon, J., Yoon, J., and Van Der Schaar, M. Pate-gan: Gen-erating synthetic data with differential privacy guarantees. In International conference on learning representations ,2018. Karras, T., Aittala, M., Aila, T., and Laine, S. Elucidating the design space of diffusion-based generative models. 
+
+Advances in neural information processing systems , 35: 26565–26577, 2022. Ke, G., Meng, Q., Finley, T., Wang, T., Chen, W., Ma, W., Ye, Q., and Liu, T.-Y. Lightgbm: A highly efficient 10 AugMask: Stochastic Augmentation and Masking 
+
+gradient boosting decision tree. Advances in neural infor-mation processing systems , 30, 2017. Kim, J., Lee, C., and Park, N. Stasy: Score-based tabular data synthesis. arXiv preprint arXiv:2210.04018 , 2022. Kotelnikov, A., Baranchuk, D., Rubachev, I., and Babenko, A. Tabddpm: Modelling tabular data with diffusion mod-els. In International conference on machine learning , pp. 17564–17579. PMLR, 2023. Lee, C., Kim, J., and Park, N. Codi: Co-evolving con-trastive diffusion models for mixed-type tabular synthesis. In International Conference on Machine Learning , pp. 18940–18956. PMLR, 2023. Ma, C., Tschiatschek, S., Turner, R., Hern ´andez-Lobato, J. M., and Zhang, C. Vaem: a deep generative model for heterogeneous mixed type data. Advances in Neural Information Processing Systems , 33:11237–11247, 2020. Mattei, P.-A. and Frellsen, J. Miwae: Deep generative modelling and imputation of incomplete data sets. In 
+
+International conference on machine learning , pp. 4413– 4423. PMLR, 2019. Mueller, M., Gruber, K., and Fok, D. Continuous dif-fusion for mixed-type tabular data. In The Thirteenth International Conference on Learning Representations ,2025. URL https://openreview.net/forum? id=QPtoBPn4lZ .Nazabal, A., Olmos, P. M., Ghahramani, Z., and Valera, I. Handling incomplete heterogeneous data using vaes. 
+
+Pattern Recognition , 107:107501, 2020. Ouyang, Y., Xie, L., Li, C., and Cheng, G. Missdiff: Train-ing diffusion models on tabular data with missing values. 
+
+arXiv preprint arXiv:2307.00467 , 2023. Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel, O., Blondel, M., Prettenhofer, P., Weiss, R., Dubourg, V., Vanderplas, J., Passos, A., Cour-napeau, D., Brucher, M., Perrot, M., and Duchesnay, ´E. Scikit-learn: Machine learning in Python. Journal of Machine Learning Research , 12:2825–2830, 2011. Rifai, S., Vincent, P., Muller, X., Glorot, X., and Bengio, Y. Contractive auto-encoders: Explicit invariance during feature extraction. In Proceedings of the 28th interna-tional conference on international conference on machine learning , pp. 833–840, 2011. Rubin, D. B. Inference and missing data. Biometrika , 63(3): 581–592, 1976. Shah, A. D., Bartlett, J. W., Carpenter, J., Nicholas, O., and Hemingway, H. Comparison of random forest and para-metric imputation models for imputing missing data using mice: a caliber study. American journal of epidemiology ,179(6):764–774, 2014. Shi, J., Xu, M., Hua, H., Zhang, H., Ermon, S., and Leskovec, J. TabDiff: A mixed-type diffusion model for tabular data generation. In The Thirteenth In-ternational Conference on Learning Representations ,2025. URL https://openreview.net/forum? id=swvURjrt8z .Song, Y., Durkan, C., Murray, I., and Ermon, S. Maxi-mum likelihood training of score-based diffusion models. 
+
+Advances in neural information processing systems , 34: 1415–1428, 2021. Vincent, P. A connection between score matching and de-noising autoencoders. Neural computation , 23(7):1661– 1674, 2011. Wager, S., Wang, S., and Liang, P. S. Dropout training as adaptive regularization. Advances in neural information processing systems , 26, 2013. Watson, D. S., Blesch, K., Kapar, J., and Wright, M. N. Adversarial random forests for density estimation and generative modeling. In International Conference on Ar-tificial Intelligence and Statistics , pp. 5357–5375. PMLR, 2023. Xu, L., Skoularidou, M., Cuesta-Infante, A., and Veera-machaneni, K. Modeling tabular data using conditional gan. In NeurIPS , 2019. Yi, J., Lee, J., Kim, K. J., Hwang, S. J., and Yang, E. Why not to use zero imputation? correcting spar-sity bias in training neural networks. arXiv preprint arXiv:1906.00150 , 2019. Yoon, J., Jordon, J., and Schaar, M. Gain: Missing data imputation using generative adversarial nets. In Interna-tional conference on machine learning , pp. 5689–5698. PMLR, 2018. Zhang, H., Zhang, J., Srinivasan, B., Shen, Z., Qin, X., Faloutsos, C., Rangwala, H., and Karypis, G. Mixed-type tabular data synthesis with score-based diffusion in latent space. arXiv preprint arXiv:2310.09656 , 2023. Zhang, H., Fang, L., Wu, Q., and Yu, P. S. Diffputer: Em-powering diffusion models for missing data imputation. In The Thirteenth International Conference on Learning Representations , 2025. Zhao, Z., Kunar, A., Birke, R., and Chen, L. Y. Ctab-gan: Effective table data synthesizing. In Asian conference on machine learning , pp. 97–112. PMLR, 2021. Zheng, S. and Charoenphakdee, N. Diffusion models for missing value imputation in tabular data. arXiv preprint arXiv:2210.17128 , 2022. 11 AugMask: Stochastic Augmentation and Masking 
+
+Appendix Table of Contents 
+
+A. Proofs B. When Extra Supervision from Augfull Helps C. Implementation Details C.1. Datasets C.2. Preprocessing C.3. Missing Mechanisms & Mask Generation C.5. Constructing Augmented Dataset C.6. Baseline Tabular Generative Models C.6.1. Missing-Aware C.6.2. Missing-Unaware C.7. Applying Loss Masking to Tabular Diffusion Models C.8. Hardware Specifications C.9. Evaluation Metrics for Synthetic Tabular Data D. Detailed Experimental Results 
+
+A. Proofs 
+
+Section structure. The structure of this section is as follows: (i) We establish the Rao-Blackwellization for augmentation-induced objectives as the variance reducing objective, and (ii) prove the second-order local approximation of the RB ideal around the conditional mean (Proposition 3.3). 
+
+Lemma A.1 (Rao-Blackwellization for augmentation-induced objectives) . Let (X0, M) ∼ pdata be a random sample and mask, and let X0obs denote the observed part. Let T (· | xobs , m) be any augmentation rule for the missing part. Draw a context (X0obs , M), sample an augmentation Z ∼ T (· | X0obs , M), and evaluate the (random) loss 
+
+UT := l(θ; X0obs , M, Z ).
+
+Define the conditional expectation of this loss given the observed context as 
+
+¯UT := EUT | X0obs , M
+
+We view UT as single-sample (random) estimate of the population objective LT (θ) = E[UT ]. Then the following properties hold: (a) Population identity. 
+
+LT (θ) := E[UT ] = E[ ¯UT ] = EX0obs ,M
+
+lT (θ; X0obs , M).
+
+(b) Variance reduction. 
+
+Var( UT ) = EVar( UT | X0obs , M) + Var( ¯UT ) =⇒ Var( ¯UT ) ≤ Var( UT ).
+
+The term E[Var( UT | X0obs , M)] is the avoidable variance induced by augmentation randomness beyond what is determined by the observed context. (c) Minimal MSE (best predictor using the incomplete data). For any estimator g(X0obs , M) that depends solely on the observed context, 
+
+E(UT − ¯UT )2 ≤ E(UT − g(X0obs , M)) 2,
+
+with equality if and only if g(X0obs , M) = ¯UT .
+
+12 AugMask: Stochastic Augmentation and Masking 
+
+Proof of Lemma A.1. (a) By the law of iterated expectations, 
+
+E[ ¯UT ] = EE[UT | X0obs , M] = E[UT ].
+
+By definition, E[UT ] matches the population loss LT (θ).
+
+(b) We apply the law of total variance conditioning on the pair (X0obs , M):
+
+Var( UT ) = EVar( UT | X0obs , M) + Var  E[UT | X0obs , M] = EVar( UT | X0obs , M) + Var( ¯UT ).
+
+Since variances are non-negative, Var( ¯UT ) ≤ Var( UT ).
+
+(c) Let g(X0obs , M) be any estimator depending only on the observed context. Decompose the error UT − g as: 
+
+UT − g = ( UT − ¯UT ) + ( ¯UT − g).
+
+Squaring and taking expectations yields: 
+
+E[( UT − g)2] = E[( UT − ¯UT )2] + E[( ¯UT − g)2] + 2 E(UT − ¯UT )( ¯UT − g).
+
+We analyze the cross-term by conditioning on the context (X0obs , M). Since the term ( ¯UT − g) depends only on (X0obs , M),it is fixed given the context and can be moved out of the conditional expectation: 
+
+E(UT − ¯UT )( ¯UT − g) | X0obs , M = ( ¯UT − g) · EUT − ¯UT | X0obs , M.
+
+By definition, E[UT | X0obs , M] = ¯UT , so the inner expectation is zero. The relation simplifies to: 
+
+E[( UT − g)2] = E[( UT − ¯UT )2] + E[( ¯UT − g)2] ≥ E[( UT − ¯UT )2].
+
+Equality holds if and only if E[( ¯UT − g)2] = 0 , implying g = ¯UT .
+
+Remark A.2 (Fixed-context view vs. population view) . In the main text, we fix an observed block x0obs (defined by a mask 
+
+m) and study randomness arising strictly from the augmentation Z (and the diffusion process). In this fixed-context view, the quantity lT (θ; x0obs , m) = EZ∼T (·| x0obs ,m)
+
+l(θ; x0obs , Z ) is deterministic and serves as the objective function for that specific input. For completeness, Lemma A.1 establishes the corresponding properties over the population where both the data X0 and the mask M are random. This formalizes the variance-reduction interpretation of Rao-Blackwellization: marginalizing out the Z yields a lower-variance estimator of the population loss. 13 AugMask: Stochastic Augmentation and Masking 
+
+Proof roadmap for Proposition 3.3 (Step 1) Taylor expand gθ (Zj ) around μj with a third-order remainder. (Step 2) Take conditional expectation over Zj | x0 
+
+> −j
+
+to obtain gθ (μj ) + 12 σ2 
+
+> j
+
+g′′  
+
+> θ
+
+(μj ) plus a remainder term. (Step 3) Bound the remainder using Assumption A.3. (Steps 4–6, interpretation) Rewrite gθ via a bias-variance decomposition over diffusion randomness, differentiate to expose a sensitivity penalty, and plug into the Taylor approximation. 
+
+Assumption A.3 (Local smoothness and moments) . (i) ( Local smoothness ) g is three times continuously differentiable on a neighborhood of μj (x0 
+
+> −j
+
+) := E[X0 
+
+> j
+
+| X0 
+
+> −j
+
+= x0 
+
+> −j
+
+], and sup |z−μj |≤ r |g(3) (z)| < ∞ for some r > 0.(ii) ( Finite third moment ) E[|X0 
+
+> j
+
+− μj |3 | X0 
+
+> −j
+
+= x0 
+
+> −j
+
+] < ∞.
+
+Proposition A.4 (Local approximation of the RB ideal) . Recall the RB ideal in Eq. (10) . Let Zj ∼ pdata (· | x0 
+
+> −j
+
+, m),
+
+μj := E[Zj | x0 
+
+> −j
+
+, m], σ2 
+
+> j
+
+:= Var( Zj | x0 
+
+> −j
+
+, m), and let W collect the randomness in Eq. (8) (i.e., the sampled diffusion time and forward noise). Define the scalar loss function gθ (z) := l−j (θ; x0 
+
+> −j
+
+, z ). Under standard smoothness conditions (Assumption A.3 in Appendix A), 
+
+lRB (θ; x0 
+
+> −j
+
+) ≈ gθ (μj ) + 12 σ2 
+
+> j
+
+g′′  
+
+> θ
+
+(μj ). (18) 
+
+Moreover, define ¯ϕ(u) := EW [ϕθ (u; W )] , s(u) := tr (Var W (ϕθ (u; W ))) , and e(u) := ¯ϕ(u) − x0 
+
+> −j
+
+, where x0 
+
+> −j
+
+and m are fixed throughout. Then gθ (u) = ∥e(u)∥22 + s(u) and 
+
+lRB (θ; x0 
+
+> −j
+
+) ≈ ∥ e(μj )∥22 + σ2 
+
+> j
+
+∥ ¯ϕ′(μj )∥22 + σ2 
+
+> j
+
+e(μj )⊤ ¯ϕ′′ (μj )+ s(μj ) + 12 σ2 
+
+> j
+
+s′′ (μj ), (19) 
+
+where derivatives are with respect to the scalar fill value u (holding x0 
+
+> −j
+
+fixed). Proof. Step 1: Local Taylor expansion. Fix x0 
+
+> −j
+
+and let Zj ∼ pdata (· | x0 
+
+> −j
+
+). Define 
+
+μj := E[Zj | x0 
+
+> −j
+
+], ∆ := Zj − μj , σ2 
+
+> j
+
+:= Var( Zj | x0 
+
+> −j
+
+) = E[∆ 2 | x0 
+
+> −j
+
+].
+
+Recall gθ (z) := l−j (θ; x0 
+
+> −j
+
+, z ). By Assumption A.3(i), gθ is three times continuously differentiable in a neighborhood of 
+
+μj . Taylor’s theorem gives 
+
+gθ (μj + ∆) = gθ (μj ) + g′ 
+
+> θ
+
+(μj )∆ + 12 g′′  
+
+> θ
+
+(μj )∆ 2 + Rθ (∆) , (20) where 
+
+Rθ (∆) = 16 g(3)  
+
+> θ
+
+(ξj ) ∆ 3 (21) for some arbitrary ξj lying between μj and μj + ∆ .
+
+Step 2: Take conditional expectation under the RB ideal. By definition, 
+
+lRB (θ; x0 
+
+> −j
+
+) = Egθ (Zj ) | x0
+
+> −j
+
+ = Egθ (μj + ∆) | x0
+
+> −j
+
+ .
+
+Taking E[· | x0 
+
+> −j
+
+] on both sides of Eq. (20) yields 
+
+lRB (θ; x0 
+
+> −j
+
+) = gθ (μj ) + g′ 
+
+> θ
+
+(μj ) E[∆ | x0 
+
+> −j
+
+] + 12 g′′  
+
+> θ
+
+(μj ) E[∆ 2 | x0 
+
+> −j
+
+] + ERθ (∆) | x0
+
+> −j
+
+ (22) 
+
+= gθ (μj ) + 12 σ2 
+
+> j
+
+g′′  
+
+> θ
+
+(μj ) + ERθ (∆) | x0
+
+> −j
+
+ , (23) where E[∆ | x0 
+
+> −j
+
+] = 0 and E[∆ 2 | x0 
+
+> −j
+
+] = σ2 
+
+> j
+
+.
+
+Step 3: Bound the third-order remainder. Under Assumption A.3(i), there exists r > 0 such that Mj := sup |z−μj |≤ r g(3)  
+
+> θ
+
+(z) < ∞, (a smoothness constant). Since we have |ξj − μj | ≤ | ∆| ≤ r, |g(3)  
+
+> θ
+
+(ξj )| ≤ Mj and 
+
+|Rθ (∆) | ≤ Mj 
+
+> 6
+
+|∆|3. Taking conditional expectation and using Assumption A.3(ii) (finite third moment) yields 
+
+ERθ (∆) | x0
+
+> −j
+
+ ≤ Mj
+
+6 E|∆|3 | x0
+
+> −j
+
+ , (24) 14 AugMask: Stochastic Augmentation and Masking 
+
+which is the local remainder of approximation. Combining Eq. (23) with (24) justifies the local approximation. 
+
+Remark (relative error scaling). Relative to the second-order term scale σ2 
+
+> j
+
+, the approximation error is controlled by 
+
+Mj σj up to a standardized third absolute moment: 
+
+E[Rθ (∆) | x0 
+
+> −j
+
+]
+
+σ2
+
+> j
+
+≲ Mj σj · E[|∆|3 | x0 
+
+> −j
+
+]
+
+σ3
+
+> j
+
+.
+
+In particular, when the conditional distribution is not too heavy-tailed so that E[|∆|3]/σ 3 
+
+> j
+
+is moderate, the relative approxi-mation error primarily scales with the local smoothness constant Mj and the conditional spread σj .
+
+Step 4: Bias–variance decomposition. Recall that for a fixed completion zj ,
+
+gθ (zj ) := l−j (θ; x0 
+
+> −j
+
+, z j ) = EW
+
+h
+
+ϕθ (zj ; W ) − x0
+
+> −j
+> 22
+
+i
+
+,
+
+where W = ( t, ε) collects diffusion randomness. Let x := x0 
+
+> −j
+
+, ϕ := ϕθ (zj ; W ), and ¯ϕ := ¯ϕθ (zj ) = EW [ϕθ (zj ; W )] .Then 
+
+gθ (zj ) = EW
+
+∥ϕ − x∥22
+
+ = EW
+
+∥ϕ − ¯ϕ + ¯ϕ − x∥22
+
+
+
+= EW
+
+∥ϕ − ¯ϕ∥22
+
+ + ∥ ¯ϕ − x∥22 + 2 EW [ϕ − ¯ϕ], ¯ϕ − x
+
+= ∥ ¯ϕθ (zj ) − x∥22 + EW
+
+∥ϕθ (zj ; W ) − ¯ϕθ (zj )∥22
+
+,
+
+where the cross term vanishes since EW [ϕ − ¯ϕ] = 0 . Defining sθ (zj ) := EW [∥ϕθ (zj ; W ) − ¯ϕθ (zj )∥22] yields gθ (zj ) = 
+
+∥ ¯ϕθ (zj ) − x0 
+
+> −j
+
+∥22 + sθ (zj ).
+
+Step 5: Differentiate and plugin Define eθ (zj ) := ¯ϕθ (zj ) − x0 
+
+> −j
+
+∈ Rd−1, so that gθ (zj ) = ∥eθ (zj )∥22 + sθ (zj ). We obtain 
+
+g′′  
+
+> θ
+
+(zj ) = 2 ¯ϕ′ 
+
+> θ
+
+(zj ) 22 + 2 eθ (zj )⊤ ¯ϕ′′  
+
+> θ
+
+(zj ) + s′′  
+
+> θ
+
+(zj ). (25) Combining Eq. (23) with Eq. (25) and evaluating at zj = μj gives 
+
+lRB (θ; x0 
+
+> −j
+
+) = gθ (μj ) + 12 σ2 
+
+> j
+
+g′′  
+
+> θ
+
+(μj ) + ERθ (∆) | x0
+
+> −j
+
+
+
+= gθ (μj ) + σ2 
+
+> j
+
+¯ϕ′ 
+
+> θ
+
+(μj ) 22 + σ2
+
+> j
+
+  ¯ϕθ (μj ) − x0
+
+> −j
+
+⊤ ¯ϕ′′  
+
+> θ
+
+(μj ) + 12 σ2 
+
+> j
+
+s′′  
+
+> θ
+
+(μj ) + ERθ (∆) | x0
+
+> −j
+
+ . (26) Up to the third-order remainder term, the dominant correction σ2 
+
+> j
+
+∥ ¯ϕ′ 
+
+> θ
+
+(μj )∥22 penalizes sensitivity of the mean reconstruction to the missing coordinate, with weight proportional to the oracle conditional variance σ2 
+
+> j
+
+.15 AugMask: Stochastic Augmentation and Masking 
+
+B. When Extra Supervision from AugFull Helps 
+
+We now instantiate a simple Gaussian model that captures the key factors controlling the AugMask–AugFull tradeoff: (i) dependence between the missing coordinate and the observed block, (ii) missingness rate, (iii) sample size, and (iv) dimension. 
+
+B.1. A Toy Gaussian Setup and a Surrogate Target Data model (one shared factor) Fix the missing coordinate index j and write X0 = ( X0 
+
+> −j
+
+, X 0 
+
+> j
+
+) ∈ Rd−1 × R. Let 
+
+S ∼ N (0 , 1) be a shared latent factor, and generate 
+
+X0 
+
+> k
+
+= S + ηk, k̸ = j, ηki.i.d. 
+
+∼ N (0 , σ 2 
+
+> o
+
+), (27) 
+
+X0 
+
+> j
+
+= ρS + ηj , ηj ∼ N (0 , σ 2
+
+> m
+
+), (28) independently of S, where ρ ∈ R controls the coupling between X0 
+
+> j
+
+and the observed block. Define the observed-block average 
+
+Y := 1
+
+d − 1
+
+X 
+
+> k̸=j
+
+X0 
+
+> k
+
+= S + ¯ η, ¯η := 1
+
+d − 1
+
+X 
+
+> k̸=j
+
+ηk ∼ N 
+
+
+
+0, σ2
+
+> o
+
+d − 1
+
+
+
+. (29) 
+
+Missingness and augmentation mismatch Let Mj ∼ Bernoulli(1 − pmss ) indicate whether coordinate j is observed (Mj = 1 ) or missing ( Mj = 0 ). For simplicity we assume MCAR, i.e., Mj is independent of (S, X0).When Mj = 1 , the jth entry is available; when Mj = 0 , we replace it with an augmented value Zj . To model mismatch of the augmentation rule in a tractable way, we assume 
+
+Zj := X0 
+
+> j
+
++ b + ν, ν ∼ N (0 , τ 2), (30) where b ∈ R represents a systematic shift and τ 2 ≥ 0 represents additional augmentation variance beyond the true conditional variability. Define the effective supervised target used for coordinate j as 
+
+A := 
+
+(
+
+X0 
+
+> j
+
+, Mj = 1 ,Zj , Mj = 0 , ⇐⇒ A = ρS + ηj + IMj =0 (b + ν). (31) Under the MCAR assumption, the indicator IMj =0 is independent of (S, ¯η, η j ) and of the augmentation noise ν.
+
+MSE objectives and a surrogate target We adopt a simplified shared-representation setup: a scalar predictor bY is used to reconstruct the observed block (so bY is trained to match Y ), and the jth coordinate is predicted as ρ bY . Under this abstraction, the two training objectives reduce to simple quadratic forms in bY :
+
+ℓMask ( bY ) := ( d − 1)( bY − Y )2, ℓFull ( bY ) := ( d − 1)( bY − Y )2 + ( ρ bY − A)2. (32) Thus, AugMask optimizes the observed-only term, whereas AugFull adds an additional supervised term on coordinate j
+
+through A.
+
+Lemma B.1 (Surrogate target for AugFull) . Let K := d − 1 + ρ2 and define 
+
+eY := (d − 1) Y + ρA K . (33) 
+
+Then ℓFull ( bY ) can be rewritten as 
+
+ℓFull ( bY ) = K( bY − eY )2 + C(Y, A ),
+
+where C(Y, A ) does not depend on bY . In particular, minimizing ℓFull over bY is equivalent to minimizing ( bY − eY )2.Proof. Expand and collect terms in bY :
+
+(d − 1)( bY − Y )2 + ( ρ bY − A)2 = ( d − 1 + ρ2) bY 2 − 2 bY  (d − 1) Y + ρA  +  (d − 1) Y 2 + A2.
+
+16 AugMask: Stochastic Augmentation and Masking 
+
+Let K = d − 1 + ρ2 and eY = (d−1) Y +ρA K . Then 
+
+K bY 2 − 2K bY eY = K( bY − eY )2 − K eY 2,
+
+which yields the result with C(Y, A ) := ( d − 1) Y 2 + A2 − K eY 2, independent of bY .
+
+Implication. Lemma B.1 shows that AugFull implicitly trains bY toward the surrogate target eY , which mixes the observed signal Y and the supervised/augmented signal A. AugMask, in contrast, trains directly toward Y . The next section compares these two targets under the toy metric E[( bY − S)2] and yields an explicit crossover condition. 
+
+B.2. Derivation of the Crossover Inequality 
+
+We analyze a stylized setting to characterize when the observed-only objective (AugMask) can be preferable to supervising all coordinates (AugFull). As a proxy for representation quality, we evaluate the Mean Squared Error (MSE) with respect to the latent factor S:
+
+MSE( bY ) := E
+
+h
+
+( bY − S)2i
+
+.
+
+For tractability, we compare the per-sample minimizers of the quadratic objectives, treating bY as a free scalar for each input. Under this simplification, • AugMask estimator: bYMask = Y .• AugFull estimator: bYFull = eY , where eY is defined in Eq. (33). (When ρ = 0 , the additional AugFull term does not constrain bY and the two objectives coincide; below we assume ρ̸ = 0 
+
+and d > 1.) 
+
+MSE of AugMask Using Y = S + ¯ η (Eq. (29)), the estimation error is 
+
+Y − S = ¯ η. 
+
+Therefore the MSE equals the variance of the observed-block average noise: 
+
+MSE Mask = E[¯ η2] = Var(¯ η) = σ2
+
+> o
+
+d − 1 . (34) 
+
+MSE of AugFull We analyze eY − S directly. Recall eY = (d−1) Y +ρA K with K = d − 1 + ρ2. Substituting Y = S + ¯ η and 
+
+A = ρS + ηj + IMj =0 (b + ν),
+
+yields 
+
+eY = (d − 1)( S + ¯ η) + ρ(ρS + ηj + IMj =0 (b + ν)) 
+
+K
+
+= S + (d − 1)¯ η + ρη j + ρIMj =0 (b + ν)
+
+K , (35) and hence 
+
+eY − S = (d − 1)¯ η + ρη j + ρIMj =0 (b + ν)
+
+K . (36) Under MCAR, the missingness indicator IMj =0 is independent of (S, ¯η, η j ) and the augmentation noise ν. Moreover, ¯η, ηj ,and ν are mutually independent and mean-zero. Consequently, cross terms vanish in E[( eY − S)2] (since each cross term contains a mean-zero factor mutually independent), and the MSE is the sum of component second moments normalized by 
+
+K2:• E[(( d − 1)¯ η)2] = ( d − 1) 2 Var(¯ η) = ( d − 1) σ2 
+
+> o
+
+.17 AugMask: Stochastic Augmentation and Masking 
+
+• E[( ρη j )2] = ρ2 Var( ηj ) = ρ2σ2
+
+> m
+
+.• E[( ρIMj =0 (b + ν)) 2] = ρ2 E[IMj =0 (b + ν)2] = ρ2pmss E[( b + ν)2] = ρ2pmss (b2 + τ 2).Combining these terms gives 
+
+MSE Full = E[( eY − S)2] = (d − 1) σ2 
+
+> o
+
++ ρ2σ2 
+
+> m
+
++ ρ2pmss (b2 + τ 2)(d − 1 + ρ2)2 . (37) 
+
+B.3. Crossover condition 
+
+AugFull is preferable under this toy metric when MSE Full < MSE Mask ; otherwise AugMask is preferable. Substituting Eqs. (34)–(37) and rearranging yields the following explicit inequality. 
+
+Corollary B.2 (Crossover inequality under the toy metric) . Define the effective augmentation mismatch (weighted by missing rate) 
+
+δ2aug := pmss (b2 + τ 2).
+
+Assume ρ̸ = 0 and d > 1. Then MSE Full < MSE Mask holds if and only if 
+
+δ2aug < σ 2
+
+> o
+
+
+
+2 + ρ2
+
+d − 1
+
+
+
+− σ2
+
+> m
+
+. (38) 
+
+When the right-hand side is non-positive, (38) cannot hold and AugMask is strictly preferable under this toy setup. Proof. Starting from MSE Full < MSE Mask and substituting (34)–(37) gives 
+
+(d − 1) σ2 
+
+> o
+
++ ρ2σ2 
+
+> m
+
++ ρ2δ2aug 
+
+K2 < σ2
+
+> o
+
+d − 1 , K = d − 1 + ρ2.
+
+Multiplying both sides by K2(d − 1) yields 
+
+(d − 1)  (d − 1) σ2 
+
+> o
+
++ ρ2σ2 
+
+> m
+
++ ρ2δ2aug 
+
+ < K 2σ2 
+
+> o
+
+.
+
+Expanding K2 = (( d − 1) + ρ2)2 = ( d − 1) 2 + 2( d − 1) ρ2 + ρ4 and canceling (d − 1) 2σ2 
+
+> o
+
+on both sides gives 
+
+(d − 1) ρ2σ2 
+
+> m
+
++ ( d − 1) ρ2δ2aug <  2( d − 1) ρ2 + ρ4σ2 
+
+> o
+
+.
+
+Dividing by (d − 1) ρ2 (using ρ̸ = 0 and d > 1) yields 
+
+σ2 
+
+> m
+
++ δ2aug <
+
+
+
+2 + ρ2
+
+d − 1
+
+
+
+σ2 
+
+> o
+
+,
+
+which rearranges to (38). 
+
+Interpretation. Eq. (38) gives a simple tolerance condition under the simple toy setup. AugFull can help only when the augmentation mismatch on missing examples, δ2aug = pmss (b2 + τ 2), is small enough; otherwise the additional supervised term pulls the shared representation toward a biased/noisy surrogate target. The tolerance increases with σ2 
+
+> o
+
+and |ρ|, and decreases with σ2
+
+> m
+
+.18 AugMask: Stochastic Augmentation and Masking   
+
+> Figure 8. Preprocessing Order. (Left) Impute-then-scale allows imputed values to skew transformation statistics. (Right) Scale-then-impute (ours) calculates statistics solely on observed data, stabilizing the distribution.
+
+C. Implementation Details 
+
+C.1. Datasets Dataset # Rows # Num # Cat Task 
+
+Adult 48,842 6 9 Classification Default 30,000 14 11 Classification Shoppers 12,330 10 8 Classification Magic 19,019 10 1 Classification Beijing 43,824 7 5 Regression News 39,644 46 2 Regression 
+
+C.2. Preprocessing 
+
+The order of preprocessing operations (scaling vs. imputation) critically impacts downstream performance. We distinguish between two strategies: • Impute-then-scale: Imputes missing values first, then computes scaling parameters (e.g., mean, variance) on the completed dataset. • Scale-then-impute: Computes scaling parameters using only observed entries , transforms the data, and then imputes. We adopt the Scale-then-impute strategy (see Figure 8). Unlike “Impute-then-scale,” which allows imputed values to bias the scaling statistics (often distorting the distribution), “Scale-then-impute” ensures transformations are derived solely from observed data. This stabilizes the variance and yields more representative inputs for the model. C.2.1. C ONTINUOUS VARIABLES 
+
+Following the preprocessing setup of CDTD (Mueller et al., 2025), we apply scikit-learn’s QuantileTransformer to continuous variables and then standardize them to zero mean and unit variance (Pedregosa et al., 2011). 19 AugMask: Stochastic Augmentation and Masking 
+
+C.2.2. C ATEGORICAL VARIABLES 
+
+We encode categorical variables into integer labels using LabelEncoder . For models requiring embeddings (e.g., TabSyn, CDTD), we additionally use OrdinalEncoder to map these labels to contiguous indices. To handle unseen categories in the validation set, we reserve extra tokens in the embedding matrix during training. At inference, unseen categories are mapped to these reserved indices and explicitly excluded from loss computation (e.g., cross-entropy). 
+
+C.3. Missing Mechanisms & Mask Generation 
+
+The data generation process governing whether each entry is observed or missing (Rubin, 1976) can be categorized as: • Missing Completely At Random (MCAR): the missingness is independent of the data, M ⊥ X.• Missing At Random (MAR): the missingness depends only on observed entries, M ⊥ Xmis | Xobs .• Missing Not At Random (MNAR): all other cases. 
+
+C.4. Generating MAR Masks 
+
+For a target missing ratio p, we generate a binary mask M ∈ { 0, 1}n×dfull on the full table Xfull = [ X, y], so all columns (including y) share the same overall rate. MAR masks are sampled entrywise as Mij ∼ Bernoulli( pij ), where pij comes from a covariate-dependent logistic propensity whose intercept is calibrated to match the marginal rate p. For each (p, seed ),we generate one mask and reuse it across all methods. See Zhang et al. (2025) for details. 
+
+C.5. Constructing Augmented Dataset 
+
+C.5.1. U NIVARIATE BASELINES (FEATURE -WISE )
+
+Zero / Mean (deterministic). Zero uses a fixed placeholder (0 for numerical; a sentinel token for categorical features). 
+
+Mean uses a fixed marginal summary (mean for numerical; mode for categorical). Both correspond to point-mass choices of 
+
+T .
+
+Noise / E-CDF (marginal stochastic sampling). These baselines sample each missing feature independently from its 
+
+marginal distribution estimated on observed training entries. For numerical features, Noise samples from a fitted Gaussian 
+
+zj ∼ N (ˆ μj , ˆσ2 
+
+> j
+
+), whereas E-CDF samples with replacement from the empirical pool of observed values. For categorical features, both sample zj ∼ Categorical(ˆ πj ) using observed class frequencies. C.5.2. M ULTIVARIATE BASELINES (JOINT / CONDITIONAL )
+
+Iterative imputers (MICE / HyperImpute). Both methods construct a completed dataset by iterating multivariate imputation models. In our evaluation, we use the default configurations provided by each implementation and run the imputer once to produce a single completion of the missing part. See (Shah et al., 2014; Jarrett et al., 2022). 
+
+LightGBM conditional modules (LGBM-D / LGBM-S). Both variants follow Algorithm 1 and fit one per-feature LightGBM predictor (Ke et al., 2017) on observed rows ( mij = 1 ), conditioning on the observed context and the mask                              
+
+> Parameter Value Parameter Value
+> boosting type gbdt subsample 1.0 num leaves 31 subsample freq 0max depth −1colsample bytree 1.0 learning rate 0.1 reg alpha 0.0 n estimators 50 reg lambda 0.0 subsample for bin 200000 random state 42 min split gain 0.0 importance type split
+> min child weight 0.001 min child samples 20
+> Table 4. LightGBM defaults. Hyperparameters used for all per-feature conditional models in LGBM-D/LGBM-S.
+
+20 AugMask: Stochastic Augmentation and Masking 
+
+ui = (˜ xi, −j , mi, −j ) (line 7). Including mi, −j ensures the augmentor directly conditions on the missingness pattern. 
+
+LGBM-D uses point predictions (deterministic fill), whereas LGBM-S uses the sampling steps in Algorithm 1. 
+
+LightGBM hyperparameters. Unless stated otherwise, all LightGBM models used in LGBM-D and LGBM-S (Al-gorithm 1) are trained with the default settings in Table 4 (shared across regression and classification heads), with 
+
+random state=42 for reproducibility. 
+
+Table 5. Sampling frequency ablations. Cycling (non-stationary inputs) hurts recall, while a higher anchor fraction mitigates the drop. Full cycling can slightly improve MLE (utility). Setting Beta-Recall (All) ↑ MLE ↑
+
+LGBM-S, cycled ( ncache = 1 , used in paper) 0.3305 0.8877 LGBM-S, cycled ( ncache = 10 ) 0.1553 0.8877 LGBM-S, cycled ( ncache = 30 ) 0.1679 0.8924 Anchor + cycle ( ncache = 30 ), 100% Cycle 0.2125 0.8978 Anchor + cycle ( ncache = 30 ), 50% Fixed / 50% Cycle 0.2481 0.8906 Anchor + cycle ( ncache = 30 ), 80% Fixed / 20% Cycle 0.2724 0.8884 
+
+C.5.3. H OW MANY TIMES DO WE SAMPLE ? ( FIXED VS . CYCLED CACHED AUGMENTATIONS )
+
+Setup: what is a “cached augmentation”? For a stochastic augmentation rule T (· | xobs , m) a cached augmentation 
+
+is a pre-constructed augmented dataset DA, (k) = {(xA, (k) 
+
+> i
+
+, mi)}Ni=1 where, for each training point i and each missing coordinate j, we draw z(k) 
+
+> ij
+
+∼ T (· | xobs  
+
+> i
+
+, mi) once and set xA, (k) 
+
+> ij
+
+= mij xobs  
+
+> ij
+
++ (1 − mij )z(k) 
+
+> ij
+
+. We generate ncache such datasets {D A, (k)}ncache  
+
+> k=1
+
+offline and reuse them during training. 
+
+Default (used in the paper): sample once and keep it fixed. We construct a single augmented dataset DA, (1) and keep it fixed across all epochs. This makes the mapping from observed context → augmented input stationary and yields the best coverage (recall) in Table 5. 
+
+Cycling cached augmentations changes the per-sample input across epochs. We also tested cycling among ncache 
+
+cached datasets: at the beginning of each epoch (or training pass), we switch the entire training set to one cache element 
+
+DA, (k) (e.g., round-robin over k ∈ { 1, . . . , n cache }). Although the loss is masked to observed coordinates, the augmented values still enter the denoiser as inputs ; thus, cycling alters the per-sample inputs over time and can create a moving-target 
+
+optimization effect or the ”multi-task learning challenge”, reducing fidelity/coverage (recall). When ncache = 1 , cycling is identical to the fixed setting. 
+
+Why this is consistent with “estimating variance is enough.” Our theory motivates the leading effect of marginalizing a missing coordinate through its conditional moments: the variance term controls the invariance/sensitivity correction in the local RB expansion (Prop. 3.1). In LGBM-S, each stochastic fill is generated using an explicit variance estimate 
+
+ˆσ2(xobs , m). Thus, the variance information already enters training through the distribution of Zj ; repeatedly cycling multiple imputations primarily reduces Monte Carlo noise (and can encourage exploitation) but is not required to realize the leading variance-weighted regularization effect. Hypothetically, if the conditional moment estimates (ˆ μ, ˆσ2) are misspecified, further reducing Monte Carlo noise does not reduce this bias; instead, it can make the model more consistently optimize against the same biased augmentation distribution, potentially yielding overconfident (shrunken) completions. In contrast, fixing a single stochastic draw preserves additional randomness in the training inputs, which can act as a stabilizing regularizer against such misspecification. 
+
+Anchor + cycling (cache size ncache = 30 ). To isolate the role of input drift, we mix a fixed anchor augmentation DA, anc 
+
+with a cycled cache {D A, (k)}30 
+
+> k=1
+
+: each epoch uses the anchor with probability ρ and otherwise uses a cache element. As ρ
+
+decreases (more cycling), recall drops (Table 5), supporting the moving-target explanation. 
+
+Utility–coverage tradeoff and future prospects. We observe a mild tradeoff: more cycling can slightly improve utility (MLE) but tends to reduce recall (coverage). A promising direction is a curriculum (high ρ early, lower ρ later) or multi-21 AugMask: Stochastic Augmentation and Masking 
+
+objective schedules that adapt ρ (or ncache ) to target a desired utility–coverage balance, potentially with stronger conditional models or calibrated uncertainty estimators. 
+
+C.6. Baseline Tabular Generative Models 
+
+C.6.1. M ISSING -A WARE 
+
+1. MIWAE (Mattei & Frellsen, 2019): We have modified the MIWAE imputation plugin from https://github. com/vanderschaarlab/hyperimpute , which fits pθ (x obs |z) and qγ (z |xobs ) so that it can be refactored into a generative model. We sample z from the prior distribution p(z) and generate x = pθ (x|z). For training, we set 
+
+n epochs to 800 (default: 500), latent size to 64 (default: 1), n hidden to 256 (default: 1), and K = 40 
+
+(default: 20). This configuration resulted in a substantially improved results, which may be different from the findings of Zhang et al. (2025), where thy used the default hyperparameters. Increasing these hyperparameters values further did not improve performance, but only increased computation time and memory usage. 2. MissDiff We use the implementation provided in the supplementary material at https://openreview.net/ forum?id=PyyoSwPaSa , which is a variant of TabCSDI (Zheng & Charoenphakdee, 2022) (see https:// github.com/pfnet-research/TabCSDI ). To align the model size with other methods, we set batchsize 
+
+to 64, diffusion embedding dim and timeembed to 1024, layers to 5, and channels to 256. We observed that increasing batchsize beyond 128 caused memory issues, so we fixed it at 64. The number of training epochs was set to 250. 3. ForestDiff (Jolicoeur-Martineau et al., 2024) We use the default implementation from https://github.com/ SamsungSAILMontreal/ForestDiffusion , setting nt = 20 and duplicate K = 10 as recommended by the authors to reduce training time. The default parameters ( nt = 50 , duplicate K = 100 ) did not converge within 3600 seconds. For the news dataset (48 columns), we additionally apply chunking with a size of 8,000, as processing all samples simultaneously failed to converge within 3600 seconds. 4. DiffPuter (Zhang et al., 2025). The official implementation ( https://github.com/hengruizhang98/ DiffPuter ) applies binary encoding for categorical variables, while the paper describes one-hot encoding. We tested both and found that binary encoding can introduce imputation artifacts (e.g., spurious categories) and consistently underperformed one-hot encoding. We therefore follow the paper and use one-hot encoding for categoricals. The paper does not explicitly state whether parameters are carried across EM iterations; the official code re-initializes the model at the beginning of each E-step, which we adopt. Finally, to guard against early-stage divergence we monitor validation loss during EM and use it as a safety check (early termination / checkpoint selection). C.6.2. M ISSING -U NAWARE 
+
+Note that for ARF, CTGAN, TVAE, TabSyn, and CDTD, we follow the experimental setup described in (Mueller et al., 2025). Unless stated otherwise, we use the official/default configurations provided by each baseline and keep the training budget fixed (30k steps, batch size 4096) for consistency across methods. 1. ARF (Watson et al., 2023): We use the authors’s suggested default hyperparameters. In particular, we use 20 trees, δ
+
+= 0 and a minimum node size of 5. We follow the official package implementation and set the maximum number of iterations to 10 (see https://github.com/bips-hb/arfpy). 2. CTGAN (Xu et al., 2019): We follow the popular implementation in the Synthetic Data Vault package (see https://github.com/sdv-dev/CTGAN). For this model to work, the batch size must be divisible by 10. Therefore, we adjust the batch size if necessary. We use a 256-dimensional embedding (instead of the default embedding dimension of 128) to better align the CTGAN architecture with TVAE, TabSyn and CDTD. 3. TVAE (Xu et al., 2019): We again follow the implementation in the Synthetic Data Vault. We use a 256-dimensional embedding to better align the architecture with CTGAN, TabSyn and CDTD. 4. TabSyn (Zhang et al., 2023): We use the default hyperparameters as suggested by the authors. The training steps that go towards training the VAE and the denoising network follow the proportions given in the official code (see https://github.com/amazon-science/tabsyn). To improve comparability to CDTD, we use the same neural network architecture as TabDDPM, which only differs slightly from the original architecture. We leave the VAE untouched. 22 AugMask: Stochastic Augmentation and Masking 
+
+5. TabDDPM (Kotelnikov et al., 2023): 3-layer MLP with 256 hidden units; 1000 diffusion steps with cosine scheduler and time embedding dim 128. We train for 30k steps with Adam (lr 2 · 10 −4) and EMA decay 0.999; sampling batch size is 2000. 6. TabDiff (Shi et al., 2025): Transformer-based denoiser with 2 layers ( dtoken = 4 , 1 head) and a 5-layer MLP head (801 units), time embedding dim 256. Diffusion uses 50 timesteps with EDM-style preconditioning (e.g., σmin = 0 .002 ,
+
+σmax = 80 , σdata = 1 .0). We train for 30k steps with Adam (lr 10 −3) and EMA decay 0.997; we use 200 generation steps at sampling time. 7. CDTD (Mueller et al., 2025): We set the hidden layers to 796, number of layers to 5, dimension of the MLP/time embedding to 256. Also, as CDTD uses the EDM framework (Karras et al., 2022), with σcat min = 0 , σ cat max = 100 , σ cont min =0, σ cont max = 80 , σ cat data = 1 .0, σ cont data = 1 .0., we do not change this. Also, we use the learned noise-schedule configuration for by-type , which uses common noise-scheduling for the same data-types. For further details please refer to the Appendix in (Mueller et al., 2025). 
+
+C.7. Applying Loss Masking to Tabular Diffusion Models 
+
+This section describes how we implement loss masking when training tabular diffusion models on incomplete inputs. Let 
+
+b ∈ { 1, . . . , B } index samples in a minibatch and j ∈ { 1, . . . , d } index features. We write mb,j ∈ { 0, 1} for the observation mask ( mb,j = 1 if feature j is observed in sample b). When we need type-specific masking, we use mcont  
+
+> b,j
+
+and mcat  
+
+> b,j
+
+(equal to mb,j on numerical / categorical features, and 0 otherwise). 
+
+Mask-then-reduce. All implementations follow the same pattern: (i) compute a per-feature loss ℓb,j , (ii) multiply by the mask, and (iii) normalize using either per-sample or global normalization. With a small constant ε > 0 for stability, we use: 
+
+Mean ps (ℓ; m) := 1
+
+B
+
+> B
+
+X
+
+> b=1
+
+Pdj=1 mb,j ℓb,j 
+
+Pdj=1 mb,j + ε , (39) 
+
+Mean gl (ℓ; m) := 
+
+PBb=1 
+
+Pdj=1 mb,j ℓb,j 
+
+PBb=1 
+
+Pdj=1 mb,j + ε . (40) Per-sample normalization keeps each row’s contribution comparable even if rows have different missingness rates, while global normalization keeps the overall gradient scale stable across batches. C.7.1. T AB DDPM ( HYBRID GAUSSIAN + MULTINOMIAL DIFFUSION )
+
+Design. TabDDPM models numerical features with Gaussian diffusion and categorical features with multinomial diffusion, using a shared network backbone with type-specific heads. 
+
+Masking + reduction (per-sample normalization). We compute feature-wise losses and average them within each sample 
+
+over observed entries. • Numerical noise-prediction loss. For a numerical feature j at timestep t:
+
+ℓsimple  
+
+> b,j
+
+= ∥ϵb,j − ϵθ (xt,b , t )j ∥2 , Lsimple = Mean ps 
+
+ ℓsimple ; mcont . (41) • Categorical VLB/KL term. For a categorical feature j:
+
+ℓvlb  
+
+> b,j
+
+= DKL 
+
+
+
+q(xt−1,b,j | xt,b,j , x 0,b,j ) pθ (xt−1,b,j | xt,b,j )
+
+
+
+, Lvlb = Mean ps 
+
+ ℓvlb ; mcat . (42) The (masked) TabDDPM training objective is then LTabDDPM = Lsimple + Lvlb (up to any model-specific scalar weights). C.7.2. T AB DIFF (JOINT CONTINUOUS -TIME DIFFUSION WITH A TRANSFORMER )
+
+Design. TabDiff uses a Transformer-based denoiser. Numerical features are trained with an EDM-style regression loss, while categorical features use an absorbing/noising mechanism and a discrete likelihood term. 
+
+Masking + reduction (global normalization). We sum masked losses over the batch and divide by the total number of observed entries (separately per type). 23 AugMask: Stochastic Augmentation and Masking 
+
+• Numerical EDM-style loss. 
+
+ℓedm  
+
+> b,j
+
+= w(σt) Dθ (xt,b , σ t)j − x0,b,j 
+
+> 2
+
+, Ledm = Mean gl 
+
+ ℓedm ; mcont . (43) • Categorical absorbing / likelihood loss. We use the negative log-likelihood form: 
+
+ℓabs  
+
+> b,j
+
+= welbo 
+
+> t
+
+  − log pθ (x0,b,j | xt,b,j ), Labs = Mean gl 
+
+ ℓabs ; mcat . (44) Finally, 
+
+LTabDiff = Ledm + Labs . (45) C.7.3. CDTD ( CONTINUOUS DIFFUSION WITH CALIBRATED MIXED -TYPE LOSSES )
+
+Design. CDTD maps all features into a continuous diffusion space (categoricals via embeddings / score interpolation) and uses auxiliary networks (e.g., TimeWarping , WeightNet ) to stabilize training by matching and reweighting loss magnitudes. 
+
+Masking. We mask (i) the main per-feature diffusion loss and (ii) auxiliary objectives that regress to that per-feature loss; otherwise, missing features would contribute spurious gradients via nonzero auxiliary outputs. 
+
+Calibrated per-feature loss. Let ℓmse  
+
+> b,j
+
+be the numerical MSE-type loss and ℓce  
+
+> b,j
+
+be the categorical CE-type loss (as used by the model). We apply a feature weight ωj to balance heterogeneous scales; for categorical features, ωj is typically based on an entropy-like normalization constant Zj :
+
+ωj =
+
+(
+
+1/Z j , if j is categorical ,
+
+1, if j is numerical . (46) Then 
+
+ℓcalib  
+
+> b,j
+
+= ωj ·
+
+(
+
+ℓce  
+
+> b,j
+
+, j categorical ,ℓmse  
+
+> b,j
+
+, j numerical , Lcalib  
+
+> b,j
+
+= mb,j ℓcalib  
+
+> b,j
+
+. (47) 
+
+Auxiliary losses (masked). Let bLcalib  
+
+> b,j
+
+denote the auxiliary prediction of the calibrated loss (for timewarping), and let 
+
+reweight t denote the scalar output used for time-dependent reweighting. We mask both auxiliary terms: 
+
+Lwarp  
+
+> b,j
+
+= mb,j 
+
+ bLcalib  
+
+> b,j
+
+− Lcalib 
+
+> b,j
+
+2
+
+p(t) + ε , (48) 
+
+Lweight  
+
+> b,j
+
+= mb,j 
+
+
+
+exp(reweight t) − Lcalib 
+
+> b,j
+
+2
+
+. (49) 
+
+Total objective. We reduce by the number of observed entries to keep the overall scale comparable across different missingness rates: 
+
+LCDTD =
+
+PBb=1 
+
+Pdj=1 
+
+
+
+Lcalib  
+
+> b,j
+
++ Lwarp  
+
+> b,j
+
++ Lweight 
+
+> b,j
+
+PBb=1 
+
+Pdj=1 mb,j + ε . (50) 
+
+C.8. Hardware Specifications C.9. Evaluation Metrics 
+
+Let Dr = {x(i)}nr 
+
+> i=1
+
+be the real dataset and Ds = {˜x(i)}ns 
+
+> i=1
+
+be the synthetic set. We report Shape , Trend , α-Precision ,
+
+β-Recall , and MLE using our TMTC protocol in Fig. 3. 
+
+(1) Shape (column-wise density match). For each numerical column j ∈ J num , let F rj and F sj be the empirical CDFs from Dr and Ds. The Kolmogorov–Smirnov distance is 
+
+KST j := sup 
+
+> x
+
+F rj (x) − F sj (x) . (51) 24 AugMask: Stochastic Augmentation and Masking 
+
+Component Details 
+
+GPU NVIDIA RTX 4090 (24GB), Driver 550.127.05 CPU AMD EPYC 9254 24-Core Processor RAM 256 GB OS Ubuntu 22.04.3 LTS (Linux 5.15.0-105-generic) PyTorch 2.2.2 CUDA 12.1 cuDNN 8902  
+
+> Table 6. System specifications used for all experiments.
+
+For each categorical column j ∈ J cat with category set Kj , let Rj (ω) and Sj (ω) be empirical frequencies. The total-variation distance is 
+
+TVD j := 12
+
+X
+
+> ω∈Kj
+
+Rj (ω) − Sj (ω) . (52) We aggregate them into a single similarity score (larger is better) by 
+
+Shape := 1 − 1
+
+dfull 
+
+ X
+
+> j∈J num
+
+KST j + X
+
+> j∈J cat
+
+TVD j
+
+ . (53) 
+
+(2) Trend (pair-wise dependency match). For numerical columns a, b ∈ J num , let ρra,b and ρsa,b denote Pearson correlation coefficients computed on Dr and Ds. The Pearson discrepancy (averaged over pairs) is 
+
+PearsonScore := 12 E(a,b ) ρra,b − ρsa,b . (54) For categorical columns A, B ∈ J cat , let Rα,β and Sα,β be the empirical joint frequencies in the contingency tables. The contingency discrepancy is 
+
+ContingencyScore := 12
+
+X
+
+> α∈A
+
+X
+
+> β∈B
+
+Rα,β − Sα,β . (55) 
+
+(3) α-Precision / (4) β-Recall (sample-wise fidelity and coverage). We report the sample-wise metrics of Alaa et al. (2022): α-P RECISION measures fidelity , i.e., the fraction of synthetic samples that lie within the support of the real data (plausible samples), while β-R ECALL measures coverage , i.e., the extent to which the synthetic set covers the real-data distribution (real samples are close to some synthetic sample). Higher is better for both. 
+
+(5) MLE (machine learning efficiency / downstream utility). We evaluate downstream utility under the TSTR protocol: we train a fixed XGBoost classifier/regressor on synthetic data and evaluate it on a held-out real test set (AUROC for classification; RMSE for regression). For comparability across datasets, we normalize by the corresponding TRTR score (train and test on real data), which serves as an upper bound. Let sTSTR and sTRTR denote the downstream scores; we report 
+
+MLE = 
+
+
+
+sTSTR 
+
+sTRTR 
+
+, classification (AUROC; higher is better) ,sTRTR 
+
+sTSTR 
+
+, regression (RMSE; lower is better) .
+
+Thus, MLE ≈ 1 indicates synthetic data matches real-data utility, while smaller values indicate a gap. 25 AugMask: Stochastic Augmentation and Masking 
+
+D. Detailed Experimental Results 
+
+D.1. Full Results (Rank) for MAR setting 
+
+Table 7. MAR Results (90 Scenarios): Comparative Rank Analysis. Cells display Average Rank ( ↓) ± Standard Deviation across 90 scenarios: 6 datasets × 5 missing ratios [0.1–0.9] × 3 seeds. Ranks are computed per experimental block; Summary Rank is the mean rank across all metrics within each block. ∆ denotes absolute rank gain over the +NoAug baseline. ∗∗ and ∗ indicate statistical Gain and 
+
+Match via Wilcoxon test ( p < 0.05 ) against the best-performing missing-aware baseline per block among: MIWAE, MissDiff, DiffPuter, or ForestDiff. Boldface denotes results statistically superior to this entire baseline group. 
+
+Generative Quality Utility Method α-Precision β-Recall Trend Shape ML Task Summary 
+
+Rank ∆ Rank ∆ Rank ∆ Rank ∆ Rank ∆ Rank ∆
+
+(A) Missing-aware baselines 
+
+MIWAE 7.2 ± 4.0 – 10.2 ± 4.4 – 8.9 ± 4.6 – 8.2 ± 4.6 – 10.3 ± 4.5 – 9.0 –MissDiff 16.0 ± 4.8 – 17.1 ± 4.5 – 14.1 ± 3.7 – 16.7 ± 2.8 – 16.9 ± 3.0 – 16.2 –DiffPuter 11.7 ± 4.5 – 14.2 ± 4.2 – 13.1 ± 3.8 – 12.6 ± 3.9 – 17.6 ± 4.2 – 13.8 –ForestDiff 10.9 ± 4.6 – 6.3 ± 4.3 – 9.5 ± 3.5 – 11.6 ± 3.2 – 7.8 ± 3.4 – 9.2 –
+
+(B) Missing-unaware baselines 
+
+TVAE 17.8 ± 3.4 – 18.4 ± 2.2 – 17.6 ± 2.0 – 18.7 ± 2.2 – 15.8 ± 2.9 – 17.7 –
+
+⌞ +AugFull 11.6 ± 5.0 (+6.3) 11.8 ± 4.5 (+6.6) 10.2 ± 3.1 (+7.3) 10.3 ± 2.1 (+8.4) 10.5 ± 3.6 (+5.3) 10.9 (+6.8) CTGAN 13.5 ± 3.7 – 16.8 ± 3.1 – 16.1 ± 2.7 – 16.8 ± 2.4 – 17.9 ± 3.1 – 16.2 –
+
+⌞ +AugFull 11.7 ± 5.1 (+1.9) 13.3 ± 5.0 (+3.5) 11.7 ± 3.1 (+4.4) 10.5 ± 3.6 (+6.3) 14.7 ± 4.1 (+3.2) 12.4 (+3.9) ARF 17.0 ± 2.5 – 18.4 ± 2.0 – 20.5 ± 0.7 – 20.2 ± 0.8 – 17.0 ± 2.5 – 18.6 –
+
+⌞ +AugFull 8.9 ± 5.9 (+8.1) 11.8 ± 5.1 (+6.5) 18.2 ± 3.0 (+2.3) 11.2 ± 5.7 (+9.0) 11.2 ± 5.7 (+5.8) 12.3 (+6.3) TabSyn 14.1 ± 4.0 – 13.5 ± 2.2 – 12.5 ± 3.4 – 13.8 ± 3.2 – 12.6 ± 3.6 – 13.3 –
+
+⌞ +AugFull 6.1 ± 2.2 ∗ (+8.0) 7.3 ± 1.9 (+6.2) 3.6 ± 1.9 ∗∗ (+8.9) 4.1 ± 2.5 ∗∗ (+9.7) 6.5 ± 3.2 ∗ (+6.2) 5.5 ∗∗ (+7.8) TabDDPM 15.3 ± 3.2 – 12.5 ± 2.4 – 15.2 ± 2.3 – 13.6 ± 1.9 – 12.8 ± 2.7 – 13.9 –
+
+⌞ +AugFull 8.2 ± 5.1 (+7.1) 6.5 ± 3.6 (+6.0) 9.0 ± 5.2 ∗ (+6.2) 8.0 ± 5.0 ∗ (+5.6) 6.3 ± 4.2 ∗ (+6.5) 7.6 ∗ (+6.3) 
+
+⌞ +AugMask 8.1 ± 5.6 (+7.1) 5.7 ± 4.1 ∗ (+6.9) 8.9 ± 4.9 ∗ (+6.3) 6.9 ± 5.0 ∗ (+6.7) 5.2 ± 5.1 ∗∗ (+7.6) 6.9 ∗ (+6.9) 
+
+CDTD 13.1 ± 3.6 – 14.3 ± 3.5 – 13.0 ± 3.0 – 15.4 ± 2.9 – 12.3 ± 4.1 – 13.6 –
+
+⌞ +AugFull 4.8 ± 2.7 ∗ (+8.3) 6.6 ± 2.3 (+7.7) 4.4 ± 2.2 ∗∗ (+8.6) 5.1 ± 2.3 ∗∗ (+10.2) 6.0 ± 3.0 ∗ (+6.3) 5.4 ∗∗ (+8.2) 
+
+⌞ +AugMask 3.8 ± 2.5 ∗∗ (+9.3) 4.4 ± 3.2 ∗∗ (+9.9) 3.5 ± 2.0 ∗∗ (+9.5) 3.9 ± 2.3 ∗∗ (+11.5) 5.3 ± 3.0 ∗∗ (+7.0) 4.2 ∗∗ (+9.4) 
+
+TabDiff 16.1 ± 3.4 – 11.1 ± 3.3 – 12.3 ± 2.8 – 13.2 ± 3.1 – 11.7 ± 3.3 – 12.9 –
+
+⌞ +AugFull 6.6 ± 3.7 ∗ (+9.5) 4.4 ± 3.7 ∗∗ (+6.7) 3.7 ± 2.0 ∗∗ (+8.6) 4.5 ± 2.5 ∗∗ (+8.7) 5.0 ± 2.8 ∗∗ (+6.7) 4.8 ∗∗ (+8.0) 
+
+⌞ +AugMask 4.7 ± 4.6 ∗∗ (+11.4) 3.6 ± 4.5 ∗∗ (+7.5) 2.9 ± 2.5 ∗∗ (+9.4) 3.2 ± 2.9 ∗∗ (+10.0) 2.9 ± 2.2 ∗∗ (+8.8) 3.5 ∗∗ (+9.4) 
+
+D.2. Detailed Dataset-Specific Performance Breakdown 
+
+In this section, we provide a dataset-wise breakdown of the performance metrics summarized in the main paper. Each table reports the Mean Performance Score (↑) ×100 ± Standard Deviation aggregated across all 90 experimental scenarios (6 datasets × 5 noise ratios × 3 seeds). To quantify the impact of our proposed strategies, we report the Relative Improvement 
+
+(∆% ) for each variant, calculated as the percentage gain over its respective base ( +NoAug ) model. Statistical significance is assessed following the methodology in the main text. We conduct a paired Wilcoxon signed-rank test on the raw metric scores against the best-performing missing-aware baseline within each experimental block. A marker of ∗∗ denotes a statistically significant gain ( p < 0.05 ), while ∗ indicates a statistical match. Boldface is applied to all scores and relative gains that achieve a statistical gain ( ∗∗ ) over the baseline group. The Summary column represents the global arithmetic mean across all datasets, serving as a measure of the overall robustness of each training strategy. 26 AugMask: Stochastic Augmentation and Masking 
+
+Table 8. α-Precision (MCAR) 
+
+Adult Default Magic Shoppers Beijing News Summary Method Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) 
+
+(A) Missing-aware baselines 
+
+MIWAE 86.1 ± 9.40 – 93.7 ± 4.04 – 97.4 ± 0.92 – 93.7 ± 3.59 – 93.4 ± 3.29 – 91.6 ± 5.16 – 92.7 –MissDiff 88.7 ± 8.79 – 47.5 ± 1.27 – 13.2 ± 2.99 – 42.9 ± 11.1 – 90.4 ± 5.22 – 1.63 ± 1.16 – 47.4 –DiffPuter 55.7 ± 31.3 – 62.9 ± 19.4 – 83.2 ± 9.49 – 66.6 ± 25.8 – 88.1 ± 9.12 – 79.1 ± 18.3 – 72.6 –ForestDiff 69.4 ± 37.9 – 76.2 ± 24.1 – 89.4 ± 6.26 – 63.1 ± 41.1 – 91.9 ± 5.87 – 62.5 ± 19.9 – 75.4 –
+
+(B) Missing-unaware baselines & enhancements via our proposed training strategy 
+
+TVAE 44.1 ± 21.3 – 41.9 ± 24.7 – 70.3 ± 13.1 – 30.5 ± 18.9 – 70.4 ± 10.7 – 49.9 ± 21.8 – 51.2 –
+
+⌞ +AugFull 71.8 ± 10.9 (+62.9%) 83.1 ± 8.73 (+98.3%) 89.7 ± 3.32 (+27.6%) 41.0 ± 18.4 (+34.3%) 83.4 ± 9.30 (+18.6%) 92.5 ∗ ± 4.93 (+85.2%) 77.1 (+50.5%) CTGAN 71.9 ± 19.6 – 68.0 ± 11.1 – 78.7 ± 5.75 – 76.7 ± 19.4 – 78.9 ± 11.0 – 71.1 ± 23.6 – 73.7 –
+
+⌞ +AugFull 72.4 ± 9.86 (+0.66%) 71.8 ± 4.68 (+5.56%) 80.3 ± 4.58 (+1.99%) 81.4 ± 6.55 (+6.23%) 85.9 ± 6.83 (+8.95%) 88.8 ± 5.05 (+24.8%) 80.1 (+8.66%) ARF 56.9 ± 24.7 – 60.8 ± 23.7 – 53.0 ± 22.2 – 46.2 ± 25.9 – 52.2 ± 27.8 – 41.5 ± 26.6 – 53.3 –
+
+⌞ +AugFull 94.9 ∗∗ ± 9.09 (+66.7%) 88.0 ± 5.19 (+44.7%) 68.4 ± 16.0 (+29.0%) 91.0 ∗ ± 8.70 (+96.8%) 98.6 ∗∗ ± 1.07 (+88.9%) 17.2 ± 13.0 – 84.6 (+58.8%) TabSyn 58.9 ± 24.2 – 62.4 ± 26.3 – 77.0 ± 13.1 – 63.5 ± 27.2 – 75.1 ± 13.2 – 71.0 ± 17.9 – 68.1 –
+
+⌞ +AugFull 96.1 ∗ ± 2.39 (+63.1%) 91.3 ± 6.82 (+46.3%) 96.0 ∗ ± 3.60 (+24.6%) 93.9 ∗ ± 6.66 (+47.9%) 97.5 ∗∗ ± 1.05 (+29.8%) 68.0 ± 12.1 – 90.5 (+32.7%) TabDDPM 50.2 ± 28.7 – 74.5 ± 16.4 – 58.3 ± 26.9 – 54.4 ± 27.6 – 70.6 ± 18.0 – 21.2 ± 10.1 – 54.9 –
+
+⌞ +AugFull 97.6 ∗∗ ± 1.77 (+94.6%) 83.4 ± 7.18 (+11.8%) 96.5 ∗ ± 3.12 (+65.6%) 97.0 ∗∗ ± 1.89 (+78.2%) 97.8 ∗∗ ± 1.16 (+38.5%) 16.4 ± 17.1 – 81.4 (+48.4%) 
+
+⌞ +AugMask 97.6 ∗∗ ± 1.16 (+94.6%) 90.0 ± 3.84 (+20.7%) 96.1 ± 1.67 (+64.9%) 94.4 ∗ ± 3.98 (+73.6%) 97.4 ∗∗ ± 1.88 (+37.9%) 2.83 ± 1.72 – 79.7 (+45.3%) 
+
+CDTD 52.5 ± 27.5 – 62.6 ± 26.1 – 78.3 ± 13.1 – 65.0 ± 27.1 – 80.8 ± 11.9 – 64.2 ± 18.9 – 67.2 –
+
+⌞ +AugFull 96.9 ∗∗ ± 2.35 (+84.6%) 93.5 ∗ ± 6.64 (+49.3%) 95.6 ∗ ± 4.12 (+22.0%) 92.8 ∗ ± 3.18 (+42.9%) 97.3 ∗∗ ± 1.68 (+20.5%) 85.6 ± 16.4 (+33.2%) 93.6 ∗ (+39.2%) 
+
+⌞ +AugMask 97.9 ∗∗ ± 2.21 (+86.7%) 97.6 ∗∗ ± 1.51 (+55.9%) 98.8 ∗∗ ± 0.56 (+26.1%) 91.5 ∗ ± 6.36 (+40.8%) 96.1 ∗ ± 2.98 (+19.0%) 94.5 ∗ ± 5.90 (+47.1%) 96.1 ∗∗ (+42.9%) 
+
+TabDiff 50.5 ± 29.1 – 59.0 ± 25.3 – 58.5 ± 24.2 – 47.6 ± 27.5 – 69.0 ± 18.4 – 46.2 ± 8.87 – 55.1 –
+
+⌞ +AugFull 97.2 ∗∗ ± 2.10 (+92.5%) 93.3 ∗ ± 6.30 (+58.2%) 96.3 ∗ ± 3.16 (+64.6%) 97.3 ∗∗ ± 1.53 (+104%) 97.8 ∗∗ ± 1.35 (+41.8%) 32.8 ± 4.89 – 85.8 ∗ (+55.6%) 
+
+⌞ +AugMask 98.3 ∗∗ ± 0.76 (+94.6%) 97.8 ∗∗ ± 0.75 (+65.7%) 98.7 ∗∗ ± 1.24 (+68.7%) 96.3 ∗∗ ± 2.41 (+102%) 98.5 ∗∗ ± 0.79 (+42.8%) 29.0 ± 1.49 – 86.4 ∗∗ (+56.8%) 
+
+Table 9. β-Recall (MCAR) 
+
+Adult Default Magic Shoppers Beijing News Summary Method Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) 
+
+(A) Missing-aware baselines 
+
+MIWAE 6.64 ± 0.97 – 18.8 ± 4.92 – 26.7 ± 9.30 – 19.2 ± 2.01 – 44.5 ± 1.08 – 10.2 ± 3.06 – 21.0 –MissDiff 13.7 ± 10.0 – 0.00 ± 0.00 – 0.00 ± 0.01 – 0.04 ± 0.02 – 45.8 ± 2.69 – 0.00 ± 0.00 – 9.93 –DiffPuter 6.36 ± 2.81 – 5.86 ± 3.38 – 23.9 ± 15.7 – 11.7 ± 6.65 – 41.1 ± 4.53 – 10.9 ± 11.0 – 16.6 –ForestDiff 29.1 ± 17.3 – 31.6 ± 16.8 – 40.4 ± 14.2 – 29.2 ± 20.7 – 45.6 ± 11.2 – 26.8 ± 19.7 – 33.8 –
+
+(B) Missing-unaware baselines & enhancements via our proposed training strategy 
+
+TVAE 9.63 ± 8.98 – 4.68 ± 4.54 – 4.87 ± 8.06 – 9.93 ± 12.3 – 2.92 ± 5.32 – 3.09 ± 5.64 – 5.74 –
+
+⌞ +AugFull 20.6 ± 6.08 (+114%) 15.0 ± 4.01 (+221%) 18.0 ± 8.63 (+270%) 16.8 ± 10.0 (+69.4%) 8.83 ± 8.32 (+202%) 11.2 ± 6.46 (+262%) 14.9 (+159%) CTGAN 5.91 ± 2.38 – 4.00 ± 1.79 – 2.88 ± 3.11 – 11.5 ± 6.04 – 4.73 ± 1.52 – 3.91 ± 6.58 – 5.77 –
+
+⌞ +AugFull 7.84 ± 2.27 (+32.6%) 6.91 ± 4.09 (+73.0%) 7.97 ± 3.49 (+176%) 16.2 ± 4.67 (+41.4%) 4.40 ± 0.61 – 14.9 ± 9.05 (+280%) 9.70 (+68.0%) ARF 3.11 ± 2.50 – 3.60 ± 2.08 – 0.32 ± 0.68 – 10.7 ± 7.61 – 20.0 ± 17.0 – 0.09 ± 0.19 – 6.49 –
+
+⌞ +AugFull 20.0 ± 8.74 (+543%) 15.7 ± 7.70 (+335%) 0.25 ± 0.63 – 13.9 ± 6.84 (+30.5%) 48.7 ± 2.58 (+143%) 0.11 ± 0.07 (+15.8%) 18.7 (+189%) TabSyn 18.9 ± 11.8 – 12.2 ± 9.35 – 11.6 ± 13.9 – 19.0 ± 13.5 – 22.0 ± 17.1 – 2.71 ± 4.36 – 14.3 –
+
+⌞ +AugFull 26.2 ± 11.5 (+39.1%) 21.7 ± 10.0 (+77.4%) 21.8 ± 14.2 (+88.6%) 30.7 ± 7.80 (+61.5%) 48.1 ± 1.52 (+118%) 9.38 ± 7.61 (+246%) 26.3 (+84.1%) TabDDPM 19.0 ± 14.4 – 15.5 ± 8.77 – 16.2 ± 12.9 – 25.6 ± 13.6 – 21.5 ± 16.8 – 1.93 ± 1.19 – 16.6 –
+
+⌞ +AugFull 32.3 ∗∗ ± 12.3 (+70.3%) 20.6 ± 7.54 (+32.6%) 22.6 ± 14.0 (+38.9%) 34.0 ∗ ± 7.99 (+32.6%) 48.1 ± 1.74 (+123%) 1.33 ± 1.11 – 26.5 (+59.2%) 
+
+⌞ +AugMask 40.8 ∗∗ ± 6.06 (+115%) 32.5 ∗ ± 4.27 (+109%) 38.6 ∗ ± 6.28 (+137%) 40.1 ∗ ± 5.32 (+56.8%) 46.7 ± 5.16 (+117%) 0.73 ± 0.37 – 33.2 ∗ (+99.9%) 
+
+CDTD 21.2 ± 13.7 – 11.0 ± 8.03 – 9.00 ± 13.2 – 14.5 ± 10.1 – 18.7 ± 15.8 – 5.04 ± 9.64 – 13.2 –
+
+⌞ +AugFull 31.9 ∗ ± 14.5 (+50.1%) 22.8 ± 11.4 (+107%) 23.2 ± 14.9 (+158%) 29.8 ∗ ± 11.7 (+106%) 46.3 ± 4.81 (+148%) 21.3 ± 14.2 (+322%) 29.2 (+121%) 
+
+⌞ +AugMask 38.1 ∗∗ ± 9.66 (+79.3%) 27.7 ± 10.1 (+152%) 39.3 ∗ ± 6.83 (+337%) 37.5 ∗ ± 13.2 (+159%) 40.7 ± 12.0 (+118%) 34.7 ∗ ± 11.2 (+589%) 36.3 ∗ (+174%) 
+
+TabDiff 19.4 ± 15.0 – 19.4 ± 12.8 – 18.0 ± 14.8 – 29.3 ± 16.4 – 22.4 ± 17.6 – 0.64 ± 0.14 – 18.2 –
+
+⌞ +AugFull 32.9 ∗∗ ± 13.1 (+69.8%) 25.5 ± 12.9 (+31.3%) 24.6 ± 15.9 (+36.8%) 37.9 ∗∗ ± 10.0 (+29.4%) 49.3 ∗ ± 2.64 (+120%) 0.62 ± 0.05 – 28.5 (+56.5%) 
+
+⌞ +AugMask 41.7 ∗∗ ± 7.25 (+115%) 41.8 ∗∗ ± 5.54 (+115%) 42.4 ∗ ± 7.14 (+136%) 45.8 ∗∗ ± 5.92 (+56.3%) 50.5 ∗ ± 2.57 (+125%) 0.62 ± 0.06 – 37.2 ∗∗ (+104%) 
+
+27 AugMask: Stochastic Augmentation and Masking 
+
+Table 10. Trend (MCAR) 
+
+Adult Default Magic Shoppers Beijing News Summary Method Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) 
+
+(A) Missing-aware baselines 
+
+MIWAE 71.5 ± 3.46 – 84.6 ± 3.21 – 96.2 ± 1.37 – 82.9 ± 0.86 – 81.8 ± 3.89 – 95.8 ± 0.63 – 85.5 –MissDiff 75.9 ± 15.3 – 77.3 ± 12.9 – 81.3 ± 3.64 – 66.4 ± 15.9 – 85.2 ± 13.6 – 91.2 ± 1.16 – 79.6 –DiffPuter 60.3 ± 14.7 – 68.3 ± 4.69 – 90.5 ± 5.42 – 73.5 ± 9.53 – 79.1 ± 9.32 – 94.2 ± 2.80 – 77.7 –ForestDiff 78.2 ± 23.3 – 80.1 ± 14.6 – 94.2 ± 4.80 – 78.4 ± 20.5 – 88.8 ± 9.73 – 93.7 ± 4.11 – 85.6 –
+
+(B) Missing-unaware baselines & enhancements via our proposed training strategy 
+
+TVAE 67.9 ± 12.2 – 63.2 ± 8.97 – 82.5 ± 7.16 – 69.1 ± 9.95 – 47.0 ± 18.9 – 70.8 ± 33.0 – 68.1 –
+
+⌞ +AugFull 82.8 ± 5.54 (+21.9%) 81.7 ± 2.92 (+29.2%) 92.9 ± 2.27 (+12.5%) 77.9 ± 8.79 (+12.7%) 70.7 ± 19.1 (+50.5%) 94.7 ± 1.03 (+33.8%) 83.5 (+22.6%) CTGAN 60.3 ± 10.4 – 65.9 ± 5.57 – 82.1 ± 5.71 – 76.4 ± 7.20 – 53.8 ± 15.1 – 92.5 ± 1.83 – 70.7 –
+
+⌞ +AugFull 70.4 ± 4.82 (+16.7%) 73.6 ± 2.35 (+11.8%) 88.2 ± 2.95 (+7.44%) 84.1 ± 1.78 (+10.1%) 66.1 ± 8.64 (+22.9%) 94.7 ± 0.61 (+2.45%) 79.5 (+12.5%) ARF 38.4 ± 12.2 – 28.0 ± 8.37 – 53.8 ± 20.2 – 27.1 ± 8.78 – 29.4 ± 14.4 – 34.9 ± 9.16 – 35.6 –
+
+⌞ +AugFull 61.2 ± 1.67 (+59.6%) 54.0 ± 2.90 (+93.2%) 61.9 ± 11.2 (+15.1%) 34.9 ± 6.91 (+28.7%) 63.1 ± 2.52 (+115%) 35.3 ± 10.7 (+1.40%) 54.0 (+51.7%) TabSyn 71.6 ± 17.2 – 71.2 ± 12.2 – 86.3 ± 7.78 – 76.6 ± 12.2 – 65.9 ± 18.6 – 92.5 ± 2.62 – 77.4 –
+
+⌞ +AugFull 91.8 ∗∗ ± 3.33 (+28.3%) 86.6 ∗ ± 3.53 (+21.7%) 95.1 ± 3.48 (+10.3%) 91.2 ∗ ± 3.02 (+19.0%) 94.3 ∗∗ ± 2.26 (+43.1%) 96.1 ± 1.05 (+3.87%) 92.5 ∗∗ (+19.5%) 
+
+TabDDPM 71.0 ± 16.6 – 71.3 ± 10.5 – 83.6 ± 7.45 – 76.2 ± 11.5 – 63.9 ± 18.5 – 86.9 ± 1.15 – 75.5 –
+
+⌞ +AugFull 92.3 ∗∗ ± 3.93 (+30.0%) 78.4 ± 2.75 (+10.1%) 93.2 ± 2.34 (+11.4%) 93.0 ∗∗ ± 2.23 (+22.0%) 93.4 ∗∗ ± 2.25 (+46.1%) 85.7 ± 1.88 – 89.3 (+18.3%) 
+
+⌞ +AugMask 94.4 ∗∗ ± 2.66 (+33.0%) 81.2 ± 4.19 (+13.9%) 93.6 ± 1.45 (+12.0%) 91.0 ∗ ± 2.72 (+19.4%) 93.6 ∗∗ ± 3.04 (+46.5%) 84.8 ± 2.47 – 89.8 (+18.9%) 
+
+CDTD 71.0 ± 17.2 – 73.5 ± 11.6 – 85.4 ± 6.74 – 75.6 ± 11.4 – 62.9 ± 18.4 – 92.9 ± 2.89 – 76.9 –
+
+⌞ +AugFull 92.8 ∗∗ ± 3.98 (+30.7%) 87.8 ∗ ± 5.49 (+19.5%) 95.5 ∗ ± 3.80 (+11.8%) 91.4 ∗ ± 3.00 (+20.9%) 88.1 ∗ ± 11.5 (+40.0%) 96.7 ∗∗ ± 1.19 (+4.03%) 92.0 ∗∗ (+19.7%) 
+
+⌞ +AugMask 94.6 ∗∗ ± 3.34 (+33.3%) 89.5 ∗∗ ± 4.80 (+21.7%) 97.0 ∗∗ ± 1.87 (+13.6%) 93.5 ∗∗ ± 3.23 (+23.7%) 92.6 ∗ ± 2.15 (+47.2%) 97.4 ∗∗ ± 0.95 (+4.83%) 94.1 ∗∗ (+22.4%) 
+
+TabDiff 71.9 ± 16.6 – 73.9 ± 13.8 – 87.6 ± 7.39 – 78.8 ± 11.8 – 65.4 ± 18.3 – 92.4 ± 2.15 – 78.3 –
+
+⌞ +AugFull 92.8 ∗∗ ± 4.81 (+29.1%) 89.6 ∗∗ ± 5.48 (+21.2%) 95.8 ∗ ± 3.62 (+9.39%) 94.2 ∗∗ ± 2.77 (+19.6%) 94.9 ∗∗ ± 2.63 (+45.2%) 95.4 ± 0.61 (+3.27%) 93.8 ∗∗ (+19.7%) 
+
+⌞ +AugMask 96.0 ∗∗ ± 3.00 (+33.6%) 90.9 ∗∗ ± 4.47 (+23.0%) 96.7 ∗∗ ± 1.81 (+10.4%) 95.8 ∗∗ ± 2.33 (+21.6%) 96.2 ∗∗ ± 1.74 (+47.2%) 95.5 ± 0.46 (+3.44%) 95.2 ∗∗ (+21.6%) 
+
+Table 11. Shape (MCAR) 
+
+Adult Default Magic Shoppers Beijing News Summary Method Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) 
+
+(A) Missing-aware baselines 
+
+MIWAE 87.0 ± 0.95 – 93.9 ± 0.87 – 97.4 ± 0.30 – 85.1 ± 1.48 – 92.9 ± 0.62 – 94.4 ± 0.42 – 91.8 –MissDiff 81.1 ± 4.94 – 78.4 ± 5.80 – 69.1 ± 2.97 – 66.2 ± 3.36 – 77.0 ± 1.74 – 45.9 ± 3.13 – 69.6 –DiffPuter 81.7 ± 8.11 – 74.8 ± 6.82 – 84.0 ± 14.8 – 75.6 ± 8.78 – 88.1 ± 8.63 – 73.6 ± 23.1 – 79.6 –ForestDiff 84.9 ± 18.5 – 83.2 ± 15.8 – 92.0 ± 6.02 – 81.1 ± 18.7 – 90.5 ± 8.66 – 80.9 ± 14.1 – 85.4 –
+
+(B) Missing-unaware baselines & enhancements via our proposed training strategy 
+
+TVAE 78.4 ± 9.89 – 57.0 ± 17.5 – 53.6 ± 23.0 – 71.9 ± 11.8 – 54.4 ± 18.8 – 47.2 ± 22.6 – 59.5 –
+
+⌞ +AugFull 91.3 ± 1.67 (+16.4%) 86.2 ± 4.70 (+51.2%) 94.3 ± 0.88 (+76.0%) 83.6 ± 8.22 (+16.3%) 85.9 ± 9.06 (+57.8%) 82.9 ± 5.08 (+75.6%) 87.2 (+46.5%) CTGAN 78.6 ± 6.75 – 62.8 ± 14.7 – 66.3 ± 22.7 – 75.8 ± 10.0 – 65.1 ± 13.8 – 64.3 ± 19.1 – 69.1 –
+
+⌞ +AugFull 86.7 ± 1.54 (+10.2%) 83.7 ± 2.70 (+33.3%) 90.0 ± 1.73 (+35.7%) 87.8 ± 2.48 (+15.8%) 85.4 ± 1.73 (+31.1%) 90.6 ± 2.11 (+41.0%) 87.4 (+26.4%) ARF 65.3 ± 9.83 – 52.5 ± 10.0 – 37.0 ± 11.0 – 59.4 ± 8.23 – 54.6 ± 13.8 – 36.9 ± 5.67 – 52.8 –
+
+⌞ +AugFull 94.6 ∗ ± 1.01 (+44.8%) 92.5 ± 2.04 (+76.2%) 42.6 ± 7.51 (+15.1%) 67.6 ± 6.29 (+13.9%) 96.5 ∗∗ ± 0.34 (+76.8%) 38.2 ± 3.07 (+3.67%) 76.7 (+45.3%) TabSyn 81.0 ± 12.2 – 68.7 ± 19.7 – 67.7 ± 22.8 – 75.4 ± 13.5 – 68.2 ± 20.6 – 71.1 ± 17.4 – 71.9 –
+
+⌞ +AugFull 97.4 ∗∗ ± 0.66 (+20.2%) 92.7 ± 3.37 (+34.9%) 97.8 ∗∗ ± 0.68 (+44.4%) 90.5 ± 3.38 (+20.0%) 98.1 ∗∗ ± 0.41 (+43.8%) 91.3 ± 4.15 (+28.4%) 94.6 ∗ (+31.6%) TabDDPM 81.4 ± 10.9 – 80.8 ± 10.9 – 78.8 ± 14.3 – 79.4 ± 10.3 – 73.0 ± 16.2 – 49.4 ± 5.79 – 73.8 –
+
+⌞ +AugFull 96.7 ∗∗ ± 1.59 (+18.8%) 88.6 ± 4.10 (+9.65%) 98.1 ∗∗ ± 0.51 (+24.4%) 92.5 ∗ ± 2.47 (+16.4%) 97.1 ∗∗ ± 0.38 (+33.0%) 49.4 ± 13.5 – 87.1 ∗ (+18.0%) 
+
+⌞ +AugMask 97.9 ∗∗ ± 1.04 (+20.2%) 92.3 ± 2.07 (+14.2%) 96.9 ∗ ± 1.28 (+22.9%) 93.8 ∗∗ ± 2.49 (+18.1%) 96.3 ∗∗ ± 1.32 (+32.0%) 41.9 ± 4.34 – 86.5 ∗ (+17.2%) 
+
+CDTD 81.8 ± 10.8 – 66.8 ± 17.6 – 66.5 ± 19.2 – 72.7 ± 12.0 – 68.5 ± 16.6 – 63.4 ± 18.6 – 70.0 –
+
+⌞ +AugFull 97.1 ∗∗ ± 1.00 (+18.7%) 94.5 ∗ ± 2.55 (+41.4%) 98.1 ∗∗ ± 0.49 (+47.6%) 91.4 ∗ ± 2.86 (+25.8%) 95.3 ∗ ± 1.92 (+39.1%) 92.0 ± 2.47 (+45.0%) 94.7 ∗ (+35.4%) 
+
+⌞ +AugMask 98.1 ∗∗ ± 0.84 (+19.9%) 96.4 ∗∗ ± 2.19 (+44.3%) 98.0 ∗∗ ± 1.07 (+47.4%) 94.7 ∗∗ ± 2.86 (+30.3%) 95.4 ∗ ± 0.75 (+39.2%) 94.9 ∗ ± 0.77 (+49.6%) 96.2 ∗∗ (+37.6%) 
+
+TabDiff 81.2 ± 11.2 – 74.6 ± 15.3 – 78.3 ± 12.6 – 79.7 ± 11.3 – 71.8 ± 16.6 – 86.4 ± 1.50 – 78.7 –
+
+⌞ +AugFull 96.9 ∗∗ ± 1.71 (+19.4%) 95.1 ∗ ± 2.41 (+27.5%) 98.3 ∗∗ ± 0.46 (+25.5%) 93.4 ∗∗ ± 3.41 (+17.1%) 97.5 ∗∗ ± 0.50 (+35.8%) 88.2 ± 0.40 (+2.15%) 94.9 ∗∗ (+20.6%) 
+
+⌞ +AugMask 98.6 ∗∗ ± 0.83 (+21.4%) 97.5 ∗∗ ± 1.05 (+30.7%) 98.1 ∗∗ ± 0.89 (+25.3%) 97.1 ∗∗ ± 1.10 (+21.8%) 97.4 ∗∗ ± 0.66 (+35.7%) 88.0 ± 0.51 (+1.90%) 96.1 ∗∗ (+22.2%) 
+
+28 AugMask: Stochastic Augmentation and Masking 
+
+Table 12. ML-Task Scores (MCAR) 
+
+Adult Default Magic Shoppers Beijing News Summary Method Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) 
+
+(A) Missing-aware baselines 
+
+MIWAE 90.3 ± 2.27 – 94.6 ± 1.64 – 94.2 ± 4.03 – 85.4 ± 6.68 – 47.9 ± 3.44 – 95.4 ± 2.73 – 84.6 –MissDiff 73.8 ± 16.8 – 83.1 ± 12.1 – 75.8 ± 17.2 – 57.2 ± 15.6 – 44.7 ± 9.12 – 40.9 ± 23.8 – 62.6 –DiffPuter 46.5 ± 13.6 – 65.4 ± 7.34 – 47.8 ± 7.42 – 56.1 ± 5.55 – 43.2 ± 8.27 – 83.8 ± 23.8 – 57.2 –ForestDiff 93.1 ∗ ± 7.67 – 92.5 ± 10.00 – 91.9 ∗ ± 10.0 – 91.5 ∗ ± 10.0 – 61.8 ∗ ± 9.88 – 95.6 ± 2.04 – 87.7 –
+
+(B) Missing-unaware baselines & enhancements via our proposed training strategy 
+
+TVAE 90.2 ± 3.55 – 84.2 ± 10.5 – 77.1 ± 12.8 – 84.1 ± 12.9 – 35.1 ± 12.2 – 89.3 ± 5.68 – 78.1 –
+
+⌞ +AugFull 94.5 ± 1.05 (+4.78%) 92.9 ± 3.22 (+10.3%) 86.7 ± 9.21 (+12.5%) 90.4 ± 8.94 (+7.44%) 48.8 ± 5.23 (+39.0%) 95.1 ± 1.16 (+6.51%) 84.4 (+8.03%) CTGAN 67.9 ± 15.2 – 71.5 ± 7.40 – 70.5 ± 14.6 – 70.1 ± 12.9 – 32.4 ± 3.83 – 83.7 ± 10.6 – 65.5 –
+
+⌞ +AugFull 83.6 ± 11.1 (+23.2%) 78.1 ± 9.23 (+9.26%) 77.1 ± 10.9 (+9.27%) 77.7 ± 12.9 (+10.9%) 39.1 ± 2.37 (+20.8%) 94.6 ± 2.36 (+13.0%) 75.0 (+14.5%) ARF 91.7 ± 2.64 – 87.2 ± 6.10 – 56.0 ± 8.24 – 60.6 ± 8.36 – 29.9 ± 14.1 – 72.2 ± 26.5 – 65.3 –
+
+⌞ +AugFull 95.6 ∗∗ ± 3.19 (+4.27%) 93.2 ± 7.52 (+6.77%) 55.3 ± 6.74 – 64.1 ± 9.57 (+5.82%) 54.0 ± 7.62 (+80.9%) 82.8 ± 8.59 (+14.6%) 75.6 (+15.8%) TabSyn 92.3 ∗ ± 7.15 – 87.3 ± 12.9 – 78.2 ± 15.0 – 77.8 ± 20.3 – 44.8 ± 12.1 – 89.8 ± 6.84 – 78.2 –
+
+⌞ +AugFull 96.2 ∗∗ ± 1.80 (+4.29%) 95.9 ∗ ± 5.02 (+9.88%) 92.7 ± 6.29 (+18.5%) 92.8 ∗ ± 5.34 (+19.3%) 54.6 ± 7.85 (+21.9%) 94.4 ∗ ± 4.92 (+5.23%) 87.8 (+12.3%) TabDDPM 93.8 ∗ ± 5.21 – 91.3 ± 9.56 – 82.9 ± 12.8 – 85.7 ± 13.0 – 50.6 ± 6.87 – 86.5 ± 9.93 – 81.8 –
+
+⌞ +AugFull 95.8 ∗∗ ± 2.44 (+2.13%) 97.0 ∗ ± 2.70 (+6.18%) 92.0 ± 8.03 (+11.0%) 93.2 ∗ ± 7.34 (+8.73%) 55.2 ± 6.98 (+8.96%) 88.8 ± 11.2 (+2.67%) 87.0 (+6.33%) 
+
+⌞ +AugMask 97.0 ∗∗ ± 0.775 (+3.38%) 97.2 ∗ ± 1.72 (+6.49%) 95.8 ∗∗ ± 3.23 (+15.6%) 95.0 ∗∗ ± 4.30 (+10.9%) 60.1 ∗ ± 5.08 (+18.7%) 85.3 ± 5.36 – 88.4 ∗ (+8.06%) 
+
+CDTD 93.3 ± 4.14 – 90.0 ± 10.2 – 77.2 ± 15.4 – 87.6 ± 11.9 – 38.1 ± 10.5 – 93.3 ± 2.29 – 79.8 –
+
+⌞ +AugFull 94.7 ∗∗ ± 4.83 (+1.52%) 95.8 ∗ ± 4.26 (+6.45%) 91.6 ± 9.05 (+18.6%) 89.5 ± 10.4 (+2.18%) 56.2 ± 9.51 (+47.4%) 94.9 ± 3.09 (+1.68%) 87.1 (+9.11%) 
+
+⌞ +AugMask 96.0 ∗∗ ± 1.79 (+2.95%) 95.7 ∗ ± 3.86 (+6.41%) 95.5 ∗∗ ± 3.49 (+23.7%) 93.1 ∗ ± 8.20 (+6.21%) 59.4 ∗ ± 7.55 (+56.0%) 98.1 ∗ ± 3.10 (+5.13%) 89.7 ∗∗ (+12.3%) 
+
+TabDiff 89.9 ∗ ± 14.5 – 89.9 ± 11.9 – 78.5 ± 20.8 – 85.4 ± 14.9 – 51.1 ± 8.47 – 92.4 ± 3.49 – 81.2 –
+
+⌞ +AugFull 95.8 ∗∗ ± 3.11 (+6.59%) 95.4 ∗ ± 6.23 (+6.06%) 90.5 ± 9.91 (+15.3%) 92.2 ∗ ± 8.71 (+7.90%) 55.3 ± 10.0 (+8.21%) 95.5 ± 2.33 (+3.33%) 87.4 ∗ (+7.67%) 
+
+⌞ +AugMask 97.0 ∗∗ ± 1.23 (+7.92%) 96.5 ∗ ± 3.11 (+7.37%) 95.2 ∗∗ ± 3.76 (+21.3%) 95.9 ∗∗ ± 3.91 (+12.2%) 62.0 ∗ ± 6.81 (+21.2%) 97.2 ∗ ± 2.66 (+5.16%) 90.6 ∗∗ (+11.6%) 
+
+Table 13. α Precision (MAR) 
+
+Adult Default Magic Shoppers Beijing News Summary Method Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) 
+
+(A) Missing-aware baselines 
+
+MIWAE 88.1 ± 2.45 – 94.2 ± 2.46 – 95.9 ± 3.27 – 92.8 ± 2.94 – 92.6 ± 2.90 – 89.1 ± 9.15 – 92.1 –MissDiff 87.2 ± 13.8 – 48.6 ± 1.77 – 13.6 ± 2.22 – 51.8 ± 14.3 – 88.5 ± 9.16 – 0.66 ± 0.88 – 48.4 –DiffPuter 72.0 ± 22.0 – 71.9 ± 18.4 – 84.2 ± 8.91 – 75.2 ± 22.3 – 90.5 ± 4.12 – 63.0 ± 31.4 – 76.2 –ForestDiff 72.8 ± 36.2 – 78.6 ± 17.1 – 82.6 ± 5.81 – 64.9 ± 40.0 – 87.4 ± 8.17 – 59.0 ± 11.9 – 74.2 –
+
+(B) Missing-unaware baselines & enhancements via our proposed training strategy 
+
+TVAE 37.1 ± 23.2 – 40.9 ± 21.9 – 71.9 ± 13.5 – 32.5 ± 13.0 – 64.8 ± 14.8 – 43.4 ± 21.2 – 48.2 –
+
+⌞ +AugFull 60.8 ± 20.4 (+63.8%) 82.1 ± 6.04 (+101%) 88.9 ± 3.71 (+23.7%) 48.7 ± 25.3 (+50.0%) 85.1 ± 9.06 (+31.4%) 90.5 ∗ ± 5.97 (+109%) 76.0 (+57.7%) CTGAN 73.5 ± 19.3 – 67.7 ± 11.0 – 81.0 ± 3.47 – – ± – – 75.6 ± 12.3 – 61.4 ± 31.1 – 71.9 –
+
+⌞ +AugFull 75.2 ± 11.4 (+2.37%) 71.4 ± 4.70 (+5.42%) 86.2 ± 3.64 (+6.36%) 80.0 ± 7.82 – 86.0 ± 7.06 (+13.7%) 91.4 ∗ ± 5.04 (+48.7%) 81.7 (+13.7%) ARF 63.2 ± 17.9 – 63.4 ± 21.2 – 46.9 ± 26.9 – 54.8 ± 25.4 – 61.5 ± 15.9 – 11.1 ± 0.00 – 55.9 –
+
+⌞ +AugFull 96.7 ∗ ± 2.16 (+53.0%) 87.4 ± 5.60 (+38.0%) 65.4 ± 11.5 (+39.6%) 93.5 ∗ ± 2.28 (+70.5%) 97.7 ∗∗ ± 2.12 (+59.0%) 6.98 ± 0.12 – 82.1 (+46.9%) TabSyn 62.0 ± 21.3 – 61.3 ± 26.5 – 75.8 ± 13.2 – 59.8 ± 22.2 – 72.8 ± 15.8 – 65.5 ± 27.2 – 66.2 –
+
+⌞ +AugFull 96.3 ∗ ± 1.59 (+55.4%) 90.2 ± 6.94 (+47.1%) 95.4 ∗ ± 3.24 (+25.8%) 97.0 ∗∗ ± 1.76 (+62.1%) 96.1 ∗∗ ± 2.16 (+32.1%) 68.0 ± 10.4 (+3.87%) 90.5 (+36.7%) TabDDPM 50.2 ± 28.4 – 74.7 ± 16.0 – 59.2 ± 25.6 – 54.3 ± 27.7 – 75.5 ± 15.8 – 15.9 ± 10.4 – 55.0 –
+
+⌞ +AugFull 97.5 ∗∗ ± 2.03 (+94.3%) 82.5 ± 5.41 (+10.4%) 93.7 ± 4.75 (+58.3%) 94.9 ∗ ± 2.93 (+74.8%) 95.1 ∗ ± 4.15 (+25.9%) 14.3 ± 22.2 – 79.3 (+44.2%) 
+
+⌞ +AugMask 96.8 ∗ ± 3.15 (+92.9%) 88.9 ± 5.33 (+19.0%) 95.4 ∗ ± 2.54 (+61.0%) 90.7 ± 7.46 (+67.1%) 96.8 ∗∗ ± 2.73 (+28.1%) 2.64 ± 1.16 – 78.3 (+42.5%) 
+
+CDTD 55.4 ± 25.5 – 62.1 ± 24.8 – 79.3 ± 12.1 – 65.2 ± 26.6 – 80.3 ± 13.4 – 60.0 ± 28.5 – 67.1 –
+
+⌞ +AugFull 96.5 ∗ ± 2.73 (+74.1%) 92.3 ∗ ± 7.06 (+48.6%) 95.9 ∗ ± 4.73 (+20.9%) 94.6 ∗ ± 2.91 (+45.2%) 96.6 ∗∗ ± 2.46 (+20.3%) 84.5 ± 14.7 (+40.9%) 93.4 ∗ (+39.3%) 
+
+⌞ +AugMask 98.4 ∗∗ ± 1.21 (+77.5%) 97.2 ∗∗ ± 1.71 (+56.4%) 96.6 ∗∗ ± 3.37 (+21.8%) 94.1 ∗ ± 5.18 (+44.4%) 96.6 ∗∗ ± 2.20 (+20.2%) 92.3 ∗ ± 3.25 (+53.9%) 95.9 ∗∗ (+43.0%) 
+
+TabDiff 50.5 ± 29.0 – 59.2 ± 24.5 – 58.7 ± 24.8 – 47.5 ± 26.9 – 74.5 ± 15.9 – 45.7 ± 9.98 – 56.0 –
+
+⌞ +AugFull 96.9 ∗ ± 2.23 (+91.8%) 91.5 ± 7.01 (+54.7%) 93.2 ± 4.38 (+58.9%) 97.2 ∗∗ ± 2.45 (+104%) 95.1 ∗ ± 4.05 (+27.7%) 35.4 ± 6.24 – 85.5 (+52.5%) 
+
+⌞ +AugMask 97.9 ∗∗ ± 1.69 (+93.7%) 96.7 ∗∗ ± 1.54 (+63.4%) 97.0 ∗∗ ± 3.01 (+65.4%) 96.3 ∗∗ ± 3.57 (+103%) 98.0 ∗∗ ± 1.62 (+31.6%) 28.9 ± 1.74 – 85.8 ∗∗ (+53.2%) 
+
+29 AugMask: Stochastic Augmentation and Masking 
+
+Table 14. β-Recall (MAR) 
+
+Adult Default Magic Shoppers Beijing News Summary Method Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) 
+
+(A) Missing-aware baselines 
+
+MIWAE 6.62 ± 0.64 – 18.7 ± 5.56 – 26.3 ± 10.6 – 19.4 ± 2.17 – 43.2 ± 1.92 – 10.2 ± 3.66 – 20.7 –MissDiff 15.0 ± 12.0 – 0.00 ± 0.00 – 0.01 ± 0.01 – 0.03 ± 0.02 – 44.0 ± 6.34 – 0.00 ± 0.00 – 9.84 –DiffPuter 5.82 ± 2.03 – 4.25 ± 2.22 – 20.1 ± 15.6 – 12.3 ± 5.75 – 39.9 ± 4.46 – 8.98 ± 11.3 – 15.2 –ForestDiff 26.6 ± 16.4 – 27.2 ± 16.1 – 37.8 ± 14.9 – 29.3 ± 19.7 – 42.8 ± 10.8 – 25.1 ± 18.9 – 31.5 –
+
+(B) Missing-unaware baselines & enhancements via our proposed training strategy 
+
+TVAE 8.67 ± 8.71 – 4.80 ± 5.99 – 5.47 ± 8.16 – 10.3 ± 11.7 – 0.76 ± 1.09 – 1.73 ± 3.68 – 5.32 –
+
+⌞ +AugFull 14.8 ± 8.24 (+71.0%) 14.2 ± 2.69 (+196%) 18.1 ± 9.14 (+231%) 22.0 ± 14.0 (+113%) 5.32 ± 5.33 (+598%) 11.3 ± 6.08 (+553%) 14.3 (+169%) CTGAN 6.64 ± 2.09 – 4.23 ± 2.15 – 2.11 ± 2.76 – – ± – – 5.31 ± 1.69 – 4.17 ± 7.15 – 4.49 –
+
+⌞ +AugFull 7.46 ± 2.13 (+12.3%) 6.70 ± 3.21 (+58.5%) 9.51 ± 4.21 (+351%) 17.2 ± 4.51 – 5.23 ± 0.46 – 16.1 ± 9.08 (+285%) 10.4 (+131%) ARF 3.92 ± 3.84 – 3.98 ± 2.84 – 0.19 ± 0.27 – 8.66 ± 10.0 – 21.4 ± 18.5 – 0.02 ± 0.00 – 6.78 –
+
+⌞ +AugFull 20.1 ± 8.11 (+414%) 15.7 ± 7.73 (+293%) 1.37 ± 1.80 (+624%) 13.4 ± 5.43 (+55.2%) 49.1 ∗∗ ± 2.17 (+129%) 0.26 ± 0.21 (+1573%) 18.5 (+173%) TabSyn 18.0 ± 12.4 – 14.1 ± 10.8 – 11.4 ± 13.9 – 20.7 ± 12.8 – 21.8 ± 17.3 – 3.44 ± 5.09 – 14.9 –
+
+⌞ +AugFull 26.6 ∗ ± 12.0 (+47.8%) 22.0 ± 10.3 (+56.8%) 23.1 ± 14.8 (+103%) 32.1 ∗ ± 7.08 (+54.9%) 48.5 ∗ ± 1.14 (+122%) 8.87 ± 6.20 (+158%) 26.9 (+80.4%) TabDDPM 18.9 ± 14.9 – 14.8 ± 9.90 – 15.0 ± 13.7 – 25.0 ± 13.6 – 20.6 ± 16.7 – 1.59 ± 1.22 – 16.0 –
+
+⌞ +AugFull 33.4 ∗∗ ± 11.8 (+76.8%) 25.1 ± 7.90 (+70.1%) 33.9 ± 11.9 (+126%) 36.0 ∗ ± 7.08 (+43.9%) 48.5 ∗ ± 1.25 (+136%) 1.66 ± 1.87 (+4.44%) 29.7 (+85.6%) 
+
+⌞ +AugMask 39.9 ∗∗ ± 8.37 (+111%) 30.8 ∗ ± 5.30 (+109%) 37.7 ∗ ± 6.56 (+151%) 39.3 ∗∗ ± 6.63 (+57.1%) 45.7 ± 5.68 (+122%) 0.71 ± 0.25 – 32.3 ∗ (+102%) 
+
+CDTD 20.5 ± 14.5 – 13.1 ± 10.6 – 10.9 ± 13.6 – 14.8 ± 10.7 – 19.0 ± 16.0 – 6.48 ± 11.4 – 14.1 –
+
+⌞ +AugFull 31.5 ∗∗ ± 14.3 (+53.3%) 20.8 ± 10.6 (+58.4%) 24.7 ± 15.7 (+127%) 30.5 ∗ ± 8.18 (+106%) 47.1 ± 3.55 (+148%) 20.5 ± 14.1 (+217%) 29.2 (+107%) 
+
+⌞ +AugMask 36.6 ∗∗ ± 11.7 (+78.3%) 28.5 ∗ ± 11.7 (+118%) 37.0 ∗ ± 9.01 (+240%) 34.1 ∗ ± 13.0 (+131%) 39.9 ± 12.3 (+110%) 37.1 ∗∗ ± 10.1 (+473%) 35.5 ∗∗ (+152%) 
+
+TabDiff 19.6 ± 15.6 – 18.5 ± 13.9 – 16.9 ± 15.6 – 28.9 ± 16.7 – 21.7 ± 17.6 – 0.69 ± 0.29 – 17.7 –
+
+⌞ +AugFull 32.5 ∗∗ ± 13.6 (+66.1%) 32.2 ∗∗ ± 12.3 (+74.0%) 36.1 ± 13.1 (+113%) 39.4 ∗∗ ± 8.64 (+36.1%) 50.3 ∗∗ ± 2.13 (+132%) 0.73 ± 0.06 (+5.78%) 32.2 ∗∗ (+81.8%) 
+
+⌞ +AugMask 40.3 ∗∗ ± 10.4 (+106%) 39.8 ∗∗ ± 7.30 (+115%) 40.6 ∗ ± 8.35 (+140%) 45.3 ∗∗ ± 6.52 (+56.4%) 49.3 ∗∗ ± 3.60 (+128%) 0.61 ± 0.11 – 36.0 ∗∗ (+103%) 
+
+Table 15. Trend (MAR) 
+
+Adult Default Magic Shoppers Beijing News Summary Method Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) 
+
+(A) Missing-aware baselines 
+
+MIWAE 69.0 ± 3.82 – 82.4 ± 2.02 – 92.5 ± 2.48 – 82.3 ± 1.91 – 76.1 ± 3.05 – 95.8 ± 0.72 – 83.0 –MissDiff 72.8 ± 14.0 – 70.3 ± 11.5 – 79.9 ± 2.56 – 60.9 ± 15.0 – 79.0 ± 15.0 – 90.2 ± 1.34 – 75.5 –DiffPuter 64.6 ± 9.79 – 66.5 ± 4.98 – 86.4 ± 5.97 – 74.8 ± 7.81 – 77.7 ± 8.03 – 92.3 ± 4.06 – 77.0 –ForestDiff 77.4 ± 18.8 – 77.9 ± 11.2 – 87.4 ± 3.27 – 77.5 ± 18.6 – 82.5 ± 10.5 – 93.7 ± 3.45 – 82.7 –
+
+(B) Missing-unaware baselines & enhancements via our proposed training strategy 
+
+TVAE 64.6 ± 12.6 – 63.2 ± 9.25 – 80.9 ± 5.92 – 69.8 ± 9.23 – 33.7 ± 16.8 – 78.5 ± 24.6 – 67.4 –
+
+⌞ +AugFull 74.3 ± 15.8 (+15.0%) 79.7 ± 2.54 (+26.2%) 91.1 ± 3.05 (+12.6%) 79.2 ± 11.0 (+13.5%) 68.0 ± 17.5 (+102%) 94.5 ± 1.30 (+20.4%) 81.1 (+20.5%) CTGAN 62.2 ± 8.83 – 66.7 ± 6.61 – 81.2 ± 5.33 – – ± – – 54.3 ± 16.4 – 92.1 ± 1.88 – 71.3 –
+
+⌞ +AugFull 69.3 ± 5.53 (+11.4%) 74.8 ± 1.69 (+12.1%) 87.7 ± 3.16 (+8.01%) 83.4 ± 1.93 – 67.2 ± 8.14 (+23.9%) 94.8 ± 0.46 (+2.92%) 79.5 (+11.6%) ARF 39.0 ± 8.61 – 25.8 ± 7.70 – 50.8 ± 10.5 – 28.7 ± 9.90 – 29.1 ± 15.1 – 16.4 ± 0.00 – 34.2 –
+
+⌞ +AugFull 61.9 ± 2.26 (+58.9%) 54.2 ± 2.55 (+110%) 70.3 ± 5.67 (+38.3%) 35.2 ± 5.85 (+22.3%) 63.0 ± 2.14 (+116%) 41.4 ± 14.7 (+153%) 55.8 (+63.1%) TabSyn 68.0 ± 19.0 – 71.6 ± 12.2 – 85.0 ± 6.82 – 76.1 ± 12.3 – 65.6 ± 18.9 – 92.7 ± 2.50 – 76.5 –
+
+⌞ +AugFull 91.3 ∗∗ ± 3.37 (+34.3%) 86.1 ∗∗ ± 2.70 (+20.3%) 93.2 ∗ ± 3.39 (+9.65%) 91.8 ∗∗ ± 2.39 (+20.7%) 92.9 ∗∗ ± 2.55 (+41.8%) 96.1 ∗ ± 1.02 (+3.67%) 91.9 ∗∗ (+20.2%) 
+
+TabDDPM 68.7 ± 16.1 – 70.0 ± 9.67 – 81.9 ± 6.60 – 76.0 ± 11.5 – 63.3 ± 18.9 – 87.1 ± 1.20 – 74.5 –
+
+⌞ +AugFull 89.3 ∗∗ ± 3.48 (+29.9%) 75.5 ± 2.60 (+7.99%) 91.1 ± 1.91 (+11.2%) 91.6 ∗∗ ± 2.29 (+20.4%) 92.2 ∗∗ ± 2.82 (+45.6%) 85.2 ± 1.61 – 87.4 ∗ (+17.3%) 
+
+⌞ +AugMask 91.3 ∗∗ ± 2.19 (+32.8%) 78.3 ± 2.22 (+11.9%) 90.9 ± 2.38 (+10.9%) 89.1 ∗ ± 4.25 (+17.2%) 92.0 ∗∗ ± 3.58 (+45.3%) 85.5 ± 1.88 – 87.8 ∗ (+17.8%) 
+
+CDTD 69.7 ± 16.1 – 72.3 ± 11.5 – 83.9 ± 5.59 – 73.6 ± 14.9 – 64.1 ± 16.9 – 92.8 ± 3.02 – 76.1 –
+
+⌞ +AugFull 87.9 ∗∗ ± 6.05 (+26.1%) 86.4 ∗∗ ± 4.22 (+19.5%) 93.1 ∗ ± 3.30 (+10.9%) 91.2 ∗∗ ± 2.76 (+23.9%) 90.9 ∗∗ ± 4.28 (+42.0%) 96.7 ∗∗ ± 1.26 (+4.22%) 91.0 ∗∗ (+19.7%) 
+
+⌞ +AugMask 91.5 ∗∗ ± 3.00 (+31.2%) 87.5 ∗∗ ± 3.87 (+21.1%) 92.8 ∗∗ ± 2.85 (+10.6%) 92.1 ∗∗ ± 3.60 (+25.0%) 91.8 ∗∗ ± 2.93 (+43.3%) 97.2 ∗∗ ± 1.14 (+4.67%) 92.1 ∗∗ (+21.1%) 
+
+TabDiff 69.3 ± 16.0 – 71.8 ± 12.2 – 84.9 ± 6.54 – 78.2 ± 11.5 – 65.0 ± 18.4 – 92.3 ± 2.11 – 76.9 –
+
+⌞ +AugFull 89.0 ∗∗ ± 4.99 (+28.4%) 87.3 ∗∗ ± 3.39 (+21.5%) 93.0 ∗∗ ± 2.94 (+9.65%) 93.8 ∗∗ ± 2.70 (+19.9%) 94.3 ∗∗ ± 3.00 (+45.1%) 95.5 ± 0.64 (+3.42%) 92.1 ∗∗ (+19.8%) 
+
+⌞ +AugMask 93.0 ∗∗ ± 2.31 (+34.1%) 88.1 ∗∗ ± 2.94 (+22.6%) 92.4 ∗ ± 3.36 (+8.92%) 94.7 ∗∗ ± 2.60 (+21.2%) 94.8 ∗∗ ± 2.45 (+45.8%) 95.5 ± 0.56 (+3.42%) 93.1 ∗∗ (+21.0%) 
+
+30 AugMask: Stochastic Augmentation and Masking 
+
+Table 16. Shape (MAR) 
+
+Adult Default Magic Shoppers Beijing News Summary Method Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) 
+
+(A) Missing-aware baselines 
+
+MIWAE 86.2 ± 0.60 – 92.9 ± 1.36 – 94.0 ± 3.32 – 85.1 ± 1.39 – 91.3 ± 1.11 – 93.6 ± 0.90 – 90.5 –MissDiff 76.1 ± 6.52 – 70.3 ± 9.07 – 63.0 ± 5.72 – 61.3 ± 4.58 – 74.6 ± 3.09 – 42.6 ± 2.70 – 64.6 –DiffPuter 83.3 ± 5.51 – 71.6 ± 10.6 – 80.8 ± 17.0 – 77.6 ± 6.58 – 86.6 ± 7.49 – 66.2 ± 25.4 – 77.7 –ForestDiff 84.7 ± 15.6 – 80.6 ± 14.0 – 77.3 ± 8.45 – 75.5 ± 19.2 – 82.5 ± 10.1 – 80.1 ± 12.5 – 80.1 –
+
+(B) Missing-unaware baselines & enhancements via our proposed training strategy 
+
+TVAE 77.1 ± 10.1 – 56.6 ± 18.2 – 54.8 ± 22.6 – 72.7 ± 11.1 – 47.8 ± 8.90 – 44.2 ± 20.5 – 58.5 –
+
+⌞ +AugFull 87.1 ± 6.68 (+12.9%) 85.8 ± 5.35 (+51.5%) 92.0 ± 3.72 (+67.7%) 85.1 ± 7.66 (+17.0%) 84.6 ± 8.40 (+76.9%) 83.2 ± 4.95 (+88.3%) 86.3 (+47.5%) CTGAN 78.8 ± 8.29 – 63.0 ± 15.8 – 64.0 ± 16.7 – – ± – – 65.0 ± 14.6 – 63.2 ± 19.9 – 66.8 –
+
+⌞ +AugFull 87.2 ± 1.54 (+10.6%) 85.4 ± 1.46 (+35.5%) 89.1 ± 3.18 (+39.2%) 86.5 ± 3.93 – 84.5 ± 1.92 (+30.1%) 90.2 ± 2.37 (+42.9%) 87.2 (+30.5%) ARF 64.2 ± 16.8 – 48.9 ± 10.1 – 39.2 ± 8.82 – 56.2 ± 9.69 – 49.9 ± 14.7 – 34.9 ± 0.00 – 51.1 –
+
+⌞ +AugFull 94.3 ∗∗ ± 0.62 (+46.7%) 92.0 ± 2.57 (+88.1%) 53.8 ± 6.06 (+37.4%) 66.4 ± 7.88 (+18.2%) 95.9 ∗∗ ± 1.28 (+92.3%) 43.0 ± 3.71 (+23.2%) 77.7 (+52.1%) TabSyn 78.9 ± 14.0 – 69.5 ± 19.4 – 70.0 ± 20.3 – 75.7 ± 13.5 – 68.7 ± 19.8 – 70.3 ± 17.9 – 72.2 –
+
+⌞ +AugFull 96.9 ∗∗ ± 1.14 (+22.8%) 91.7 ∗ ± 5.38 (+31.9%) 94.9 ∗∗ ± 3.83 (+35.6%) 90.9 ∗∗ ± 3.47 (+20.0%) 96.7 ∗∗ ± 1.69 (+40.8%) 91.3 ± 3.34 (+29.9%) 93.8 ∗∗ (+29.9%) 
+
+TabDDPM 80.3 ± 11.4 – 78.3 ± 11.4 – 73.1 ± 17.8 – 78.1 ± 11.2 – 71.2 ± 17.5 – 48.4 ± 7.11 – 71.6 –
+
+⌞ +AugFull 96.7 ∗∗ ± 1.77 (+20.5%) 88.7 ± 3.42 (+13.2%) 93.2 ∗ ± 5.20 (+27.5%) 92.5 ∗∗ ± 2.62 (+18.4%) 95.5 ∗∗ ± 2.30 (+34.0%) 44.4 ± 12.4 – 84.9 ∗ (+18.7%) 
+
+⌞ +AugMask 97.0 ∗∗ ± 1.34 (+20.8%) 91.5 ± 2.71 (+16.8%) 95.0 ∗∗ ± 2.45 (+30.0%) 92.5 ∗∗ ± 3.73 (+18.4%) 95.7 ∗∗ ± 2.01 (+34.3%) 42.4 ± 3.22 – 85.5 ∗ (+19.5%) 
+
+CDTD 80.3 ± 12.2 – 66.6 ± 18.7 – 63.7 ± 21.4 – 72.8 ± 12.2 – 65.0 ± 19.5 – 63.2 ± 20.1 – 68.6 –
+
+⌞ +AugFull 96.5 ∗∗ ± 1.40 (+20.1%) 92.5 ∗ ± 4.44 (+38.8%) 95.2 ∗∗ ± 3.40 (+49.4%) 91.0 ∗∗ ± 3.22 (+25.0%) 95.0 ∗∗ ± 1.36 (+46.0%) 91.7 ± 3.64 (+45.0%) 93.6 ∗∗ (+36.4%) 
+
+⌞ +AugMask 97.0 ∗∗ ± 1.39 (+20.7%) 95.4 ∗∗ ± 2.54 (+43.2%) 94.6 ∗ ± 2.72 (+48.4%) 93.3 ∗∗ ± 3.13 (+28.1%) 94.4 ∗∗ ± 1.59 (+45.2%) 93.9 ∗ ± 1.23 (+48.5%) 94.8 ∗∗ (+38.1%) 
+
+TabDiff 80.0 ± 11.7 – 72.3 ± 16.6 – 71.2 ± 17.6 – 78.3 ± 12.1 – 70.2 ± 17.9 – 84.7 ± 3.85 – 76.1 –
+
+⌞ +AugFull 96.6 ∗∗ ± 2.04 (+20.8%) 95.0 ∗∗ ± 3.36 (+31.4%) 93.1 ∗ ± 5.18 (+30.7%) 93.6 ∗∗ ± 3.51 (+19.5%) 96.0 ∗∗ ± 2.41 (+36.8%) 88.3 ± 0.45 (+4.19%) 93.8 ∗∗ (+23.3%) 
+
+⌞ +AugMask 97.5 ∗∗ ± 1.41 (+22.0%) 96.7 ∗∗ ± 1.52 (+33.7%) 94.8 ∗∗ ± 2.68 (+33.0%) 95.8 ∗∗ ± 2.15 (+22.4%) 96.1 ∗∗ ± 1.53 (+37.0%) 87.4 ± 1.21 (+3.17%) 94.7 ∗∗ (+24.4%) 
+
+Table 17. ML Task (MAR) 
+
+Adult Default Magic Shoppers Beijing News Summary Method Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) Score ∆(%) 
+
+(A) Missing-aware baselines 
+
+MIWAE 89.0 ± 3.83 – 93.0 ± 4.68 – 91.9 ± 7.69 – 86.3 ± 6.92 – 47.2 ± 4.56 – 95.0 ± 3.09 – 83.7 –MissDiff 72.0 ± 15.8 – 76.8 ± 9.79 – 80.4 ± 14.4 – 60.4 ± 19.9 – 42.9 ± 11.4 – 39.0 ± 19.0 – 61.9 –DiffPuter 49.7 ± 5.91 – 54.2 ± 5.03 – 53.9 ± 8.51 – 54.6 ± 13.2 – 40.9 ± 9.46 – 80.4 ± 17.2 – 55.6 –ForestDiff 94.8 ± 2.88 – 91.5 ± 12.1 – 90.5 ± 9.39 – 91.9 ± 7.59 – 50.4 ± 12.9 – 95.3 ± 1.29 – 85.7 –
+
+(B) Missing-unaware baselines & enhancements via our proposed training strategy 
+
+TVAE 88.7 ± 10.0 – 79.0 ± 11.7 – 75.2 ± 12.3 – 87.8 ± 6.10 – 34.5 ± 1.33 – 87.6 ± 4.75 – 77.7 –
+
+⌞ +AugFull 91.7 ± 5.30 (+3.37%) 91.9 ± 4.48 (+16.3%) 87.4 ± 7.90 (+16.1%) 92.8 ∗ ± 5.09 (+5.60%) 45.7 ± 6.06 (+32.4%) 94.6 ± 2.22 (+7.93%) 84.0 (+8.17%) CTGAN 72.3 ± 17.2 – 70.3 ± 6.55 – 65.1 ± 15.6 – – ± – – 32.9 ± 3.86 – 82.8 ± 13.0 – 64.7 –
+
+⌞ +AugFull 85.1 ± 6.89 (+17.7%) 79.2 ± 8.83 (+12.7%) 79.5 ± 8.64 (+22.2%) 75.5 ± 11.3 – 38.2 ± 4.30 (+16.0%) 94.2 ± 2.09 (+13.8%) 75.3 (+16.4%) ARF 90.6 ± 3.79 – 82.0 ± 8.97 – 52.6 ± 3.52 – 55.8 ± 8.99 – 39.3 ± 4.49 – 74.2 ± 0.00 – 65.3 –
+
+⌞ +AugFull 95.7 ∗∗ ± 2.76 (+5.64%) 92.9 ± 7.05 (+13.3%) 48.4 ± 6.72 – 57.4 ± 7.89 (+2.79%) 53.8 ∗ ± 7.43 (+37.0%) 87.4 ± 2.55 (+17.8%) 73.5 (+12.5%) TabSyn 89.0 ± 11.9 – 85.6 ± 12.9 – 79.4 ± 13.0 – 89.6 ± 5.71 – 42.6 ± 11.5 – 92.1 ± 5.24 – 79.7 –
+
+⌞ +AugFull 96.3 ∗∗ ± 1.78 (+8.23%) 94.4 ∗ ± 6.08 (+10.3%) 92.9 ∗ ± 6.68 (+17.1%) 92.4 ∗ ± 5.56 (+3.03%) 55.0 ∗ ± 8.54 (+28.9%) 93.3 ± 3.60 (+1.20%) 87.4 ∗ (+9.58%) TabDDPM 91.3 ± 9.15 – 88.0 ± 10.6 – 82.6 ± 11.5 – 81.1 ± 16.8 – 45.8 ± 8.65 – 83.2 ± 14.1 – 78.7 –
+
+⌞ +AugFull 95.9 ∗∗ ± 2.73 (+5.02%) 95.6 ∗ ± 4.57 (+8.65%) 93.0 ∗∗ ± 6.91 (+12.5%) 92.7 ∗ ± 7.09 (+14.3%) 57.2 ∗∗ ± 6.83 (+25.0%) 84.5 ± 11.4 (+1.51%) 86.3 ∗ (+9.69%) 
+
+⌞ +AugMask 97.0 ∗∗ ± 0.99 (+6.17%) 96.7 ∗ ± 3.04 (+9.81%) 95.7 ∗∗ ± 3.22 (+15.8%) 95.8 ∗∗ ± 2.70 (+18.0%) 58.5 ∗∗ ± 6.17 (+27.8%) 86.4 ± 4.36 (+3.91%) 88.2 ∗∗ (+12.1%) 
+
+CDTD 92.0 ± 5.85 – 88.1 ± 9.29 – 81.9 ± 13.6 – 84.3 ± 13.5 – 37.7 ± 12.6 – 92.1 ± 10.9 – 79.4 –
+
+⌞ +AugFull 94.3 ∗ ± 5.56 (+2.51%) 95.2 ∗ ± 4.72 (+8.12%) 89.9 ∗ ± 11.6 (+9.76%) 92.1 ∗ ± 8.00 (+9.31%) 55.4 ∗∗ ± 10.5 (+46.9%) 96.6 ∗ ± 2.48 (+4.81%) 87.3 ∗ (+9.96%) 
+
+⌞ +AugMask 95.8 ∗∗ ± 2.36 (+4.13%) 95.4 ∗ ± 4.56 (+8.38%) 94.6 ∗∗ ± 4.62 (+15.5%) 92.7 ∗ ± 8.18 (+9.99%) 57.6 ∗∗ ± 8.85 (+52.5%) 94.6 ± 3.74 (+2.62%) 88.4 ∗∗ (+11.4%) 
+
+TabDiff 90.2 ± 11.6 – 87.5 ± 12.3 – 82.3 ± 13.4 – 85.0 ± 12.6 – 48.1 ± 9.06 – 90.8 ± 4.22 – 80.7 –
+
+⌞ +AugFull 95.3 ∗∗ ± 4.05 (+5.73%) 94.6 ∗ ± 5.76 (+8.03%) 91.2 ∗ ± 9.32 (+10.8%) 91.8 ∗ ± 8.68 (+8.02%) 58.1 ∗∗ ± 8.89 (+20.8%) 96.0 ± 2.65 (+5.75%) 87.7 ∗ (+8.79%) 
+
+⌞ +AugMask 96.7 ∗∗ ± 1.75 (+7.24%) 96.2 ∗ ± 3.95 (+9.91%) 94.6 ∗∗ ± 5.18 (+14.9%) 95.3 ∗∗ ± 4.49 (+12.1%) 59.8 ∗∗ ± 8.32 (+24.3%) 95.7 ∗ ± 1.65 (+5.46%) 89.7 ∗∗ (+11.2%) 
+
+31 AugMask: Stochastic Augmentation and Masking 
+
+D.3. Robustness Plots (MCAR) 0.1 0.3 0.5 0.7 0.9 
+
+Missing Ratio 
+
+> 0.0
+> 0.1
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> Quality Score
+
++6.5% 
+
++14.6% 
+
++26.0% 
+
++14.5% 
+
++57.4% 
+
++15.7% 
+
++105.3% +30.4% 
+
++16.2% 
+
++197.8% +120.4% 
+
++16.9% 
+
+> ( Prec ×  Rec × Trend × Shape) 1/4
+
+High-missingness regime 
+
+Generative Quality 
+
+0.1 0.3 0.5 0.7 0.9 
+
+Missing Ratio 
+
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0
+> ML Task Score
+
++2.0% +0.7% 
+
++6.8% 
+
++3.9% +0.4% 
+
++7.6% 
+
++6.7% 
+
++8.1% 
+
++16.7% +2.0% 
+
++7.5% 
+
++37.2% +16.3% 
+
++5.3% 
+
+High-missingness regime 
+
+Machine Learning Utility 
+
+TabDiff (NoAug) TabDiff + AugFull (Ours) TabDiff + AugMask (Ours) ForestDiff MIWAE MissDiff DiffPuter 
+
+Figure 9. Robustness across missing ratios ( MCAR ) for TabDiff compared across all missing-aware baselines. Generative Quality 
+
+(Left) and Machine Learning Utility (Right) 0.1 0.3 0.5 0.7 0.9 
+
+Missing Ratio 
+
+> 0.0
+> 0.1
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> Quality Score
+
++13.8% +1.3% 
+
++27.3% 
+
++54.3% +0.1% 
+
++26.2% 
+
++94.8% 
+
++24.6% 
+
++158.6% +39.1% 
+
++23.9% 
+
++354.2% +112.8% 
+
++12.8% 
+
+> ( Prec ×  Rec × Trend × Shape) 1/4
+
+High-missingness regime 
+
+Generative Quality 
+
+0.1 0.3 0.5 0.7 0.9 
+
+Missing Ratio 
+
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0
+> ML Task Score
+
++3.7% +0.6% 
+
++6.6% 
+
++9.1% +0.5% 
+
++7.7% 
+
++11.3% 
+
++7.0% 
+
++18.1% +0.9% 
+
++6.3% 
+
++24.0% +12.5% 
+
++1.8% 
+
+High-missingness regime 
+
+Machine Learning Utility 
+
+CDTD (NoAug) CDTD + AugFull (Ours) CDTD + AugMask (Ours) ForestDiff MIWAE MissDiff DiffPuter 
+
+Figure 10. Robustness across missing ratios ( MCAR ) for CDTD compared across all missing-aware baselines. Generative Quality 
+
+(Left) and Machine Learning Utility (Right) 0.1 0.3 0.5 0.7 0.9 
+
+Missing Ratio 
+
+> 0.0
+> 0.1
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> Quality Score
+
++3.9% 
+
++5.4% 
+
++17.5% 
+
++5.7% 
+
++40.4% 
+
++6.2% 
+
++91.7% +22.4% 
+
++9.0% 
+
++186.6% +104.1% 
+
++8.2% 
+
+> ( Prec ×  Rec × Trend × Shape) 1/4
+
+High-missingness regime 
+
+Generative Quality 
+
+0.1 0.3 0.5 0.7 0.9 
+
+Missing Ratio 
+
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0
+> ML Task Score
+
++0.0% 
+
++2.6% 
+
++0.7% 
+
++3.6% 
+
++5.1% 
+
++5.4% 
+
++14.8% +0.9% 
+
++6.3% 
+
++24.2% +15.5% 
+
++4.6% 
+
+High-missingness regime 
+
+Machine Learning Utility 
+
+TabDDPM (NoAug) TabDDPM + AugFull (Ours) TabDDPM + AugMask (Ours) ForestDiff MIWAE MissDiff DiffPuter 
+
+Figure 11. Robustness across missing ratios ( MCAR ) for TabDDPM compared across all missing-aware baselines. Generative Quality 
+
+(Left) and Machine Learning Utility (Right) 
+
+32 AugMask: Stochastic Augmentation and Masking 
+
+D.4. Robustness Plots (MAR) 0.1 0.3 0.5 0.7 0.9 
+
+Missing Ratio 
+
+> 0.0
+> 0.1
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> Quality Score
+
++6.6% 
+
++15.0% 
+
++25.6% 
+
++14.1% 
+
++57.1% 
+
++14.6% 
+
++106.8% +37.7% 
+
++14.8% +226.8% +103.5% 
+
++17.2% 
+
+> ( Prec ×  Rec × Trend × Shape) 1/4
+
+High-missingness regime 
+
+Generative Quality 
+
+0.1 0.3 0.5 0.7 0.9 
+
+Missing Ratio 
+
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0
+> ML Task Score
+
++2.2% +1.5% 
+
++5.9% 
+
++5.6% +1.5% 
+
++5.2% 
+
++10.8% +3.2% 
+
++9.4% 
+
++14.3% +5.6% 
+
++8.5% 
+
++28.4% +13.2% 
+
++6.9% 
+
+High-missingness regime 
+
+Machine Learning Utility 
+
+TabDiff (NoAug) TabDiff + AugFull (Ours) TabDiff + AugMask (Ours) ForestDiff MIWAE MissDiff DiffPuter 
+
+Figure 12. Robustness across missing ratios ( MAR ) for TabDiff compared across all missing-aware baselines. Generative Quality (Left) and Machine Learning Utility (Right) 0.1 0.3 0.5 0.7 0.9 
+
+Missing Ratio 
+
+> 0.0
+> 0.1
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> Quality Score
+
++10.7% +3.5% 
+
++27.4% 
+
++41.4% +4.9% 
+
++25.9% 
+
++91.7% +7.3% 
+
++25.2% 
+
++161.2% +46.3% 
+
++22.0% 
+
++344.4% +98.6% 
+
++14.4% 
+
+> ( Prec ×  Rec × Trend × Shape) 1/4
+
+High-missingness regime 
+
+Generative Quality 
+
+0.1 0.3 0.5 0.7 0.9 
+
+Missing Ratio 
+
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0
+> ML Task Score
+
++2.7% +1.3% 
+
++5.7% 
+
++6.3% +1.0% 
+
++4.7% 
+
++10.8% +1.9% 
+
++7.9% 
+
++18.8% +3.5% 
+
++6.4% 
+
++22.9% +9.3% 
+
++3.3% 
+
+High-missingness regime 
+
+Machine Learning Utility 
+
+CDTD (NoAug) CDTD + AugFull (Ours) CDTD + AugMask (Ours) ForestDiff MIWAE MissDiff DiffPuter 
+
+Figure 13. Robustness across missing ratios ( MAR ) for CDTD compared across all missing-aware baselines. Generative Quality (Left) and Machine Learning Utility (Right) 0.1 0.3 0.5 0.7 0.9 
+
+Missing Ratio 
+
+> 0.0
+> 0.1
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> Quality Score
+
++3.1% 
+
++4.6% 
+
++16.7% 
+
++4.1% 
+
++45.4% 
+
++7.5% 
+
++98.2% +29.4% 
+
++7.9% +215.8% +85.3% 
+
++6.7% 
+
+> ( Prec ×  Rec × Trend × Shape) 1/4
+
+High-missingness regime 
+
+Generative Quality 
+
+0.1 0.3 0.5 0.7 0.9 
+
+Missing Ratio 
+
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0
+> ML Task Score
+
++0.2% 
+
++1.4% 
+
++4.0% 
+
++2.8% 
+
++9.0% +1.8% 
+
++7.9% 
+
++18.1% +4.9% 
+
++7.8% 
+
++38.0% +13.5% 
+
++7.3% 
+
+High-missingness regime 
+
+Machine Learning Utility 
+
+TabDDPM (NoAug) TabDDPM + AugFull (Ours) TabDDPM + AugMask (Ours) ForestDiff MIWAE MissDiff DiffPuter 
+
+Figure 14. Robustness across missing ratios ( MAR ) for TabDDPM compared across all missing-aware baselines. Generative Quality 
+
+(Left) and Machine Learning Utility (Right) 
+
+33
