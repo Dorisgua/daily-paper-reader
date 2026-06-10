@@ -6,42 +6,51 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-09
-- 运行时间：2026-06-09 21:55:57 UTC
+- 最新运行日期：2026-06-10
+- 运行时间：2026-06-10 22:34:07 UTC
 - 运行状态：成功
-- 本次总论文数：6
-- 精读区：3
-- 速读区：3
+- 本次总论文数：10
+- 精读区：0
+- 速读区：10
 
 ### 今日简报（AI）
-今日脑电与深度学习研究聚焦模型安全与诊断优化，精读揭示预训练EEG基础模型存在属性泄露风险及双系统癫痫诊断方法。
-
-最值得关注方向：EEG基础模型的安全审计（交叉编码器属性转移）与结合SHAP可解释性的双系统癫痫诊断架构（Mamba-Bi-LSTM）。
-
-建议优先精读前两篇高评分论文，并关注速读中EEG去噪基准饱和问题，后续可探索模型轻量化与可解释性结合的实用方案。
-- 详情：[/202606/09/README](/202606/09/README)
+今日速读10篇论文，重点聚焦脑源成像稀疏贝叶斯推断、面部反应生成与EEG预测、隐平均场变分自编码器三个方向。其中《Structure-Preserving Correction Learning》和《REACT 2026挑战赛》均获7.0/10评分，值得关注其在脑科学与人机交互领域的实用前景。建议优先研读这两篇高分文献，跟进其方法实现与开源代码。
+- 详情：[/202606/10/README](/202606/10/README)
 
 ### 精读区论文标签
-1. [Pretrained, Frozen, Still Leaking: Auditing Cross-Encoder Attribute Transfer in EEG Foundation Models](/202606/09/2606.09189v1-pretrained-frozen-still-leaking-auditing-cross-encoder-attribute-transfer-in-eeg-foundation-models)  
-   标签：评分：9.0/10、query:eeg-latent
-   evidence：审计EEG基础模型嵌入的属性泄露
-2. [A dual-system approach for epilepsy diagnosis: integrating mamba-Bi-LSTM architecture with SHAP-based verification](/202606/09/2606.08240v1-a-dual-system-approach-for-epilepsy-diagnosis-integrating-mamba-bi-lstm-architecture-with-shap-based-verification)  
-   标签：评分：8.0/10、query:eeg
-   evidence：基于EEG的癫痫诊断深度学习模型，与EEG信号分析直接相关
-3. [Next-Token Prediction Learns Generalisable Representations of Sleep Physiology](/202606/09/2606.09605v1-next-token-prediction-learns-generalisable-representations-of-sleep-physiology)  
-   标签：评分：8.0/10、query:eeg-latent
-   evidence：使用下一词预测从多模态生理信号（含EEG）学习睡眠表征，相关于EEG潜在空间表示
+- 本次无精读推荐。
 
 ### 速读区论文标签
-1. [How Much Capacity Does EEG Denoising Need? Ultra-Compact Networks reveal Benchmark Saturation and Metric-Utility Gap](/202606/09/2606.08594v1-how-much-capacity-does-eeg-denoising-need-ultra-compact-networks-reveal-benchmark-saturation-and-metric-utility-gap)  
+1. [Structure-Preserving Correction Learning for Sparse Bayesian Inference in Brain Source Imaging](/202606/10/2606.07196v1-structure-preserving-correction-learning-for-sparse-bayesian-inference-in-brain-source-imaging)  
+   标签：评分：7.0/10、query:eeg
+   evidence：针对M/EEG脑源成像的可学习贝叶斯推断方法
+2. [REACT 2026: The Fourth Multiple Appropriate Facial Reaction Generation Challenge: Personalised MAFRG and Appropriate EEG Reaction Prediction](/202606/10/2606.07935v1-react-2026-the-fourth-multiple-appropriate-facial-reaction-generation-challenge-personalised-mafrg-and-appropriate-eeg-reaction-prediction)  
+   标签：评分：7.0/10、query:eeg
+   evidence：脑机接口挑战中的EEG反应预测
+3. [Discovering and decoding latent mean-field structure with variational autoencoders](/202606/10/2606.08694v1-discovering-and-decoding-latent-mean-field-structure-with-variational-autoencoders)  
    标签：评分：7.0/10、query:eeg-latent
-   evidence：利用深度学习进行EEG信号去噪重建
-2. [AugMask: Training Diffusion Models on Incomplete Tabular Data via Stochastic Augmentation and Masking](/202606/09/2606.03347v1-augmask-training-diffusion-models-on-incomplete-tabular-data-via-stochastic-augmentation-and-masking)  
-   标签：评分：6.0/10、query:eeg-latent
-   evidence：用于缺失数据插补的扩散模型，可迁移至EEG通道补全
-3. [A spectral audit framework reveals task-dependent aperiodic reliance across EEG and ECG deep learning](/202606/09/2606.08583v1-a-spectral-audit-framework-reveals-task-dependent-aperiodic-reliance-across-eeg-and-ecg-deep-learning)  
+   evidence：使用VAE学习潜在表示，可迁移至EEG信号建模
+4. [When VR Meets BCI: (Un)Observable Brainwave-aware Privacy Reconstruction in the Metaverse via Unrestricted Inbuilt Motion Sensors](/202606/10/2606.10502v1-when-vr-meets-bci-unobservable-brainwave-aware-privacy-reconstruction-in-the-metaverse-via-unrestricted-inbuilt-motion-sensors)  
+   标签：评分：7.0/10、query:eeg-latent
+   evidence：使用运动传感器重建脑EEG信号
+5. [Machine Learning Methods for Studying Latent Neural Activity Dynamics](/202606/10/2606.10530v1-machine-learning-methods-for-studying-latent-neural-activity-dynamics)  
+   标签：评分：7.0/10、query:eeg-latent
+   evidence：关于神经动力学潜在变量模型的综述
+6. [Transformer Based Model for Spatiotemporal Feature Learning in EEG Emotion Recognition](/202606/10/2606.10718v1-transformer-based-model-for-spatiotemporal-feature-learning-in-eeg-emotion-recognition)  
+   标签：评分：7.0/10、query:eeg
+   evidence：基于Transformer的脑电情绪识别模型（脑机接口应用）
+7. [An Empirical Audit of Input Encoders for Multi-Channel Signal Transformers](/202606/10/2606.04752v2-an-empirical-audit-of-input-encoders-for-multi-channel-signal-transformers)  
    标签：评分：6.0/10、query:eeg
-   evidence：EEG深度学习可解释性的频谱审计框架
+   evidence：审计多通道信号Transformer的输入编码器，适用于EEG信号处理
+8. [Neural Field Tokenizations with Hierarchy and Spatial Locality Priors](/202606/10/2606.08204v1-neural-field-tokenizations-with-hierarchy-and-spatial-locality-priors)  
+   标签：评分：6.0/10、query:eeg-latent
+   evidence：通用神经场标记化方法，可用于EEG潜在表示学习
+9. [The Bioelectrical Information Theory: Investigating the theoretical compression limit of bioelectrical signals under artificial intelligence](/202606/10/2606.09922v1-the-bioelectrical-information-theory-investigating-the-theoretical-compression-limit-of-bioelectrical-signals-under-artificial-intelligence)  
+   标签：评分：6.0/10、query:eeg-latent
+   evidence：基于潜在生理源的生物电信号压缩理论框架
+10. [Sleep EEG Signal Criticality as a Non-Invasive Predictor of Cognitive Decline in Dementia](/202606/10/2606.10889v1-sleep-eeg-signal-criticality-as-a-non-invasive-predictor-of-cognitive-decline-in-dementia)  
+   标签：评分：6.0/10、query:eeg
+   evidence：睡眠脑电信号分析用于认知衰退预测
 
 
 <div class="dpr-home-promo-card">

@@ -1,0 +1,431 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-10T22:28:49.475149+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 0,
+    "deep_cap": 7,
+    "deep_selected": 0,
+    "quick_candidates": 10,
+    "quick_skim_target": 12,
+    "quick_selected": 10
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2606.07196v1",
+      "source": "arxiv",
+      "title": "Structure-Preserving Correction Learning for Sparse Bayesian Inference in Brain Source Imaging",
+      "abstract": "Classical sparse Type-II Bayesian methods for M/EEG brain imaging support joint estimation of source and noise hyperparameters, but rely on fixed iterative update rules. Although these updates are principled and interpretable, their dynamics cannot be adapted from data. We propose to learn the update mechanism itself while preserving the underlying Bayesian structure by unfolding a classical joint hyperparameter-learning solver into a trainable neural architecture whose layers mirror the original iterations. The resulting framework is initialized to recover the classical solver exactly before training and is enriched through progressively more expressive correction-learning mechanisms, ranging from learnable biases to adaptive MLP and attention-based contextual refinements. In this way, training does not replace Bayesian inference with a black-box predictor, but instead learns structured correction terms while retaining the interpretability and model-based character of the original update dynamics. Structured correction learning therefore aims to improve empirical reconstruction performance without replacing the original model-based inference mechanism. Experimental results show that the learned correction variants improve reconstruction performance and convergence behavior over the baseline unfolded solver while preserving its algorithmic transparency.",
+      "authors": [
+        "Marco Morik",
+        "Xiao Ruiting",
+        "Shinichi Nakajima",
+        "Stefan Haufe",
+        "Ismail Huseynov"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-05T12:04:08+00:00",
+      "link": "https://arxiv.org/pdf/2606.07196v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "learned Bayesian inference for M/EEG brain source imaging",
+      "llm_evidence_cn": "针对M/EEG脑源成像的可学习贝叶斯推断方法",
+      "llm_evidence": "针对M/EEG脑源成像的可学习贝叶斯推断方法",
+      "canonical_evidence": "针对M/EEG脑源成像的可学习贝叶斯推断方法",
+      "llm_tldr_en": "Proposes a neural architecture that unfolds a classical sparse Bayesian solver for M/EEG brain source imaging, learning correction mechanisms to improve inference while preserving structure.",
+      "llm_tldr_cn": "该论文针对传统稀疏贝叶斯方法在M/EEG脑源成像中迭代规则固定、无法从数据中自适应的局限性，提出了一种结构保持的校正学习方法。通过将经典联合超参数学习求解器展开为可训练神经网络，在保留原始贝叶斯结构的基础上引入可学习偏置和自适应机制，使得模型既能初始化恢复经典求解器，又能通过训练提升性能。实验验证了该方法在脑源成像任务中的有效性，为EEG信号处理和潜在空间建模提供了可迁移的推断框架。",
+      "llm_tldr": "该论文针对传统稀疏贝叶斯方法在M/EEG脑源成像中迭代规则固定、无法从数据中自适应的局限性，提出了一种结构保持的校正学习方法。通过将经典联合超参数学习求解器展开为可训练神经网络，在保留原始贝叶斯结构的基础上引入可学习偏置和自适应机制，使得模型既能初始化恢复经典求解器，又能通过训练提升性能。实验验证了该方法在脑源成像任务中的有效性，为EEG信号处理和潜在空间建模提供了可迁移的推断框架。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.04752v2",
+      "source": "arxiv",
+      "title": "An Empirical Audit of Input Encoders for Multi-Channel Signal Transformers",
+      "abstract": "Transformers consuming multi-channel scalar signals must embed $C$ simultaneous values into one $d_{\\text{model}}$-dimensional vector per time step. We audit eight input encoders -- a shared-scalar baseline, per-channel linear projections, an orthogonality regulariser, a nonlinear MLP, block-partitioned concatenation, channel-independent and channel-as-token architectures, and a projected positional encoding -- on a synthetic benchmark where channel identity is informative and on ETTh1, scored by next-step negative log-likelihood. The headline is practical near-equivalence within a wide \"top tier\": the standard per-channel linear projection matches every alternative up to small, statistically real but practically modest differences. A direct geometric probe attributes this to a spontaneous orthogonalisation of the per-channel projections: they end up near-orthogonal with no explicit regulariser, letting the standard linear recover channel identity from the summed embedding. Two encoders lose decisively: the shared-scalar baseline collapses for information-theoretic reasons we make explicit, and the channel-independent PatchTST-spirit baseline overfits universally on the synthetic benchmark and underperforms on both. Paired tests resolve two small gaps: projecting the sinusoidal positional encoding through a learned linear layer edges the rest at small $C$ by extending this orthogonality to the positional subspace; a nonlinear MLP stem edges them at the largest $C$, with the gap shrinking under more training data. The practical recommendation: use the standard per-channel linear projection by default; reach for something more elaborate only when the task calls for it.",
+      "authors": [
+        "Ossi Lehtinen"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-06-03T11:35:09+00:00",
+      "link": "https://arxiv.org/pdf/2606.04752v2",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "audits input encoders for multi-channel signal transformers, applicable to EEG signal processing",
+      "llm_evidence_cn": "审计多通道信号Transformer的输入编码器，适用于EEG信号处理",
+      "llm_evidence": "审计多通道信号Transformer的输入编码器，适用于EEG信号处理",
+      "canonical_evidence": "审计多通道信号Transformer的输入编码器，适用于EEG信号处理",
+      "llm_tldr_en": "Empirically compares eight input encoders for multi-channel signal transformers, finding that standard per-channel linear projection is near-optimal; provides practical guidance for designing EEG signal transformers.",
+      "llm_tldr_cn": "该论文针对多通道时序信号Transformer的输入编码器设计缺乏系统比较的问题，在合成数据和ETTh1数据集上审核了8种编码器方案。结果表明标准的逐通道线性投影在性能上几乎等同其他复杂方案，为EEG多通道信号Transformer的输入层设计提供了实证指导。",
+      "llm_tldr": "该论文针对多通道时序信号Transformer的输入编码器设计缺乏系统比较的问题，在合成数据和ETTh1数据集上审核了8种编码器方案。结果表明标准的逐通道线性投影在性能上几乎等同其他复杂方案，为EEG多通道信号Transformer的输入层设计提供了实证指导。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.07935v1",
+      "source": "arxiv",
+      "title": "REACT 2026: The Fourth Multiple Appropriate Facial Reaction Generation Challenge: Personalised MAFRG and Appropriate EEG Reaction Prediction",
+      "abstract": "In dyadic interactions, various human facial reactions could be appropriate for responding to each human speaker behaviour. Following the successful organisation of the REACT 2023, 2024 and 2025 challenge series, a body of generative deep learning (DL) models have been developed for the problem of multiple appropriate facial reaction generation (MAFRG). This year, we propose the REACT 2026 challenge encouraging the development and benchmarking of Machine Learning (ML) models that can generate multiple personalised, appropriate, diverse, realistic and synchronised human-style facial reactions expressed by a specific human listener for responding to each given speaker behaviour. As a key of the challenge, we continuously provide challenge participants with MARS dataset introduced by REACT 2025 but additionally provide individual-level Big-Five personality labels and EEG recordings. This introduces a new one-to-many personalised facial reaction generation setting combining human expressive behavioural, affective and neurophysiological signals, which remains largely unexplored in current dyadic interaction modelling. This paper also presents the challenge guidelines and new baselines on the four proposed sub-challenges: Offline generic and personalised MAFRG as well as Online generic and personalised MAFRG, respectively, which are publicly available at https://github.com/reactmultimodalchallenge/baseline_react2026.",
+      "authors": [
+        "Siyang Song",
+        "Micol Spitale",
+        "Zijian Wu",
+        "Xiangyu Kong",
+        "Cheng Luo",
+        "Cristina Palmero",
+        "German Barquero",
+        "Sergio Escalera",
+        "Michel Valstar",
+        "Mohamed Daoudi",
+        "Fabien Ringeval",
+        "Andrew Howes",
+        "Elisabeth Andre",
+        "Hatice Gunes"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-06T01:52:38+00:00",
+      "link": "https://arxiv.org/pdf/2606.07935v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "EEG reaction prediction in BCI challenge",
+      "llm_evidence_cn": "脑机接口挑战中的EEG反应预测",
+      "llm_evidence": "脑机接口挑战中的EEG反应预测",
+      "canonical_evidence": "脑机接口挑战中的EEG反应预测",
+      "llm_tldr_en": "REACT 2026 challenge includes personalized facial reaction generation and appropriate EEG reaction prediction, advancing BCI research.",
+      "llm_tldr_cn": "REACT 2026挑战赛专注于个性化面部反应生成和适当的EEG反应预测，推动了脑机接口领域中生成模型的发展。该挑战通过基准测试多种机器学习模型，旨在生成个性化、多样且同步的听者面部反应，同时预测对应的EEG反应，为BCI应用提供了新的数据集和评估标准。",
+      "llm_tldr": "REACT 2026挑战赛专注于个性化面部反应生成和适当的EEG反应预测，推动了脑机接口领域中生成模型的发展。该挑战通过基准测试多种机器学习模型，旨在生成个性化、多样且同步的听者面部反应，同时预测对应的EEG反应，为BCI应用提供了新的数据集和评估标准。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.08204v1",
+      "source": "arxiv",
+      "title": "Neural Field Tokenizations with Hierarchy and Spatial Locality Priors",
+      "abstract": "Neural fields parameterize data as functions from coordinates to values, providing a unified framework for representation learning across modalities. Existing approaches are dominated by per-sample meta-learning, which scales poorly due to memory-intensive inner-loop optimization. The natural alternative -- feed-forward encoding -- typically introduces modality-specific assumptions, sacrificing the generality that makes learning with neural fields attractive. We argue that locality and hierarchy are useful priors for learning field representations that can be injected without compromising modality-agnosticism. We propose LH-NeF, a framework to learn general-purpose tokenized representations of continuous signals. A locality-preserving hierarchical encoder maps raw coordinate-value field observations to structured tokens, from which the field is reconstructed during training. By replacing meta-learning's inner loop with a single forward pass, LH-NeF uses 42$\\times$ less memory and supports 133$\\times$ larger batches than the strongest modality-agnostic baseline. Across images, 3D shapes, and climate fields, our learned representations match or exceed performance of modality-agnostic, modality-specific, and specialized generative neural field baselines on both reconstruction and downstream tasks.",
+      "authors": [
+        "Alonso Urbano",
+        "David W. Romero",
+        "Max Zimmer",
+        "Sebastian Pokutta"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.CV"
+      ],
+      "published": "2026-06-06T14:43:30+00:00",
+      "link": "https://arxiv.org/pdf/2606.08204v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "general-purpose neural field tokenization for continuous signals, applicable to EEG latent representation",
+      "llm_evidence_cn": "通用神经场标记化方法，可用于EEG潜在表示学习",
+      "llm_evidence": "通用神经场标记化方法，可用于EEG潜在表示学习",
+      "canonical_evidence": "通用神经场标记化方法，可用于EEG潜在表示学习",
+      "llm_tldr_en": "Proposes LH-NeF, a framework for learning general-purpose tokenized representations of continuous signals using locality-preserving hierarchical encoding, which can be applied to EEG latent space modeling.",
+      "llm_tldr_cn": "该论文针对现有神经场表示学习方法在跨模态通用性上的不足，提出了LH-NeF框架。通过引入层次化空间局部性先验，在不牺牲模态无关性的前提下学习连续信号的通用标记化表征。该框架可处理包括EEG在内的多种信号类型，为EEG潜在空间表示提供了一种可迁移的通用方法，能够保留信号的空间结构信息，有助于后续重建或补全任务。",
+      "llm_tldr": "该论文针对现有神经场表示学习方法在跨模态通用性上的不足，提出了LH-NeF框架。通过引入层次化空间局部性先验，在不牺牲模态无关性的前提下学习连续信号的通用标记化表征。该框架可处理包括EEG在内的多种信号类型，为EEG潜在空间表示提供了一种可迁移的通用方法，能够保留信号的空间结构信息，有助于后续重建或补全任务。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.08694v1",
+      "source": "arxiv",
+      "title": "Discovering and decoding latent mean-field structure with variational autoencoders",
+      "abstract": "Generative models are increasingly used to capture correlations in many-body systems, but the representations they learn remain largely opaque to physical interpretation. Here, we establish an intuitive criterion that quantifies the capacity of a variational autoencoder (VAE) to faithfully reconstruct the joint probability distribution of a many body system. In a nutshell, a bound on the VAE capacity is obtained by comparing the rate of the latent channel to the bipartite mutual information of the data. Using this bound, we show that the conditionally independent decoder of any successful VAE is structurally identical to a finite-size mean-field factorization. Hence, a successful reconstruction is direct evidence for a latent mean-field theory and the microscopic parameters of that theory can be read off the trained decoder. We validate these conclusions on a hierarchy of solvable models with scalar (Curie-Weiss), vector (Hopfield) and tensor (Maier-Saupe) order parameters, recovering the full Hopfield pattern matrix from equilibrium samples alone. We find that, when applied to Salamander retinal recordings, a two-latent VAE reproduces the population statistics with only two effective collective variables allowing us to recover the `stored patterns' of the neural population and write a generalized Hopfield model which correctly models the experimental data.",
+      "authors": [
+        "Marco Biroli",
+        "Max Welling",
+        "Vincenzo Vitelli"
+      ],
+      "primary_category": "cond-mat.soft",
+      "categories": [
+        "cond-mat.soft",
+        "cond-mat.stat-mech",
+        "cs.LG"
+      ],
+      "published": "2026-06-07T15:48:50+00:00",
+      "link": "https://arxiv.org/pdf/2606.08694v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "uses VAE for latent space representation, transferable to EEG signal modeling",
+      "llm_evidence_cn": "使用VAE学习潜在表示，可迁移至EEG信号建模",
+      "llm_evidence": "使用VAE学习潜在表示，可迁移至EEG信号建模",
+      "canonical_evidence": "使用VAE学习潜在表示，可迁移至EEG信号建模",
+      "llm_tldr_en": "VAE successfully discovers latent mean-field structure in many-body systems, providing a bound on reconstruction capacity via information theory; method is directly applicable to extracting latent representations from any data, including EEG.",
+      "llm_tldr_cn": "该论文针对生成模型在学习多体系统潜在表示时缺乏可解释性的问题，提出通过比较潜在通道速率与数据双向互信息来量化VAE重建能力。证明成功的VAE解码器等价于有限尺寸平均场分解，可揭示系统潜在结构。该方法为提取EEG信号的潜在空间表示提供了理论基础和实用工具。",
+      "llm_tldr": "该论文针对生成模型在学习多体系统潜在表示时缺乏可解释性的问题，提出通过比较潜在通道速率与数据双向互信息来量化VAE重建能力。证明成功的VAE解码器等价于有限尺寸平均场分解，可揭示系统潜在结构。该方法为提取EEG信号的潜在空间表示提供了理论基础和实用工具。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.09922v1",
+      "source": "arxiv",
+      "title": "The Bioelectrical Information Theory: Investigating the theoretical compression limit of bioelectrical signals under artificial intelligence",
+      "abstract": "Bioelectrical signals are increasingly acquired at scales that challenge the bandwidth of brain-computer interfaces. However, their compression is still often framed as a problem of waveform preservation, limited by the entropy of the raw signal. Here we propose an information-theoretic framework in which the effective information of bioelectrical data is determined not only by signal fidelity, but also by physiological structure, model capacity and downstream task requirements. We formulate bioelectrical compression as a three-level hierarchy. At the signal level, noise is reduced to the information they carry about latent physiological sources. At the physiological level, parametric encoders map purified signals into compact, structured and quantized representations. At the semantic level, task-irrelevant information is discarded, while deep learning models exploit causal dependencies to replace marginal entropy with conditional entropy. This perspective reframes the compression limit of bioelectrical signals as a model- and task-conditioned quantity rather than a fixed property of the waveform. As increasingly expressive models become integrated with neural and physiological interfaces, bioelectrical compression may shift from transmitting signals to transmitting only the residual information required for task-level interpretation.",
+      "authors": [
+        "Jiawen Zou",
+        "Bo Yan"
+      ],
+      "primary_category": "cs.IT",
+      "categories": [
+        "cs.IT",
+        "cs.AI"
+      ],
+      "published": "2026-06-07T04:18:07+00:00",
+      "link": "https://arxiv.org/pdf/2606.09922v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "theoretical framework for compressing bioelectrical signals using latent physiological sources",
+      "llm_evidence_cn": "基于潜在生理源的生物电信号压缩理论框架",
+      "llm_evidence": "基于潜在生理源的生物电信号压缩理论框架",
+      "canonical_evidence": "基于潜在生理源的生物电信号压缩理论框架",
+      "llm_tldr_en": "Proposes a three-level information-theoretic hierarchy for bioelectrical compression, linking signal fidelity to latent physiological sources.",
+      "llm_tldr_cn": "生物电信号压缩通常以波形保真度为目标，但忽略了生理结构和任务需求。本文提出三层次信息论框架，在信号层将噪声降至潜在生理源携带的信息，在生理层参数化模型，在任务层优化下游性能。为EEG等信号的潜在空间表示提供理论支撑。",
+      "llm_tldr": "生物电信号压缩通常以波形保真度为目标，但忽略了生理结构和任务需求。本文提出三层次信息论框架，在信号层将噪声降至潜在生理源携带的信息，在生理层参数化模型，在任务层优化下游性能。为EEG等信号的潜在空间表示提供理论支撑。",
+      "llm_tags": [
+        "query:eeg-latent:composite"
+      ],
+      "matched_query_tag": "query:eeg-latent:composite",
+      "matched_query_text": "Papers central to EEG论文，latent space缺失通道补全, especially work that connects or combines: E; EEG latent space representation; deep learning for EEG signal reconstruction; generative models for EEG channel imputation; EEG missing channel completion using latent space models; latent space based imputation for multichannel EEG; reconstruct missing EEG channels with deep generative networks.",
+      "matched_requirement_id": "req-composite-eeg-latent",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.10502v1",
+      "source": "arxiv",
+      "title": "When VR Meets BCI: (Un)Observable Brainwave-aware Privacy Reconstruction in the Metaverse via Unrestricted Inbuilt Motion Sensors",
+      "abstract": "Metaverse devices, such as virtual reality (VR), have seen substantial development and widespread applications in numerous areas. Although recent studies have revealed privacy leakages in VR, these vulnerabilities were limited in the scope of observable behaviors in virtual scenes (e.g., what a user is seeing). In this work, we uncover the feasibility of going beyond the scope of observable user behaviors to unobservable brain EEG-correlated representations (e.g., what a user is perceiving) by leveraging unrestricted motion sensors in VR headsets to reconstruct brain EEG signals, a seemingly neglected but promising vector. The insight is that the inbuilt motion sensors (e.g., accelerometers) in the VR headset can capture subtle vibrations induced by pupillary responses, which are highly correlated with users' visual stimuli and in-brain perceptions.   Therefore, we design and implement BraVeSpy to systematically investigate and demonstrate the feasibility of this severe privacy leakage originating from brain EEG-correlated representations reconstructed from variations of inbuilt motion sensors. Our extensive evaluation results from different VR devices show that BraVeSpy, for the first time in the Metaverse, can reveal unobservable privacy, where we successfully unveiled perceptive images in the brain with 52.0%-67.2% accuracy. In particular, we also find that BraVeSpy outperforms the current approaches that are limited to coarse-grained inference of observable behaviors and achieves over 85.0% accuracy in inferring user activity-related sensitive information, such as fingerprinting websites, apps, and streaming videos, and over 96.0% accuracy in user de-anonymization, gaze movement tracking, and virtual keystroke inference.",
+      "authors": [
+        "Tao Ni",
+        "Zehua Sun",
+        "Qingchuan Zhao",
+        "Wei-Bin Lee",
+        "Cong Wang"
+      ],
+      "primary_category": "cs.CR",
+      "categories": [
+        "cs.CR"
+      ],
+      "published": "2026-06-09T07:28:16+00:00",
+      "link": "https://arxiv.org/pdf/2606.10502v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "reconstruct brain EEG signals using motion sensors",
+      "llm_evidence_cn": "使用运动传感器重建脑EEG信号",
+      "llm_evidence": "使用运动传感器重建脑EEG信号",
+      "canonical_evidence": "使用运动传感器重建脑EEG信号",
+      "llm_tldr_en": "Leveraging VR motion sensors to reconstruct EEG signals, revealing a privacy leakage vector for BCI applications.",
+      "llm_tldr_cn": "本工作揭示了利用VR头显内置运动传感器重建脑EEG信号的可行性，突破了仅能观察虚拟场景行为的隐私泄露限制。通过加速度计等传感器数据，重建了与感知相关的EEG表示，为脑机接口隐私保护提出了新挑战，也展示了传感器融合在EEG重建中的潜力。",
+      "llm_tldr": "本工作揭示了利用VR头显内置运动传感器重建脑EEG信号的可行性，突破了仅能观察虚拟场景行为的隐私泄露限制。通过加速度计等传感器数据，重建了与感知相关的EEG表示，为脑机接口隐私保护提出了新挑战，也展示了传感器融合在EEG重建中的潜力。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "deep learning for EEG signal reconstruction",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.10889v1",
+      "source": "arxiv",
+      "title": "Sleep EEG Signal Criticality as a Non-Invasive Predictor of Cognitive Decline in Dementia",
+      "abstract": "Early detection of neurodegeneration remains a critical clinical challenge. This study investigates whether sleep EEG signal criticality, quantified via Multifractal Detrended Fluctuation Analysis (MFDFA), serves as a non-invasive biomarker for future cognitive decline. We analyzed longitudinal data from the National Sleep Research Resource (NSRR) Study of Osteoporotic Fractures (SOF) cohort, comparing baseline sleep EEG dynamics between women who remained cognitively normal and those who later progressed to dementia-related impairment ($3MS < 78$).Our results reveal significant group-level differences in Hurst exponent $H(q)$ distributions, particularly during non-REM stages N2 and N3. Cognitively healthy individuals exhibited signal dynamics significantly closer to an optimally critical state across all electrode locations ($p \\leqslant 0.001$), supporting the Brain Criticality Hypothesis. Supervised UMAP projections confirmed clear spatial separation between groups throughout the overnight sleep architecture.The dementia group demonstrated a shift in DFA exponents toward $1.0$, suggesting that a reconfiguration of scale-free neural dynamics during sleep precedes clinical symptoms. These findings highlight the potential for MFDFA-derived measures to be integrated into automated, sleep-based screening tools, enabling earlier preventative interventions during the prodromal window of dementia.",
+      "authors": [
+        "Stanisław Narębski",
+        "Tomasz Komendziński",
+        "Tomasz M. Rutkowski"
+      ],
+      "primary_category": "q-bio.NC",
+      "categories": [
+        "q-bio.NC",
+        "cs.LG"
+      ],
+      "published": "2026-06-09T14:02:40+00:00",
+      "link": "https://arxiv.org/pdf/2606.10889v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "sleep EEG signal analysis for cognitive decline prediction",
+      "llm_evidence_cn": "睡眠脑电信号分析用于认知衰退预测",
+      "llm_evidence": "睡眠脑电信号分析用于认知衰退预测",
+      "canonical_evidence": "睡眠脑电信号分析用于认知衰退预测",
+      "llm_tldr_en": "Investigates sleep EEG criticality via MFDFA as a non-invasive biomarker for future cognitive decline in dementia.",
+      "llm_tldr_cn": "早期检测神经退行性变是临床难题。本文利用多分形去趋势波动分析量化睡眠脑电信号的临界性，发现未来认知衰退者在非快速眼动阶段的Hurst指数分布存在显著差异，表明脑电信号临界性可作为非侵入性生物标志物。",
+      "llm_tldr": "早期检测神经退行性变是临床难题。本文利用多分形去趋势波动分析量化睡眠脑电信号的临界性，发现未来认知衰退者在非快速眼动阶段的Hurst指数分布存在显著差异，表明脑电信号临界性可作为非侵入性生物标志物。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.10530v1",
+      "source": "arxiv",
+      "title": "Machine Learning Methods for Studying Latent Neural Activity Dynamics",
+      "abstract": "Recent developments in brain recording are driving a demand for machine learning tools capable of decoding the latent structure of large populations of neurons. In this paper, we provide a comprehensive survey that outlines the trajectory of Latent Variable Models (LVMs) from early state-space models to more recent deep generative models. We organize the literature into three closely related domains: (1) Single-Region Latent Dynamics, which includes models such as linear dynamical systems to more complex dynamics represented by Recurrent Neural Networks (RNNs) and Neural Ordinary Differential Equations (ODEs); (2) Multi-Region Communication, which employs probabilistic as well as subspace methods to study how information is transferred across different brain areas considering synaptic propagation delays and network connectivity; and (3) Behavior-Aligned Modeling, which seeks to disentangle neural activity related to task performance from other internal states via supervised or contrastive learning. This survey also includes large-scale neural foundation models, such as Transformers and diffusion models, that rely on large-scale pre-training for optimal performance across subjects. Finally, we conclude and discuss benchmarks, evaluation criteria, and open challenges, such as the ability to identify causal links or directionality of communication, to facilitate future research for bridging interpretable brain dynamics with reliable neural decoding.",
+      "authors": [
+        "Shufeng Kong",
+        "Fumei Deng",
+        "Xinyi Dong",
+        "Caihua Liu",
+        "Weiwei Chen",
+        "Yingheng Wang",
+        "Daniel Cao",
+        "Azahara Oliva",
+        "Antonio Fernandez-Ruiz",
+        "Carla Gomes"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-06-09T08:01:11+00:00",
+      "link": "https://arxiv.org/pdf/2606.10530v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "survey on latent variable models for neural dynamics",
+      "llm_evidence_cn": "关于神经动力学潜在变量模型的综述",
+      "llm_evidence": "关于神经动力学潜在变量模型的综述",
+      "canonical_evidence": "关于神经动力学潜在变量模型的综述",
+      "llm_tldr_en": "Comprehensive survey of latent variable models for neural activity, from state-space to deep generative models, covering single-region and multi-region dynamics.",
+      "llm_tldr_cn": "该综述系统梳理了从早期状态空间模型到最新深度生成模型的潜在变量模型在神经活动动态研究中的应用。涵盖了单区域潜在动态（如RNN、神经ODE）和多区域通信（概率与子空间方法），为EEG潜在空间表示提供了全面的方法论基础，尤其适合指导EEG信号潜在特征提取与建模。",
+      "llm_tldr": "该综述系统梳理了从早期状态空间模型到最新深度生成模型的潜在变量模型在神经活动动态研究中的应用。涵盖了单区域潜在动态（如RNN、神经ODE）和多区域通信（概率与子空间方法），为EEG潜在空间表示提供了全面的方法论基础，尤其适合指导EEG信号潜在特征提取与建模。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.10718v1",
+      "source": "arxiv",
+      "title": "Transformer Based Model for Spatiotemporal Feature Learning in EEG Emotion Recognition",
+      "abstract": "Electroencephalography (EEG) is a widely adopted technique for monitoring brain activity, offering valuable insights into neurological states due to its high temporal resolution and cost-effectiveness. To enhance the analysis of complex EEG data, we propose EEG-TransNet, an architecture designed to capture temporal, regional, and synchronous features of EEG signals. EEG-TransNet introduces three key modules: 1) a preprocessing and feature extraction module leveraging ResNet and wavelet-based denoising, 2) a Local Self-Attention Block for regional feature learning, and 3) a Fuzzy-Attention Synchronous Transformer (FAST) to model spatiotemporal dependencies. Through extensive experiments on three EEG datasets (BETA, SEED, and DepEEG), the proposed model consistently outperforms other methods in terms of classification accuracy and robustness across varying signal lengths. Ablation studies confirm the contribution of the Local Self-Attention Block in improving performance, and the inclusion of depthwise separable convolutions in the decoder reduces computational complexity while maintaining high accuracy. EEG-TransNet's ability to generalize across subjects with minimal performance variation highlights its potential as a robust tool for EEG-based brain activity classification and emotion recognition tasks.",
+      "authors": [
+        "Xinglong Cui",
+        "Dian Gu"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-06-09T11:25:43+00:00",
+      "link": "https://arxiv.org/pdf/2606.10718v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Transformer based model for EEG emotion recognition (BCI application)",
+      "llm_evidence_cn": "基于Transformer的脑电情绪识别模型（脑机接口应用）",
+      "llm_evidence": "基于Transformer的脑电情绪识别模型（脑机接口应用）",
+      "canonical_evidence": "基于Transformer的脑电情绪识别模型（脑机接口应用）",
+      "llm_tldr_en": "Proposes EEG-TransNet, a Transformer architecture with local attention and fuzzy-attention synchronous transformer for spatiotemporal EEG emotion recognition.",
+      "llm_tldr_cn": "为提升脑电情绪识别性能，本文提出EEG-TransNet，包含预处理模块、局部自注意力块和模糊注意力同步Transformer，在BETA、SEED和DepEEG三个数据集上取得最优结果，展示了深度学习在脑电分析中的潜力。",
+      "llm_tldr": "为提升脑电情绪识别性能，本文提出EEG-TransNet，包含预处理模块、局部自注意力块和模糊注意力同步Transformer，在BETA、SEED和DepEEG三个数据集上取得最优结果，展示了深度学习在脑电分析中的潜力。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
