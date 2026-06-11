@@ -1,0 +1,54 @@
+{
+  "label": "2026-06-11",
+  "date": "2026-06-11",
+  "generated_at": "2026-06-11T22:00:13",
+  "count": 3,
+  "papers": [
+    {
+      "paper_id": "202606/11/2606.11415v1-spatially-masked-regression-reveals-local-and-distributed-predictability-in-electrophysiological-recordings",
+      "section": "deep",
+      "title_en": "Spatially Masked Regression Reveals Local and Distributed Predictability in Electrophysiological Recordings",
+      "authors": "Maryam Ostadsharif Memar, Nima Dehghani",
+      "date": "2026-06-09",
+      "pdf": "https://arxiv.org/pdf/2606.11415v1",
+      "score": "9.0",
+      "evidence": "通过空间掩蔽回归从其余电极重建每个电极的时间序列",
+      "tldr": "神经电生理记录中单个电极的信号可能混合局部和全局信息。空间掩蔽回归（SMR）通过逐步排除邻域电极重构目标信号，量化局部与分布式预测性。在颅内和头皮脑电中，即使排除近邻仍保留显著可预测性，且EEG跨受试者迁移更强。替代数据破坏相位结构会降低性能，表明SMR依赖时空组织而非边际统计，提供了可解释的平衡量化框架。",
+      "tags": "query:eeg-latent",
+      "abstract_en": "Neural recordings are often interpreted as local measurements, yet the signal at any one sensor can also reflect structured activity distributed across the broader network. This raises a basic question: to what extent does an electrode's signal reflect local versus distributed information in the underlying system? More specifically, how much of an electrode's activity is carried by its immediate neighborhood, and how much is embedded more broadly across the array? We address this with a Spatially Masked Regression (SMR) framework that reconstructs each electrode's timeseries from the remaining electrodes while excluding a configurable neighborhood around the target. By progressively increasing this mask, spatial locality becomes an experimental control for quantifying how much predictive information survives after nearby channels are withheld. We apply SMR to intracranial EEG with heterogeneous electrode coverage and to scalp EEG with standardized montages over sensorimotor cortex. Using distance correlation between original and reconstructed signals, we find strong within-subject reconstruction in both modalities, substantial residual predictability even when local neighbors are excluded, and markedly stronger cross-subject transfer in EEG than in iEEG. Masking shows that nearby electrodes contribute strongly to reconstruction but do not account for all of it, indicating that individual channels reflect both local redundancy and broader distributed structure. Surrogates that preserve selected marginal or spectral properties while disrupting phase structure or temporal ordering substantially reduce performance, supporting the conclusion that SMR depends on structured temporal and cross-channel organization rather than on marginal statistics alone. These results position SMR as an interpretable framework for quantifying the balance between local and distributed information in recordings.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/11/2606.11555v1-end-to-end-machine-learning-for-depressive-state-classification-via-eeg-and-fnirs",
+      "section": "quick",
+      "title_en": "End-to-End Machine Learning for Depressive State Classification via EEG and fNIRS",
+      "authors": "Riki Sakurai, Simon Kojima, Mihoko Otake-Matsuura, Shin'ichiro Kanoh, Tomasz M. Rutkowski",
+      "date": "2026-06-10",
+      "pdf": "https://arxiv.org/pdf/2606.11555v1",
+      "score": "6.0",
+      "evidence": "基于EEG的抑郁状态分类作为BCI应用",
+      "tldr": "传统心理诊断依赖主观访谈和患者自评，易受偏见影响；基于EEG和fNIRS的生物信号检测提供了客观替代方案。本研究采用端到端机器学习模型对抑郁状态进行分类，在11名健康学生的初步实验中验证了框架的可行性。该工作为未来临床自动化诊断工具的开发奠定了坚实基础，尤其对老年人群中抑郁与痴呆的早期鉴别具有重要意义。",
+      "tags": "query:eeg",
+      "abstract_en": "The escalating demand for mental healthcare, driven by rising societal stress, highlights the limitations of traditional psychiatric diagnostics. Conventional methods - relying primarily on clinical interviews and patient self-reports - are inherently vulnerable to subjective bias and the varying empirical judgment of practitioners. To address the need for quantitative evaluation, biological signal-based detection, including electroencephalography (EEG) and functional near-infrared spectroscopy (fNIRS), has emerged as a promising objective alternative. Such technology is particularly vital for identifying latent depressive states that may be unrecognized by the subjects themselves. Furthermore, in aging populations, the high comorbidity between depression and dementia necessitates early differentiation to prevent mutual symptom exacerbation and maintain Quality of Life (QoL). This pilot study of eleven healthy students establishes a framework for biological signal-based depression detection, serving as a foundational step toward automated, objective diagnostic tools for clinical use.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/11/2606.12223v1-characterization-of-speech-imagery-in-scalp-eeg-and-comparison-with-motor-imagery",
+      "section": "quick",
+      "title_en": "Characterization of Speech Imagery in Scalp EEG and Comparison with Motor Imagery",
+      "authors": "Bob Van Dyck, Liuyin Yang, Qiang Sun, Ang Li, Marc M. Van Hulle",
+      "date": "2026-06-10",
+      "pdf": "https://arxiv.org/pdf/2606.12223v1",
+      "score": "6.0",
+      "evidence": "基于EEG的脑机接口范式比较",
+      "tldr": "言语想象作为一种内源性语言脑机接口范式，其头皮EEG时空特征尚不明确。本文通过对比言语想象与手指运动想象的带功率动态，发现言语想象表现为更弱、更分散的alpha功率增加，而运动想象呈现典型的对侧mu/alpha和低beta去同步。分类准确率言语想象（0.563）低于运动想象（0.718），且言语想象的特征更多源于非发音任务相关成分。结果表明言语想象与运动想象的支配模式不同，为脑机接口设计提供了依据。",
+      "tags": "query:eeg",
+      "abstract_en": "SSpeech imagery is attractive as a brain-computer interface paradigm for communication because it is endogenous and intrinsically linguistic. Yet despite growing interest, its dominant scalp-EEG spatiotemporal characteristics remain poorly characterized. Here, we asked how speech imagery appears in scalp EEG and compared it against finger motor imagery. Using a within-subject dataset containing speech imagery, finger motor imagery, and no-task trials recorded under the same trial structure, we analyzed band-power dynamics across channels and time. Finger motor imagery showed the expected contralateral mu/alpha and low-beta desynchronization over sensorimotor areas, whereas speech imagery showed a weaker, more distributed alpha-dominant increase. After normalization to each condition's own post-trial interval, the speech-related alpha increase changed only modestly after cue onset, indicating that much of the speech-versus-no-task difference was already present during the instruction period. A classifier discriminating imagery from no-task reached mean balanced accuracies of 0.563 $\\pm$ 0.072 for speech imagery and 0.718 $\\pm$ 0.127 for motor imagery, with a stronger alpha/beta dependence for motor imagery than for speech imagery. Together, these results provide a clearer group-level characterization of speech imagery in scalp EEG and indicate that its dominant spatiotemporal pattern differs from that of finger motor imagery and is more consistent with substantial non-articulatory task-related contributions than with a clear articulatory-motor analogue.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

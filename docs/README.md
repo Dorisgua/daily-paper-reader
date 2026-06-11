@@ -6,51 +6,31 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-10
-- 运行时间：2026-06-10 22:34:07 UTC
+- 最新运行日期：2026-06-11
+- 运行时间：2026-06-11 22:00:06 UTC
 - 运行状态：成功
-- 本次总论文数：10
-- 精读区：0
-- 速读区：10
+- 本次总论文数：3
+- 精读区：1
+- 速读区：2
 
 ### 今日简报（AI）
-今日速读10篇论文，重点聚焦脑源成像稀疏贝叶斯推断、面部反应生成与EEG预测、隐平均场变分自编码器三个方向。其中《Structure-Preserving Correction Learning》和《REACT 2026挑战赛》均获7.0/10评分，值得关注其在脑科学与人机交互领域的实用前景。建议优先研读这两篇高分文献，跟进其方法实现与开源代码。
-- 详情：[/202606/10/README](/202606/10/README)
+1) 今日精读一篇高评分论文，探讨电生理记录中的空间掩蔽回归方法，并速读两篇关于抑郁症分类与言语想象的脑电研究。  
+2) 最值得关注的是《Spatially Masked Regression》揭示的局部与分布式可预测性权衡，为理解脑信号编码提供新视角。  
+3) 建议对脑机接口感兴趣的读者优先精读该文，学习其空间掩蔽思想以改进特征提取。
+- 详情：[/202606/11/README](/202606/11/README)
 
 ### 精读区论文标签
-- 本次无精读推荐。
+1. [Spatially Masked Regression Reveals Local and Distributed Predictability in Electrophysiological Recordings](/202606/11/2606.11415v1-spatially-masked-regression-reveals-local-and-distributed-predictability-in-electrophysiological-recordings)  
+   标签：评分：9.0/10、query:eeg-latent
+   evidence：通过空间掩蔽回归从其余电极重建每个电极的时间序列
 
 ### 速读区论文标签
-1. [Structure-Preserving Correction Learning for Sparse Bayesian Inference in Brain Source Imaging](/202606/10/2606.07196v1-structure-preserving-correction-learning-for-sparse-bayesian-inference-in-brain-source-imaging)  
-   标签：评分：7.0/10、query:eeg
-   evidence：针对M/EEG脑源成像的可学习贝叶斯推断方法
-2. [REACT 2026: The Fourth Multiple Appropriate Facial Reaction Generation Challenge: Personalised MAFRG and Appropriate EEG Reaction Prediction](/202606/10/2606.07935v1-react-2026-the-fourth-multiple-appropriate-facial-reaction-generation-challenge-personalised-mafrg-and-appropriate-eeg-reaction-prediction)  
-   标签：评分：7.0/10、query:eeg
-   evidence：脑机接口挑战中的EEG反应预测
-3. [Discovering and decoding latent mean-field structure with variational autoencoders](/202606/10/2606.08694v1-discovering-and-decoding-latent-mean-field-structure-with-variational-autoencoders)  
-   标签：评分：7.0/10、query:eeg-latent
-   evidence：使用VAE学习潜在表示，可迁移至EEG信号建模
-4. [When VR Meets BCI: (Un)Observable Brainwave-aware Privacy Reconstruction in the Metaverse via Unrestricted Inbuilt Motion Sensors](/202606/10/2606.10502v1-when-vr-meets-bci-unobservable-brainwave-aware-privacy-reconstruction-in-the-metaverse-via-unrestricted-inbuilt-motion-sensors)  
-   标签：评分：7.0/10、query:eeg-latent
-   evidence：使用运动传感器重建脑EEG信号
-5. [Machine Learning Methods for Studying Latent Neural Activity Dynamics](/202606/10/2606.10530v1-machine-learning-methods-for-studying-latent-neural-activity-dynamics)  
-   标签：评分：7.0/10、query:eeg-latent
-   evidence：关于神经动力学潜在变量模型的综述
-6. [Transformer Based Model for Spatiotemporal Feature Learning in EEG Emotion Recognition](/202606/10/2606.10718v1-transformer-based-model-for-spatiotemporal-feature-learning-in-eeg-emotion-recognition)  
-   标签：评分：7.0/10、query:eeg
-   evidence：基于Transformer的脑电情绪识别模型（脑机接口应用）
-7. [An Empirical Audit of Input Encoders for Multi-Channel Signal Transformers](/202606/10/2606.04752v2-an-empirical-audit-of-input-encoders-for-multi-channel-signal-transformers)  
+1. [End-to-End Machine Learning for Depressive State Classification via EEG and fNIRS](/202606/11/2606.11555v1-end-to-end-machine-learning-for-depressive-state-classification-via-eeg-and-fnirs)  
    标签：评分：6.0/10、query:eeg
-   evidence：审计多通道信号Transformer的输入编码器，适用于EEG信号处理
-8. [Neural Field Tokenizations with Hierarchy and Spatial Locality Priors](/202606/10/2606.08204v1-neural-field-tokenizations-with-hierarchy-and-spatial-locality-priors)  
-   标签：评分：6.0/10、query:eeg-latent
-   evidence：通用神经场标记化方法，可用于EEG潜在表示学习
-9. [The Bioelectrical Information Theory: Investigating the theoretical compression limit of bioelectrical signals under artificial intelligence](/202606/10/2606.09922v1-the-bioelectrical-information-theory-investigating-the-theoretical-compression-limit-of-bioelectrical-signals-under-artificial-intelligence)  
-   标签：评分：6.0/10、query:eeg-latent
-   evidence：基于潜在生理源的生物电信号压缩理论框架
-10. [Sleep EEG Signal Criticality as a Non-Invasive Predictor of Cognitive Decline in Dementia](/202606/10/2606.10889v1-sleep-eeg-signal-criticality-as-a-non-invasive-predictor-of-cognitive-decline-in-dementia)  
+   evidence：基于EEG的抑郁状态分类作为BCI应用
+2. [Characterization of Speech Imagery in Scalp EEG and Comparison with Motor Imagery](/202606/11/2606.12223v1-characterization-of-speech-imagery-in-scalp-eeg-and-comparison-with-motor-imagery)  
    标签：评分：6.0/10、query:eeg
-   evidence：睡眠脑电信号分析用于认知衰退预测
+   evidence：基于EEG的脑机接口范式比较
 
 
 <div class="dpr-home-promo-card">

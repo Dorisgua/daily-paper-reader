@@ -1,0 +1,142 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-11T21:58:01.880281+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 1,
+    "deep_cap": 7,
+    "deep_selected": 1,
+    "quick_candidates": 2,
+    "quick_skim_target": 12,
+    "quick_selected": 2
+  },
+  "deep_dive": [
+    {
+      "id": "2606.11415v1",
+      "source": "arxiv",
+      "title": "Spatially Masked Regression Reveals Local and Distributed Predictability in Electrophysiological Recordings",
+      "abstract": "Neural recordings are often interpreted as local measurements, yet the signal at any one sensor can also reflect structured activity distributed across the broader network. This raises a basic question: to what extent does an electrode's signal reflect local versus distributed information in the underlying system? More specifically, how much of an electrode's activity is carried by its immediate neighborhood, and how much is embedded more broadly across the array? We address this with a Spatially Masked Regression (SMR) framework that reconstructs each electrode's timeseries from the remaining electrodes while excluding a configurable neighborhood around the target. By progressively increasing this mask, spatial locality becomes an experimental control for quantifying how much predictive information survives after nearby channels are withheld. We apply SMR to intracranial EEG with heterogeneous electrode coverage and to scalp EEG with standardized montages over sensorimotor cortex. Using distance correlation between original and reconstructed signals, we find strong within-subject reconstruction in both modalities, substantial residual predictability even when local neighbors are excluded, and markedly stronger cross-subject transfer in EEG than in iEEG. Masking shows that nearby electrodes contribute strongly to reconstruction but do not account for all of it, indicating that individual channels reflect both local redundancy and broader distributed structure. Surrogates that preserve selected marginal or spectral properties while disrupting phase structure or temporal ordering substantially reduce performance, supporting the conclusion that SMR depends on structured temporal and cross-channel organization rather than on marginal statistics alone. These results position SMR as an interpretable framework for quantifying the balance between local and distributed information in recordings.",
+      "authors": [
+        "Maryam Ostadsharif Memar",
+        "Nima Dehghani"
+      ],
+      "primary_category": "q-bio.NC",
+      "categories": [
+        "q-bio.NC",
+        "cs.LG",
+        "physics.data-an",
+        "q-bio.QM"
+      ],
+      "published": "2026-06-09T20:05:44+00:00",
+      "link": "https://arxiv.org/pdf/2606.11415v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "reconstructs each electrode's time series from remaining electrodes via spatial masked regression",
+      "llm_evidence_cn": "通过空间掩蔽回归从其余电极重建每个电极的时间序列",
+      "llm_evidence": "通过空间掩蔽回归从其余电极重建每个电极的时间序列",
+      "canonical_evidence": "通过空间掩蔽回归从其余电极重建每个电极的时间序列",
+      "llm_tldr_en": "Proposes Spatially Masked Regression to reconstruct each electrode's signal from others while excluding a neighborhood, revealing local vs distributed predictability in electrophysiological recordings, directly applicable to missing channel imputation.",
+      "llm_tldr_cn": "本文针对电生理记录中单个电极信号是否反映局部或分布式信息的问题，提出空间掩蔽回归（SMR）框架。该框架通过从其余电极重建目标电极的时间序列，并逐步扩大排除邻域，来量化空间可预测性。在真实数据上的结果表明，许多电极的信号主要来自分布式网络而非局部邻域，这为缺失通道补全提供了一种无需训练的回归方法，可直接用于EEG通道重建。",
+      "llm_tldr": "本文针对电生理记录中单个电极信号是否反映局部或分布式信息的问题，提出空间掩蔽回归（SMR）框架。该框架通过从其余电极重建目标电极的时间序列，并逐步扩大排除邻域，来量化空间可预测性。在真实数据上的结果表明，许多电极的信号主要来自分布式网络而非局部邻域，这为缺失通道补全提供了一种无需训练的回归方法，可直接用于EEG通道重建。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG missing channel completion using latent space models",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.11555v1",
+      "source": "arxiv",
+      "title": "End-to-End Machine Learning for Depressive State Classification via EEG and fNIRS",
+      "abstract": "The escalating demand for mental healthcare, driven by rising societal stress, highlights the limitations of traditional psychiatric diagnostics. Conventional methods - relying primarily on clinical interviews and patient self-reports - are inherently vulnerable to subjective bias and the varying empirical judgment of practitioners. To address the need for quantitative evaluation, biological signal-based detection, including electroencephalography (EEG) and functional near-infrared spectroscopy (fNIRS), has emerged as a promising objective alternative. Such technology is particularly vital for identifying latent depressive states that may be unrecognized by the subjects themselves. Furthermore, in aging populations, the high comorbidity between depression and dementia necessitates early differentiation to prevent mutual symptom exacerbation and maintain Quality of Life (QoL). This pilot study of eleven healthy students establishes a framework for biological signal-based depression detection, serving as a foundational step toward automated, objective diagnostic tools for clinical use.",
+      "authors": [
+        "Riki Sakurai",
+        "Simon Kojima",
+        "Mihoko Otake-Matsuura",
+        "Shin'ichiro Kanoh",
+        "Tomasz M. Rutkowski"
+      ],
+      "primary_category": "q-bio.NC",
+      "categories": [
+        "q-bio.NC",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-06-10T01:31:07+00:00",
+      "link": "https://arxiv.org/pdf/2606.11555v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "End-to-end EEG-based depressive state classification as BCI application",
+      "llm_evidence_cn": "基于EEG的抑郁状态分类作为BCI应用",
+      "llm_evidence": "基于EEG的抑郁状态分类作为BCI应用",
+      "canonical_evidence": "基于EEG的抑郁状态分类作为BCI应用",
+      "llm_tldr_en": "Proposes end-to-end machine learning for depressive state classification using EEG and fNIRS, addressing subjective bias in diagnosis.",
+      "llm_tldr_cn": "传统精神科诊断依赖主观访谈。本文利用EEG和fNIRS信号，采用端到端机器学习进行抑郁状态分类，为客观诊断提供新方法。该方法有助于识别潜在抑郁状态，尤其在老年共病人群中具有应用价值。",
+      "llm_tldr": "传统精神科诊断依赖主观访谈。本文利用EEG和fNIRS信号，采用端到端机器学习进行抑郁状态分类，为客观诊断提供新方法。该方法有助于识别潜在抑郁状态，尤其在老年共病人群中具有应用价值。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.12223v1",
+      "source": "arxiv",
+      "title": "Characterization of Speech Imagery in Scalp EEG and Comparison with Motor Imagery",
+      "abstract": "SSpeech imagery is attractive as a brain-computer interface paradigm for communication because it is endogenous and intrinsically linguistic. Yet despite growing interest, its dominant scalp-EEG spatiotemporal characteristics remain poorly characterized. Here, we asked how speech imagery appears in scalp EEG and compared it against finger motor imagery. Using a within-subject dataset containing speech imagery, finger motor imagery, and no-task trials recorded under the same trial structure, we analyzed band-power dynamics across channels and time. Finger motor imagery showed the expected contralateral mu/alpha and low-beta desynchronization over sensorimotor areas, whereas speech imagery showed a weaker, more distributed alpha-dominant increase. After normalization to each condition's own post-trial interval, the speech-related alpha increase changed only modestly after cue onset, indicating that much of the speech-versus-no-task difference was already present during the instruction period. A classifier discriminating imagery from no-task reached mean balanced accuracies of 0.563 $\\pm$ 0.072 for speech imagery and 0.718 $\\pm$ 0.127 for motor imagery, with a stronger alpha/beta dependence for motor imagery than for speech imagery. Together, these results provide a clearer group-level characterization of speech imagery in scalp EEG and indicate that its dominant spatiotemporal pattern differs from that of finger motor imagery and is more consistent with substantial non-articulatory task-related contributions than with a clear articulatory-motor analogue.",
+      "authors": [
+        "Bob Van Dyck",
+        "Liuyin Yang",
+        "Qiang Sun",
+        "Ang Li",
+        "Marc M. Van Hulle"
+      ],
+      "primary_category": "eess.SP",
+      "categories": [
+        "eess.SP"
+      ],
+      "published": "2026-06-10T15:34:33+00:00",
+      "link": "https://arxiv.org/pdf/2606.12223v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "EEG-based BCI paradigm comparison",
+      "llm_evidence_cn": "基于EEG的脑机接口范式比较",
+      "llm_evidence": "基于EEG的脑机接口范式比较",
+      "canonical_evidence": "基于EEG的脑机接口范式比较",
+      "llm_tldr_en": "Characterizes speech imagery in scalp EEG and compares with motor imagery, providing insights for BCI communication paradigms.",
+      "llm_tldr_cn": "该论文研究了言语想象在头皮脑电中的特征，并与手指运动想象进行对比。通过分析频带功率动态，发现运动想象在对侧感觉运动区出现mu/alpha和低beta去同步，而言语想象表现出更弱的、分布更广泛的alpha功率增加。该工作为言语想象脑机接口的开发提供了基础神经生理学依据。",
+      "llm_tldr": "该论文研究了言语想象在头皮脑电中的特征，并与手指运动想象进行对比。通过分析频带功率动态，发现运动想象在对侧感觉运动区出现mu/alpha和低beta去同步，而言语想象表现出更弱的、分布更广泛的alpha功率增加。该工作为言语想象脑机接口的开发提供了基础神经生理学依据。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
