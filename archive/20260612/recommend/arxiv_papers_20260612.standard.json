@@ -1,0 +1,183 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-12T21:43:25.569650+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 1,
+    "deep_cap": 7,
+    "deep_selected": 1,
+    "quick_candidates": 3,
+    "quick_skim_target": 12,
+    "quick_selected": 3
+  },
+  "deep_dive": [
+    {
+      "id": "2606.12362v1",
+      "source": "arxiv",
+      "title": "Latent World Recovery for Multimodal Learning with Missing Modalities",
+      "abstract": "We study multimodal learning under missing modalities, with particular motivation from bioscience applications in which heterogeneous modalities are often only partially available when decisions need to be made. We propose Latent World Recovery (LWR), a framework built on two key ideas: (i) modality-specific embeddings from different modalities are aligned in a shared latent space, and (ii) a unified representation is constructed by fusing only the embeddings of the modalities that are actually available at both training and inference time. Rather than imputing missing modalities or requiring a fixed modality set, LWR treats each modality as a partial perception of an underlying latent state and performs availability-aware representation learning directly from the observed modalities. This combination of neighbor-based latent alignment and availability-aware modality fusion enables robust multimodal prediction under partial observation, while avoiding error propagation from explicit reconstruction of missing modalities. We evaluate the proposed framework on real-world incomplete multi-omics benchmarks and demonstrate that it provides an effective approach to downstream tasks such as cancer phenotype classification and survival prediction.",
+      "authors": [
+        "Hui Wang",
+        "Tianyu Ren",
+        "Joseph Butler",
+        "Christopher Baker",
+        "Karen Rafferty",
+        "Simon McDade"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-06-10T17:31:34+00:00",
+      "link": "https://arxiv.org/pdf/2606.12362v1",
+      "tags": [
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Latent World Recovery aligns modality-specific embeddings in shared latent space for missing modalities, directly applicable to EEG channel imputation",
+      "llm_evidence_cn": "Latent World Recovery将模态特定嵌入对齐到共享潜空间以处理缺失模态，直接适用于EEG通道补全",
+      "llm_evidence": "Latent World Recovery将模态特定嵌入对齐到共享潜空间以处理缺失模态，直接适用于EEG通道补全",
+      "canonical_evidence": "Latent World Recovery将模态特定嵌入对齐到共享潜空间以处理缺失模态，直接适用于EEG通道补全",
+      "llm_tldr_en": "Proposes Latent World Recovery for multimodal learning under missing modalities by aligning embeddings in latent space without imputation, enabling availability-aware representation learning.",
+      "llm_tldr_cn": "针对多模态学习中任意模态缺失的挑战，提出Latent World Recovery框架，将不同模态的嵌入对齐到共享潜空间，并在训练和推理时仅融合可用模态的嵌入，无需显式插补缺失模态。该方法将每个模态视为底层潜状态的部分感知，实现可用性感知的表示学习。实验表明其在生物医学应用中的有效性，为EEG缺失通道补全提供了可迁移的潜空间方法。",
+      "llm_tldr": "针对多模态学习中任意模态缺失的挑战，提出Latent World Recovery框架，将不同模态的嵌入对齐到共享潜空间，并在训练和推理时仅融合可用模态的嵌入，无需显式插补缺失模态。该方法将每个模态视为底层潜状态的部分感知，实现可用性感知的表示学习。实验表明其在生物医学应用中的有效性，为EEG缺失通道补全提供了可迁移的潜空间方法。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "latent space based imputation for multichannel EEG",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.08226v1",
+      "source": "arxiv",
+      "title": "CG-MambaNet: A spatiotemporal framework for cross-patient epileptic seizure prediction using CNN-GCN-Mamba-BiLSTM with event-level clinical evaluation",
+      "abstract": "Epileptic seizure prediction from scalp EEG is critical for closed-loop neurostimulation therapy. Existing deep-learning methods share two architectural limitations: they model EEG channels independently, neglecting inter-channel spatial synchrony, and process raw time-domain samples without frequency decomposition. A methodological limitation also affects the field: most studies use data splits that permit patient-level information leakage, yielding optimistic estimates that do not generalise to unseen patients. We present CG-MambaNet, a spatiotemporal seizure prediction framework addressing all three limitations. A depthwise separable CNN front-end decomposes each EEG patch into multi-scale spectro-temporal features, capturing delta-to-gamma band dynamics before sequence modelling. A two-layer graph convolutional network with a learnable adjacency matrix captures inter-channel functional synchrony without montage-specific coordinates, applicable to bipolar (CHB-MIT) and referential (SIENA) montages. A bidirectional Mamba encoder followed by a bidirectional LSTM models long- and short-range temporal dynamics, and a two-layer MLP produces the final seizure probability. This serial hierarchy ensures frequency decomposition precedes spatial mixing, which precedes temporal integration. Under strict leave-one-patient-out cross-validation with five independent random seeds, CG-MambaNet achieves AUC-ROC of 0.8152+/-0.0176 on CHB-MIT (n=22) and 0.7104+/-0.0261 on SIENA (n=6), surpassing all published cross-patient methods without domain adaptation. An event-level evaluation framework merging consecutive alarmed windows via a persistence filter reduces false predictions to 0.32 alarms/hour on CHB-MIT, demonstrating clinically meaningful alarm burden.",
+      "authors": [
+        "Mufeng Chen",
+        "Qi Wu",
+        "Bingchao Huang",
+        "Xiwen Lai",
+        "Zekai Chen",
+        "Xinge Ouyang",
+        "Tingyao Zhang",
+        "Xufang Yang",
+        "Quansheng Ren"
+      ],
+      "primary_category": "eess.SP",
+      "categories": [
+        "eess.SP"
+      ],
+      "published": "2026-06-06T15:29:58+00:00",
+      "link": "https://arxiv.org/pdf/2606.08226v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "scalp EEG deep learning with spatial synchrony modeling",
+      "llm_evidence_cn": "头皮脑电深度学习与空间同步建模",
+      "llm_evidence": "头皮脑电深度学习与空间同步建模",
+      "canonical_evidence": "头皮脑电深度学习与空间同步建模",
+      "llm_tldr_en": "CG-MambaNet uses a CNN-GCN-Mamba-BiLSTM framework for cross-patient seizure prediction from scalp EEG, addressing limited spatial modeling and patient leakage.",
+      "llm_tldr_cn": "现有癫痫预测方法常忽略通道间空间同步且存在患者信息泄露问题。CG-MambaNet采用深度可分离CNN分解脑电信号，结合图卷积网络捕获通道相关性，并通过Mamba-BiLSTM建模时空动态。在跨患者评估中显著提升预测性能，为临床闭环神经刺激提供了可靠方案。",
+      "llm_tldr": "现有癫痫预测方法常忽略通道间空间同步且存在患者信息泄露问题。CG-MambaNet采用深度可分离CNN分解脑电信号，结合图卷积网络捕获通道相关性，并通过Mamba-BiLSTM建模时空动态。在跨患者评估中显著提升预测性能，为临床闭环神经刺激提供了可靠方案。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.09907v1",
+      "source": "arxiv",
+      "title": "LongMoE: Longitudinal Multimodal Learning via Trajectory-Aware Mixture-of-Experts",
+      "abstract": "Multimodal clinical learning is increasingly important for integrating diverse patient data, including imaging, text, and personalised health records. However, it faces two fundamental challenges: i) modality missingness, where arbitrary subsets of modalities are unavailable at a given patient visit, ii) longitudinal dynamics, where the diagnostic significance of an observation depends on the patient's evolving disease trajectory over time. Existing methods address these challenges in isolation: missing-modality frameworks treat each visit as an independent static snapshot and discard temporal context, while longitudinal models often assume complete modality availability and degrade under systematic modality incompleteness. We propose LongMoE (Longitudinal Mixture-of-Experts), the unified framework to jointly address both challenges. LongMoE combines a context-aware imputation module with an attentional tokenization module that captures frequency-domain temporal patterns across irregular visit sequences, a trajectory-aware encoder for modeling disease progression, and context-conditioned Sparse MoE routing for patient-specific expert selection. Experiments on ADNI, OASIS-3, and MIMIC-IV show that LongMoE improves robustness under missing or weak contemporaneous modalities and remains competitive in full-modality settings, establishing a strong foundation for longitudinally-aware multimodal clinical learning.",
+      "authors": [
+        "Maxx Richard Rahman",
+        "Prakhar Kumar",
+        "Wolfgang Maass"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-06-06T07:50:41+00:00",
+      "link": "https://arxiv.org/pdf/2606.09907v1",
+      "tags": [
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "LongMoE addresses modality missingness via trajectory-aware mixture-of-experts, applicable to longitudinal EEG channel completion",
+      "llm_evidence_cn": "LongMoE通过轨迹感知的混合专家模型处理模态缺失，可用于纵向EEG通道补全",
+      "llm_evidence": "LongMoE通过轨迹感知的混合专家模型处理模态缺失，可用于纵向EEG通道补全",
+      "canonical_evidence": "LongMoE通过轨迹感知的混合专家模型处理模态缺失，可用于纵向EEG通道补全",
+      "llm_tldr_en": "Proposes LongMoE for longitudinal multimodal learning with missing modalities using trajectory-aware mixture-of-experts, handling both modality missingness and temporal dynamics.",
+      "llm_tldr_cn": "针对多模态临床学习中同时存在的模态缺失和纵向动态问题，提出LongMoE框架，通过轨迹感知的混合专家模型，利用时间上下文动态融合可用模态信息。现有方法孤立处理两者，LongMoE首次联合建模。实验表明该方法在多个临床数据集上优于基准，为伴随时间动态的EEG缺失通道补全提供了可借鉴的思路。",
+      "llm_tldr": "针对多模态临床学习中同时存在的模态缺失和纵向动态问题，提出LongMoE框架，通过轨迹感知的混合专家模型，利用时间上下文动态融合可用模态信息。现有方法孤立处理两者，LongMoE首次联合建模。实验表明该方法在多个临床数据集上优于基准，为伴随时间动态的EEG缺失通道补全提供了可借鉴的思路。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "latent space based imputation for multichannel EEG",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.11970v1",
+      "source": "arxiv",
+      "title": "Low-Density EEG for Seizure Detection: Evaluating CNN-RNN Architectures on a Behind-the-Ear Montage Setup",
+      "abstract": "Epilepsy affects over 50 million individuals globally, underscoring the need for automated seizure detection systems that can alleviate clinicians workload and enhance the accuracy of patient seizure diaries. In wearable EEG applications, however, reliable detection remains challenging due to the limited spatial resolution of low-density electrode configurations, reduced signal-to-noise ratios, and the scarcity of diverse, publicly available training datasets. This study investigates the efficacy of hybrid deep learning architectures for automated seizure detection using a simulated behind-the-ear montage derived from the Temple University Seizure Corpus (TUSZ, v2.0.3). We conduct a systematic comparison of several CNN-RNN models, including LSTM- and GRU-based variants, across multiple EEG montages to evaluate their capacity to compensate for the loss of spatial information inherent to reduced electrode configurations. The proposed CNN-Merged model, which integrates temporal and spectral feature representations, demonstrates superior performance, achieving a ROC AUC of 85.89% and a balanced accuracy of 79.11% on the held-out test set. Furthermore, the model exhibits strong robustness across different reference montages, effectively bridging the performance gap between conventional full-scalp recordings and resource-constrained wearable systems. These findings substantiate the potential of hybrid deep learning models as a promising avenue toward robust, patient-independent seizure detection in low-density EEG applications.",
+      "authors": [
+        "Annika Stiehl",
+        "Patrick Wingert",
+        "Nicolas Weeger",
+        "Nicole Ille",
+        "Christian Uhl",
+        "Stefan Geißelsöder"
+      ],
+      "primary_category": "eess.SP",
+      "categories": [
+        "eess.SP"
+      ],
+      "published": "2026-06-10T11:50:07+00:00",
+      "link": "https://arxiv.org/pdf/2606.11970v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "low-density EEG seizure detection with deep learning",
+      "llm_evidence_cn": "低密度脑电癫痫检测深度学习",
+      "llm_evidence": "低密度脑电癫痫检测深度学习",
+      "canonical_evidence": "低密度脑电癫痫检测深度学习",
+      "llm_tldr_en": "This study evaluates CNN-RNN architectures for seizure detection using a simulated behind-the-ear EEG montage derived from TUSZ, addressing low spatial resolution challenges.",
+      "llm_tldr_cn": "可穿戴脑电图设备因电极稀疏而难以可靠检测癫痫。本研究利用图样大学癫痫数据集模拟耳后导联设置，系统比较了多种CNN-RNN混合架构。实验表明，结合卷积和循环网络的模型能有效从低密度脑电中提取时空特征，在检测性能与计算效率间取得平衡，推动了便携式癫痫监测的发展。",
+      "llm_tldr": "可穿戴脑电图设备因电极稀疏而难以可靠检测癫痫。本研究利用图样大学癫痫数据集模拟耳后导联设置，系统比较了多种CNN-RNN混合架构。实验表明，结合卷积和循环网络的模型能有效从低密度脑电中提取时空特征，在检测性能与计算效率间取得平衡，推动了便携式癫痫监测的发展。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
