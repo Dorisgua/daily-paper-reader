@@ -1,0 +1,24 @@
+{
+  "label": "2026-06-14",
+  "date": "2026-06-14",
+  "generated_at": "2026-06-14T21:24:56",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202606/14/2606.12742v1-reducing-the-complexity-of-deep-learning-models-for-eeg-analysis-on-wearable-devices",
+      "section": "deep",
+      "title_en": "Reducing the Complexity of Deep Learning Models for EEG Analysis on Wearable Devices",
+      "authors": "Farough Shayeste Roodi, Parham Zilouchian Moghaddam, Mahdi Mohammadi-nasab, Mehdi Modarressi, Mostafa Ersali Salehi Nasab, Masoud Daneshtalab",
+      "date": "2026-06-10",
+      "pdf": "https://arxiv.org/pdf/2606.12742v1",
+      "score": "8.0",
+      "evidence": "可穿戴设备EEG深度学习模型复杂度降低",
+      "tldr": "可穿戴设备资源受限，传统深度神经网络难以直接部署于EEG在线分析。本文针对癫痫检测任务，采用参数量化和电极缩减方法降低模型复杂度。实验表明，这些技术能在保持较高准确度的前提下大幅削减计算和存储需求。研究揭示了精度与复杂度的显式权衡，为在可穿戴设备上实现高效EEG分析提供了可行方案。",
+      "tags": "query:eeg",
+      "abstract_en": "Wearable healthcare devices are the fastest-growing Internet of Things (IoT) sector. Many automated healthcare services rely on two crucial biological signals, namely ECG and EEG, which reflect the activity of the heart and brain, respectively. Although deep neural networks are considered the primary way to process and analyze these signals, the very tight energy and computational power constraints in wearable devices are far below the computational, energy, and memory bandwidth demands of DNN models, thereby impeding the deployment of deep learning in many practical wearable services. This paper investigates the feasibility of deploying state-of-the-art DNN models in resource-constrained wearable devices. Notably, we explore the trade-off between accuracy and computational complexity of DNNs when parameter quantization and electrode reduction methods are used. Our investigation centers on several state-of-the-art DNN models designed for EEG signal analysis, specifically for detecting epileptic seizures. Our findings demonstrate that, when applied judiciously, these techniques can significantly reduce the complexity of the DNNs under consideration with minimal adverse effects on accuracy. These results reveal the explicit trade-offs between accuracy and complexity reduction encountered when adapting DNN-based online EEG analysis for wearable devices.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
