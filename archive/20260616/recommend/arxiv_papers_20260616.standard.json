@@ -1,0 +1,386 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-16T23:08:17.429525+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 6,
+    "deep_cap": 7,
+    "deep_selected": 6,
+    "quick_candidates": 3,
+    "quick_skim_target": 12,
+    "quick_selected": 3
+  },
+  "deep_dive": [
+    {
+      "id": "2606.16462v1",
+      "source": "arxiv",
+      "title": "Learning aligned EEG representations with subject-specific encoders",
+      "abstract": "Cross-subject EEG decoding promises more training data, but it also exposes neural networks to strong inter-subject distribution shifts. We study whether task supervision and architecture alone can learn subject-aligned representations. We replace a shared EEG encoder with subject-specific encoders followed by a common classifier, and compare this hybrid model with standard EEGNet, AttentionBaseNet, and CTNet baselines with Euclidean Alignment (EA) on four motor-imagery datasets. EA improves shared encoders by recentering subject covariances, but the hybrid encoder largely internalises this role: validation-loss curves and latent-distance analyses change little when EA is removed. Subject-specific heads increase class distinctiveness and place each subject close to its own latent manifold, improving most subjects while leaving a method-sensitive subset. These results support subject-specific encoders as a learned alignment mechanism for EEG decoding and identify head selection for unseen subjects as the remaining bottleneck.",
+      "authors": [
+        "Bruna J. Lopes",
+        "Gabriel Schwartz",
+        "Sylvain Chevallier",
+        "Raphael Y. de Camargo",
+        "Bruno Aristimunha"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-06-15T09:31:56+00:00",
+      "link": "https://arxiv.org/pdf/2606.16462v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "directly studies aligned EEG latent representations using subject-specific encoders",
+      "llm_evidence_cn": "直接研究使用主体特定编码器对齐EEG潜表示",
+      "llm_evidence": "直接研究使用主体特定编码器对齐EEG潜表示",
+      "canonical_evidence": "直接研究使用主体特定编码器对齐EEG潜表示",
+      "llm_tldr_en": "Proposes subject-specific encoder architecture to learn aligned EEG latent representations across subjects, improving classification and latent distance consistency.",
+      "llm_tldr_cn": "该论文针对跨主体EEG解码中的分布偏移问题，提出主体特定编码器与共享分类器结合的混合模型，无需显式对齐即可学习对齐的EEG潜表示。在四个运动想象数据集上，该方法优于EEGNet等基线，且潜空间分析表明其自然内化了欧几里得对齐的功能，为EEG潜空间表示提供了简洁有效的方案。",
+      "llm_tldr": "该论文针对跨主体EEG解码中的分布偏移问题，提出主体特定编码器与共享分类器结合的混合模型，无需显式对齐即可学习对齐的EEG潜表示。在四个运动想象数据集上，该方法优于EEGNet等基线，且潜空间分析表明其自然内化了欧几里得对齐的功能，为EEG潜空间表示提供了简洁有效的方案。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.13017v1",
+      "source": "arxiv",
+      "title": "Deep Sleep Classification via EEG Signal Criticality: A Passive BCI Approach for Sleep-Improvement Neurofeedback",
+      "abstract": "Automated sleep staging is a fundamental application of passive Brain-Computer Interfaces (pBCI), decoding spontaneous neural states to enable closed-loop interventions independent of user intent. This study evaluates criticality features derived from Detrended Fluctuation Analysis (DFA) for the specific identification of deep sleep (N3).   We analyzed $347,232$ EEG epochs from $290$ older women using UMAP manifold learning to visualize state transitions. Subsequently, six classifiers were benchmarked via 10-fold cross-validation, using balanced accuracy to determine the optimal \"state-sensing\" engine for neurofeedback.Naive Bayes achieved the highest mean balanced accuracy ($87.17\\% \\pm 0.24\\%$), significantly outperforming a fully connected deep neural network (FNN: $81.58\\%$) and Random Forest ($80.97\\%$). Linear models (LDA: $57.21\\%$; SVM: $51.01\\%$) performed poorly, indicating that DFA-derived criticality features reside on a distinct, non-linear manifold.   Probabilistic decoding of EEG criticality provides a high-accuracy sensing mechanism for pBCIs. This robust classification pipeline supports the development of state-dependent neurofeedback, such as targeted auditory stimulation, to enhance cognitive recovery.",
+      "authors": [
+        "Stanisław Narębski",
+        "Tomasz Komendziński",
+        "Tomasz M. Rutkowski"
+      ],
+      "primary_category": "q-bio.NC",
+      "categories": [
+        "q-bio.NC",
+        "cs.LG"
+      ],
+      "published": "2026-06-11T07:53:29+00:00",
+      "link": "https://arxiv.org/pdf/2606.13017v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "EEG-based passive BCI for sleep classification, directly matching BCI research.",
+      "llm_evidence_cn": "基于EEG的被动BCI睡眠分类，直接匹配BCI研究。",
+      "llm_evidence": "基于EEG的被动BCI睡眠分类，直接匹配BCI研究。",
+      "canonical_evidence": "基于EEG的被动BCI睡眠分类，直接匹配BCI研究。",
+      "llm_tldr_en": "Evaluates criticality features for deep sleep detection using EEG, achieving 87.17% balanced accuracy with Naive Bayes for BCI neurofeedback.",
+      "llm_tldr_cn": "自动睡眠分期是被动脑机接口的重要应用。本文利用去趋势波动分析提取EEG临界性特征，结合UMAP流形学习可视化状态转换，并基准测试多种分类器，其中朴素贝叶斯达到87.17%的平均平衡准确率，为睡眠改善神经反馈提供了高效的状态感知引擎。",
+      "llm_tldr": "自动睡眠分期是被动脑机接口的重要应用。本文利用去趋势波动分析提取EEG临界性特征，结合UMAP流形学习可视化状态转换，并基准测试多种分类器，其中朴素贝叶斯达到87.17%的平均平衡准确率，为睡眠改善神经反馈提供了高效的状态感知引擎。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.15278v1",
+      "source": "arxiv",
+      "title": "RECTOR: Masked Region-Channel-Temporal Modeling for Affective and Cognitive Representation Learning",
+      "abstract": "Affective and cognitive disorders manifest as distributed, time-varying brain network dynamics across regions, channels, and time, challenging robust representation learning from EEG/sEEG for clinical diagnosis. We propose RECTOR (Masked Region-Channel-Temporal Modeling), an end-to-end self-supervised framework that unifies joint region-channel-temporal representation learning beyond fixed anatomical priors. At its core, RECTOR-SA is a hierarchical, block-sparse self-attention induced by Adaptive Functional Partitioning that evolves region structures from static anatomical definitions to adaptive functional regions. The self-supervision is driven by Masked Topology and Representation Learning, which jointly optimizes three complementary objectives: Masked Predictive Modeling, Topological Structure Modeling, and Cross-View Consistency. Across diverse benchmarks, RECTOR sets a new state-of-the-art in EEG emotion recognition and sEEG task-engagement classification. Crucially, its strong robustness to missing channels and cross-montage generalization underscores its potential for large-scale pre-training on heterogeneous EEG/sEEG, providing interpretable insights at both region and channel levels.",
+      "authors": [
+        "Jinhan Liu",
+        "Mahsa Shoaran"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-06-13T12:33:59+00:00",
+      "link": "https://arxiv.org/pdf/2606.15278v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "proposes masked representation learning for EEG/sEEG, learning region-channel-temporal latent representations",
+      "llm_evidence_cn": "提出面向EEG/sEEG的掩码表示学习，学习区域-通道-时间潜表示",
+      "llm_evidence": "提出面向EEG/sEEG的掩码表示学习，学习区域-通道-时间潜表示",
+      "canonical_evidence": "提出面向EEG/sEEG的掩码表示学习，学习区域-通道-时间潜表示",
+      "llm_tldr_en": "RECTOR is a self-supervised framework that learns joint region-channel-temporal EEG representations via masked topology learning, directly advancing EEG latent space modeling.",
+      "llm_tldr_cn": "该论文针对情感和认知障碍诊断中EEG/sEEG表示学习困难，提出RECTOR框架，通过自适应功能分区和掩码拓扑学习，联合建模区域、通道和时间维度的潜表示。实验表明该框架在多个EEG数据集上优于传统方法，为EEG潜空间表示提供了端到端自监督方案。",
+      "llm_tldr": "该论文针对情感和认知障碍诊断中EEG/sEEG表示学习困难，提出RECTOR框架，通过自适应功能分区和掩码拓扑学习，联合建模区域、通道和时间维度的潜表示。实验表明该框架在多个EEG数据集上优于传统方法，为EEG潜空间表示提供了端到端自监督方案。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.14120v1",
+      "source": "arxiv",
+      "title": "FAConformer: Frequency-Aware Convolutional Transformer for Auditory Attention Decoding",
+      "abstract": "Auditory attention decoding (AAD) aims to infer the attended speaker from neural responses in multi-speaker acoustic environments and is a key problem for neuro-steered hearing systems. Although recent studies have achieved encouraging progress, existing AAD models still do not fully exploit frequency domain electroencephalography (EEG) information. In particular, most approaches introduce multi-band information through handcrafted feature extraction or direct cross-band feature concatenation, which mainly exploit frequency information at a shallow level and may overlook band-specific patterns and cross-band interactions. To address these limitations, this paper proposes FAConformer, a frequency-aware CNN-Transformer framework for AAD that explicitly integrates band-specific encoding and adaptive cross-band interaction. Specifically, FAConformer first decomposes EEG signals into multiple frequency bands and assigns each band to an independent CNN-Transformer encoder for band-specific modeling. The resulting band-wise features are then adaptively fused by a carefully designed frequency-aware attention (FAA) module that models cross-band dependencies by treating band-wise features as tokens. Further, band-wise auxiliary supervision (BAS) is introduced to prevent weakly contributing branches from being under-optimized during joint training. In this way, FAConformer performs frequency-aware modeling that more effectively exploits frequency domain information. Extensive experiments on two public AAD datasets with three decision-window lengths demonstrated that FAConformer consistently outperformed 12 competitive baselines, surpassing the current state-of-the-art model by 4.9%. Further analyses of band importance, ablation, and parameter sensitivity verify the effectiveness, robustness, and interpretability of the proposed framework. Code is available at https://github.com/wzwvv/FAConformer.",
+      "authors": [
+        "Ziwei Wang",
+        "Xingyi He",
+        "Tianwang Jia",
+        "Hongbin Wang",
+        "Dongrui Wu"
+      ],
+      "primary_category": "eess.SP",
+      "categories": [
+        "eess.SP",
+        "cs.AI",
+        "cs.LG",
+        "cs.SD",
+        "eess.AS"
+      ],
+      "published": "2026-06-12T04:59:09+00:00",
+      "link": "https://arxiv.org/pdf/2606.14120v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "EEG-based auditory attention decoding using frequency-aware transformer",
+      "llm_evidence_cn": "基于EEG的频率感知变换器用于听觉注意力解码",
+      "llm_evidence": "基于EEG的频率感知变换器用于听觉注意力解码",
+      "canonical_evidence": "基于EEG的频率感知变换器用于听觉注意力解码",
+      "llm_tldr_en": "Proposes FAConformer, a frequency-aware CNN-Transformer for EEG auditory attention decoding, exploiting frequency domain patterns.",
+      "llm_tldr_cn": "该文针对听觉注意力解码（AAD）中EEG频域信息利用不充分的问题，提出FAConformer模型。该模型融合卷积和Transformer结构，通过频率感知机制提取频带特定模式和跨频带交互，克服了浅层特征拼接的局限。在多个AAD数据集上，FAConformer取得了优于现有方法的解码准确率，推动了神经导向助听系统的发展。",
+      "llm_tldr": "该文针对听觉注意力解码（AAD）中EEG频域信息利用不充分的问题，提出FAConformer模型。该模型融合卷积和Transformer结构，通过频率感知机制提取频带特定模式和跨频带交互，克服了浅层特征拼接的局限。在多个AAD数据集上，FAConformer取得了优于现有方法的解码准确率，推动了神经导向助听系统的发展。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.14614v1",
+      "source": "arxiv",
+      "title": "Decoding Semantic Categories from Picture-Naming EEG",
+      "abstract": "Picture naming requires the transformation of visual object information into a spoken lexical response through perceptual, semantic, lexical, and articulatory processes. This study asked whether semantic-category information is recoverable from high-density EEG during overt picture naming. Sixteen native French-speaking participants performed a picture-naming task using line drawings. Picture labels were embedded with a multilingual text-embedding model and organized into nine interpretable semantic categories, providing a data-driven semantic target space for neural decoding. EEG activity was represented channel-wise using a pre-trained single-channel EEG encoder over an early post-stimulus window, a later naming-related window, and their combination. Nine-class decoding showed above-chance semantic-category discrimination in all temporal representations. Balanced accuracy increased from 0.562 in the early window to 0.610 in the naming-related window, and reached 0.781 when both windows were combined, with a maximum Macro-F1 of 0.784. Class-level F1 scores showed consistent gains across semantic categories, and sensor-level decoding maps indicated spatially distributed category information. These findings suggest that semantic-category structure is reflected in EEG activity during overt picture naming and that early and naming-related temporal windows provide complementary information. The results support the use of modern neural decoding methods as tools for investigating lexical-semantic processing in spoken language production.",
+      "authors": [
+        "Wei Hu",
+        "Binbin Xu"
+      ],
+      "primary_category": "q-bio.NC",
+      "categories": [
+        "q-bio.NC",
+        "eess.SP"
+      ],
+      "published": "2026-06-12T16:40:01+00:00",
+      "link": "https://arxiv.org/pdf/2606.14614v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "decoding semantic categories from picture-naming EEG, BCI research",
+      "llm_evidence_cn": "从图片命名EEG解码语义类别，脑机接口研究",
+      "llm_evidence": "从图片命名EEG解码语义类别，脑机接口研究",
+      "canonical_evidence": "从图片命名EEG解码语义类别，脑机接口研究",
+      "llm_tldr_en": "Decodes semantic categories from high-density EEG during picture naming using a pre-trained single-channel encoder and text embeddings, achieving above-chance nine-class accuracy. Demonstrates recoverability of semantic information from EEG, relevant to BCI.",
+      "llm_tldr_cn": "该论文探究从高密度EEG信号中解码图片命名时的语义类别信息。利用预训练单通道EEG编码器提取特征，结合多语言文本嵌入构建语义目标空间，实现了九类语义解码。实验表明在早期和后时期窗口均能恢复语义信息，为基于EEG的语义通信BCI提供了实证。",
+      "llm_tldr": "该论文探究从高密度EEG信号中解码图片命名时的语义类别信息。利用预训练单通道EEG编码器提取特征，结合多语言文本嵌入构建语义目标空间，实现了九类语义解码。实验表明在早期和后时期窗口均能恢复语义信息，为基于EEG的语义通信BCI提供了实证。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.16615v1",
+      "source": "arxiv",
+      "title": "SUP-MCRL: Subject-aware Unified Pseudo-feature Coded Multimodal Contrastive Representation Learning for EEG Visual Decoding",
+      "abstract": "Non-invasive brain-computer interfaces suffer severe fidelity degradation in neural visual decoding when generalizing to natural visual experiences. Conventional multimodal contrastive representation learning solely optimizes geometric distance alignment, neglecting semantic consistency and subject selectivity, causing spurious zero-shot alignment. We propose SUP-MCRL, a unified framework integrating three collaborative mechanisms: (1) Semantic-entity Aware Visual Encoder (SAVE), learning spatial attention to extract semantic content without pre-trained saliency models; (2 Unified EEG Enhancer (UEE), employing multi-scale atrous convolutions and inter-band attention for adaptive cross-subject robustness; and (3) Prototype-based Progressive Augmenter (PPA), maintaining an EMA-updated pseudo-feature pool to prevent representation collapse. Zero-shot experiments on THINGS-EEG achieve 66.0%/91.9% (Top-1/Top-5) intra-subject and 24.0%/52.9% LOSO accuracy, surpassing state-of-the-art methods. Code is available at https://github.com/NZWANG/SUP-MCRL.",
+      "authors": [
+        "Shengyu Gong",
+        "Weiming Zeng",
+        "Yueyang Li",
+        "Zijian Kang",
+        "Hongjie Yan",
+        "Wai Ting Siok",
+        "Nizhuan Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-15T12:06:08+00:00",
+      "link": "https://arxiv.org/pdf/2606.16615v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "EEG latent representation learning for visual decoding",
+      "llm_evidence_cn": "EEG潜在表示学习用于视觉解码",
+      "llm_evidence": "EEG潜在表示学习用于视觉解码",
+      "canonical_evidence": "EEG潜在表示学习用于视觉解码",
+      "llm_tldr_en": "Proposes SUP-MCRL integrating semantic-aware visual encoder and EEG enhancer for robust EEG visual decoding via contrastive representation learning.",
+      "llm_tldr_cn": "该文针对非侵入式脑机接口在自然视觉解码中的保真度退化问题，提出SUP-MCRL框架。该框架包含语义实体感知视觉编码器（SAVE）和统一EEG增强器（UEE），通过多尺度空洞卷积和跨频带注意力实现跨主体鲁棒表示学习。实验表明，该方法显著提升了零样本视觉解码的准确性，为EEG潜在空间表示学习提供了新范式。",
+      "llm_tldr": "该文针对非侵入式脑机接口在自然视觉解码中的保真度退化问题，提出SUP-MCRL框架。该框架包含语义实体感知视觉编码器（SAVE）和统一EEG增强器（UEE），通过多尺度空洞卷积和跨频带注意力实现跨主体鲁棒表示学习。实验表明，该方法显著提升了零样本视觉解码的准确性，为EEG潜在空间表示学习提供了新范式。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.12600v1",
+      "source": "arxiv",
+      "title": "Multifractal human signals at the edge of life reveal a heart-brain anti-correlation",
+      "abstract": "This study investigates the terminal breakdown of human neurophysiological function through the lens of non-linear dynamics by analyzing the multifractal spectrum. Using Multifractal Detrended Fluctuation Analysis (MF-DFA), we quantify the temporal evolution of complexity in synchronized electroencephalogram (EEG) and electrocardiogram (ECG) time series from patients in the terminal stage. Our results reveal a marked divergence in multifractal spectrum width: while neural activity exhibits a collapse of multifractality toward a more constrained state, cardiac signals undergo anomalous spectral broadening, indicating increased non-linear fluctuations and dynamical instability. A negative correlation between these spectral widths suggests effective functional decoupling and the emergence of anti-correlated dynamics between neural and cardiac systems. Rather than reflecting a uniform physiological decline, this divergence is consistent with a body-to-brain breakdown in which peripheral dysfunction progressively overwhelms central regulatory processes. In a broader context, the observed opposing trends resemble patterns reported in other body-driven adaptive processes, suggesting that inverse dynamics across coupled systems may emerge when constraints originate from peripheral rather than central mechanisms. Ultimately, the dying process appears to represent an extreme form of cross-system disintegration, marked by the collapse of the hierarchical coordination that normally sustains integrated physiological function.",
+      "authors": [
+        "Yago Emanoel Ramos",
+        "Maria Eloá do Ó",
+        "Henrique Ferraz de Arruda",
+        "Mauro Copelli",
+        "G. Camelo-Neto",
+        "Pedro V. Carelli"
+      ],
+      "primary_category": "q-bio.NC",
+      "categories": [
+        "q-bio.NC",
+        "nlin.AO"
+      ],
+      "published": "2026-06-10T18:56:09+00:00",
+      "link": "https://arxiv.org/pdf/2606.12600v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "analyzes EEG time series with multifractal analysis for signal processing",
+      "llm_evidence_cn": "使用多重分形分析处理脑电信号时间序列",
+      "llm_evidence": "使用多重分形分析处理脑电信号时间序列",
+      "canonical_evidence": "使用多重分形分析处理脑电信号时间序列",
+      "llm_tldr_en": "Applies multifractal detrended fluctuation analysis (MF-DFA) to EEG and ECG signals from terminal patients, revealing a heart-brain anti-correlation. Matches user requirement for EEG signal processing and analysis.",
+      "llm_tldr_cn": "本研究对临终患者同步记录的脑电图（EEG）和心电图（ECG）进行多重分形去趋势波动分析（MF-DFA），量化了神经和心脏信号中非线性动力学的演化。结果发现EEG的多重分形性塌缩而ECG呈现异常谱展宽，两者呈反相关，揭示了生命终结时心脑系统的动态解耦。该工作属于EEG信号处理与分析范畴，与用户需求第9条“脑电图信号处理与分析”直接相关。",
+      "llm_tldr": "本研究对临终患者同步记录的脑电图（EEG）和心电图（ECG）进行多重分形去趋势波动分析（MF-DFA），量化了神经和心脏信号中非线性动力学的演化。结果发现EEG的多重分形性塌缩而ECG呈现异常谱展宽，两者呈反相关，揭示了生命终结时心脑系统的动态解耦。该工作属于EEG信号处理与分析范畴，与用户需求第9条“脑电图信号处理与分析”直接相关。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.15743v1",
+      "source": "arxiv",
+      "title": "Unsupervised Learning for Missing Modalities in Multimodal Learning",
+      "abstract": "This paper addresses the missing-modality challenge in multi-modal learning by introducing Unsupervised Learning for Missing Modalities in Multi-Modal Learning (UL4M4), a flexible framework that imputes missing feature embeddings in a task-independent manner before supervised prediction. We propose modality-specific   normalization and a novel partial-modality distance metric to enable fair clustering of incomplete observations, capturing cross-modal structures while preserving scale-invariance across varying dimensionalities and modality counts. Cluster centers from this unsupervised stage guide an iterative greedy imputation process for any   missing modalities during training or inference, supporting arbitrary numbers of modalities and arbitrary missing patterns per sample. The imputation module is lightweight, uses frozen encoders, and decouples from the downstream task, allowing easy integration with any fusion/prediction architecture. Extensive experiments under diverse and highly incomplete regimes demonstrate UL4M4's robustness, achieving, to   the best of our knowledge, the first consistent F1-Micro scores above 0.7 on challenging missing configurations even when more than 50\\% of modality slots are missing. Results are also stable across cluster sizes and significantly outperform state-of-the-art baselines. Code is available here: https://github.com/h-ismkhan/Multimodal-Learning-with-Missing-Modalities-via-Unsupervised-Learning.",
+      "authors": [
+        "Hassan Ismkhan",
+        "Hamid Bouchahcia"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-14T11:04:33+00:00",
+      "link": "https://arxiv.org/pdf/2606.15743v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "unsupervised imputation of missing modalities applicable to EEG channel imputation",
+      "llm_evidence_cn": "缺失模态的无监督填补方法，可应用于EEG通道填补",
+      "llm_evidence": "缺失模态的无监督填补方法，可应用于EEG通道填补",
+      "canonical_evidence": "缺失模态的无监督填补方法，可应用于EEG通道填补",
+      "llm_tldr_en": "Introduces UL4M4, an unsupervised framework that imputes missing feature embeddings via clustering and iterative greedy imputation, supporting arbitrary missing modalities and potentially applicable to EEG channel imputation.",
+      "llm_tldr_cn": "该文针对多模态学习中的缺失模态问题，提出了UL4M4无监督框架。通过模态特异归一化和偏模态距离度量，对不完整观测进行公平聚类，然后基于聚类中心进行迭代贪心填补。该方法与任务无关，支持任意数量和任意缺失模态的组合，可为EEG多通道缺失填补提供方法论支持。",
+      "llm_tldr": "该文针对多模态学习中的缺失模态问题，提出了UL4M4无监督框架。通过模态特异归一化和偏模态距离度量，对不完整观测进行公平聚类，然后基于聚类中心进行迭代贪心填补。该方法与任务无关，支持任意数量和任意缺失模态的组合，可为EEG多通道缺失填补提供方法论支持。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "latent space based imputation for multichannel EEG",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.16041v1",
+      "source": "arxiv",
+      "title": "EEGDash: An open-source platform for machine learning on public neurophysiological data",
+      "abstract": "Public neurophysiological datasets are increasingly accessible but remain hard to reuse: turning one into a trained model still takes thousands of lines of code for download, loading, format repair, windowing, and evaluation, and a dataset that meets metadata standards can still fail to load. EEG-Dash is a software resource that catalogues 791 publicly archived recordings (39,778 participants, over 86,051 hours) spanning electroencephalography (EEG), magnetoencephalography (MEG), intracranial EEG (iEEG), electromyography (EMG), and functional near-infrared spectroscopy (fNIRS) from the OpenNeuro and NEMAR archives. It exposes each dataset as an importable, queryable class that preserves signal attributes and loads into machine-learning workflows without custom code, delegating signal handling to MNE-Python, windowing to Braindecode, and format compliance to the official Brain Imaging Data Structure (BIDS) validator. A metadata-first registry adds semantic search, a format-repair layer, automatic dataset-level tags drawn from each source publication, and a feature-extraction framework. The catalogue, with per-record loadability and compliance metadata, supports benchmarking, model development, and cross-dataset analysis.",
+      "authors": [
+        "Bruno Aristimunha",
+        "Aviv Dotan",
+        "Pierre Guetschel",
+        "Aman Jaiswal",
+        "Gal Ashkenazi",
+        "Dung Truong",
+        "Kuntal Kokate",
+        "Amitrava Majumdar",
+        "Oren Shriki",
+        "Arnaud Delorme"
+      ],
+      "primary_category": "q-bio.NC",
+      "categories": [
+        "q-bio.NC"
+      ],
+      "published": "2026-06-14T22:22:08+00:00",
+      "link": "https://arxiv.org/pdf/2606.16041v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "provides a platform for EEG data processing and machine learning, enabling easier experimentation",
+      "llm_evidence_cn": "提供EEG数据处理与机器学习平台，便于实验实施",
+      "llm_evidence": "提供EEG数据处理与机器学习平台，便于实验实施",
+      "canonical_evidence": "提供EEG数据处理与机器学习平台，便于实验实施",
+      "llm_tldr_en": "EEGDash is a platform that catalogs 791 EEG recordings, exposing them as queryable ML-ready classes, facilitating EEG signal processing and analysis.",
+      "llm_tldr_cn": "该论文针对公共神经生理数据难以重用的问题，开发EEGDash平台，收录791个公开记录（包括EEG），提供可导入、可查询的数据类，兼容主流机器学习框架。该平台极大简化了EEG数据加载、预处理和评估流程，为EEG信号处理与分析研究提供了基础设施支持。",
+      "llm_tldr": "该论文针对公共神经生理数据难以重用的问题，开发EEGDash平台，收录791个公开记录（包括EEG），提供可导入、可查询的数据类，兼容主流机器学习框架。该平台极大简化了EEG数据加载、预处理和评估流程，为EEG信号处理与分析研究提供了基础设施支持。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
