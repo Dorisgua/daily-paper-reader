@@ -1,0 +1,39 @@
+{
+  "label": "2026-06-17",
+  "date": "2026-06-17",
+  "generated_at": "2026-06-17T22:07:53",
+  "count": 2,
+  "papers": [
+    {
+      "paper_id": "202606/17/2606.12742v2-reducing-the-complexity-of-deep-learning-models-for-eeg-analysis-on-wearable-devices",
+      "section": "deep",
+      "title_en": "Reducing the Complexity of Deep Learning Models for EEG Analysis on Wearable Devices",
+      "authors": "Farough Shayeste Roodi, Parham Zilouchian Moghaddam, Mahdi Mohammadi-nasab, Mehdi Modarressi, Mostafa Ersali Salehi Nasab, Masoud Daneshtalab",
+      "date": "2026-06-10",
+      "pdf": "https://arxiv.org/pdf/2606.12742v2",
+      "score": "8.0",
+      "evidence": "可穿戴设备上的EEG深度学习分析",
+      "tldr": "可穿戴设备资源受限，深度学习模型计算需求高，阻碍了其在EEG分析中的应用。本文通过参数量化和电极减少技术压缩模型，实验表明这些方法能显著降低计算复杂度，同时准确率损失极小。该工作揭示了准确率与复杂度之间的明确权衡，为在可穿戴设备上部署在线EEG分析提供了可行方案。",
+      "tags": "query:eeg",
+      "abstract_en": "Wearable healthcare devices are the fastest-growing Internet of Things (IoT) sector. Many automated healthcare services rely on two crucial biological signals, namely ECG and EEG, which reflect the activity of the heart and brain, respectively. Although deep neural networks are considered the primary way to process and analyze these signals, the very tight energy and computational power constraints in wearable devices are far below the computational, energy, and memory bandwidth demands of DNN models, thereby impeding the deployment of deep learning in many practical wearable services. This paper investigates the feasibility of deploying state-of-the-art DNN models in resource-constrained wearable devices. Notably, we explore the trade-off between accuracy and computational complexity of DNNs when parameter quantization and electrode reduction methods are used. Our investigation centers on several state-of-the-art DNN models designed for EEG signal analysis, specifically for detecting epileptic seizures. Our findings demonstrate that, when applied judiciously, these techniques can significantly reduce the complexity of the DNNs under consideration with minimal adverse effects on accuracy. These results reveal the explicit trade-offs between accuracy and complexity reduction encountered when adapting DNN-based online EEG analysis for wearable devices.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/17/2606.15091v1-sensory-restoration-via-brain-computer-interfaces-a-unified-2-x-2-framework-and-convergence-roadmap",
+      "section": "deep",
+      "title_en": "Sensory Restoration via Brain-Computer Interfaces: A Unified 2 x 2 Framework and Convergence Roadmap",
+      "authors": "Xuan-The Tran",
+      "date": "2026-06-13",
+      "pdf": "https://arxiv.org/pdf/2606.15091v1",
+      "score": "8.0",
+      "evidence": "包含非侵入式EEG解码器的BCI统一框架",
+      "tldr": "针对感觉和沟通障碍患者，脑机接口（BCI）研究在侵入性、信号方向等维度上术语混乱、比较标准缺失。本文提出一个2×2统一框架，按侵入性（侵入/非侵入）与信号方向（传入感觉IN/传出感觉OUT）分类，明确定义恢复、替代、增强三种范式，并给出近中远期融合路线图，强调物理极限和机器学习基础模型的作用。该框架有望整合碎片化的研究路径，推动感觉恢复BCI的标准化与协同发展。",
+      "tags": "query:eeg",
+      "abstract_en": "Millions of individuals worldwide suffer from sensory and communication deficits caused by neurodegenerative diseases, stroke, or trauma. Brain-computer interfaces (BCIs) offer a promising avenue for sensory and motor restoration. However, the scientific literature remains highly fragmented between invasive neuroprosthetics and non-invasive electrophysiological decoders, with a lack of consistent terminology and comparison metrics. This chapter proposes a unified 2 x 2 framework categorizing BCIs along two axes: degree of invasiveness (invasive vs. non-invasive) and signal direction (afferent sensory-IN vs. efferent sensory-OUT). We define and distinguish the paradigms of restoration, substitution, and augmentation. Furthermore, we outline a structural roadmap for the convergence of these modalities over near-, medium-, and long-term horizons, focusing on physical limits and the integrative role of machine learning foundation models.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
