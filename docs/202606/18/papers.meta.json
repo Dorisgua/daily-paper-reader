@@ -1,0 +1,69 @@
+{
+  "label": "2026-06-18",
+  "date": "2026-06-18",
+  "generated_at": "2026-06-18T22:25:20",
+  "count": 4,
+  "papers": [
+    {
+      "paper_id": "202606/18/2606.15989v1-task-guided-cross-subject-latent-alignment-a-multi-encoder-decoder-vae",
+      "section": "deep",
+      "title_en": "Task-guided cross-subject latent alignment: a multi-encoder-decoder VAE",
+      "authors": "Angeliki Papathanasiou, Jascha Achterberg, Thomas E. Nichols, Rui Ponte Costa",
+      "date": "2026-06-14",
+      "pdf": "https://arxiv.org/pdf/2606.15989v1",
+      "score": "8.0",
+      "evidence": "基于VAE的神经数据跨被试潜在空间对齐方法",
+      "tldr": "传统跨主体神经活动对齐方法依赖共享刺激，限制了其在自然范式中的应用。本文提出多编码器-解码器变分自编码器（MED-VAE），利用预训练人工神经网络作为共同锚定，无需共享刺激即可实现对齐。在自然场景数据集上，MED-VAE创建了语义组织更优的公共隐空间，跨主体对齐性能超越传统方法，且对保留刺激保持稳健泛化。该框架为跨主体预测与下游任务提供了可泛化的公共子空间，在视觉皮层图像响应中得到了验证。",
+      "tags": "query:eeg-latent",
+      "abstract_en": "Aligning neural activity across subjects offers the promise of discovering shared computational principles and generalizable decoders. However, traditional alignment methods require shared stimuli across subjects, a constraint that limits applicability to naturalistic paradigms with limited or non-overlapping data. We introduce a Multi-Encoder-Decoder Variational Autoencoder (MED-VAE) that achieves cross-subject alignment without shared stimuli by anchoring representations to a common scaffold provided by a pretrained ANN. Using the Natural Scenes Dataset, we show that MED-VAE creates common latent spaces with superior semantic organisation, achieving higher cross-subject alignment than common methods while maintaining robust generalisation to held-out stimuli where traditional methods degrade. Reconstructing from these common spaces back to each subject's original neural space, MED-VAE preserves equal stimulus-driven signal in its cross-subject latent space. Finally, we show that this superior alignment directly enables cross-subject neural prediction, as demonstrated via cross-subject image decoding. In summary, we introduce a framework to identify generalisable common subspaces for cross-subject predictions and downstream tasks, demonstrated here for visual cortex responses to static images.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/18/2606.18816v1-switchbraidnet-quantisation-aware-lightweight-architecture-for-hybrid-brain-computer-interface",
+      "section": "deep",
+      "title_en": "SwitchBraidNet: Quantisation-Aware Lightweight Architecture for Hybrid Brain-Computer Interface",
+      "authors": "Gourav Siddhad, Yogesh Kumar Meena",
+      "date": "2026-06-17",
+      "pdf": "https://arxiv.org/pdf/2606.18816v1",
+      "score": "8.0",
+      "evidence": "混合BCI脑电图分类的轻量级架构",
+      "tldr": "混合脑机接口融合运动想象与稳态视觉诱发电位，但计算开销大。本文提出SwitchBraidNet紧凑架构，通过双路径时间编织提取多尺度振荡特征、自适应空间门控电极选择、对数方差直接编码频带能量。经量化感知训练，在OpenBMI数据集上MI准确率69.49%（FP16）、SSVEP准确率93.48%（FP32），混合信息传输率64.82 bits/min（FP16）。INT8仅3.03KB，适合低功耗嵌入式部署。",
+      "tags": "query:eeg",
+      "abstract_en": "Hybrid brain-computer interfaces (BCIs) that integrate motor imagery (MI) and steady-state visual evoked potentials (SSVEP) provide high-dimensional neural decoding but typically exceed the computational limits of embedded hardware. To address this, we propose SwitchBraidNet, a compact EEG classification architecture designed for low-power deployment. The model employs a dual-path temporal braid to extract multiscale oscillatory features, an adaptive squeeze-and-excitation spatial switch for electrode gating, and a log-variance readout layer for direct band-power encoding. Furthermore, through systematic quantisation-aware training on the OpenBMI dataset, we compared SwitchBraidNet against four established baselines across FP32, FP16, and INT8 precisions. Experimental results demonstrate superior efficiency and performance, achieving MI accuracy of 69.49% (FP16), SSVEP accuracy of 93.48% (FP32), and a hybrid information transfer rate of 64.82 bits/min (FP16). With an INT8 footprint of only 3.03 KB, SwitchBraidNet maintains high accuracy across varying numerical precisions, demonstrating its suitability for low-power embedded BCI deployment.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/18/2606.15091v2-sensory-restoration-via-brain-computer-interfaces-a-unified-2-x-2-framework-and-convergence-roadmap",
+      "section": "quick",
+      "title_en": "Sensory Restoration via Brain-Computer Interfaces: A Unified 2 x 2 Framework and Convergence Roadmap",
+      "authors": "Xuan-The Tran",
+      "date": "2026-06-13",
+      "pdf": "https://arxiv.org/pdf/2606.15091v2",
+      "score": "7.0",
+      "evidence": "BCI框架涵盖非侵入式脑电图解码器",
+      "tldr": "为解决BCI领域因术语和比较指标缺乏一致性导致的碎片化问题，本文提出一个统一的2×2框架，沿侵入程度（侵入式 vs 非侵入式）和信号方向（传入感觉 vs 传出感觉）两个轴对BCI进行分类，并明确定义恢复、替代和增强三种范式。在此框架基础上，进一步规划了从近期到长期的融合路线图，强调物理限制并融入机器学习基础模型。该工作为感觉恢复BCI的系统化发展提供了理论指导和路径规划。",
+      "tags": "query:eeg",
+      "abstract_en": "Millions of individuals worldwide suffer from sensory and communication deficits caused by neurodegenerative diseases, stroke, or trauma. Brain-computer interfaces (BCIs) offer a promising avenue for sensory and motor restoration. However, the scientific literature remains highly fragmented between invasive neuroprosthetics and non-invasive electrophysiological decoders, with a lack of consistent terminology and comparison metrics. This chapter proposes a unified 2 x 2 framework categorizing BCIs along two axes: degree of invasiveness (invasive vs. non-invasive) and signal direction (afferent sensory-IN vs. efferent sensory-OUT). We define and distinguish the paradigms of restoration, substitution, and augmentation. Furthermore, we outline a structural roadmap for the convergence of these modalities over near-, medium-, and long-term horizons, focusing on physical limits and the integrative role of machine learning foundation models.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/18/2606.15458v1-structured-nonparametric-variational-inference-for-dependent-latent-modeling",
+      "section": "quick",
+      "title_en": "Structured Nonparametric Variational Inference for Dependent Latent Modeling",
+      "authors": "Yuda Shao, Zhiling Gu, Shan Yu",
+      "date": "2026-06-13",
+      "pdf": "https://arxiv.org/pdf/2606.15458v1",
+      "score": "6.0",
+      "evidence": "具有依赖关系的潜在变量建模可用于多变量插补",
+      "tldr": "传统变分推理常采用平均场假设，忽略了隐变量间的复杂依赖。本文提出结构化非参数变分推理(SN-VI)，利用多元样条技术灵活逼近任意形状的后验分布，并自动识别隐变量依赖结构。理论证明了变分下界和估计的渐近一致性。在计算机视觉和空间转录组学数据上，改善了生成模型性能并揭示了耦合的生物信号。",
+      "tags": "query:eeg-latent",
+      "abstract_en": "Variational inference (VI) is a core engine of modern AI, enabling scalable approximate Bayesian learning and uncertainty-aware training of large probabilistic and generative models. In this paper, we propose Structured Nonparametric Variational Inference (SN-VI), a novel framework for modeling complex dependencies among latent variables in posterior approximation, leveraging multivariate spline techniques. Unlike traditional methods that rely on the mean-field assumption, SN-VI preserves intricate latent variable dependencies, providing a flexible and accurate approximation of posteriors with arbitrary shapes. We establish rigorous theoretical guarantees, including the derivation of the lower bound for the variational objective and proof of asymptotic consistency in posterior estimation. To facilitate practical implementation, we develop an algorithm that automatically identifies dependent latent variables and their underlying dependence structure, without requiring manual specification. Simulation studies validate the effectiveness of SN-VI in approximating posterior distributions with bounded support and complex dependencies. The proposed method has been successfully applied to high-dimensional structured data, including computer vision datasets and spatial transcriptomics. In these applications, SN-VI demonstrates improved generative model performance and effectively uncovers coupled biological signals through the learned dependency structure.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

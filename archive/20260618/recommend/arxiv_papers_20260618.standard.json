@@ -1,0 +1,174 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-18T22:21:05.606242+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 2,
+    "deep_cap": 7,
+    "deep_selected": 2,
+    "quick_candidates": 2,
+    "quick_skim_target": 12,
+    "quick_selected": 2
+  },
+  "deep_dive": [
+    {
+      "id": "2606.18816v1",
+      "source": "arxiv",
+      "title": "SwitchBraidNet: Quantisation-Aware Lightweight Architecture for Hybrid Brain-Computer Interface",
+      "abstract": "Hybrid brain-computer interfaces (BCIs) that integrate motor imagery (MI) and steady-state visual evoked potentials (SSVEP) provide high-dimensional neural decoding but typically exceed the computational limits of embedded hardware. To address this, we propose SwitchBraidNet, a compact EEG classification architecture designed for low-power deployment. The model employs a dual-path temporal braid to extract multiscale oscillatory features, an adaptive squeeze-and-excitation spatial switch for electrode gating, and a log-variance readout layer for direct band-power encoding. Furthermore, through systematic quantisation-aware training on the OpenBMI dataset, we compared SwitchBraidNet against four established baselines across FP32, FP16, and INT8 precisions. Experimental results demonstrate superior efficiency and performance, achieving MI accuracy of 69.49% (FP16), SSVEP accuracy of 93.48% (FP32), and a hybrid information transfer rate of 64.82 bits/min (FP16). With an INT8 footprint of only 3.03 KB, SwitchBraidNet maintains high accuracy across varying numerical precisions, demonstrating its suitability for low-power embedded BCI deployment.",
+      "authors": [
+        "Gourav Siddhad",
+        "Yogesh Kumar Meena"
+      ],
+      "primary_category": "cs.HC",
+      "categories": [
+        "cs.HC",
+        "cs.AI",
+        "cs.ET"
+      ],
+      "published": "2026-06-17T08:35:29+00:00",
+      "link": "https://arxiv.org/pdf/2606.18816v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "hybrid BCI EEG classification with lightweight architecture",
+      "llm_evidence_cn": "混合BCI脑电图分类的轻量级架构",
+      "llm_evidence": "混合BCI脑电图分类的轻量级架构",
+      "canonical_evidence": "混合BCI脑电图分类的轻量级架构",
+      "llm_tldr_en": "Proposes SwitchBraidNet, a compact EEG classification architecture for hybrid MI-SSVEP BCI, using dual-path temporal braid and spatial switch.",
+      "llm_tldr_cn": "本文针对混合脑机接口（MI和SSVEP）在嵌入式设备上计算受限的问题，提出SwitchBraidNet轻量级EEG分类架构。该模型采用双路径时间辫子提取多尺度振荡特征，自适应挤压激励空间开关进行电极门控，以及对数方差读出层。通过量化感知训练在OpenBMI数据集上验证，性能优于多个基线且适合低功耗部署。",
+      "llm_tldr": "本文针对混合脑机接口（MI和SSVEP）在嵌入式设备上计算受限的问题，提出SwitchBraidNet轻量级EEG分类架构。该模型采用双路径时间辫子提取多尺度振荡特征，自适应挤压激励空间开关进行电极门控，以及对数方差读出层。通过量化感知训练在OpenBMI数据集上验证，性能优于多个基线且适合低功耗部署。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.15989v1",
+      "source": "arxiv",
+      "title": "Task-guided cross-subject latent alignment: a multi-encoder-decoder VAE",
+      "abstract": "Aligning neural activity across subjects offers the promise of discovering shared computational principles and generalizable decoders. However, traditional alignment methods require shared stimuli across subjects, a constraint that limits applicability to naturalistic paradigms with limited or non-overlapping data. We introduce a Multi-Encoder-Decoder Variational Autoencoder (MED-VAE) that achieves cross-subject alignment without shared stimuli by anchoring representations to a common scaffold provided by a pretrained ANN. Using the Natural Scenes Dataset, we show that MED-VAE creates common latent spaces with superior semantic organisation, achieving higher cross-subject alignment than common methods while maintaining robust generalisation to held-out stimuli where traditional methods degrade. Reconstructing from these common spaces back to each subject's original neural space, MED-VAE preserves equal stimulus-driven signal in its cross-subject latent space. Finally, we show that this superior alignment directly enables cross-subject neural prediction, as demonstrated via cross-subject image decoding. In summary, we introduce a framework to identify generalisable common subspaces for cross-subject predictions and downstream tasks, demonstrated here for visual cortex responses to static images.",
+      "authors": [
+        "Angeliki Papathanasiou",
+        "Jascha Achterberg",
+        "Thomas E. Nichols",
+        "Rui Ponte Costa"
+      ],
+      "primary_category": "q-bio.NC",
+      "categories": [
+        "q-bio.NC",
+        "cs.AI"
+      ],
+      "published": "2026-06-14T19:30:11+00:00",
+      "link": "https://arxiv.org/pdf/2606.15989v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "VAE-based cross-subject latent alignment for neural data",
+      "llm_evidence_cn": "基于VAE的神经数据跨被试潜在空间对齐方法",
+      "llm_evidence": "基于VAE的神经数据跨被试潜在空间对齐方法",
+      "canonical_evidence": "基于VAE的神经数据跨被试潜在空间对齐方法",
+      "llm_tldr_en": "A multi-encoder-decoder VAE achieves cross-subject latent alignment without shared stimuli, using a pretrained ANN scaffold.",
+      "llm_tldr_cn": "该论文提出多编码器-解码器变分自编码器（MED-VAE）解决跨被试神经活动对齐问题。传统对齐方法需要共享刺激，而MED-VAE通过预训练ANN作为支架，在无共享刺激情况下创建共同潜在空间。在自然场景数据集上，该方法实现了更好的语义组织和跨被试对齐性能，同时保持对新数据的泛化能力。该方法可直接应用于EEG信号潜在空间表示，为缺失通道补全等任务提供潜在空间框架。",
+      "llm_tldr": "该论文提出多编码器-解码器变分自编码器（MED-VAE）解决跨被试神经活动对齐问题。传统对齐方法需要共享刺激，而MED-VAE通过预训练ANN作为支架，在无共享刺激情况下创建共同潜在空间。在自然场景数据集上，该方法实现了更好的语义组织和跨被试对齐性能，同时保持对新数据的泛化能力。该方法可直接应用于EEG信号潜在空间表示，为缺失通道补全等任务提供潜在空间框架。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.15091v2",
+      "source": "arxiv",
+      "title": "Sensory Restoration via Brain-Computer Interfaces: A Unified 2 x 2 Framework and Convergence Roadmap",
+      "abstract": "Millions of individuals worldwide suffer from sensory and communication deficits caused by neurodegenerative diseases, stroke, or trauma. Brain-computer interfaces (BCIs) offer a promising avenue for sensory and motor restoration. However, the scientific literature remains highly fragmented between invasive neuroprosthetics and non-invasive electrophysiological decoders, with a lack of consistent terminology and comparison metrics. This chapter proposes a unified 2 x 2 framework categorizing BCIs along two axes: degree of invasiveness (invasive vs. non-invasive) and signal direction (afferent sensory-IN vs. efferent sensory-OUT). We define and distinguish the paradigms of restoration, substitution, and augmentation. Furthermore, we outline a structural roadmap for the convergence of these modalities over near-, medium-, and long-term horizons, focusing on physical limits and the integrative role of machine learning foundation models.",
+      "authors": [
+        "Xuan-The Tran"
+      ],
+      "primary_category": "cs.HC",
+      "categories": [
+        "cs.HC",
+        "cs.AI"
+      ],
+      "published": "2026-06-13T03:53:08+00:00",
+      "link": "https://arxiv.org/pdf/2606.15091v2",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "BCI framework includes non-invasive EEG decoders",
+      "llm_evidence_cn": "BCI框架涵盖非侵入式脑电图解码器",
+      "llm_evidence": "BCI框架涵盖非侵入式脑电图解码器",
+      "canonical_evidence": "BCI框架涵盖非侵入式脑电图解码器",
+      "llm_tldr_en": "Proposes a unified 2x2 BCI framework categorizing invasive vs non-invasive and afferent vs efferent, providing a roadmap for sensory restoration.",
+      "llm_tldr_cn": "本文提出一个统一的2x2脑机接口框架，按侵入性（侵入vs非侵入）和信号方向（传入vs传出）分类，定义了恢复、替代和增强等范式。该框架为感官恢复领域提供了收敛路线图，有助于整合分散的BCI研究。",
+      "llm_tldr": "本文提出一个统一的2x2脑机接口框架，按侵入性（侵入vs非侵入）和信号方向（传入vs传出）分类，定义了恢复、替代和增强等范式。该框架为感官恢复领域提供了收敛路线图，有助于整合分散的BCI研究。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.15458v1",
+      "source": "arxiv",
+      "title": "Structured Nonparametric Variational Inference for Dependent Latent Modeling",
+      "abstract": "Variational inference (VI) is a core engine of modern AI, enabling scalable approximate Bayesian learning and uncertainty-aware training of large probabilistic and generative models. In this paper, we propose Structured Nonparametric Variational Inference (SN-VI), a novel framework for modeling complex dependencies among latent variables in posterior approximation, leveraging multivariate spline techniques. Unlike traditional methods that rely on the mean-field assumption, SN-VI preserves intricate latent variable dependencies, providing a flexible and accurate approximation of posteriors with arbitrary shapes. We establish rigorous theoretical guarantees, including the derivation of the lower bound for the variational objective and proof of asymptotic consistency in posterior estimation. To facilitate practical implementation, we develop an algorithm that automatically identifies dependent latent variables and their underlying dependence structure, without requiring manual specification. Simulation studies validate the effectiveness of SN-VI in approximating posterior distributions with bounded support and complex dependencies. The proposed method has been successfully applied to high-dimensional structured data, including computer vision datasets and spatial transcriptomics. In these applications, SN-VI demonstrates improved generative model performance and effectively uncovers coupled biological signals through the learned dependency structure.",
+      "authors": [
+        "Yuda Shao",
+        "Zhiling Gu",
+        "Shan Yu"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.LG"
+      ],
+      "published": "2026-06-13T20:29:04+00:00",
+      "link": "https://arxiv.org/pdf/2606.15458v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "latent variable modeling with dependencies for multivariate imputation",
+      "llm_evidence_cn": "具有依赖关系的潜在变量建模可用于多变量插补",
+      "llm_evidence": "具有依赖关系的潜在变量建模可用于多变量插补",
+      "canonical_evidence": "具有依赖关系的潜在变量建模可用于多变量插补",
+      "llm_tldr_en": "Proposes Structured Nonparametric Variational Inference (SN-VI) to model complex dependencies among latent variables, providing a flexible posterior approximation that can be applied to latent space-based imputation for multichannel EEG.",
+      "llm_tldr_cn": "针对传统变分推断的均值场假设无法建模潜在变量间复杂依赖的问题，本文提出结构化非参数变分推断（SN-VI），利用多元样条技术保持依赖结构。理论上推导了变分下界并证明了渐近性质。该框架可推广到多通道EEG插补任务，通过捕捉通道间的潜在依赖提升缺失值估计的准确性。",
+      "llm_tldr": "针对传统变分推断的均值场假设无法建模潜在变量间复杂依赖的问题，本文提出结构化非参数变分推断（SN-VI），利用多元样条技术保持依赖结构。理论上推导了变分下界并证明了渐近性质。该框架可推广到多通道EEG插补任务，通过捕捉通道间的潜在依赖提升缺失值估计的准确性。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "latent space based imputation for multichannel EEG",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
