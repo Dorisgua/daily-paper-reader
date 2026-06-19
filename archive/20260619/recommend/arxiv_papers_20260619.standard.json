@@ -1,0 +1,261 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-19T20:41:32.032009+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 2,
+    "deep_cap": 7,
+    "deep_selected": 2,
+    "quick_candidates": 4,
+    "quick_skim_target": 12,
+    "quick_selected": 4
+  },
+  "deep_dive": [
+    {
+      "id": "2606.20074v1",
+      "source": "arxiv",
+      "title": "Evaluation of EEG Foundation Models for Event-Based Burst-Suppression Detection in ICU",
+      "abstract": "Burst suppression (BS) is a clinically relevant electroencephalographic (EEG) pattern used to monitor sedation depth and brain activity in critically ill patients, particularly during induced coma in Intensive Care Units (ICUs). Automatic burst detection remains challenging because BS patterns vary substantially between patients and annotated datasets are scarce. Recently, EEG Foundation Models (FMs) have shown promise across several downstream EEG applications, but their usefulness for BS detection remains unexplored. We present the first study to evaluate EEG FMs for burst detection in reduced-montage ICU EEG without patient-specific calibration. We compare REVE-base, LUNA-large and LuMamba-Tiny with an adaptive thresholding baseline and a task-specific EEGNet baseline. Additionally, we complement conventional EEG window-based classification with event-based burst detection evaluation. This helps assessing clinically whether burst episodes are correctly detected, reducing the impact of expected annotation variability. The best model, REVE-base, achieved the highest event-based F1-score ($0.868 \\pm 0.167$) and reduced burst-per-minute error by 52.1% and 36.2% compared to EEGNet and adaptive thresholding respectively, supporting FMs for scalable EEG monitoring in ICU. Ablation experiments showed that full fine-tuning was the most effective adaptation strategy with respect to frozen-backbone training, two-step fine-tuning, and LoRA-based adaptation, improving event-based F1-score over frozen-backbone training by up to $+0.102$ for LUNA-large. With reduced labeled datasets, pretrained REVE-base outperformed random initialization by $+0.723$ event-based F1 points at 25% of the cohort, demonstrating the benefit of pretraining FM representations when adapted to burst detection with limited labeled data.",
+      "authors": [
+        "Elisa Vasta",
+        "Thorir Mar Ingolfsson",
+        "Andrea Cossettini",
+        "Luca Benini",
+        "Tilman Beck",
+        "Emanuela Keller",
+        "Una Pale"
+      ],
+      "primary_category": "eess.SP",
+      "categories": [
+        "eess.SP",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-06-18T10:49:36+00:00",
+      "link": "https://arxiv.org/pdf/2606.20074v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "evaluation of EEG foundation models for clinical burst-suppression detection",
+      "llm_evidence_cn": "评估脑电图基础模型用于临床爆发-抑制检测",
+      "llm_evidence": "评估脑电图基础模型用于临床爆发-抑制检测",
+      "canonical_evidence": "评估脑电图基础模型用于临床爆发-抑制检测",
+      "llm_tldr_en": "First study to evaluate EEG foundation models (REVE-base, LUNA-large, LuMamba-Tiny) for burst-suppression detection in reduced-montage ICU EEG without patient-specific calibration.",
+      "llm_tldr_cn": "该论文首次评估了脑电图基础模型（REVE-base、LUNA-large、LuMamba-Tiny）在降低导联的ICU脑电图上进行爆发-抑制检测的性能。由于爆发-抑制模式患者间差异大且标注数据稀缺，传统方法困难。研究发现基础模型在无患者特定校准的情况下具有潜力，并与自适应阈值基线进行了比较，为临床应用中利用预训练EEG模型提供了见解。",
+      "llm_tldr": "该论文首次评估了脑电图基础模型（REVE-base、LUNA-large、LuMamba-Tiny）在降低导联的ICU脑电图上进行爆发-抑制检测的性能。由于爆发-抑制模式患者间差异大且标注数据稀缺，传统方法困难。研究发现基础模型在无患者特定校准的情况下具有潜力，并与自适应阈值基线进行了比较，为临床应用中利用预训练EEG模型提供了见解。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.16615v2",
+      "source": "arxiv",
+      "title": "SUP-MCRL: Subject-aware Unified Pseudo-feature Coded Multimodal Contrastive Representation Learning for EEG Visual Decoding",
+      "abstract": "Non-invasive brain-computer interfaces exhibit significant performance degradation when moving from controlled laboratory stimuli to real-world natural images. This degradation occurs because conventional multimodal contrastive representation learning models focus exclusively on optimizing geometric distance alignment, thereby failing to account for semantic consistency and inter-subject variability in neural representation and selective attention. As a result, these models are prone to producing spurious zero-shot matches. To address these limitations, we propose SUP-MCRL, a unified framework integrating three collaborative mechanisms: (1) a Semantic-entity Aware Visual Encoder (SAVE) that learns spatial attention to extract semantic content without relying on pre-trained saliency models; (2) a Unified EEG Enhancer (UEE) that employs multi-scale atrous convolutions and inter-band attention for adaptive cross-subject robustness; and (3) a Prototype-based Progressive Augmenter (PPA) that maintains an EMA-updated pseudo-feature pool to prevent representation collapse. Zero-shot experiments on the THINGS-EEG achieve 66.0%/91.9% (Top-1/Top-5) intra-subject and 24.0%/52.9% LOSO accuracy, significantly surpassing state-of-the-art methods and demonstrating that structured alignment supervision is key to overcoming the limitations of cross-modal decoding. Code is available at https://github.com/NZWANG/SUP-MCRL.",
+      "authors": [
+        "Shengyu Gong",
+        "Weiming Zeng",
+        "Yueyang Li",
+        "Zijian Kang",
+        "Hongjie Yan",
+        "Wai Ting Siok",
+        "Nizhuan Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-15T12:06:08+00:00",
+      "link": "https://arxiv.org/pdf/2606.16615v2",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "proposes contrastive representation learning for EEG visual decoding in BCI",
+      "llm_evidence_cn": "提出用于脑机接口视觉解码的对比表示学习方法",
+      "llm_evidence": "提出用于脑机接口视觉解码的对比表示学习方法",
+      "canonical_evidence": "提出用于脑机接口视觉解码的对比表示学习方法",
+      "llm_tldr_en": "Proposes SUP-MCRL, a unified framework for EEG visual decoding that integrates semantic-aware visual encoding, contrastive learning, and subject adaptation to improve zero-shot matching.",
+      "llm_tldr_cn": "非侵入式脑机接口在自然图像刺激下性能显著退化，原因是传统对比学习忽视语义一致性和个体差异。本文提出SUP-MCRL框架，集成语义实体感知视觉编码器、统一伪特征编码多模态对比学习和主题感知机制，有效减少虚假零样本匹配。在EEG视觉解码数据集上，该方法显著提升零样本匹配准确率，为鲁棒的BCI视觉解码提供了新途径。",
+      "llm_tldr": "非侵入式脑机接口在自然图像刺激下性能显著退化，原因是传统对比学习忽视语义一致性和个体差异。本文提出SUP-MCRL框架，集成语义实体感知视觉编码器、统一伪特征编码多模态对比学习和主题感知机制，有效减少虚假零样本匹配。在EEG视觉解码数据集上，该方法显著提升零样本匹配准确率，为鲁棒的BCI视觉解码提供了新途径。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.13190v1",
+      "source": "arxiv",
+      "title": "Multi-Modal Multi-Agent Robotic Cognitive Alignment enabled by Non-Invasive Consumer Brain Computer Interfaces: A Proof of Concept Exploration",
+      "abstract": "While non-verbal behaviors and expressive movements are essential for natural human-robot interaction, existing methods often overlook a crucial element: the human's internal cognitive state. Frequently, proactive multi-agent systems can interrupt humans at inopportune moments, leading to cognitive overload and decreased task performance. This paper introduces a framework for generating \"cognitively aligned\" multi-agent interactions, enhancing the ability of robotic systems to contextually defer communications to the user of an agent system during moments of high human mental workload and engagement. We present the design and implementation of a closed-loop architecture that explores the interplay between autonomous task execution and real-time neurophysiological focus. Using a consumer-grade Brain-Computer Interface (BCI), our approach continuously monitors Electroencephalography (EEG) spectral band powers while a human performs an engagement-inducing task. We propose an engagement-driven pipeline where an HTTP-based signaling mechanism places a primary agent's sensory inputs and audio outputs into a holding state upon detecting high engagement. This allows secondary agents to seamlessly process complex, delegated tasks in the background. Once the human's cognitive state returns to a lower cognitive load baseline, the primary agent releases the queued agent message. Our preliminary results demonstrate the feasibility of leveraging real-time signal processing, Large Language Models (LLMs), and physical robotic embodiments to create cognitively-aware, non-intrusive multi-agent systems.",
+      "authors": [
+        "Nataliya Kosmyna",
+        "Liz Jenkins",
+        "Anoop K. Sinha"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO",
+        "cs.HC"
+      ],
+      "published": "2026-06-11T10:58:31+00:00",
+      "link": "https://arxiv.org/pdf/2606.13190v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "non-invasive consumer BCI for cognitive alignment in multi-agent robots",
+      "llm_evidence_cn": "非侵入式消费级脑机接口用于多智能体机器人认知对齐",
+      "llm_evidence": "非侵入式消费级脑机接口用于多智能体机器人认知对齐",
+      "canonical_evidence": "非侵入式消费级脑机接口用于多智能体机器人认知对齐",
+      "llm_tldr_en": "This paper presents a closed-loop BCI framework that uses EEG to assess mental workload and achieve cognitively aligned multi-agent interactions.",
+      "llm_tldr_cn": "本文提出一个闭环脑机接口框架，利用EEG评估人类心理负荷，从而实现多智能体系统的认知对齐。研究证明了非侵入式消费级BCI在机器人交互中的可行性，能够根据用户认知状态动态延迟通信，减少认知过载。",
+      "llm_tldr": "本文提出一个闭环脑机接口框架，利用EEG评估人类心理负荷，从而实现多智能体系统的认知对齐。研究证明了非侵入式消费级BCI在机器人交互中的可行性，能够根据用户认知状态动态延迟通信，减少认知过载。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.14866v1",
+      "source": "arxiv",
+      "title": "Test-Time Adaptation of Spiking Neural Networks for Intracortical Neural Decoding using Membrane Potential Alignment",
+      "abstract": "Intracortical brain-computer interfaces suffer from day-to-day neural signal shifts that degrade pretrained decoders. Existing unsupervised adaptation methods rely on deep recurrent or adversarial architectures that are too computationally expensive for implantable hardware. We propose Membrane Potential Alignment (MPA), a test-time adaptation method for spiking neural networks that realigns a pretrained decoder to shifted recordings by only matching membrane potential distributions via KL divergence. By restricting updates to low-rank (LoRA) weights, MPA adapts fewer than 9% of parameters. On a non-human primate reaching task spanning over one month, MPA achieves performance competitive with the state-of-the-art NoMAD method, while using a simpler architecture and finer temporal resolution (4 ms vs. 20 ms). These results show that efficient SNN-based test-time adaptation is a practical path toward long-term, recalibration-free brain-computer interfaces.",
+      "authors": [
+        "Guangzhi Tang"
+      ],
+      "primary_category": "cs.NE",
+      "categories": [
+        "cs.NE"
+      ],
+      "published": "2026-06-12T18:08:28+00:00",
+      "link": "https://arxiv.org/pdf/2606.14866v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "brain-computer interface adaptation with spiking neural networks",
+      "llm_evidence_cn": "脑机接口自适应与脉冲神经网络",
+      "llm_evidence": "脑机接口自适应与脉冲神经网络",
+      "canonical_evidence": "脑机接口自适应与脉冲神经网络",
+      "llm_tldr_en": "Proposes MPA, a test-time adaptation method for spiking neural networks in intracortical BCI, using membrane potential alignment and LoRA, achieving competitive performance over one month.",
+      "llm_tldr_cn": "该论文针对脑机接口中信号漂移导致预训练解码器性能下降的问题，提出了膜电位对齐（MPA）方法，通过最小化KL散度匹配膜电位分布，并利用低秩权重更新仅调整不到9%的参数。在非人灵长类动物的抓取任务上经过一个多月的测试，MPA的表現与最先进方法相当，且计算开销低，适合植入式硬件实现。该方法为脑机接口的自适应提供了一种生物合理且高效的解决方案。",
+      "llm_tldr": "该论文针对脑机接口中信号漂移导致预训练解码器性能下降的问题，提出了膜电位对齐（MPA）方法，通过最小化KL散度匹配膜电位分布，并利用低秩权重更新仅调整不到9%的参数。在非人灵长类动物的抓取任务上经过一个多月的测试，MPA的表現与最先进方法相当，且计算开销低，适合植入式硬件实现。该方法为脑机接口的自适应提供了一种生物合理且高效的解决方案。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.14079v1",
+      "source": "arxiv",
+      "title": "Deep Spectral Learning of Embedded Latent Transfer Operators for Stochastic Dynamical Systems",
+      "abstract": "We propose a spectral learning method for stochastic nonlinear dynamical systems represented with embedded latent transfer operators in deep feature spaces. We instantiate the method as Deep Spectral Encoder (DSE), an operator-based latent state-space model in which a time-invariant neural encoder implements learnable nonlinear feature maps from observations, and these features define Markovian latent states whose temporal evolution and observation mapping are described by the transfer and observation operators, respectively. Functional canonical correlation analysis in a learnable Galerkin-projected feature space provides state coordinates from past and future observations, and the two linear operators are estimated on the state coordinates as ridge-regularized closed-form solutions that coincide with Galerkin projections of the associated covariance operators. On this representation, we generalize sequential Bayesian filtering and Koopman spectral mode decomposition in feature space. Experiments on several scenarios show stable and superior performance with sequential Bayesian filtering and dynamic mode decomposition baselines even under noise and partial observability.",
+      "authors": [
+        "Ryogo Tanaka",
+        "Yoshinobu Kawahara"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-12T03:55:11+00:00",
+      "link": "https://arxiv.org/pdf/2606.14079v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "deep spectral learning of embedded latent transfer operators",
+      "llm_evidence_cn": "嵌入潜在转移算子的深度谱学习",
+      "llm_evidence": "嵌入潜在转移算子的深度谱学习",
+      "canonical_evidence": "嵌入潜在转移算子的深度谱学习",
+      "llm_tldr_en": "DSE learns latent state-space models with transfer operators from stochastic dynamical systems using spectral methods in deep feature spaces.",
+      "llm_tldr_cn": "随机动力学系统的潜在表示学习是挑战。本文提出Deep Spectral Encoder，在深度特征空间中学习嵌入的潜在转移算子，通过可学习Galerkin投影进行函数典型相关分析得到状态坐标。该方法有效捕捉系统动态，为时间序列潜在空间建模提供新思路。",
+      "llm_tldr": "随机动力学系统的潜在表示学习是挑战。本文提出Deep Spectral Encoder，在深度特征空间中学习嵌入的潜在转移算子，通过可学习Galerkin投影进行函数典型相关分析得到状态坐标。该方法有效捕捉系统动态，为时间序列潜在空间建模提供新思路。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.17106v1",
+      "source": "arxiv",
+      "title": "Informative Missingness to Generate Irregular Clinical Time Series",
+      "abstract": "Laboratory tests in electronic health records are collected irregularly, and the absence of a test order can be as informative as the measurement itself. Such missingness reflects clinicians' decisions and patient physiology, making it important to model it directly rather than treat it as a preprocessing artifact. Here we present a diffusion-based approach for generating clinical time series that jointly models laboratory values and their observation patterns using the public Data Analytics Challenge on Missing Data Imputation (DACMI) benchmark derived from MIMIC-III. To preserve realistic sampling, we align chart times into 4-hour intervals and segment admissions into 7-day windows, producing trajectories that pair each lab value with a corresponding observation indicator. Standard transformations and normalization are applied to stabilize training. Our method extends the TimeDiff framework to learn continuous lab values and discrete missingness patterns through complementary diffusion objectives. Experiments show that the generated data closely match real patient trajectories across individual lab distributions and joint value-missingness embeddings, demonstrating that diffusion models can capture clinically meaningful dependencies between patient physiology and clinicians' testing behavior under MNAR-like (missing-not-at-random) missingness. These preliminary results indicate that our model can serve as an initial component toward developing clinical foundation models. By producing synthetic priors that preserve key physiology-missingness relationships, this work motivates the subsequent training of Prior-Data Fitted Networks capable of leveraging informative missingness, which we will investigate in the extended work.",
+      "authors": [
+        "Hadi Mehdizavareh",
+        "Gabriele Santangelo",
+        "Giovanna Nicora",
+        "Simon Lebech Cichosz",
+        "Arianna Dagliati",
+        "Arijit Khan",
+        "Riccardo Bellazzi"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.CY"
+      ],
+      "published": "2026-06-14T13:06:03+00:00",
+      "link": "https://arxiv.org/pdf/2606.17106v1",
+      "tags": [
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "diffusion-based generative model for clinical time series with informative missingness",
+      "llm_evidence_cn": "基于扩散的生成模型处理临床时间序列中的信息性缺失",
+      "llm_evidence": "基于扩散的生成模型处理临床时间序列中的信息性缺失",
+      "canonical_evidence": "基于扩散的生成模型处理临床时间序列中的信息性缺失",
+      "llm_tldr_en": "A diffusion-based approach jointly models lab values and observation patterns to generate realistic irregular clinical time series with informative missingness.",
+      "llm_tldr_cn": "临床时间序列常存在不规则缺失，且缺失模式本身具有信息性。本文提出扩散模型，联合生成实验室指标和观测模式，保留真实采样特性。在DACMI基准上，模型生成的时间序列能效仿真实的缺失模式。为处理医疗数据缺失提供了新思路，可直接迁移至EEG缺失通道生成。",
+      "llm_tldr": "临床时间序列常存在不规则缺失，且缺失模式本身具有信息性。本文提出扩散模型，联合生成实验室指标和观测模式，保留真实采样特性。在DACMI基准上，模型生成的时间序列能效仿真实的缺失模式。为处理医疗数据缺失提供了新思路，可直接迁移至EEG缺失通道生成。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "latent space based imputation for multichannel EEG",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

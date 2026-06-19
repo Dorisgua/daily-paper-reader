@@ -6,32 +6,40 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-18
-- 运行时间：2026-06-18 22:25:14 UTC
+- 最新运行日期：2026-06-19
+- 运行时间：2026-06-19 20:45:16 UTC
 - 运行状态：成功
-- 本次总论文数：4
+- 本次总论文数：6
 - 精读区：2
-- 速读区：2
+- 速读区：4
 
 ### 今日简报（AI）
-今天推荐4篇脑机接口与生成模型论文，精读2篇获8分高分。最值得关注跨被试潜空间对齐的Task-guided VAE，以及面向混合BCI的量化感知轻量网络SwitchBraidNet。下一阶段可探索这两项技术在实时低功耗设备上的融合验证。
-- 详情：[/202606/18/README](/202606/18/README)
+1) 今日精读高分研究：EEG基础模型评估用于ICU爆发抑制检测，以及多模态对比学习提升视觉解码性能。  
+2) 最值得看：ECG基础模型在临床事件检测的可靠性，以及SUP-MCRL方法对EEG视觉解码的提升。  
+3) 建议尝试将EEG基础模型用于实时监测，或参考多模态对比学习优化脑机接口解码。
+- 详情：[/202606/19/README](/202606/19/README)
 
 ### 精读区论文标签
-1. [Task-guided cross-subject latent alignment: a multi-encoder-decoder VAE](/202606/18/2606.15989v1-task-guided-cross-subject-latent-alignment-a-multi-encoder-decoder-vae)  
-   标签：评分：8.0/10、query:eeg-latent
-   evidence：基于VAE的神经数据跨被试潜在空间对齐方法
-2. [SwitchBraidNet: Quantisation-Aware Lightweight Architecture for Hybrid Brain-Computer Interface](/202606/18/2606.18816v1-switchbraidnet-quantisation-aware-lightweight-architecture-for-hybrid-brain-computer-interface)  
+1. [Evaluation of EEG Foundation Models for Event-Based Burst-Suppression Detection in ICU](/202606/19/2606.20074v1-evaluation-of-eeg-foundation-models-for-event-based-burst-suppression-detection-in-icu)  
+   标签：评分：9.0/10、query:eeg
+   evidence：评估脑电图基础模型用于临床爆发-抑制检测
+2. [SUP-MCRL: Subject-aware Unified Pseudo-feature Coded Multimodal Contrastive Representation Learning for EEG Visual Decoding](/202606/19/2606.16615v2-sup-mcrl-subject-aware-unified-pseudo-feature-coded-multimodal-contrastive-representation-learning-for-eeg-visual-decoding)  
    标签：评分：8.0/10、query:eeg
-   evidence：混合BCI脑电图分类的轻量级架构
+   evidence：提出用于脑机接口视觉解码的对比表示学习方法
 
 ### 速读区论文标签
-1. [Sensory Restoration via Brain-Computer Interfaces: A Unified 2 x 2 Framework and Convergence Roadmap](/202606/18/2606.15091v2-sensory-restoration-via-brain-computer-interfaces-a-unified-2-x-2-framework-and-convergence-roadmap)  
+1. [Multi-Modal Multi-Agent Robotic Cognitive Alignment enabled by Non-Invasive Consumer Brain Computer Interfaces: A Proof of Concept Exploration](/202606/19/2606.13190v1-multi-modal-multi-agent-robotic-cognitive-alignment-enabled-by-non-invasive-consumer-brain-computer-interfaces-a-proof-of-concept-exploration)  
    标签：评分：7.0/10、query:eeg
-   evidence：BCI框架涵盖非侵入式脑电图解码器
-2. [Structured Nonparametric Variational Inference for Dependent Latent Modeling](/202606/18/2606.15458v1-structured-nonparametric-variational-inference-for-dependent-latent-modeling)  
-   标签：评分：6.0/10、query:eeg-latent
-   evidence：具有依赖关系的潜在变量建模可用于多变量插补
+   evidence：非侵入式消费级脑机接口用于多智能体机器人认知对齐
+2. [Deep Spectral Learning of Embedded Latent Transfer Operators for Stochastic Dynamical Systems](/202606/19/2606.14079v1-deep-spectral-learning-of-embedded-latent-transfer-operators-for-stochastic-dynamical-systems)  
+   标签：评分：7.0/10、query:eeg-latent
+   evidence：嵌入潜在转移算子的深度谱学习
+3. [Informative Missingness to Generate Irregular Clinical Time Series](/202606/19/2606.17106v1-informative-missingness-to-generate-irregular-clinical-time-series)  
+   标签：评分：7.0/10、query:eeg-latent
+   evidence：基于扩散的生成模型处理临床时间序列中的信息性缺失
+4. [Test-Time Adaptation of Spiking Neural Networks for Intracortical Neural Decoding using Membrane Potential Alignment](/202606/19/2606.14866v1-test-time-adaptation-of-spiking-neural-networks-for-intracortical-neural-decoding-using-membrane-potential-alignment)  
+   标签：评分：6.0/10、query:eeg
+   evidence：脑机接口自适应与脉冲神经网络
 
 
 <div class="dpr-home-promo-card">
