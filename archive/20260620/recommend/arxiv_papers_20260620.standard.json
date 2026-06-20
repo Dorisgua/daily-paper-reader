@@ -1,0 +1,95 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-20T20:21:33.239617+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 0,
+    "deep_cap": 7,
+    "deep_selected": 0,
+    "quick_candidates": 2,
+    "quick_skim_target": 12,
+    "quick_selected": 2
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2606.15897v1",
+      "source": "arxiv",
+      "title": "Topological Flow Matching",
+      "abstract": "Flow matching is a powerful generative modeling framework, valued for its simplicity and strong empirical performance. However, its standard formulation treats signals on structured spaces, such as fMRI data on brain graphs, as points in Euclidean space, overlooking the rich topological features of their domains. To address this, we introduce topological flow matching, a topology-aware generalization of flow matching. We interpret flow matching as a framework for solving a degenerate Schrödinger bridge problem and inject topological information by augmenting the reference process with a Laplacian-derived drift. This principled modification captures the structure of the underlying domain while preserving the desirable properties of flow matching: a stable, simulation-free objective and deterministic sample paths. As a result, our framework serves as a drop-in replacement for standard flow matching. We demonstrate its effectiveness on diverse structured datasets, including brain fMRIs, ocean currents, seismic events, and traffic flows.",
+      "authors": [
+        "Kacper Wyrwal",
+        "İsmail İlkan Ceylan",
+        "Alexander Tong"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "stat.ML"
+      ],
+      "published": "2026-06-14T16:29:33+00:00",
+      "link": "https://arxiv.org/pdf/2606.15897v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Topology-aware flow matching generative model applicable to reconstruct missing EEG channels",
+      "llm_evidence_cn": "拓扑感知流匹配生成模型，可应用于重建缺失脑电图通道",
+      "llm_evidence": "拓扑感知流匹配生成模型，可应用于重建缺失脑电图通道",
+      "canonical_evidence": "拓扑感知流匹配生成模型，可应用于重建缺失脑电图通道",
+      "llm_tldr_en": "Introduces topological flow matching, a generative model that incorporates domain topology via Laplacian drift, enabling structure-preserving signal generation, which can be used for EEG channel imputation.",
+      "llm_tldr_cn": "该论文提出拓扑流匹配，将流匹配推广到结构化空间。通过向参考过程添加拉普拉斯导出漂移，注入域拓扑信息，同时保持流匹配的稳定、无模拟优化和确定性推理特性。该生成模型可用于脑电图缺失通道补全任务，通过生成完整拓扑结构的通道信号来实现。",
+      "llm_tldr": "该论文提出拓扑流匹配，将流匹配推广到结构化空间。通过向参考过程添加拉普拉斯导出漂移，注入域拓扑信息，同时保持流匹配的稳定、无模拟优化和确定性推理特性。该生成模型可用于脑电图缺失通道补全任务，通过生成完整拓扑结构的通道信号来实现。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "reconstruct missing EEG channels with deep generative networks",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.17782v1",
+      "source": "arxiv",
+      "title": "Blind Recovery of Latent Domains via Unsupervised Symmetry Discovery",
+      "abstract": "Primary motivation in blind inverse problems is to recover signals of interest from corrupted observations without knowing the obfuscating mechanism. Blind deconvolution is a prominent approach when the corruption is convolutional, but it is not applicable when general linear transformations obfuscate the domain structure. In this work, we propose an unsupervised framework for recovering latent domains and signals by discovering symmetries of the data distribution. Our framework models observations as linear measurements of signals sampled from a latent random field, and optimizes a shallow group-convolutional network by imposing stationarity and locality regularization at the model output. The model learns a latent symmetry action and an appropriate filter, thereby mapping unstructured observations to a symmetry-based representation that reveals latent signals. Experiments on stochastic processes, Ising models, shuffled and bit-scrambled images, and neural recordings show that the method recovers latent domains and signals from unstructured observations, suggesting symmetry discovery as a new direction for unsupervised structure learning and blind inverse problems.",
+      "authors": [
+        "Onur Efe",
+        "Arkadas Ozakin"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-16T10:58:51+00:00",
+      "link": "https://arxiv.org/pdf/2606.17782v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Unsupervised recovery of latent domains and signals, applicable to EEG latent space completion",
+      "llm_evidence_cn": "无监督恢复潜在域和信号，可应用于脑电图潜在空间补全",
+      "llm_evidence": "无监督恢复潜在域和信号，可应用于脑电图潜在空间补全",
+      "canonical_evidence": "无监督恢复潜在域和信号，可应用于脑电图潜在空间补全",
+      "llm_tldr_en": "Proposes an unsupervised framework to recover latent domains and signals via symmetry discovery, using group-convolutional networks and stationarity regularization, which can be transferred to EEG channel imputation.",
+      "llm_tldr_cn": "该论文针对盲逆问题提出无监督框架，通过发现数据分布对称性来恢复潜在域和信号。模型将观测视为潜在随机场的线性测量，利用浅层群卷积网络和正则化学习潜在对称动作和滤波器。该方法可迁移至脑电图缺失通道补全任务，作为潜在空间模型来恢复缺失信号。",
+      "llm_tldr": "该论文针对盲逆问题提出无监督框架，通过发现数据分布对称性来恢复潜在域和信号。模型将观测视为潜在随机场的线性测量，利用浅层群卷积网络和正则化学习潜在对称动作和滤波器。该方法可迁移至脑电图缺失通道补全任务，作为潜在空间模型来恢复缺失信号。",
+      "llm_tags": [
+        "query:eeg-latent:composite"
+      ],
+      "matched_query_tag": "query:eeg-latent:composite",
+      "matched_query_text": "Papers central to EEG论文，latent space缺失通道补全, especially work that connects or combines: E; EEG latent space representation; deep learning for EEG signal reconstruction; generative models for EEG channel imputation; EEG missing channel completion using latent space models; latent space based imputation for multichannel EEG; reconstruct missing EEG channels with deep generative networks.",
+      "matched_requirement_id": "req-composite-eeg-latent",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

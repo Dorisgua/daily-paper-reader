@@ -6,40 +6,29 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-19
-- 运行时间：2026-06-19 20:45:16 UTC
+- 最新运行日期：2026-06-20
+- 运行时间：2026-06-20 20:25:09 UTC
 - 运行状态：成功
-- 本次总论文数：6
-- 精读区：2
-- 速读区：4
+- 本次总论文数：2
+- 精读区：0
+- 速读区：2
 
 ### 今日简报（AI）
-1) 今日精读高分研究：EEG基础模型评估用于ICU爆发抑制检测，以及多模态对比学习提升视觉解码性能。  
-2) 最值得看：ECG基础模型在临床事件检测的可靠性，以及SUP-MCRL方法对EEG视觉解码的提升。  
-3) 建议尝试将EEG基础模型用于实时监测，或参考多模态对比学习优化脑机接口解码。
-- 详情：[/202606/19/README](/202606/19/README)
+今日速读2篇论文，关注拓扑流匹配与无监督对称性发现。  
+最值得看《Topological Flow Matching》（7.0分），其拓扑流匹配方法为生成模型提供新视角。  
+建议优先精读这篇7分论文，并留意对称性发现方法对盲域恢复的潜在应用。
+- 详情：[/202606/20/README](/202606/20/README)
 
 ### 精读区论文标签
-1. [Evaluation of EEG Foundation Models for Event-Based Burst-Suppression Detection in ICU](/202606/19/2606.20074v1-evaluation-of-eeg-foundation-models-for-event-based-burst-suppression-detection-in-icu)  
-   标签：评分：9.0/10、query:eeg
-   evidence：评估脑电图基础模型用于临床爆发-抑制检测
-2. [SUP-MCRL: Subject-aware Unified Pseudo-feature Coded Multimodal Contrastive Representation Learning for EEG Visual Decoding](/202606/19/2606.16615v2-sup-mcrl-subject-aware-unified-pseudo-feature-coded-multimodal-contrastive-representation-learning-for-eeg-visual-decoding)  
-   标签：评分：8.0/10、query:eeg
-   evidence：提出用于脑机接口视觉解码的对比表示学习方法
+- 本次无精读推荐。
 
 ### 速读区论文标签
-1. [Multi-Modal Multi-Agent Robotic Cognitive Alignment enabled by Non-Invasive Consumer Brain Computer Interfaces: A Proof of Concept Exploration](/202606/19/2606.13190v1-multi-modal-multi-agent-robotic-cognitive-alignment-enabled-by-non-invasive-consumer-brain-computer-interfaces-a-proof-of-concept-exploration)  
-   标签：评分：7.0/10、query:eeg
-   evidence：非侵入式消费级脑机接口用于多智能体机器人认知对齐
-2. [Deep Spectral Learning of Embedded Latent Transfer Operators for Stochastic Dynamical Systems](/202606/19/2606.14079v1-deep-spectral-learning-of-embedded-latent-transfer-operators-for-stochastic-dynamical-systems)  
+1. [Topological Flow Matching](/202606/20/2606.15897v1-topological-flow-matching)  
    标签：评分：7.0/10、query:eeg-latent
-   evidence：嵌入潜在转移算子的深度谱学习
-3. [Informative Missingness to Generate Irregular Clinical Time Series](/202606/19/2606.17106v1-informative-missingness-to-generate-irregular-clinical-time-series)  
-   标签：评分：7.0/10、query:eeg-latent
-   evidence：基于扩散的生成模型处理临床时间序列中的信息性缺失
-4. [Test-Time Adaptation of Spiking Neural Networks for Intracortical Neural Decoding using Membrane Potential Alignment](/202606/19/2606.14866v1-test-time-adaptation-of-spiking-neural-networks-for-intracortical-neural-decoding-using-membrane-potential-alignment)  
-   标签：评分：6.0/10、query:eeg
-   evidence：脑机接口自适应与脉冲神经网络
+   evidence：拓扑感知流匹配生成模型，可应用于重建缺失脑电图通道
+2. [Blind Recovery of Latent Domains via Unsupervised Symmetry Discovery](/202606/20/2606.17782v1-blind-recovery-of-latent-domains-via-unsupervised-symmetry-discovery)  
+   标签：评分：6.0/10、query:eeg-latent
+   evidence：无监督恢复潜在域和信号，可应用于脑电图潜在空间补全
 
 
 <div class="dpr-home-promo-card">

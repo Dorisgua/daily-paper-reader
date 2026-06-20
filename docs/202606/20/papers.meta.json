@@ -1,0 +1,39 @@
+{
+  "label": "2026-06-20",
+  "date": "2026-06-20",
+  "generated_at": "2026-06-20T20:25:15",
+  "count": 2,
+  "papers": [
+    {
+      "paper_id": "202606/20/2606.15897v1-topological-flow-matching",
+      "section": "quick",
+      "title_en": "Topological Flow Matching",
+      "authors": "Kacper Wyrwal, İsmail İlkan Ceylan, Alexander Tong",
+      "date": "2026-06-14",
+      "pdf": "https://arxiv.org/pdf/2606.15897v1",
+      "score": "7.0",
+      "evidence": "拓扑感知流匹配生成模型，可应用于重建缺失脑电图通道",
+      "tldr": "标准流匹配生成模型将结构化空间信号视为欧氏点，忽略了领域拓扑特征。本文提出拓扑流匹配，通过向参考过程加入拉普拉斯衍生漂移来注入拓扑信息，保留了流匹配的稳定无仿真目标和确定性样本路径优势。在脑fMRI、洋流、地震和交通流等数据集上验证了有效性。该方法可作为标准流匹配的即插即用替代方案。",
+      "tags": "query:eeg-latent",
+      "abstract_en": "Flow matching is a powerful generative modeling framework, valued for its simplicity and strong empirical performance. However, its standard formulation treats signals on structured spaces, such as fMRI data on brain graphs, as points in Euclidean space, overlooking the rich topological features of their domains. To address this, we introduce topological flow matching, a topology-aware generalization of flow matching. We interpret flow matching as a framework for solving a degenerate Schrödinger bridge problem and inject topological information by augmenting the reference process with a Laplacian-derived drift. This principled modification captures the structure of the underlying domain while preserving the desirable properties of flow matching: a stable, simulation-free objective and deterministic sample paths. As a result, our framework serves as a drop-in replacement for standard flow matching. We demonstrate its effectiveness on diverse structured datasets, including brain fMRIs, ocean currents, seismic events, and traffic flows.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/20/2606.17782v1-blind-recovery-of-latent-domains-via-unsupervised-symmetry-discovery",
+      "section": "quick",
+      "title_en": "Blind Recovery of Latent Domains via Unsupervised Symmetry Discovery",
+      "authors": "Onur Efe, Arkadas Ozakin",
+      "date": "2026-06-16",
+      "pdf": "https://arxiv.org/pdf/2606.17782v1",
+      "score": "6.0",
+      "evidence": "无监督恢复潜在域和信号，可应用于脑电图潜在空间补全",
+      "tldr": "盲逆问题中，观测信号受未知线性变换破坏，现有盲反卷积方法不适用。本文提出无监督框架，通过发现数据分布对称性恢复潜在域和信号，将观测建模为潜在随机场信号的线性测量，优化浅层群卷积网络并施加平稳性与局部性正则化。实验在随机过程、Ising模型、打乱图像等任务中成功恢复潜在结构。该工作开辟了对称性发现作为无监督结构学习和盲逆问题新方向的路径。",
+      "tags": "query:eeg-latent",
+      "abstract_en": "Primary motivation in blind inverse problems is to recover signals of interest from corrupted observations without knowing the obfuscating mechanism. Blind deconvolution is a prominent approach when the corruption is convolutional, but it is not applicable when general linear transformations obfuscate the domain structure. In this work, we propose an unsupervised framework for recovering latent domains and signals by discovering symmetries of the data distribution. Our framework models observations as linear measurements of signals sampled from a latent random field, and optimizes a shallow group-convolutional network by imposing stationarity and locality regularization at the model output. The model learns a latent symmetry action and an appropriate filter, thereby mapping unstructured observations to a symmetry-based representation that reveals latent signals. Experiments on stochastic processes, Ising models, shuffled and bit-scrambled images, and neural recordings show that the method recovers latent domains and signals from unstructured observations, suggesting symmetry discovery as a new direction for unsupervised structure learning and blind inverse problems.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
