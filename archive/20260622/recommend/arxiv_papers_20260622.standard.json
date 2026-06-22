@@ -1,0 +1,56 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-22T22:38:08.832747+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 0,
+    "deep_cap": 7,
+    "deep_selected": 0,
+    "quick_candidates": 1,
+    "quick_skim_target": 12,
+    "quick_selected": 1
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2606.16464v1",
+      "source": "arxiv",
+      "title": "Towards Robust Generative Speech Enhancement Using Vector Quantisation-Based Neural Audio Codec",
+      "abstract": "This work investigates modelling strategies in continuous and discrete latent spaces in the vector quantisation (VQ)-based neural audio codec (NAC) speech enhancement (SE), along with the role of VQ regularisation. We propose cNAC-SE and dNAC-SE frameworks that predict continuous representations and discrete tokens in latent space, respectively. Theoretical analysis and visualisations in latent space are performed to exhibit their inherent modelling mechanisms. Experimental results show that the fully fine-tuned cNAC-SE model consistently outperforms all dNAC-SE variants across diverse test conditions and achieves leading performance among established generative approaches in DNS-MOS metrics. Comparison with the discriminative counterpart shows that VQ enhances robustness through an intrinsic effect of clean-prior-constrained regularisation, independent of discrete token processing. This highlights the transferable value of VQ regularisation to other continuous modelling methods.",
+      "authors": [
+        "Haixin Zhao",
+        "Nilesh Madhu"
+      ],
+      "primary_category": "eess.AS",
+      "categories": [
+        "eess.AS",
+        "cs.SD"
+      ],
+      "published": "2026-06-15T09:32:37+00:00",
+      "link": "https://arxiv.org/pdf/2606.16464v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "latent space modeling for signal reconstruction; transferable to EEG channel imputation",
+      "llm_evidence_cn": "潜在空间建模用于信号重建；可迁移到EEG通道插补",
+      "llm_evidence": "潜在空间建模用于信号重建；可迁移到EEG通道插补",
+      "canonical_evidence": "潜在空间建模用于信号重建；可迁移到EEG通道插补",
+      "llm_tldr_en": "Proposes cNAC-SE and dNAC-SE for speech enhancement using vector-quantized latent spaces; demonstrates continuous latent prediction outperforms discrete variants; method directly applicable to EEG missing channel reconstruction.",
+      "llm_tldr_cn": "针对语音增强任务，该论文提出基于矢量量化神经音频编解码器的连续和离散潜在空间建模框架（cNAC-SE和dNAC-SE）。通过理论分析和可视化揭示潜在空间机制，实验表明连续潜在表示预测在所有测试条件下优于离散变体，并在DNS-MOS指标上达到领先性能。该工作为EEG多通道缺失通道补全提供可直接迁移的潜在空间生成方法。",
+      "llm_tldr": "针对语音增强任务，该论文提出基于矢量量化神经音频编解码器的连续和离散潜在空间建模框架（cNAC-SE和dNAC-SE）。通过理论分析和可视化揭示潜在空间机制，实验表明连续潜在表示预测在所有测试条件下优于离散变体，并在DNS-MOS指标上达到领先性能。该工作为EEG多通道缺失通道补全提供可直接迁移的潜在空间生成方法。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "latent space based imputation for multichannel EEG",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

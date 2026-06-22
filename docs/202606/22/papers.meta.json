@@ -1,0 +1,24 @@
+{
+  "label": "2026-06-22",
+  "date": "2026-06-22",
+  "generated_at": "2026-06-22T22:38:41",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202606/22/2606.16464v1-towards-robust-generative-speech-enhancement-using-vector-quantisation-based-neural-audio-codec",
+      "section": "quick",
+      "title_en": "Towards Robust Generative Speech Enhancement Using Vector Quantisation-Based Neural Audio Codec",
+      "authors": "Haixin Zhao, Nilesh Madhu",
+      "date": "2026-06-15",
+      "pdf": "https://arxiv.org/pdf/2606.16464v1",
+      "score": "7.0",
+      "evidence": "潜在空间建模用于信号重建；可迁移到EEG通道插补",
+      "tldr": "生成式语音增强面临鲁棒性挑战，本文基于矢量量化神经音频编解码器，提出连续潜在空间建模的cNAC-SE和离散token建模的dNAC-SE框架。实验表明cNAC-SE在所有测试条件下优于dNAC-SE，并在DNS-MOS指标上领先其他生成式方法。VQ通过清洁先验约束正则化增强鲁棒性，其正则化效应独立于离散处理，可迁移至连续建模方法。",
+      "tags": "query:eeg-latent",
+      "abstract_en": "This work investigates modelling strategies in continuous and discrete latent spaces in the vector quantisation (VQ)-based neural audio codec (NAC) speech enhancement (SE), along with the role of VQ regularisation. We propose cNAC-SE and dNAC-SE frameworks that predict continuous representations and discrete tokens in latent space, respectively. Theoretical analysis and visualisations in latent space are performed to exhibit their inherent modelling mechanisms. Experimental results show that the fully fine-tuned cNAC-SE model consistently outperforms all dNAC-SE variants across diverse test conditions and achieves leading performance among established generative approaches in DNS-MOS metrics. Comparison with the discriminative counterpart shows that VQ enhances robustness through an intrinsic effect of clean-prior-constrained regularisation, independent of discrete token processing. This highlights the transferable value of VQ regularisation to other continuous modelling methods.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
