@@ -1,0 +1,258 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-24T21:55:38.989036+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 4,
+    "deep_cap": 7,
+    "deep_selected": 4,
+    "quick_candidates": 2,
+    "quick_skim_target": 12,
+    "quick_selected": 2
+  },
+  "deep_dive": [
+    {
+      "id": "2606.24087v1",
+      "source": "arxiv",
+      "title": "NeuroSonic: Conditional Flow Matching for EEG-to-Speech Reconstruction",
+      "abstract": "Reconstructing continuous speech from scalp electroencephalography (EEG) remains fundamentally challenging. EEG provides a weak, spatially diffuse, and highly variable measurement of distributed cortical activity, whereas speech is organized as a coherent acoustic trajectory with strong harmonic and temporal structure. The resulting mismatch makes waveform regression unstable and causes stochastic multi-step generation to be sensitive to artifact-dependent conditioning and subject variability. We introduce NeuroSonic, a conditional flow-matching framework for EEG-to-speech reconstruction. Instead of predicting waveforms directly or refining them through stochastic denoising, NeuroSonic learns a deterministic probability-flow velocity field that transports a noise-corrupted acoustic state toward clean speech under EEG conditioning. EEG and audio are embedded into a shared token space and processed by a time-conditioned gated Transformer that parameterizes the transport ordinary differential equation. This formulation models trajectory evolution explicitly while avoiding iterative stochastic sampling. We evaluate NeuroSonic on the CineBrain and EAV benchmarks under cross-subject evaluation. Across both datasets, the proposed method improves distributional realism, spectral fidelity, and perceptual quality over representative GAN-, diffusion-, and mean-flow baselines, with up to a 26.3\\% gain in overall perceptual quality. The performance gap is most evident in artifact-heavy segments, where conditioning variability is strongest. These findings indicate that deterministic conditional transport provides a stable and effective formulation for EEG-driven speech reconstruction. Code is available at https://github.com/Y-Research-SBU/NeuroSonic/ .",
+      "authors": [
+        "Wenhao Gao",
+        "Yifan Wang",
+        "Yijia Ma",
+        "Carl Yang",
+        "Wen Li",
+        "Chenyu You"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-23T03:04:53+00:00",
+      "link": "https://arxiv.org/pdf/2606.24087v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "conditional flow matching for EEG-to-speech reconstruction",
+      "llm_evidence_cn": "条件流匹配用于脑电图到语音重建",
+      "llm_evidence": "条件流匹配用于脑电图到语音重建",
+      "canonical_evidence": "条件流匹配用于脑电图到语音重建",
+      "llm_tldr_en": "NeuroSonic uses conditional flow matching to reconstruct continuous speech from scalp EEG by learning a deterministic probability-flow from EEG latent space to speech, outperforming prior methods.",
+      "llm_tldr_cn": "针对脑电图(EEG)到语音重建的挑战，本文提出NeuroSonic框架。该方法利用条件流匹配学习一个确定性概率流速度场，将脑电潜在空间表示映射到语音波形，避免了传统随机生成的不稳定性。实验表明，NeuroSonic在语音重建质量上显著优于现有方法，为脑机接口和语音辅助设备提供了新思路。",
+      "llm_tldr": "针对脑电图(EEG)到语音重建的挑战，本文提出NeuroSonic框架。该方法利用条件流匹配学习一个确定性概率流速度场，将脑电潜在空间表示映射到语音波形，避免了传统随机生成的不稳定性。实验表明，NeuroSonic在语音重建质量上显著优于现有方法，为脑机接口和语音辅助设备提供了新思路。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "deep learning for EEG signal reconstruction",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.24394v1",
+      "source": "arxiv",
+      "title": "Average Rankings Mask Per-Subject Optimality: A Friedman-Nemenyi Benchmark of EEG Motor-Imagery BCI Decoders",
+      "abstract": "Electroencephalography (EEG) is the dominant non-invasive modality for brain-computer interfaces (BCIs), yet reliable decoding of motor imagery is hampered by inter- and intra-individual variability. A recurring claim is that one decoding pipeline, most often a spatial or Riemannian method, is broadly preferable. We test the weakest version of that claim under the most favourable conditions. Using the Mother of All BCI Benchmarks (MOABB) framework, we evaluated 1,056 decoding configurations (feature extractor x scaler x classifier), >340,000 subject-level model fits, across three public left-versus-right motor-imagery datasets (PhysionetMI, 109 participants; Cho2017, 52; Zhou2016, 4) and two frequency bands (8-15 Hz, 8-30 Hz). Every model is fit and tested within a single session of a single participant, the easiest regime, giving every pipeline its best chance. We apply the statistics standard for multi-classifier comparison: Friedman omnibus tests, Nemenyi critical-difference analysis and Wilcoxon signed-rank tests with effect sizes. Covariance tangent-space projection (cov-tgsp) and Common Spatial Patterns (CSP) are the strongest families, but their ordering is dataset-dependent and, on the largest and most heterogeneous cohort (PhysionetMI), statistically indistinguishable (Nemenyi p = 0.27; Kendall's W = 0.11). At the individual level the single best pipeline is optimal for only 35% of PhysionetMI participants, and nonlinear descriptors are best for roughly one third; matching pipeline to participant adds about seven accuracy points over the best fixed choice. The ranking is not an artefact of dimensionality, and classifier and scaler choices are secondary to the feature representation. Even in the easiest regime, no single pipeline dominates: a lower bound on the personalization problem and a quantitative case for participant-aware model selection rather than a universal decoder.",
+      "authors": [
+        "Xavier Vasques",
+        "Paul Barbaste",
+        "Olivier Oullier"
+      ],
+      "primary_category": "cs.HC",
+      "categories": [
+        "cs.HC",
+        "cs.AI",
+        "cs.RO",
+        "q-bio.NC"
+      ],
+      "published": "2026-06-23T10:26:27+00:00",
+      "link": "https://arxiv.org/pdf/2606.24394v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "EEG motor-imagery BCI decoder benchmarking paper",
+      "llm_evidence_cn": "EEG运动想象脑机接口解码器基准评估论文",
+      "llm_evidence": "EEG运动想象脑机接口解码器基准评估论文",
+      "canonical_evidence": "EEG运动想象脑机接口解码器基准评估论文",
+      "llm_tldr_en": "Benchmarks 1,056 EEG motor-imagery decoding pipelines on 3 datasets, revealing per-subject optimality variation, highly relevant to EEG BCI research.",
+      "llm_tldr_cn": "针对EEG运动想象脑机接口解码器，该论文使用MOABB框架对1056种解码配置进行了大规模基准测试，涵盖三个公共数据集、超过34万次模型拟合。结果发现平均排名掩盖了每个受试者的最优性，强调了个性化解码的必要性，为BCI研究提供了重要参考。",
+      "llm_tldr": "针对EEG运动想象脑机接口解码器，该论文使用MOABB框架对1056种解码配置进行了大规模基准测试，涵盖三个公共数据集、超过34万次模型拟合。结果发现平均排名掩盖了每个受试者的最优性，强调了个性化解码的必要性，为BCI研究提供了重要参考。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.21907v1",
+      "source": "arxiv",
+      "title": "Nonparametric Deconvolution and Denoising using Simulation Based Inference",
+      "abstract": "Latent signals are often obscured by measurement noise, yet encode the underlying laws and dynamics of complex systems; learning both the signals and their distributions remains a central challenge in scientific inference. The noise is often non-negligible, and the likelihoods for expressive generative models are often intractable. We utilize a convolutional maximum mean discrepancy (convMMD) loss and propose a likelihood-free framework for nonparametric density deconvolution and empirical Bayes denoising under additive measurement error. Our method learns a latent generative model by matching the observed data distribution to the noise-convolved model distribution. This yields a differentiable, simulation-based objective for multivariate homoscedastic or heteroscedastic noise, compatible with expressive sieve classes such as Gaussian mixtures and normalizing flows. The learned density then serves as an empirical prior for posterior denoising of individual latent values. Theoretically, we extend convMMD from parametric to nonparametric estimation, proving finite-sample bounds for empirical sieve minimizers and $L_2$ convergence rates under Sobolev smoothness. These rates recover the classical inverse-problem dependence: polynomial for ordinary-smooth and logarithmic for super-smooth noises. Our method provides a practical, theoretically grounded approach to deconvolution and denoising under generative latent distribution models.",
+      "authors": [
+        "Ritwik Vashistha",
+        "Abhra Sarkar",
+        "Arya Farahi"
+      ],
+      "primary_category": "stat.ME",
+      "categories": [
+        "stat.ME",
+        "stat.ML"
+      ],
+      "published": "2026-06-20T07:03:37+00:00",
+      "link": "https://arxiv.org/pdf/2606.21907v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "latent generative model for deconvolution and denoising, matching EEG latent space representation",
+      "llm_evidence_cn": "使用潜在生成模型进行非参数解卷积与去噪，与EEG潜在空间表示相关",
+      "llm_evidence": "使用潜在生成模型进行非参数解卷积与去噪，与EEG潜在空间表示相关",
+      "canonical_evidence": "使用潜在生成模型进行非参数解卷积与去噪，与EEG潜在空间表示相关",
+      "llm_tldr_en": "Introduces a likelihood-free framework using convMMD loss to learn a latent generative model for deconvolution and denoising, directly applicable to EEG latent space representation.",
+      "llm_tldr_cn": "该论文针对潜在信号被噪声混淆的问题，提出一种基于模拟推理的非参数解卷积与去噪框架。通过卷积最大均值差异损失，学习潜在生成模型，使噪声卷积后的模型分布匹配观测数据。该方法无需似然函数，适用于多元异方差情况，为EEG潜在空间表示和信号重建提供了通用工具。",
+      "llm_tldr": "该论文针对潜在信号被噪声混淆的问题，提出一种基于模拟推理的非参数解卷积与去噪框架。通过卷积最大均值差异损失，学习潜在生成模型，使噪声卷积后的模型分布匹配观测数据。该方法无需似然函数，适用于多元异方差情况，为EEG潜在空间表示和信号重建提供了通用工具。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.23864v1",
+      "source": "arxiv",
+      "title": "Generative Modeling for Physiological Signals",
+      "abstract": "Physiological signals support clinical diagnosis, health monitoring, rehabilitation, wearable sensing, and human--machine interaction. However, their applications are often constrained by limited labeled data, class imbalance, noisy or incomplete recordings, heterogeneous acquisition settings, and privacy restrictions. Generative modeling has therefore attracted increasing attention as a means of addressing some of these barriers. Recent studies have used generative models to augment scarce datasets, restore degraded recordings, translate between modalities, and synthesize conditional physiological waveforms. This review summarizes recent work on generative modeling for cardiovascular, neural, muscular, peripheral, and specialized physiological signals. Major model families are covered, including generative adversarial networks (GANs), autoencoders and variational autoencoders (AEs/VAEs), diffusion models, autoregressive sequence models, and hybrid architectures. In addition, it organizes existing evaluation practices into a hierarchical framework spanning signal-level similarity, dataset-level distribution, physiological validity, task-oriented utility, and assessments of generalization and robustness. By linking signal-specific constraints, generative roles, model families, and evaluation evidence, this review provides structured guidance for the future use and evaluation of generative models in physiological-signal research.",
+      "authors": [
+        "Xinqi Bao",
+        "Ernest Kamavuako",
+        "Saikat Chatterjee"
+      ],
+      "primary_category": "eess.SP",
+      "categories": [
+        "eess.SP"
+      ],
+      "published": "2026-06-22T19:03:45+00:00",
+      "link": "https://arxiv.org/pdf/2606.23864v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "generative modeling for physiological signals including EEG",
+      "llm_evidence_cn": "涵盖EEG的生理信号生成模型综述",
+      "llm_evidence": "涵盖EEG的生理信号生成模型综述",
+      "canonical_evidence": "涵盖EEG的生理信号生成模型综述",
+      "llm_tldr_en": "This review summarizes generative models for physiological signals, covering applications in data augmentation, restoration, translation, and synthesis, with a focus on cardiovascular, neural, and other signals.",
+      "llm_tldr_cn": "本文系统综述了生成模型在生理信号中的应用，包括数据增强、降级恢复、模态转换和条件合成。涵盖心血管、神经、肌肉等信号，深入分析了GAN、VAE、扩散模型等主要模型族。该综述为EEG通道补全、信号重建等任务提供了全面的方法参考和未来方向。",
+      "llm_tldr": "本文系统综述了生成模型在生理信号中的应用，包括数据增强、降级恢复、模态转换和条件合成。涵盖心血管、神经、肌肉等信号，深入分析了GAN、VAE、扩散模型等主要模型族。该综述为EEG通道补全、信号重建等任务提供了全面的方法参考和未来方向。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "generative models for EEG channel imputation",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.18561v1",
+      "source": "arxiv",
+      "title": "Correcting Sensor-Induced Distribution Drift with Wasserstein Adversarial Learning",
+      "abstract": "The quality of recorded data depends on the stability of the sensor system that acquires it. Sensor motion and aging can degrade the performance and stability of downstream data-driven methods. We present a Wasserstein-GAN-inspired approach for unsupervised inference of physically interpretable transformation parameters that map a changed detector response distribution back to a nominal reference distribution. In contrast to standard generative modeling, the generator is used as a learnable calibration transformation whose trainable weights represent the sought parameters, while the critic provides a distributional distance signal via the Wasserstein objective. We validate the approach on a tracking-detector toy model with controlled layer shifts and demonstrate its application on high-granularity Geant4-simulated calorimeter data with cell-wise aging effects. The method recovers aging coefficients for individual cells with correlation to ground truth and improves agreement between calibrated and reference energy-sum distributions, while exhibiting the expected degradation at increasing channel-to-channel noise levels. These results indicate that adversarial distribution matching can serve as a data-driven component of calibration strategies in settings where direct labels for degradation parameters are unavailable.",
+      "authors": [
+        "Saraa Ali",
+        "Vladimir Bocharnikov",
+        "Fedor Ratnikov",
+        "Mikhail Hushchyn",
+        "Artem Ryzhikov",
+        "Denis Derkach"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-06-17T00:25:46+00:00",
+      "link": "https://arxiv.org/pdf/2606.18561v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Wasserstein GAN for distribution calibration, transferable to EEG channel imputation",
+      "llm_evidence_cn": "使用Wasserstein对抗学习进行传感器分布校准，可迁移至EEG通道补全",
+      "llm_evidence": "使用Wasserstein对抗学习进行传感器分布校准，可迁移至EEG通道补全",
+      "canonical_evidence": "使用Wasserstein对抗学习进行传感器分布校准，可迁移至EEG通道补全",
+      "llm_tldr_en": "Proposes a Wasserstein-GAN approach to correct sensor-induced distribution drift by learning calibration transformations, applicable to generative EEG imputation.",
+      "llm_tldr_cn": "该工作针对传感器分布漂移问题，提出了一种基于Wasserstein-GAN的无监督校准方法，将生成器作为可学习的校准变换，并通过判别器提供分布距离信号。在探测器模型上验证了有效性，该方法可推广到EEG缺失通道补全中的生成分布匹配任务。",
+      "llm_tldr": "该工作针对传感器分布漂移问题，提出了一种基于Wasserstein-GAN的无监督校准方法，将生成器作为可学习的校准变换，并通过判别器提供分布距离信号。在探测器模型上验证了有效性，该方法可推广到EEG缺失通道补全中的生成分布匹配任务。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "generative models for EEG channel imputation",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.23713v1",
+      "source": "arxiv",
+      "title": "Unifying Adaptive Fourier and Möbius-Based Models for Efficient and Interpretable Biomedical Signal Decomposition",
+      "abstract": "Oscillatory biomedical signals such as electrocardiograms (ECG) and electroencephalograms (EEG) call for decompositions that are both computationally efficient and interpretable. This paper establishes a formal connection between two finite-order frameworks that have largely evolved independently: Adaptive Fourier Decomposition (AFD), based on orthonormal Takenaka-Malmquist expansions, and the Frequency-Modulated Mobius (FMM) model, a parametric decomposition built on Mobius transforms with morphologically meaningful parameters. We prove that finite-order AFD and FMM decompositions are mathematically equivalent. Under mild regularity assumptions, we further show that their associated estimation procedures solve the same underlying optimization problem when FMM is formulated with independent Gaussian noise. The results are extended to multi-channel signals, which are central in multilead bioelectric recordings. Practically, the equivalence clarifies how fast AFD approximations, including FFT-based implementations, relate to FMM-style parametrization and component interpretability. We illustrate these implications with an EEG example evaluating approximation behavior as the number of components increases, and with an ECG use case comparing five-component decompositions on representative beats, contrasting unlabeled AFD components with physiologically identified FMM components. Overall, the proposed equivalence provides a principled basis to leverage the computational advantages of AFD alongside the interpretability of FMM in biomedical signal analysis.",
+      "authors": [
+        "Christian Canedo",
+        "Rocío Carratalá-Sáez",
+        "Cristina Rueda"
+      ],
+      "primary_category": "eess.SP",
+      "categories": [
+        "eess.SP",
+        "stat.ME"
+      ],
+      "published": "2026-06-16T07:04:07+00:00",
+      "link": "https://arxiv.org/pdf/2606.23713v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "biomedical signal decomposition method applicable to EEG",
+      "llm_evidence_cn": "适用于脑电信号的生物医学信号分解方法",
+      "llm_evidence": "适用于脑电信号的生物医学信号分解方法",
+      "canonical_evidence": "适用于脑电信号的生物医学信号分解方法",
+      "llm_tldr_en": "Proves equivalence between Adaptive Fourier Decomposition and Frequency-Modulated Mobius model for efficient and interpretable biomedical signal decomposition, with applications to EEG and ECG.",
+      "llm_tldr_cn": "本文建立了自适应傅里叶分解(AFD)和频率调制莫比乌斯模型(FMM)之间的数学等价性，证明有限阶AFD和FMM分解是等价的。该方法能够高效且可解释地分解脑电图(EEG)和心电图(ECG)等振荡信号，为生物医学信号处理提供了统一的理论框架和实用工具。",
+      "llm_tldr": "本文建立了自适应傅里叶分解(AFD)和频率调制莫比乌斯模型(FMM)之间的数学等价性，证明有限阶AFD和FMM分解是等价的。该方法能够高效且可解释地分解脑电图(EEG)和心电图(ECG)等振荡信号，为生物医学信号处理提供了统一的理论框架和实用工具。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

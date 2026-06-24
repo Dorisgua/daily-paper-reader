@@ -6,49 +6,40 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-23
-- 运行时间：2026-06-23 21:30:43 UTC
+- 最新运行日期：2026-06-24
+- 运行时间：2026-06-24 22:04:09 UTC
 - 运行状态：成功
-- 本次总论文数：9
-- 精读区：2
-- 速读区：7
+- 本次总论文数：6
+- 精读区：4
+- 速读区：2
 
 ### 今日简报（AI）
-今日精选9篇脑电与脑信号研究，聚焦3D视觉感知解码与基础模型。
-精读论文揭示双流EEG解码在3D视觉感知中达9分，以及利用流匹配构建脑基础模型的创新方法。
-普通读者可关注脑机接口与深度学习结合的最新进展，特别是自监督学习在生理信号中的应用。
-- 详情：[/202606/23/README](/202606/23/README)
+今日精读《NeuroSonic》与《Average Rankings》两篇9.0高分论文，聚焦EEG到语音重建及运动想象解码器个体差异基准测试。  
+值得关注：条件流匹配实现脑电语音重建，以及Friedman-Nemenyi测试揭示的“总体排名掩盖个体最优性”结论。  
+建议优先精读这两篇，掌握脑机接口前沿方法与评估框架。
+- 详情：[/202606/24/README](/202606/24/README)
 
 ### 精读区论文标签
-1. [Dual-Stream EEG Decoding for 3D Visual Perception](/202606/23/2606.22182v1-dual-stream-eeg-decoding-for-3d-visual-perception)  
+1. [NeuroSonic: Conditional Flow Matching for EEG-to-Speech Reconstruction](/202606/24/2606.24087v1-neurosonic-conditional-flow-matching-for-eeg-to-speech-reconstruction)  
+   标签：评分：9.0/10、query:eeg-latent
+   evidence：条件流匹配用于脑电图到语音重建
+2. [Average Rankings Mask Per-Subject Optimality: A Friedman-Nemenyi Benchmark of EEG Motor-Imagery BCI Decoders](/202606/24/2606.24394v1-average-rankings-mask-per-subject-optimality-a-friedman-nemenyi-benchmark-of-eeg-motor-imagery-bci-decoders)  
    标签：评分：9.0/10、query:eeg
-   evidence：EEG解码3D视觉，脑机接口应用
-2. [B[FM]$^2$: Brain Foundation Model via Flow Matching with SplitUNet](/202606/23/2606.20812v1-bfm2-brain-foundation-model-via-flow-matching-with-splitunet)  
+   evidence：EEG运动想象脑机接口解码器基准评估论文
+3. [Nonparametric Deconvolution and Denoising using Simulation Based Inference](/202606/24/2606.21907v1-nonparametric-deconvolution-and-denoising-using-simulation-based-inference)  
    标签：评分：8.0/10、query:eeg-latent
-   evidence：通过在原始信号上进行流匹配预训练脑电图基础模型，学习潜在表示
+   evidence：使用潜在生成模型进行非参数解卷积与去噪，与EEG潜在空间表示相关
+4. [Generative Modeling for Physiological Signals](/202606/24/2606.23864v1-generative-modeling-for-physiological-signals)  
+   标签：评分：8.0/10、query:eeg-latent
+   evidence：涵盖EEG的生理信号生成模型综述
 
 ### 速读区论文标签
-1. [Embedded Polygon Symbolic Transfer Entropy (EPSTE): A Geometric Token and Deep Learning Approach to Estimating Transfer Entropy in Neuroimaging Time Series](/202606/23/2606.21754v1-embedded-polygon-symbolic-transfer-entropy-epste-a-geometric-token-and-deep-learning-approach-to-estimating-transfer-entropy-in-neuroimaging-time-series)  
-   标签：评分：7.0/10、query:eeg
-   evidence：提出EPSTE方法用于从EEG时间序列估计传递熵
-2. [SPOTR: Spatio-temporal Pooling One-Token Reconstruction for Universal Physiological Signal Self-supervised Learning](/202606/23/2606.21973v1-spotr-spatio-temporal-pooling-one-token-reconstruction-for-universal-physiological-signal-self-supervised-learning)  
-   标签：评分：7.0/10、query:eeg-latent
-   evidence：一种带有重建目标的自监督学习方法，适用于脑电图等生理信号
-3. [From Handcrafted Features to Functional Edge Learning: Evolution of EEG Seizure Detection Frameworks](/202606/23/2606.22258v1-from-handcrafted-features-to-functional-edge-learning-evolution-of-eeg-seizure-detection-frameworks)  
-   标签：评分：7.0/10、query:eeg
-   evidence：EEG癫痫检测深度学习综述与KAN探索
-4. [Neural Operator Processes for Probabilistic Operator Learning under Partial Observations](/202606/23/2606.22946v1-neural-operator-processes-for-probabilistic-operator-learning-under-partial-observations)  
-   标签：评分：7.0/10、query:eeg-latent
-   evidence：从部分观测预测完整场的方法可应用于脑电图通道插补
-5. [Robust EEG Functional Connectivity Metrics for Decoding Action Observation Conditions and Observed Actions](/202606/23/2606.21055v1-robust-eeg-functional-connectivity-metrics-for-decoding-action-observation-conditions-and-observed-actions)  
+1. [Correcting Sensor-Induced Distribution Drift with Wasserstein Adversarial Learning](/202606/24/2606.18561v1-correcting-sensor-induced-distribution-drift-with-wasserstein-adversarial-learning)  
+   标签：评分：6.0/10、query:eeg-latent
+   evidence：使用Wasserstein对抗学习进行传感器分布校准，可迁移至EEG通道补全
+2. [Unifying Adaptive Fourier and Möbius-Based Models for Efficient and Interpretable Biomedical Signal Decomposition](/202606/24/2606.23713v1-unifying-adaptive-fourier-and-mbius-based-models-for-efficient-and-interpretable-biomedical-signal-decomposition)  
    标签：评分：6.0/10、query:eeg
-   evidence：基准测试脑电图功能连接度量用于解码
-6. [MedTS-TTT: Test-Time Training for Medical Time Series Classification](/202606/23/2606.21329v1-medts-ttt-test-time-training-for-medical-time-series-classification)  
-   标签：评分：6.0/10、query:eeg
-   evidence：脑电图时间序列的测试时训练
-7. [EEG Benchmarking Needs a Task Specification Layer: NeuroDoc for Rulebook-Guided, Executable Benchmark Construction](/202606/23/2606.22925v1-eeg-benchmarking-needs-a-task-specification-layer-neurodoc-for-rulebook-guided-executable-benchmark-construction)  
-   标签：评分：6.0/10、query:eeg
-   evidence：脑电图基准测试任务规范
+   evidence：适用于脑电信号的生物医学信号分解方法
 
 
 <div class="dpr-home-promo-card">
