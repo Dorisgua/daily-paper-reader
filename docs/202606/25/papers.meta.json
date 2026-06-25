@@ -1,0 +1,54 @@
+{
+  "label": "2026-06-25",
+  "date": "2026-06-25",
+  "generated_at": "2026-06-25T22:13:55",
+  "count": 3,
+  "papers": [
+    {
+      "paper_id": "202606/25/2606.24164v1-breaking-shortcut-learning-for-cross-trial-eeg-guided-target-speech-extraction-via-two-stage-training",
+      "section": "deep",
+      "title_en": "Breaking Shortcut Learning for Cross-Trial EEG-Guided Target Speech Extraction via Two-Stage Training",
+      "authors": "Wonchul Shin, Inyong Choi, Kyogu Lee",
+      "date": "2026-06-23",
+      "pdf": "https://arxiv.org/pdf/2606.24164v1",
+      "score": "8.0",
+      "evidence": "脑电引导的目标语音提取",
+      "tldr": "现有EEG引导的语音提取模型在跨试验场景下性能退化，原因是模型利用了试验特定的EEG结构作为捷径。本文提出TRUST-TSE两阶段框架，通过对比预训练引入负样本采样来抑制捷径学习，并采用置信度加权提取目标。在KUL和DTU数据集上，严格跨试验协议下模型显著优于端到端基线，解决了神经助听技术中的可靠性瓶颈。",
+      "tags": "query:eeg",
+      "abstract_en": "Recent end-to-end models for EEG-guided target speech extraction report impressive results, underscoring potential for neuro-steered hearing technologies. However, our analysis reveals that high within-trial performance can be driven by trial-specific EEG structure that acts as shortcuts for target selection, leading to poor generalization on unseen trials. To overcome this gap, we propose TRUST-TSE, a two-stage framework to mitigate shortcut learning. By introducing contrastive pretraining with attended-speaker negative sampling, we encourage the EEG encoder to capture fine-grained EEG--speech alignment while suppressing trial-identity cues. We also employ a confidence-weighted extraction objective based on EEG--source similarity to guide extraction using the learned representations. Experiments on KUL and DTU datasets show that TRUST-TSE outperforms end-to-end baselines under strict cross-trial protocols, addressing a key reliability bottleneck of existing approaches.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/25/2606.25718v1-what-does-the-brain-see-multiview-neural-representations-to-demystify-the-brain-visual-alignment",
+      "section": "deep",
+      "title_en": "What Does the Brain See? Multiview Neural Representations to Demystify the Brain-Visual Alignment",
+      "authors": "Salini Yadav, Taveena Lotey, Pravendra Singh, Partha Pratim Roy",
+      "date": "2026-06-24",
+      "pdf": "https://arxiv.org/pdf/2606.25718v1",
+      "score": "8.0",
+      "evidence": "多视角EEG表示学习用于视觉对齐",
+      "tldr": "零样本EEG视觉解码因信号噪声和分辨率限制而困难，现有方法使用整体嵌入忽略了多视图结构。本文提出多视图EEG表示学习框架，联合建模时态动态、频谱分解和图学习三个互补视图，与视觉语义对比对齐。在THINGS-EEG上达到受试者内Top-1 54.8%和跨会话40.8%的SOTA性能，表明显式建模多视图结构能提升对齐与泛化能力。",
+      "tags": "query:eeg-latent",
+      "abstract_en": "Zero-shot visual decoding from electroencephalography (EEG) aims to infer visual semantics from non-invasive neural recordings, but remains challenging due to the low signal-to-noise ratio, non-stationarity, and limited spatial resolution of EEG. Existing EEG-vision alignment methods often rely on holistic EEG embeddings, which can obscure the complementary temporal, spectral, and spatial structure underlying visual perception. We introduce a unified multiview EEG representation learning framework for aligning brain responses with visual semantic embeddings. Our method builds an EEG encoder that jointly models three complementary views: input-conditioned state-space temporal dynamics, learnable wavelet-based spectral decomposition for sample-adaptive frequency modeling, and attention-modulated graph learning for structured electrode interactions. The resulting multiview EEG embeddings are fused and aligned with pretrained visual representations in a shared semantic space using contrastive learning with EEG-specific regularization, enabling 200-way zero-shot visual classification. Experiments on THINGS-EEG benchmark show that our method achieves state-of-the-art performance, with 54.8% Top-1 and 85.6% Top-5 accuracy in the within-subject setting and 15.3% Top-1 and 45.4% Top-5 accuracy in the cross-subject setting. We further present the first systematic cross-session EEG-image decoding evaluation, achieving 40.8% Top-1 and 78.0% Top-5 accuracy. These results suggest that explicitly modeling multiview neural structure improves both semantic alignment and generalization in EEG-based visual decoding.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/25/2606.25456v1-towards-robust-eeg-decoding-based-on-riemannian-self-attention",
+      "section": "quick",
+      "title_en": "Towards Robust EEG Decoding Based on Riemannian Self-Attention",
+      "authors": "Shaocheng Jin, Tao Zhou, Rui Wang, Ziheng Chen, Xiaoqing Luo, Xiaojun Wu, Josef Kittler",
+      "date": "2026-06-24",
+      "pdf": "https://arxiv.org/pdf/2606.25456v1",
+      "score": "7.0",
+      "evidence": "基于黎曼自注意力的鲁棒EEG解码用于BCI",
+      "tldr": "脑电图（EEG）解码中，现有对称正定（SPD）学习方法虽表现优异，但基本网络架构未显式捕获信号局部关系，且广泛使用的仿射不变度量（AIM）存在二次依赖且无法处理病态矩阵。为此，本文提出基于Bures-Wasserstein度量（BWM）的黎曼自注意力网络，其线性依赖有效缓解了病态问题，并进一步扩展为可学习的power-deformed广义Bures-Wasserstein度量（GBWAtt），以捕获非线性几何结构。在三个EEG基准数据集上的实验验证了该方法在鲁棒性和有效性上的显著提升。",
+      "tags": "query:eeg",
+      "abstract_en": "Brain-Computer Interface (BCI) based on electroencephalography (EEG) enables direct interaction between the brain and external environments and has significant applications in assistive technologies, medical rehabilitation, and entertainment. Recently, EEG decoding methods based on Symmetric Positive Definite (SPD) learning have demonstrated superior performance. However, these methods typically employ basic network architectures and do not explicitly capture local relationships between EEG signals. This limitation is problematic for EEG signals due to their inherently low Signal-to-Noise Ratio (SNR). Moreover, most existing Riemannian manifold-based methods are restricted to specific metrics. The most widely used is the Affine-Invariant Metric (AIM). However, it has a quadratic dependency on the SPD matrices and cannot handle ill-conditioned SPD matrices, which hinders the effectiveness of networks. In contrast, the Bures-Wasserstein Metric (BWM) exhibits linear dependence on SPD matrices and demonstrates superior performance for ill conditioning. To overcome these challenges, we propose a Riemannian self-attention network based on the BWM. Additionally, the recently introduced power-deformed generalized Bures-Wasserstein metric reveals a nonlinear relationship between SPD matrices and matrix power deformation. This metric provides a more nuanced representation of the geometric structure of the SPD manifold. Consequently, we extend our model to a learnable version. For simplicity, we refer to it as GBWAtt. Experimental results on three EEG benchmarking datasets validate the robustness and effectiveness of our proposed method. The code is available at https://github.com/jissc/GBWAtt.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

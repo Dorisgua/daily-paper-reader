@@ -6,40 +6,29 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-24
-- 运行时间：2026-06-24 22:04:09 UTC
+- 最新运行日期：2026-06-25
+- 运行时间：2026-06-25 22:13:46 UTC
 - 运行状态：成功
-- 本次总论文数：6
-- 精读区：4
-- 速读区：2
+- 本次总论文数：3
+- 精读区：2
+- 速读区：1
 
 ### 今日简报（AI）
-今日精读《NeuroSonic》与《Average Rankings》两篇9.0高分论文，聚焦EEG到语音重建及运动想象解码器个体差异基准测试。  
-值得关注：条件流匹配实现脑电语音重建，以及Friedman-Nemenyi测试揭示的“总体排名掩盖个体最优性”结论。  
-建议优先精读这两篇，掌握脑机接口前沿方法与评估框架。
-- 详情：[/202606/24/README](/202606/24/README)
+今日EEG研究聚焦两篇8分精读：跨试验目标语音提取的两阶段训练突破捷径学习，多视角神经表示揭秘脑-视觉对齐；速读7分Riemannian自注意力提升鲁棒解码。最值得关注两阶段训练法与自注意力机制如何克服EEG数据偏差，以及脑视觉对齐的新解释路径。建议读者优先精读这两篇论文，尝试将两阶段训练思路用于自身EEG分类任务，或结合多视图表示理解神经信号与视觉刺激的关联。
+- 详情：[/202606/25/README](/202606/25/README)
 
 ### 精读区论文标签
-1. [NeuroSonic: Conditional Flow Matching for EEG-to-Speech Reconstruction](/202606/24/2606.24087v1-neurosonic-conditional-flow-matching-for-eeg-to-speech-reconstruction)  
-   标签：评分：9.0/10、query:eeg-latent
-   evidence：条件流匹配用于脑电图到语音重建
-2. [Average Rankings Mask Per-Subject Optimality: A Friedman-Nemenyi Benchmark of EEG Motor-Imagery BCI Decoders](/202606/24/2606.24394v1-average-rankings-mask-per-subject-optimality-a-friedman-nemenyi-benchmark-of-eeg-motor-imagery-bci-decoders)  
-   标签：评分：9.0/10、query:eeg
-   evidence：EEG运动想象脑机接口解码器基准评估论文
-3. [Nonparametric Deconvolution and Denoising using Simulation Based Inference](/202606/24/2606.21907v1-nonparametric-deconvolution-and-denoising-using-simulation-based-inference)  
+1. [Breaking Shortcut Learning for Cross-Trial EEG-Guided Target Speech Extraction via Two-Stage Training](/202606/25/2606.24164v1-breaking-shortcut-learning-for-cross-trial-eeg-guided-target-speech-extraction-via-two-stage-training)  
+   标签：评分：8.0/10、query:eeg
+   evidence：脑电引导的目标语音提取
+2. [What Does the Brain See? Multiview Neural Representations to Demystify the Brain-Visual Alignment](/202606/25/2606.25718v1-what-does-the-brain-see-multiview-neural-representations-to-demystify-the-brain-visual-alignment)  
    标签：评分：8.0/10、query:eeg-latent
-   evidence：使用潜在生成模型进行非参数解卷积与去噪，与EEG潜在空间表示相关
-4. [Generative Modeling for Physiological Signals](/202606/24/2606.23864v1-generative-modeling-for-physiological-signals)  
-   标签：评分：8.0/10、query:eeg-latent
-   evidence：涵盖EEG的生理信号生成模型综述
+   evidence：多视角EEG表示学习用于视觉对齐
 
 ### 速读区论文标签
-1. [Correcting Sensor-Induced Distribution Drift with Wasserstein Adversarial Learning](/202606/24/2606.18561v1-correcting-sensor-induced-distribution-drift-with-wasserstein-adversarial-learning)  
-   标签：评分：6.0/10、query:eeg-latent
-   evidence：使用Wasserstein对抗学习进行传感器分布校准，可迁移至EEG通道补全
-2. [Unifying Adaptive Fourier and Möbius-Based Models for Efficient and Interpretable Biomedical Signal Decomposition](/202606/24/2606.23713v1-unifying-adaptive-fourier-and-mbius-based-models-for-efficient-and-interpretable-biomedical-signal-decomposition)  
-   标签：评分：6.0/10、query:eeg
-   evidence：适用于脑电信号的生物医学信号分解方法
+1. [Towards Robust EEG Decoding Based on Riemannian Self-Attention](/202606/25/2606.25456v1-towards-robust-eeg-decoding-based-on-riemannian-self-attention)  
+   标签：评分：7.0/10、query:eeg
+   evidence：基于黎曼自注意力的鲁棒EEG解码用于BCI
 
 
 <div class="dpr-home-promo-card">

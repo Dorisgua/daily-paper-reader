@@ -1,0 +1,140 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-25T22:11:28.351003+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 2,
+    "deep_cap": 7,
+    "deep_selected": 2,
+    "quick_candidates": 1,
+    "quick_skim_target": 12,
+    "quick_selected": 1
+  },
+  "deep_dive": [
+    {
+      "id": "2606.24164v1",
+      "source": "arxiv",
+      "title": "Breaking Shortcut Learning for Cross-Trial EEG-Guided Target Speech Extraction via Two-Stage Training",
+      "abstract": "Recent end-to-end models for EEG-guided target speech extraction report impressive results, underscoring potential for neuro-steered hearing technologies. However, our analysis reveals that high within-trial performance can be driven by trial-specific EEG structure that acts as shortcuts for target selection, leading to poor generalization on unseen trials. To overcome this gap, we propose TRUST-TSE, a two-stage framework to mitigate shortcut learning. By introducing contrastive pretraining with attended-speaker negative sampling, we encourage the EEG encoder to capture fine-grained EEG--speech alignment while suppressing trial-identity cues. We also employ a confidence-weighted extraction objective based on EEG--source similarity to guide extraction using the learned representations. Experiments on KUL and DTU datasets show that TRUST-TSE outperforms end-to-end baselines under strict cross-trial protocols, addressing a key reliability bottleneck of existing approaches.",
+      "authors": [
+        "Wonchul Shin",
+        "Inyong Choi",
+        "Kyogu Lee"
+      ],
+      "primary_category": "eess.AS",
+      "categories": [
+        "eess.AS",
+        "cs.AI",
+        "cs.SD"
+      ],
+      "published": "2026-06-23T05:37:31+00:00",
+      "link": "https://arxiv.org/pdf/2606.24164v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "EEG-guided target speech extraction",
+      "llm_evidence_cn": "脑电引导的目标语音提取",
+      "llm_evidence": "脑电引导的目标语音提取",
+      "canonical_evidence": "脑电引导的目标语音提取",
+      "llm_tldr_en": "Proposes TRUST-TSE, a two-stage framework to mitigate shortcut learning in EEG-guided speech extraction, using contrastive pretraining and confidence-weighted extraction.",
+      "llm_tldr_cn": "该论文发现现有EEG引导语音提取模型存在捷径学习问题，即过拟合试验特定EEG结构导致跨试验泛化差。提出TRUST-TSE两阶段框架：第一阶段通过对比预训练抑制试验身份线索，鼓励编码器捕捉语音对齐特征；第二阶段采用置信度加权提取目标。在多个数据集上实验表明，该方法显著提升了跨试验泛化性能。该工作为神经导向听觉假体提供了更鲁棒的方案。",
+      "llm_tldr": "该论文发现现有EEG引导语音提取模型存在捷径学习问题，即过拟合试验特定EEG结构导致跨试验泛化差。提出TRUST-TSE两阶段框架：第一阶段通过对比预训练抑制试验身份线索，鼓励编码器捕捉语音对齐特征；第二阶段采用置信度加权提取目标。在多个数据集上实验表明，该方法显著提升了跨试验泛化性能。该工作为神经导向听觉假体提供了更鲁棒的方案。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.25718v1",
+      "source": "arxiv",
+      "title": "What Does the Brain See? Multiview Neural Representations to Demystify the Brain-Visual Alignment",
+      "abstract": "Zero-shot visual decoding from electroencephalography (EEG) aims to infer visual semantics from non-invasive neural recordings, but remains challenging due to the low signal-to-noise ratio, non-stationarity, and limited spatial resolution of EEG. Existing EEG-vision alignment methods often rely on holistic EEG embeddings, which can obscure the complementary temporal, spectral, and spatial structure underlying visual perception. We introduce a unified multiview EEG representation learning framework for aligning brain responses with visual semantic embeddings. Our method builds an EEG encoder that jointly models three complementary views: input-conditioned state-space temporal dynamics, learnable wavelet-based spectral decomposition for sample-adaptive frequency modeling, and attention-modulated graph learning for structured electrode interactions. The resulting multiview EEG embeddings are fused and aligned with pretrained visual representations in a shared semantic space using contrastive learning with EEG-specific regularization, enabling 200-way zero-shot visual classification. Experiments on THINGS-EEG benchmark show that our method achieves state-of-the-art performance, with 54.8% Top-1 and 85.6% Top-5 accuracy in the within-subject setting and 15.3% Top-1 and 45.4% Top-5 accuracy in the cross-subject setting. We further present the first systematic cross-session EEG-image decoding evaluation, achieving 40.8% Top-1 and 78.0% Top-5 accuracy. These results suggest that explicitly modeling multiview neural structure improves both semantic alignment and generalization in EEG-based visual decoding.",
+      "authors": [
+        "Salini Yadav",
+        "Taveena Lotey",
+        "Pravendra Singh",
+        "Partha Pratim Roy"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-24T11:33:21+00:00",
+      "link": "https://arxiv.org/pdf/2606.25718v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "multiview EEG representation learning for visual alignment",
+      "llm_evidence_cn": "多视角EEG表示学习用于视觉对齐",
+      "llm_evidence": "多视角EEG表示学习用于视觉对齐",
+      "canonical_evidence": "多视角EEG表示学习用于视觉对齐",
+      "llm_tldr_en": "Proposes a multiview EEG encoder with temporal, spectral, and spatial views for zero-shot visual decoding.",
+      "llm_tldr_cn": "零样本视觉解码中，现有EEG-视觉对齐方法使用整体EEG嵌入，忽略了时、频、空结构。本文提出统一多视角EEG表示学习框架，编码器联合建模输入条件状态空间时间动态、可学习小波频谱分解和空间注意力。该方法在脑-视觉对齐任务上展示了优越性能，为EEG潜在空间表示提供了新思路。",
+      "llm_tldr": "零样本视觉解码中，现有EEG-视觉对齐方法使用整体EEG嵌入，忽略了时、频、空结构。本文提出统一多视角EEG表示学习框架，编码器联合建模输入条件状态空间时间动态、可学习小波频谱分解和空间注意力。该方法在脑-视觉对齐任务上展示了优越性能，为EEG潜在空间表示提供了新思路。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.25456v1",
+      "source": "arxiv",
+      "title": "Towards Robust EEG Decoding Based on Riemannian Self-Attention",
+      "abstract": "Brain-Computer Interface (BCI) based on electroencephalography (EEG) enables direct interaction between the brain and external environments and has significant applications in assistive technologies, medical rehabilitation, and entertainment. Recently, EEG decoding methods based on Symmetric Positive Definite (SPD) learning have demonstrated superior performance. However, these methods typically employ basic network architectures and do not explicitly capture local relationships between EEG signals. This limitation is problematic for EEG signals due to their inherently low Signal-to-Noise Ratio (SNR). Moreover, most existing Riemannian manifold-based methods are restricted to specific metrics. The most widely used is the Affine-Invariant Metric (AIM). However, it has a quadratic dependency on the SPD matrices and cannot handle ill-conditioned SPD matrices, which hinders the effectiveness of networks. In contrast, the Bures-Wasserstein Metric (BWM) exhibits linear dependence on SPD matrices and demonstrates superior performance for ill conditioning. To overcome these challenges, we propose a Riemannian self-attention network based on the BWM. Additionally, the recently introduced power-deformed generalized Bures-Wasserstein metric reveals a nonlinear relationship between SPD matrices and matrix power deformation. This metric provides a more nuanced representation of the geometric structure of the SPD manifold. Consequently, we extend our model to a learnable version. For simplicity, we refer to it as GBWAtt. Experimental results on three EEG benchmarking datasets validate the robustness and effectiveness of our proposed method. The code is available at https://github.com/jissc/GBWAtt.",
+      "authors": [
+        "Shaocheng Jin",
+        "Tao Zhou",
+        "Rui Wang",
+        "Ziheng Chen",
+        "Xiaoqing Luo",
+        "Xiaojun Wu",
+        "Josef Kittler"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-24T06:31:20+00:00",
+      "link": "https://arxiv.org/pdf/2606.25456v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Robust EEG decoding using Riemannian self-attention for BCI",
+      "llm_evidence_cn": "基于黎曼自注意力的鲁棒EEG解码用于BCI",
+      "llm_evidence": "基于黎曼自注意力的鲁棒EEG解码用于BCI",
+      "canonical_evidence": "基于黎曼自注意力的鲁棒EEG解码用于BCI",
+      "llm_tldr_en": "Proposes a Riemannian self-attention mechanism to enhance EEG decoding by capturing local relationships in SPD manifold, improving robustness for BCI.",
+      "llm_tldr_cn": "现有基于SPD学习的EEG解码方法无法有效捕捉EEG信号的局部关系，且受限于特定黎曼度量。本文提出黎曼自注意力机制，在SPD流形上显式建模通道间的局部依赖，并支持多种度量。在EEG解码任务上，该方法相比传统SPD网络显著提升了鲁棒性和准确率，为BCI系统提供了更可靠的解码方案。",
+      "llm_tldr": "现有基于SPD学习的EEG解码方法无法有效捕捉EEG信号的局部关系，且受限于特定黎曼度量。本文提出黎曼自注意力机制，在SPD流形上显式建模通道间的局部依赖，并支持多种度量。在EEG解码任务上，该方法相比传统SPD网络显著提升了鲁棒性和准确率，为BCI系统提供了更可靠的解码方案。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "EEG based brain computer interface research papers",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
