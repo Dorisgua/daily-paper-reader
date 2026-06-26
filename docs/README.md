@@ -6,29 +6,22 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-25
-- 运行时间：2026-06-25 22:13:46 UTC
+- 最新运行日期：2026-06-26
+- 运行时间：2026-06-26 21:58:24 UTC
 - 运行状态：成功
-- 本次总论文数：3
-- 精读区：2
-- 速读区：1
+- 本次总论文数：0
+- 精读区：0
+- 速读区：0
 
 ### 今日简报（AI）
-今日EEG研究聚焦两篇8分精读：跨试验目标语音提取的两阶段训练突破捷径学习，多视角神经表示揭秘脑-视觉对齐；速读7分Riemannian自注意力提升鲁棒解码。最值得关注两阶段训练法与自注意力机制如何克服EEG数据偏差，以及脑视觉对齐的新解释路径。建议读者优先精读这两篇论文，尝试将两阶段训练思路用于自身EEG分类任务，或结合多视图表示理解神经信号与视觉刺激的关联。
-- 详情：[/202606/25/README](/202606/25/README)
+> 今日无新推荐，系统未产出可展示论文。
+- 详情：[/202606/26/README](/202606/26/README)
 
 ### 精读区论文标签
-1. [Breaking Shortcut Learning for Cross-Trial EEG-Guided Target Speech Extraction via Two-Stage Training](/202606/25/2606.24164v1-breaking-shortcut-learning-for-cross-trial-eeg-guided-target-speech-extraction-via-two-stage-training)  
-   标签：评分：8.0/10、query:eeg
-   evidence：脑电引导的目标语音提取
-2. [What Does the Brain See? Multiview Neural Representations to Demystify the Brain-Visual Alignment](/202606/25/2606.25718v1-what-does-the-brain-see-multiview-neural-representations-to-demystify-the-brain-visual-alignment)  
-   标签：评分：8.0/10、query:eeg-latent
-   evidence：多视角EEG表示学习用于视觉对齐
+- 本次无精读推荐。
 
 ### 速读区论文标签
-1. [Towards Robust EEG Decoding Based on Riemannian Self-Attention](/202606/25/2606.25456v1-towards-robust-eeg-decoding-based-on-riemannian-self-attention)  
-   标签：评分：7.0/10、query:eeg
-   evidence：基于黎曼自注意力的鲁棒EEG解码用于BCI
+- 本次无速读推荐。
 
 
 <div class="dpr-home-promo-card">
