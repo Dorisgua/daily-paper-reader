@@ -1,0 +1,138 @@
+Title: PatchINR: Patch-Based Implicit Neural Representations for Efficient and Scalable Inference
+
+URL Source: https://arxiv.org/pdf/2606.25534v1
+
+Published Time: Thu, 25 Jun 2026 00:44:51 GMT
+
+Number of Pages: 5
+
+Markdown Content:
+# PatchINR: Patch-Based Implicit Neural Representations for Efficient and Scalable Inference 
+
+Jiachen Ren †, Wenyong Zhou †, Taiqiang Wu, Yuxin Cheng, Xincheng Feng, Zhengwu Liu ∗, Ngai Wong ∗
+
+The Department of Electrical and Computer Engineering, The University of Hong Kong, Hong Kong. 
+
+> †
+
+: Equal contributions. ∗: Corresponding authors. 
+
+Abstract —Implicit Neural Representation (INR) provides an effective approach for continuous signal modeling, but classical per-pixel inference results in quadratic growth in inference count, leading to dramatically increased computational costs in high-resolution application scenarios. To address this issue, we propose a patch-based approach that treats non-overlapping patches as fundamental processing units and predicts entire pixel patches in a single forward pass, significantly reducing the number of inference queries required. To validate the effectiveness of our approach, we propose a hardware acceleration architecture on the Field Programmable Gate Array (FPGA) platform for the INR model, which features a configurable pipeline and supports dual-precision computation. Our patch-based INR achieves com-parable reconstruction quality to pixel-level INR (34.97 dB PSNR with 2×2 patches) while reducing inference latency by 75% with only 0.6% parameter overhead. 
+
+Index Terms —Implicit Neural Representations, Patch-Based Inference, Efficient Inference 
+
+I. I NTRODUCTION 
+
+Implicit Neural Representations (INRs) have emerged as a powerful paradigm for representing continuous signals, offering compact and continuous representations of images, 3D shapes, and other data modalities [1], [2]. By mapping spatial coordinates to signal values through neural networks, INRs provide a memory-efficient alternative to discrete grid-based methods while enabling high-fidelity signal reconstruc-tions [3], [4]. Their inherent resolution independence and the ability to query arbitrary coordinates make them highly ideal for advanced applications such as neural rendering, 3D recon-struction, image super-resolution, and dynamic scene repre-sentation [5], [6]. However, deploying these computationally intensive continuous representations on resource-constrained edge devices or real-time systems poses a formidable chal-lenge, necessitating highly optimized inference frameworks and dedicated hardware acceleration. Despite their representational advantages, traditional INRs inherently rely on a pixel-wise querying paradigm, where the network must evaluate each spatial coordinate independently to reconstruct the target signal. From a hardware perspective, this sequential and fine-grained evaluation paradigm prevents the efficient utilization of modern parallel computing archi-tectures, which are fundamentally optimized for bulk data processing and spatial parallelism [7]. Consequently, this pixel-level processing approach requires millions of redun-dant coordinate fetches and independent forward passes to generate a single high-resolution image, rendering INRs prac-
+
+Fig. 1. (Left) Inference count grows quadratically as the resolution increases for the image. (Right) Our patch-based method significantly reduces the inference count. 
+
+tically infeasible for latency-sensitive and real-time applica-tions [8]. As illustrated in Fig. 1, the total inference workload grows quadratically with the target spatial resolution [9]. This quadratic complexity arises directly from the inherent ineffi-ciency of the pixel-by-pixel evaluation strategy: each isolated pixel query incurs an independent forward pass and redundant scalar computations. To address this systemic computational bottleneck, we propose a paradigm shift towards a patch-based optimization strategy that processes multiple pixels simultane-ously within spatial regions, thereby drastically reducing the total number of forward passes and enabling efficient batch processing. Previous efforts to mitigate INR inefficiency have pre-dominantly focused on algorithmic modifications, such as lightweight network designs or grid-based hybrid representa-tions [10], [11]. However, these software-centric optimizations often fail to address the underlying hardware unfriendliness of the querying mechanism itself. To bridge this gap, we introduce a hardware-algorithm co-designed framework: anovel patch-based INR that processes spatial information by predicting entire n × n patches of pixel values in a single unified forward pass, rather than querying individual pixel coordinates. By shifting the fundamental computational gran-ularity from isolated pixels to non-overlapping patches, our method reduces the total number of inference queries by a factor of n2. This transformation effectively amortizes the coordinate fetching overhead and significantly enhances data reuse within on-chip buffers. Crucially, our approach preserves the continuous, resolution-independent properties of traditional INRs while exposing massive spatial parallelism that maps 
+
+> arXiv:2606.25534v1 [cs.CV] 24 Jun 2026
+
+seamlessly onto hardware accelerators, perfectly aligning with deeply pipelined architectures and resource utilization strate-gies. In summary, the contributions of this paper are as follows:  
+
+> •
+
+We propose a novel patch-based INR framework that redefines the fundamental querying unit from individual pixels to non-overlapping spatial patches. This algo-rithmic innovation achieves a significant reduction in total inference costs and computational overhead, while strictly maintaining reconstruction fidelity comparable to classical pixel-wise INR approaches.  
+
+> •
+
+We design and implement a highly optimized Field Pro-grammable Gate Array (FPGA) acceleration architecture specifically tailored for the patch-based SIREN model. The proposed accelerator features a deeply configurable pipeline, robust support for dual-precision computation, and accommodates parameterized patch dimensions to maximize hardware utilization.  
+
+> •
+
+Extensive experimental evaluations demonstrate that our co-designed method achieves an optimal trade-off be-tween inference efficiency and model parameter count. Specifically, utilizing a 2 × 2 patch size reduces the overall inference latency by 75% and achieves a high reconstruction quality of 34.97 dB PSNR, while incurring a negligible parameter overhead of merely 0.6%. II. R ELATED WORK 
+
+A. Implicit Neural Representation 
+
+INRs have gained significant traction as a compact and flexible approach for representing continuous signals. By parameterizing signals as neural networks that map spatial coordinates to signal values, INRs eliminate the need for discrete grid-based storage [12], [13]. Traditional INRs rely on pixel-wise querying, which becomes computationally pro-hibitive for high-resolution or real-time applications. To ad-dress the inefficiency of pixel-wise querying, various strategies have been proposed. Hierarchical representations and hybrid approaches combining grids and neural networks [10] have been explored to accelerate inference. Additionally, techniques such as frequency encoding [6] and efficient architectural designs [14] aim to speed up computation while preserving reconstruction quality. While these methods provide moderate improvements, they remain constrained by the underlying pixel-wise querying paradigm, making them less suitable for real-time or large-scale applications. 
+
+B. Hardware Acceleration for INR 
+
+FPGA-based inference acceleration has demonstrated com-pelling advantages in energy efficiency, ultra-low latency for real-time processing, and parallel computing capabilities for high-throughput workloads, making it particularly suitable for deploying deep learning models on edge devices. The deployment of INRs on hardware accelerators has garnered significant attention due to the growing demand for real-time processing and high-fidelity rendering in downstream applications. However, the inherent sequential nature of tra-ditional pixel-wise querying introduces severe memory access  
+
+> Fig. 2. Unlike classical INRs that transform each query coordinate to its corresponding pixel, our proposed patch-based INR significantly accelerates inference by generating multiple pixels simultaneously through patch-wise representation.
+
+bottlenecks, preventing INRs from fully utilizing the massive spatial parallel processing capabilities inherent in modern hardware architectures. Recent efforts to optimize INRs for hardware deployment include model quantization to reduce memory footprint [15], energy-efficient dataflow designs [16], and memory-efficient architectures aimed at alleviating band-width limitations [11]. Despite these commendable advance-ments, the lack of a fundamentally batch-processing-friendly algorithmic framework has severely limited the scalability, throughput, and practical deployment of INRs, particularly for high-resolution tasks in resource-constrained environments. III. M ETHODOLOGY 
+
+A. Patch-Based INR 
+
+Traditional INRs map spatial coordinates x ∈ Rd to their corresponding signal values y ∈ Rc using a neural network 
+
+fθ . This process can be expressed as: 
+
+y = fθ (x) (1) where θ represents the network parameters. This formulation enables continuous signal representation and resolution inde-pendence, as any coordinate in the input domain can be queried to generate the corresponding signal value. For example, an image I ∈ RH×W ×c can be reconstructed by querying all spatial coordinates xi,j , with the signal at each coordinate defined as: 
+
+yi,j = fθ
+
+ iH , jW
+
+
+
+, ∀ i, j ∈ { 1, . . . , H } × { 1, . . . , W }.
+
+(2) Instead of querying single coordinates, we treat non-overlapping regions (patches) of size P × P as a single entity and define a new grid corresponding to these patches, as shown in Fig. 2. For example, a patch size of P = 2 
+
+would correspond to 2 × 2 pixel regions, and the input signal 
+
+I ∈ RH×W ×c is divided into non-overlapping patches, where 
+
+P is the patch dimension hyperparameter. The new grid is defined by coordinates xp ∈ Rd, with a total of: 
+
+N = H · WP 2 (3) Fig. 3. Hardware implementation of the PatchINR accelerator. The design features a system-level SoC architecture with a parallel compute engine (left), an optimized physical FPGA layout for neural network execution (top right), and a pipelined dataflow timeline demonstrating significant latency reduction for patch-based inference (bottom right). 
+
+patches, where H and W are the height and width of the original signal. Each patch corresponds to a unique coordinate in the new grid. To represent the signal in this patch-based framework, we reformulate the INR function fθ . For a given patch coordinate 
+
+xp, the INR predicts the pixel values for the entire P × P
+
+patch, expressed as: 
+
+Yp = fθ (xp), (4) where Yp ∈ RP ×P ×c represents the predicted pixel values for the corresponding patch. The INR model fθ is still queried using continuous spatial coordinates, but now operates on the new, coarser grid defined by the patches. This patch-based formulation greatly reduces the number of queries required to reconstruct the signal. Instead of querying 
+
+HW individual coordinates, the number of queries is reduced to N . The computational complexity of inference is thus reduced from O(HW · T ) to O(N · T ), where T is the computation time per query. For larger patch sizes P , N
+
+becomes significantly smaller than HW .
+
+B. Hardware Implementation 
+
+While algorithmic optimizations reduce theoretical compu-tational complexity, traditional sequential coordinate evalua-tion remains severely restricted by irregular memory access patterns. To validate the proposed patch-based framework and achieve highly efficient deployment, we developed acustomized hardware accelerator architecture as illustrated in Fig. 3. The overall design adopts a system-on-chip integra-tion paradigm, connecting a host processor, off-chip Double Data Rate (DDR) memory, and the custom accelerator en-gine through a global Advanced eXtensible Interface (AXI) interconnect. To mitigate the severe bandwidth bottlenecks associated with fetching massive neural network weights and spatial coordinates, a high-capacity global buffer instantiated with Ultra Random Access Memory (URAM) is introduced to cache frequently accessed operands. Within the accelerator engine, a dedicated data management unit orchestrates the on-chip dataflow. This unit employs Block Random Access Memory (BRAM) for the coordinate queue and URAM for the weight queue. A dedicated data dispatcher subsequently routes these synchronized data streams directly into the core compute engine to ensure a continuous supply of operands. The core compute engine serves as the computational backbone of the accelerator, featuring a highly parallel two-dimensional array of processing elements. Each processing element is deeply pipelined and maps the matrix multiplication workloads onto specialized Digital Signal Processing (DSP) slices. These custom slices are meticulously configured with input multiplexers, hardware multipliers, and local registers to execute the dense multiply-accumulate operations required by the hidden layers. By leveraging this extensive spatial paral-lelism, the compute engine processes multiple pixels within a spatial patch concurrently. This hardware mapping effectively translates the algorithmic advantages of our batch processing formulation into tangible throughput improvements. To ensure data integrity, a centralized Finite State Machine (FSM) synchronizes the pipelined dataflow and manages exe-cution states. The processing element outputs are subsequently routed to a unified accumulator for vector aggregation and nonlinear activation. Finally, the reconstructed patches are written back to the global memory hierarchy. This co-design effectively mitigates the memory wall and maximizes on-chip resource utilization. IV. E XPERIMENTS 
+
+A. Experiment Setup 
+
+To comprehensively evaluate the proposed patch-based framework, we establish a rigorous software-hardware co-evaluation environment. On the algorithm side, we select three Fig. 4. Patch optimization efficiency analysis. (Left) Inference reduction vs. parameter increase trade-off. (Right) Efficiency scores across patch sizes. 
+
+representative state-of-the-art INR architectures, SIREN [17], WIRE [18], and FINER [19] as our baselines. These models are evaluated on standard high-fidelity image reconstruction benchmarks, specifically the Kodak and DIV2K datasets [17], [20]. The models are implemented using PyTorch 1.11.0 and trained on an NVIDIA GeForce RTX 3090 GPU. For the hardware performance assessment, the proposed PatchINR accelerator is implemented and deployed on a high-performance Xilinx Virtex UltraScale+ HBM VCU128 FPGA platform. The hardware design is synthesized, placed, and routed using Xilinx Vivado 2019.2 design suite, targeting an operating frequency of 200 MHz. To validate the flexibility and efficiency of our architecture, the hardware evaluation encompasses two distinct computational modes: standard 32-bit floating-point (FP32) and highly efficient 8-bit integer (INT8) quantization. 
+
+B. Experiment Results 
+
+To quantitatively evaluate patch-based optimization in INR networks, we propose an efficiency metric balancing inference reduction benefits against parameter overhead costs. For patch size N, the efficiency score E is: 
+
+E(N ) = IR (N )1 + P I (N ) (5) where IR (N ) and P I (N ) represent the inference reduction and parameter increase percentages relative to patch size 1. Fig. 4 shows that patch size N = 2 achieves optimal efficiency with significant inference reduction and negligible parameter overhead, while larger patches exhibit diminishing returns due to exponential parameter growth. Table I compares the performance of image reconstruction for different patch sizes ( N ) across three different INR archi-tectures. Increasing the patch size leads to consistent improve-ments in both PSNR and SSIM for all models, demonstrating the generalization ability of our method. From the patch size perspective, it is evident that increasing the patch size brings performance gains, but the growth is not linearly increasing. When the patch size reaches 16, the PSNR only improves around 4 to 5 dB, but further doubling the patch size brings more than 10 dB improvement.                                                            
+
+> TABLE I COMPARISON OF INR ARCHITECTURES (SIREN [17], WIRE [18], AND
+> FINER [19]) ON KODAK IMAGE RECONSTRUCTION TASKS ACROSS VARYING PATCH SIZES N.
+> Patch Size WIRE [18] FINER [19] SIREN [17] PSNR (dB) SSIM PSNR (dB) SSIM PSNR (dB) SSIM
+> N= 1 33.36 0.9380 33.28 0.9707 32.80 0.9912
+> N= 2 34.97 0.9549 34.54 0.9774 34.37 0.9944
+> N= 4 35.26 0.9326 35.53 0.9183 34.52 0.8786
+> N= 8 35.46 0.9624 36.54 0.9819 36.01 0.9953
+> N= 16 37.96 0.9750 38.40 0.9825 37.52 0.9921
+> N= 32 44.05 0.9893 44.73 0.9877 41.86 0.9884
+> Fig. 5. Comparison of video reconstruction performance across varying patch sizes ( N).
+
+In addition to image tasks, we further validate our method on the video modality and provide visual examples in Fig. 5 across various patch sizes N . Video can be viewed as a series of images connected along the time axis, and our patch-based method can be applied to each frame. Besides the superior reconstruction quality, our method significantly reduces the training time for video, a critical challenge for video INR. Previous approaches mainly address this limitation from a frame perspective, that is, taking the frame index as input and directly outputting the whole frame, which sacrifices the most appealing resolution-independent property of INR. Table II highlights the key architectural advantages of our FPGA-based accelerator through its focused resource alloca-tion. The high concentration of DSPs and power in the MAC array reflects a co-design strategy that directly maps hardware to the core computational workload, maximizing efficiency. Our fully PL-based, custom datapath eliminates the overhead of fixed-function units, providing greater optimization flexibil-ity compared to hybrid AI Engine architectures. Furthermore, the minimal control logic and resource-efficient implemen-tation of sinusoidal activation demonstrate a comprehensive optimization across the entire computational pipeline. Fig. 6 presents the BRAM utilization and inference latency across different patch sizes. For BRAM utilization, the INT8 mode consistently shows lower resource consumption than the TABLE II PERFORMANCE SUMMARY AND HARDWARE RESOURCE BREAKDOWN OF THE PROPOSED FP32 INR A CCELERATOR ON VCU128 AT 200 MH Z                                            
+
+> Component Resource Utilization Power (Five layers) LUT FF DSP LUTRAM BRAM (mW)
+> MAC Array 244,759 442,268 5,130 14,394 06,350 Top Ctrl. 60 55 00010 BRAM 0000231 615 Nonl. Act. 5,032 388 800112 Others 525 99,015 0396 0455 Total 250,376 541,726 5,138 14,790 231 7,542
+
+Fig. 6. FPGA Performance Analysis. (Left) BRAM utilization and (Right) inference latency for FP32 and INT8 precision modes across different patch sizes. 
+
+FP32 mode, maintaining relatively stable utilization for small patches but exhibiting exponential growth beyond patch size 16. The latency analysis demonstrates a critical transition in performance bottleneck: at small patch sizes, total latency is primarily determined by the number of inference operations, exhibiting significant reduction with increased patch size. As patch size exceeds 16, the hardware pipeline latency becomes the dominant factor, leading to diminishing returns in latency reduction. These findings suggest an optimal patch size selec-tion should balance between latency reduction and resource utilization, with small patches achieving the highest efficiency due to significant latency reduction while maintaining minimal resource overhead. V. C ONCLUSION 
+
+In this work, we introduced a patch-based INR framework that predicts entire n×n pixel patches in a single forward pass, reducing computational overhead while maintaining resolution independence and continuous reconstruction capabilities. To validate the effectiveness of our approach, we propose ahardware acceleration architecture on the FPGA platform for the SIREN model, which features a configurable pipeline and supports dual-precision computation. Our fixed-size patch output structure achieves hardware efficiency comparable to pixel-wise INRs with superior reconstruction quality at larger patch sizes. Our method achieves an optimal trade-off between inference efficiency and parameter count, where a 2 × 2 patch size reduces inference latency by 75% at 34.97 dB PSNR with only 0.6% parameter overhead. ACKNOWLEDGMENT 
+
+This research is supported in part by the Theme-based Research Scheme (TRS) project T45-701/22-R and GRF Project 17203224 of the Research Grants Council (RGC), Hong Kong SAR, and in part by the AVNET-HKU Emerging Microelectronics & Ubiquitous Systems (EMUS) Lab. REFERENCES [1] J. J. Park et al. , “DeepSDF: Learning Continuous Signed Distance Functions for Shape Representation,” Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 2019. [2] V. Sitzmann et al. , “Metasdf: Meta-learning Signed Distance Func-tions,” in Advances in Neural Information Processing Systems , vol. 33, pp. 10136–10147, 2020. [3] J. C. L. Li et al. , “Learning Spatially Collaged Fourier Bases for Implicit Neural Representation,” in Proceedings of the AAAI Conference on Artificial Intelligence , 2024. [4] C. Zhang et al. , “Nonparametric Teaching of Implicit Neural Repre-sentations,” in Proceedings of the International Conference on Machine Learning , 2024. [5] W. Zhou et al. , “Enhancing Robustness of Implicit Neural Represen-tations Against Weight Perturbations,” in ICASSP 2025 - 2025 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP) , pp. 1–5, 2025. [6] M. Tancik et al. , “Fourier Features Let Networks Learn High Frequency Functions in Low Dimensional Domains,” in Advances in Neural Infor-mation Processing Systems (NeurIPS) , 2020. [7] W. Zhou et al. , “MINR: Efficient Implicit Neural Representations for Multi-Image Encoding,” in ICASSP 2025 - 2025 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP) , 2025. [8] C. Gordon et al. , “On Quantizing Implicit Neural Representations,” in 
+
+2023 IEEE/CVF Winter Conference on Applications of Computer Vision (WACV) , pp. 341–350, 2023. [9] W. Zhou et al. , “Distribution-Aware Hadamard Quantization for Hardware-Efficient Implicit Neural Representations,” in 2025 IEEE International Conference on Multimedia and Expo (ICME) , 2025. [10] R. Liang et al. , “CoordX: Accelerating Implicit Neural Representation with a Split MLP Architecture,” in International Conference on Learning Representations , 2022. [11] J. C. L. Li et al. , “ASMR: Activation-Sharing Multi-Resolution Coor-dinate Networks for Efficient Inference,” in The Twelfth International Conference on Learning Representations , 2024. [12] S. Xie et al. , “DINER: Disorder-Invariant Implicit Neural Representa-tion,” in 2023 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pp. 6143–6152, 2023. [13] Y. Feng et al. , “Cicero: Addressing Algorithmic and Architectural Bottlenecks in Neural Rendering by Radiance Warping and Memory Optimizations,” in 2024 ACM/IEEE 51st Annual International Sympo-sium on Computer Architecture (ISCA) , pp. 1293–1308, 2024. [14] S. Girish et al. , “SHACIRA: Scalable HAsh-grid Compression for Implicit Neural Representations,” in 2023 IEEE/CVF International Con-ference on Computer Vision (ICCV) , pp. 17467–17478, 2023. [15] S. Kang et al. , “TernaryNeRF: Quantizing Voxel Grid-based NeRF Mod-els,” in 2022 IEEE International Workshop on Rapid System Prototyping (RSP) , pp. 8–14, 2022. [16] C. Rao et al. , “An energy-efficient accelerator for medical image recon-struction from implicit neural representation,” in IEEE Transactions on Circuits and Systems I: Regular Papers , pp. 1625–1638, 2023. [17] V. Sitzmann et al. , “Implicit Neural Representations with Periodic Activation Functions,” Proceedings of Advances in Neural Information Processing Systems (NeurIPS) , 2020. [18] V. Saragadam et al. , “WIRE: Wavelet Implicit Neural Representations,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pp. 18507–18516, 2023. [19] Z. Liu et al. , “FINER: Flexible Spectral-Bias Tuning in Implicit NEu-ral Representation by Variableperiodic Activation Functions,” in 2024 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pp. 2713–2722, 2024. [20] S. Ramasinghe et al. , “Beyond Periodicity: Towards A Unifying Frame-work for Activations in Coordinate-MLPs,” in European Conference on Computer Vision (ECCV) , Springer, 2022.

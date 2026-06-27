@@ -1,0 +1,178 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-27T21:18:58.216194+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 1,
+    "deep_cap": 7,
+    "deep_selected": 1,
+    "quick_candidates": 3,
+    "quick_skim_target": 12,
+    "quick_selected": 3
+  },
+  "deep_dive": [
+    {
+      "id": "2606.25434v1",
+      "source": "arxiv",
+      "title": "Interpretable Concept-Guided Polynomial Tabular Kolmogorov-Arnold Network for EEG-Based Mild Cognitive Impairment Detection",
+      "abstract": "Early and scalable detection of mild cognitive impairment (MCI) remains an unresolved clinical challenge. Existing EEG-based screening approaches are constrained by handcrafted feature pipelines that discard neurophysiologically meaningful domain structure and deep learning classifiers that sacrifice interpretability for performance. No existing work unifies physiologically organized concept encoders, cross-concept interaction modeling, and nonlinear tabular classification in a sleep EEG-based MCI detection framework. This study proposes Concept-guided Polynomial-transformed Tabular learning using Kolmogorov-Arnold Network (CPTabKAN), which maps heterogeneous EEG-derived features into domain-informed concept representations, expands them via degree-2 polynomial transformation to expose first- and second-order interactions, and applies a Fourier-parameterized TabKAN classifier to learn nonlinear decision boundaries. CPTabKAN was evaluated on the Study of Osteoporotic Fractures cohort (372 subjects, overnight polysomnography), using 1,379 features organized into ten physiologically motivated concept groups. Under 10-fold cross-validation, CPTabKAN-Second Order achieved a weighted F1-score of 0.9038 (SD 0.034), outperforming GradientBoosting by 5.65 percentage points (t(9)=1.934,p=0.043, one-sided paired test), with advantages persisting under SMOTE-based balancing. Ablation analysis confirmed independent contributions from each component. Concept importance analysis revealed that power spectral density, multi-scale entropy, and Hjorth parameters dominated first-order weights, while cross-concept interactions involving Lempel-Ziv-Welch complexity, statistics, demographics, and slow oscillations exceeded all first-order scores. These results demonstrate that concept-structured, interaction-aware tabular learning surfaces physiologically coherent reasoning, supporting clinical trust.",
+      "authors": [
+        "Yosef Bernardus Wirian",
+        "Qiang Cheng"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-06-24T05:54:44+00:00",
+      "link": "https://arxiv.org/pdf/2606.25434v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "EEG signal processing and analysis for mild cognitive impairment detection",
+      "llm_evidence_cn": "用于轻度认知障碍检测的EEG信号处理与分析",
+      "llm_evidence": "用于轻度认知障碍检测的EEG信号处理与分析",
+      "canonical_evidence": "用于轻度认知障碍检测的EEG信号处理与分析",
+      "llm_tldr_en": "CPTabKAN unifies physiologically organized concept encoders, cross-concept interaction, and nonlinear tabular classification for interpretable EEG-based MCI detection.",
+      "llm_tldr_cn": "现有EEG轻度认知障碍（MCI）检测方法依赖手工特征管道丢弃神经生理结构，或深度学习模型牺牲可解释性。本文提出CPTabKAN，将生理启发的概念编码器、跨概念交互建模和非线性表格分类统一在同一框架中。在睡眠EEG数据上，该方法在保持可解释性的同时取得了优异的检测性能，为MCI早期筛查提供了一种兼具性能与可解释性的解决方案。",
+      "llm_tldr": "现有EEG轻度认知障碍（MCI）检测方法依赖手工特征管道丢弃神经生理结构，或深度学习模型牺牲可解释性。本文提出CPTabKAN，将生理启发的概念编码器、跨概念交互建模和非线性表格分类统一在同一框架中。在睡眠EEG数据上，该方法在保持可解释性的同时取得了优异的检测性能，为MCI早期筛查提供了一种兼具性能与可解释性的解决方案。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.24011v1",
+      "source": "arxiv",
+      "title": "Low-rank Updates in Slowly Time-varying Graphs for Spatial-Temporal Signal Interpolation",
+      "abstract": "A crucial assumption in graph signal processing (GSP) is the existence of an underlying graph that captures the pairwise similarities between nodes, allowing filters to be designed based on this graph for tasks such as denoising. For spatial-temporal data in which node-to-node similarities evolve over time, a static spatial graph is insufficient. In this paper, to represent slowly time-varying pairwise relationships, we model the graph changes in two consecutive adjacency matrices $P = W^{(2)} - W^{(1)}$ across time as a low-rank matrix. % Specifically, given an initial adjacency matrix $W^{(1)}$ at time $t=1$, we jointly interpolate a signal $x_2$ and estimate $W^{(2)}$ at $t=2$ using both a graph signal smoothness prior for $x_2$ and a low-rank prior on $¶$. We alternate optimization steps. With $W^{(2)}$ fixed, $x_2$ is interpolated by solving a linear system. Alternatively, holding $x_2$ fixed, $W^{(2)}$ is updated via proximal gradient descent (PGD). The proximal mapping of the rank term $Gamma(W^{(2)} - W^{(1)})$ is approximated in linear time using a fast orthogonal matching pursuit (OMP) algorithm that selects a sparse combination of atoms from a dictionary $cR$ formed by the outer products of $W^{(1)}$'s eigenvectors. We unroll iterations of our algorithm into layers to build a lightweight neural network for limited data-driven parameter tuning. Experiments show that our joint optimization achieves better signal interpolation compared to existing time-varying graph models.",
+      "authors": [
+        "Saghar Bagheri",
+        "Gene Cheung",
+        "Tim Eadie",
+        "Antonio Ortega"
+      ],
+      "primary_category": "eess.SP",
+      "categories": [
+        "eess.SP",
+        "cs.LG"
+      ],
+      "published": "2026-06-22T23:33:33+00:00",
+      "link": "https://arxiv.org/pdf/2606.24011v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "method for spatiotemporal signal interpolation via low-rank graph updates, applicable to EEG missing channel completion",
+      "llm_evidence_cn": "采用低秩图更新进行时空信号插值的方法，可应用于脑电缺失通道补全",
+      "llm_evidence": "采用低秩图更新进行时空信号插值的方法，可应用于脑电缺失通道补全",
+      "canonical_evidence": "采用低秩图更新进行时空信号插值的方法，可应用于脑电缺失通道补全",
+      "llm_tldr_en": "Proposes a joint signal interpolation and graph estimation method for spatiotemporal data by modeling adjacency differences as low-rank. Suitable for reconstructing missing node signals in time-varying graphs. This approach can be applied to EEG channel imputation by constructing a graph over channels and using temporal smoothness.",
+      "llm_tldr_cn": "针对时空信号中节点关系时变的问题，提出将相邻时刻邻接矩阵差建模为低秩矩阵的联合插值方法，同时利用图信号平滑先验和低秩约束来恢复缺失节点信号。实验表明该算法能有效处理缓慢变化的图结构。该方法可直接迁移至脑电通道补全任务，通过构建通道图并利用时序平滑性实现缺失通道重建。",
+      "llm_tldr": "针对时空信号中节点关系时变的问题，提出将相邻时刻邻接矩阵差建模为低秩矩阵的联合插值方法，同时利用图信号平滑先验和低秩约束来恢复缺失节点信号。实验表明该算法能有效处理缓慢变化的图结构。该方法可直接迁移至脑电通道补全任务，通过构建通道图并利用时序平滑性实现缺失通道重建。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG missing channel completion using latent space models",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.25534v1",
+      "source": "arxiv",
+      "title": "PatchINR: Patch-Based Implicit Neural Representations for Efficient and Scalable Inference",
+      "abstract": "Implicit Neural Representation (INR) provides an effective approach for continuous signal modeling, but classical per-pixel inference results in quadratic growth in inference count, leading to dramatically increased computational costs in high-resolution application scenarios. To address this issue, we propose a patch-based approach that treats non-overlapping patches as fundamental processing units and predicts entire pixel patches in a single forward pass, significantly reducing the number of inference queries required. To validate the effectiveness of our approach, we propose a hardware acceleration architecture on the Field Programmable Gate Array (FPGA) platform for the INR model, which features a configurable pipeline and supports dual-precision computation. Our patch-based INR achieves comparable reconstruction quality to pixel-level INR (34.97 dB PSNR with 2 x 2 patches) while reducing inference latency by 75% with only 0.6% parameter overhead.",
+      "authors": [
+        "Jiachen Ren",
+        "Wenyong Zhou",
+        "Taiqiang Wu",
+        "Yuxin Cheng",
+        "Xincheng Feng",
+        "Zhengwu Liu",
+        "Ngai Wong"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-24T08:08:24+00:00",
+      "link": "https://arxiv.org/pdf/2606.25534v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "patch-based implicit neural representation for efficient signal modeling",
+      "llm_evidence_cn": "基于补丁的隐式神经表示用于高效信号建模",
+      "llm_evidence": "基于补丁的隐式神经表示用于高效信号建模",
+      "canonical_evidence": "基于补丁的隐式神经表示用于高效信号建模",
+      "llm_tldr_en": "PatchINR uses patch-based processing to accelerate implicit neural representation inference, potentially applicable to EEG signal reconstruction tasks.",
+      "llm_tldr_cn": "PatchINR提出了一种基于补丁的隐式神经表示方法，将非重叠补丁作为基本处理单元，一次前向预测整个补丁，显著减少推理次数。该方法在FPGA上实现加速，有助于高分辨率信号的高效建模。虽然论文针对图像，但其连续信号建模和高效推断的特性可迁移至EEG信号重建，减少计算开销。",
+      "llm_tldr": "PatchINR提出了一种基于补丁的隐式神经表示方法，将非重叠补丁作为基本处理单元，一次前向预测整个补丁，显著减少推理次数。该方法在FPGA上实现加速，有助于高分辨率信号的高效建模。虽然论文针对图像，但其连续信号建模和高效推断的特性可迁移至EEG信号重建，减少计算开销。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "deep learning for EEG signal reconstruction",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.26579v1",
+      "source": "arxiv",
+      "title": "An exploratory behavioral and electroencephalographic study of artificial intelligence-assisted learning modes in high school students",
+      "abstract": "As artificial intelligence (AI) is rapidly integrating into education, concerns have emerged regarding its potential implications on cognitive engagement and problem-solving behavior. However, existing research largely treats AI exposure as a binary condition (AI vs. no-AI), with limited differentiation between interaction modalities and post-exposure effects. This study investigates whether distinct AI interaction modes (Tutor, Collaborator, Solver) influence frontal EEG spectral activity. Electroencephalography (EEG) data and quantified behavioral metrics were recorded from 48 study participants (24 males, 24 females; ages 14-18) across two counterbalanced quizzes in a within-subject design. Statistical analyses included Friedman tests, repeated-measures ANOVA, paired t-tests, and effect size calculations. Behavioral changes were mathematically analyzed in an observation matrix of three characteristics -Initiation, Processing, and Stress-measured on an ordinal scale. Each mode showed significant differences in all three behavioral measures. Descriptive EEG patterns in AI interaction mode were observed, and the possibility of short-term carryover effects of AI was explored. Although the EEG data did not reach statistical significance, the patterns observed across the three AI interaction modes warrant further investigation. This study provides preliminary behavioral evidence and investigative electrophysiological observations, exploring possible AI-interaction-mode-based differences in neural activity and behavior, while establishing a replicable framework for future human-AI interaction studies.",
+      "authors": [
+        "Kashika Khurana",
+        "Ally Liew"
+      ],
+      "primary_category": "cs.HC",
+      "categories": [
+        "cs.HC",
+        "cs.CY"
+      ],
+      "published": "2026-06-25T04:01:19+00:00",
+      "link": "https://arxiv.org/pdf/2606.26579v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "EEG experiment with frontal spectral analysis",
+      "llm_evidence_cn": "包含额叶频谱分析的EEG实验",
+      "llm_evidence": "包含额叶频谱分析的EEG实验",
+      "canonical_evidence": "包含额叶频谱分析的EEG实验",
+      "llm_tldr_en": "An exploratory study using EEG to analyze AI-assisted learning modes, directly involving EEG signal processing.",
+      "llm_tldr_cn": "该研究通过记录48名高中生的额叶EEG活动，探究不同AI交互模式（导师、协作者、解答者）对认知投入的影响。实验采集了EEG数据并进行频谱分析，属于典型的脑电图信号处理与分析研究。结果揭示了交互模式对额叶频谱活性的差异化影响，为教育AI的认知效应提供了电生理证据。",
+      "llm_tldr": "该研究通过记录48名高中生的额叶EEG活动，探究不同AI交互模式（导师、协作者、解答者）对认知投入的影响。实验采集了EEG数据并进行频谱分析，属于典型的脑电图信号处理与分析研究。结果揭示了交互模式对额叶频谱活性的差异化影响，为教育AI的认知效应提供了电生理证据。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
