@@ -1,0 +1,220 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-28T21:17:48.558347+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 0,
+    "deep_cap": 7,
+    "deep_selected": 0,
+    "quick_candidates": 5,
+    "quick_skim_target": 12,
+    "quick_selected": 5
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2606.24406v1",
+      "source": "arxiv",
+      "title": "EEG Interpretation Across Chant Listening: A Single-Subject Pilot Investigation Using Spectral and Functional Connectivity Analysis",
+      "abstract": "This technical report presents an EEG-based investigation of neural activity across five auditory conditions: Resting State (RS), Shiv Tandav Stotra (STS), Mahasudarshan Mantra (MM), Aum Chant, and Tanpura Listening. EEG recordings acquired from a healthy 5-year-old participant were analyzed using spectral power estimation and functional connectivity measures based on the weighted Phase Lag Index (wPLI). Spectral analysis revealed condition-specific modulation of neural oscillatory activity, with STS listening producing the highest relative power across multiple frequency bands, particularly within the beta range. Functional connectivity analysis demonstrated distinct network organizations across conditions. STS listening exhibited the strongest and most widespread connectivity pattern, characterized by prominent long-range interactions among frontal, temporal, parietal, and occipital regions. Tanpura listening generated a dense yet balanced connectivity network, while Aum listening showed moderate distributed connectivity. In contrast, MM and resting-state conditions displayed comparatively weaker and more localized network organization. These preliminary findings suggest that different chant-listening conditions engage distinct neural mechanisms involving both cortical activation and large-scale neural synchronization. The study establishes a methodological framework for future investigations examining the role of culturally relevant auditory interventions in cognitive development, neuroeducation, and child-centered neuroscience research.",
+      "authors": [
+        "Prerna Singh",
+        "Aishwarya Ghosh",
+        "Neelam Sinha",
+        "Deepti Navaratna"
+      ],
+      "primary_category": "q-bio.NC",
+      "categories": [
+        "q-bio.NC",
+        "eess.SP"
+      ],
+      "published": "2026-06-23T10:44:35+00:00",
+      "link": "https://arxiv.org/pdf/2606.24406v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "EEG spectral and connectivity analysis",
+      "llm_evidence_cn": "脑电图频谱与功能连接分析",
+      "llm_evidence": "脑电图频谱与功能连接分析",
+      "canonical_evidence": "脑电图频谱与功能连接分析",
+      "llm_tldr_en": "This report analyzes EEG during chanting listening using spectral power and wPLI connectivity, showing condition-specific modulation in beta band.",
+      "llm_tldr_cn": "该技术报告对一名5岁健康被试在五种听觉条件下的脑电图进行频谱和功能连接分析，发现Shiv Tandav Stotra诵经在beta频段产生最高相对功率，且功能连接网络呈现条件特异性组织。研究展示了传统EEG分析方法在听觉感知研究中的应用。",
+      "llm_tldr": "该技术报告对一名5岁健康被试在五种听觉条件下的脑电图进行频谱和功能连接分析，发现Shiv Tandav Stotra诵经在beta频段产生最高相对功率，且功能连接网络呈现条件特异性组织。研究展示了传统EEG分析方法在听觉感知研究中的应用。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.26485v1",
+      "source": "arxiv",
+      "title": "Utilizing Cognitive Signals Generated during Human Reading to Enhance Keyphrase Extraction from Microblogs",
+      "abstract": "Microblogging platforms generate massive amounts of short, noisy, and dispersed user content, making automatic keyphrase extraction (AKE) an important but challenging task. Prior studies have used eye-tracking signals to improve microblog-based AKE because such signals reflect readers' attention to salient words. However, eye tracking alone is limited by physiological, acquisition, and feature-decoding constraints. To address this issue, we investigate whether electroencephalogram (EEG) signals can complement eye-tracking signals for AKE. Using the ZuCo cognitive language processing corpus, we select 8 EEG features and 17 eye-tracking features and incorporate them into microblog-based AKE models. To reduce possible distortion of cognitive signals by model structures, we inject these features into the input of the soft-attention layer and the query vectors of the self-attention layer. We then evaluate different combinations of cognitive signals across AKE models. The results show that cognitive signals produced during reading consistently improve AKE performance, regardless of feature combinations and model architectures. EEG features bring the largest gains, while combining EEG and eye-tracking features yields performance between the two individual signal types, suggesting partial complementarity but also possible redundancy or noise. These findings indicate that EEG signals provide useful cognitive evidence for microblog-based AKE and that multimodal cognitive signals deserve further investigation.",
+      "authors": [
+        "Xinyi Yan",
+        "Yingyi Zhang",
+        "Chengzhi Zhang"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.DL",
+        "cs.HC",
+        "cs.IR"
+      ],
+      "published": "2026-06-25T00:43:12+00:00",
+      "link": "https://arxiv.org/pdf/2606.26485v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "EEG features used for keyphrase extraction",
+      "llm_evidence_cn": "利用脑电图特征进行关键短语提取",
+      "llm_evidence": "利用脑电图特征进行关键短语提取",
+      "canonical_evidence": "利用脑电图特征进行关键短语提取",
+      "llm_tldr_en": "This paper uses EEG signals (8 features) together with eye-tracking to enhance microblog keyphrase extraction, demonstrating EEG signal processing application.",
+      "llm_tldr_cn": "该论文利用ZuCo语料库中的8个EEG特征与眼动特征结合，改进微博关键短语提取模型。研究展示了EEG信号在自然语言处理中的辅助作用，属于脑电图信号处理与分析范畴。",
+      "llm_tldr": "该论文利用ZuCo语料库中的8个EEG特征与眼动特征结合，改进微博关键短语提取模型。研究展示了EEG信号在自然语言处理中的辅助作用，属于脑电图信号处理与分析范畴。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.26506v1",
+      "source": "arxiv",
+      "title": "TinyCNNDeep: Lightweight Attention-Based CNN for EEG Classification of Eye States and Sleep Deprivation",
+      "abstract": "Sleep deprivation impairs vigilance and cognitive function, yet jointly identifying the sleep condition (normal vs deprived) and the eye state (open vs closed) from electroencephalography (EEG) remains underexplored. We address this four-class problem with TinyCNNDeep, a lightweight convolutional neural network that combines residual learning with a Squeeze-and-Excitation (SE) attention module. We convert short multi-channel EEG segments from five physiologically relevant channels (Fp1, Fp2, O1, Oz, O2) into 224x224 grayscale images through per-channel Z-score normalization, min-max scaling, and center padding, enabling 2D convolutions to jointly model inter-channel and temporal structure. On a 35-subject dataset recorded under normal-sleep and sleep-deprivation sessions, TinyCNNDeep attains a subject-wise mean accuracy of 83.69%, outperforming the strongest baseline (Random Forest with combined time-frequency features, 47.66%) by 36.03 percentage points, while three established EEG architectures (EEGNet, ShallowConvNet, DeepConvNet) operate near chance. Per-subject analysis quantifies inter-subject variability, and confusion-matrix inspection shows that residual misclassifications concentrate between eyes-closed states across sleep conditions. These results indicate that an image-based EEG representation paired with residual feature extraction and channel attention provides an accurate and computationally efficient framework for multiclass sleep-related EEG classification under a minimal electrode configuration.",
+      "authors": [
+        "Thien Nhan Vo",
+        "Yen Nhi Tran Thi",
+        "Ngan Nguyen Xuan Phuong",
+        "Xuan-The Tran"
+      ],
+      "primary_category": "cs.HC",
+      "categories": [
+        "cs.HC"
+      ],
+      "published": "2026-06-25T01:25:13+00:00",
+      "link": "https://arxiv.org/pdf/2606.26506v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "EEG classification of eye states and sleep deprivation",
+      "llm_evidence_cn": "脑电图分类眼状态和睡眠剥夺",
+      "llm_evidence": "脑电图分类眼状态和睡眠剥夺",
+      "canonical_evidence": "脑电图分类眼状态和睡眠剥夺",
+      "llm_tldr_en": "A lightweight CNN for multi-channel EEG classification of eye state and sleep deprivation, relevant to EEG signal processing.",
+      "llm_tldr_cn": "该论文提出TinyCNNDeep，将多通道EEG转换为224×224灰度图，利用残差学习和SE注意力模块进行4分类（眼状态和睡眠条件）。方法轻量且有效，属于脑电图信号分类与分析。",
+      "llm_tldr": "该论文提出TinyCNNDeep，将多通道EEG转换为224×224灰度图，利用残差学习和SE注意力模块进行4分类（眼状态和睡眠条件）。方法轻量且有效，属于脑电图信号分类与分析。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.26518v1",
+      "source": "arxiv",
+      "title": "NeuraDock Visual Cognitive Load Agent Tutorial: A Quality-Gated Open-Source EEG Workflow for Alpha Dynamics and Real-Time Applications",
+      "abstract": "This tutorial paper provides a step-by-step, reproducible walkthrough of NeuraDock Agent, an open-source EEG agent focused on Alpha dynamics and visual cognitive-load analysis. The goal is practical: a reader should be able to install the agent, run EEG preprocessing and quality control, generate Alpha dynamics figures, perform within-subject Rest/Task visual cognitive-load comparison, run the public mini-dataset analyses and compare them with the reference validation summary, start an online dashboard, call the real-time API from an external application, and use the LLM interpretation layer to explain quality risks. Existing EEG toolkits provide excellent offline analysis, but assembling a real-time, quality-gated cognitive-load pipeline often requires manually bridging acquisition, custom QC, Alpha feature extraction, and a web API; this tutorial closes that offline-to-online gap. The tutorial uses a quality-gated workflow: downstream Alpha and workload metrics are computed only after preprocessing and QC gating rather than directly from raw EEG. In the included mini-dataset validation, the agent processed 18 recordings, generated 10 within-subject comparisons, observed task-related posterior Alpha suppression in 7 of 10 contrasts, estimated initial evidence of within-subject repeatability, and benchmarked local online API latency. The tutorial is intended for researchers, developers, and applied teams who want a transparent path from EEG files to real-time visual cognitive-load prototypes.",
+      "authors": [
+        "Zhiyuan Xu",
+        "Yueqing Dai",
+        "Junling Li",
+        "Junwen Luo"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-06-25T01:44:51+00:00",
+      "link": "https://arxiv.org/pdf/2606.26518v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Open-source EEG workflow for alpha dynamics and real-time analysis",
+      "llm_evidence_cn": "开源EEG工作流用于alpha动力学和实时分析",
+      "llm_evidence": "开源EEG工作流用于alpha动力学和实时分析",
+      "canonical_evidence": "开源EEG工作流用于alpha动力学和实时分析",
+      "llm_tldr_en": "A tutorial paper providing an open-source EEG agent for preprocessing, quality control, alpha dynamics analysis, and real-time applications, directly addressing EEG signal processing.",
+      "llm_tldr_cn": "该教程论文介绍NeuraDock Agent开源EEG工具，涵盖预处理、质量控制、Alpha动力学分析、实时API及LLM解释层。为脑电图信号处理与分析提供可复现工作流，属于EEG信号处理平台。",
+      "llm_tldr": "该教程论文介绍NeuraDock Agent开源EEG工具，涵盖预处理、质量控制、Alpha动力学分析、实时API及LLM解释层。为脑电图信号处理与分析提供可复现工作流，属于EEG信号处理平台。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.26519v1",
+      "source": "arxiv",
+      "title": "Boundary-Aware Context Grounding for A Low-Channel EEG Agent",
+      "abstract": "Large language models (LLMs) can make scientific software easier to use. However, a general model does not automatically know which measurements a particular sensor can support, which algorithms are implemented in the current software, or which conclusions are justified by a computed result. These distinctions are especially important for low-channel electroencephalography (EEG), where sparse spatial coverage and variable signal quality make plausible but unsupported interpretations easy to produce. We present NeuraDock Agent, an open-source architecture that separates a deterministic local EEG engine from a hardware-aware language layer. The numerical engine parses recordings, performs quality control, executes reviewed spectral workflows, and writes machine-readable artifacts. The LLM receives only a compact, allowlisted summary and a versioned context pack. The context describes the seven-channel hardware, reviewed workflows, result fields, implementation boundaries, scientific limits, and reference cases. Raw EEG and dense per-sample arrays remain local   We evaluate the system at three levels. First, 12 recordings produced identical structured results over ten numerical repetitions, and a complete Rest/Task run produced identical result, report, and figure hashes over three repetitions. Second, request-capture and failure-injection experiments confirmed the tested data boundary and preservation of local artifacts under HTTP, malformed-output, and connection failures. Third, a boundary-awareness benchmark tested 36 ordinary and adversarial questions under four context ablations and two LLMs, yielding 288 outputs.These results support hardware- and implementation-aware grounding as a practical mechanism for calibrating what an EEG agent accepts, qualifies, or refuses; they do not establish clinical validity or a validated absolute cognitive-load index.",
+      "authors": [
+        "Zhiyuan Xu",
+        "Yueqing Dai",
+        "Junling Li",
+        "Junwen Luo"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-06-25T01:51:20+00:00",
+      "link": "https://arxiv.org/pdf/2606.26519v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "EEG signal processing agent for low-channel EEG",
+      "llm_evidence_cn": "低通道EEG信号处理代理",
+      "llm_evidence": "低通道EEG信号处理代理",
+      "canonical_evidence": "低通道EEG信号处理代理",
+      "llm_tldr_en": "Proposes NeuraDock Agent that separates a deterministic EEG engine from a language layer for low-channel EEG analysis.",
+      "llm_tldr_cn": "低通道脑电图（EEG）由于空间覆盖稀疏和信号质量可变，容易产生错误解释。本文提出NeuraDock Agent开源架构，将确定性EEG数值引擎与硬件感知语言层分离。数值引擎负责记录解析、质量控制和光谱工作流执行，语言层提供边界感知的上下文解释。实验表明该代理能有效提升低通道EEG分析的可靠性与可解释性，为EEG信号处理软件设计提供新范式。",
+      "llm_tldr": "低通道脑电图（EEG）由于空间覆盖稀疏和信号质量可变，容易产生错误解释。本文提出NeuraDock Agent开源架构，将确定性EEG数值引擎与硬件感知语言层分离。数值引擎负责记录解析、质量控制和光谱工作流执行，语言层提供边界感知的上下文解释。实验表明该代理能有效提升低通道EEG分析的可靠性与可解释性，为EEG信号处理软件设计提供新范式。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
