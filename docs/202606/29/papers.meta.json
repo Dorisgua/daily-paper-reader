@@ -1,0 +1,69 @@
+{
+  "label": "2026-06-29",
+  "date": "2026-06-29",
+  "generated_at": "2026-06-29T21:54:59",
+  "count": 4,
+  "papers": [
+    {
+      "paper_id": "202606/29/2606.22695v1-spider----stitched-power-spectra-for-inferring-directed-information-flow-from-incomplete-and-asynchronous-experimental-recordings",
+      "section": "deep",
+      "title_en": "SPIDER -- Stitched Power-spectra for Inferring Directed information flow from incomplete and asynchronous Experimental Recordings",
+      "authors": "Yisi S. Zhang, Daniel Y. Takahashi",
+      "date": "2026-06-21",
+      "pdf": "https://arxiv.org/pdf/2606.22695v1",
+      "score": "8.0",
+      "evidence": "从不完整脑记录推断有向信息流",
+      "tldr": "脑区间信息流向推断受限于同时记录和同步时钟，SPIDER通过拼接局部功率谱、核范数补全缺失对及典型谱分解，从重叠但不完整的异步记录中恢复全局有向连接。在多种数据上验证，揭示theta频带存在以海马为源的前馈层级，使多会话跨实验室数据的有向连接分析成为可能。",
+      "tags": "query:eeg",
+      "abstract_en": "Mapping the directed flow of information between brain regions -- their effective connectivity -- is central to understanding brain function, yet large-scale recordings sample only a fraction of the brain at a time: sessions, animals, and laboratories cover different, partially overlapping regions, usually without a shared temporal reference. Established directed-connectivity methods (Granger causality, dynamic causal modeling, partial directed coherence, PDC) require all regions to be recorded simultaneously and with a common clock. We introduce SPIDER, a non-parametric, frequency-domain framework that recovers directed information flow from such incomplete, asynchronous recordings: it stitches local power-spectral estimates from overlapping channel subsets into a global spectral matrix and obtains frequency-resolved directed interactions by canonical spectral factorization and PDC, without temporal alignment, while nuclear-norm completion fills in never-co-observed region pairs. With consistency guarantees, we validate SPIDER on simulations, two-photon calcium imaging, and the International Brain Laboratory Neuropixels dataset, recovering directed flow among 50 areas from 43 sessions in 12 laboratories never recorded together. Beyond validation, SPIDER reveals what no single recording can: brain-wide spontaneous flow is largely recurrent, but in the theta band it forms a significant feedforward hierarchy with the hippocampal formation at its source. Applied to resting human intracranial EEG (43 patients, non-overlapping coverage), it recovers the same theta-band hierarchy across species and modality. SPIDER makes whole-brain effective-connectivity analysis tractable for multi-session, multi-animal datasets previously incompatible with directed-flow inference.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/29/2606.26519v2-what-the-llm-should-not-say-boundary-aware-context-grounding-for-a-seven-channel-eeg-agent",
+      "section": "deep",
+      "title_en": "What the LLM Should Not Say: Boundary-Aware Context Grounding for A Seven-Channel EEG Agent",
+      "authors": "Zhiyuan Xu, Yueqing Dai, Junling Li, Junwen Luo",
+      "date": "2026-06-25",
+      "pdf": "https://arxiv.org/pdf/2606.26519v2",
+      "score": "8.0",
+      "evidence": "EEG信号处理与智能体架构",
+      "tldr": "大语言模型辅助低通道EEG分析时易产生无依据的解释。为此提出NeuraDock Agent，将确定性本地EEG引擎与硬件感知语言层分离，LLM仅接收白名单摘要与版本化上下文包，禁止访问原始EEG数据。实验验证了数值稳定性、故障隔离及边界感知能力，在288个对抗性问题中表现良好。该方法为EEG代理的可靠输出提供了实用机制，但未涉及临床有效性。",
+      "tags": "query:eeg",
+      "abstract_en": "Large language models (LLMs) can make scientific software easier to use. However, a general model does not automatically know which measurements a particular sensor can support, which algorithms are implemented in the current software, or which conclusions are justified by a computed result. These distinctions are especially important for low-channel electroencephalography (EEG), where sparse spatial coverage and variable signal quality make plausible but unsupported interpretations easy to produce. We present NeuraDock Agent, an open-source architecture that separates a deterministic local EEG engine from a hardware-aware language layer. The numerical engine parses recordings, performs quality control, executes reviewed spectral workflows, and writes machine-readable artifacts. The LLM receives only a compact, allowlisted summary and a versioned context pack. The context describes the seven-channel hardware, reviewed workflows, result fields, implementation boundaries, scientific limits, and reference cases. Raw EEG and dense per-sample arrays remain local   We evaluate the system at three levels. First, 12 recordings produced identical structured results over ten numerical repetitions, and a complete Rest/Task run produced identical result, report, and figure hashes over three repetitions. Second, request-capture and failure-injection experiments confirmed the tested data boundary and preservation of local artifacts under HTTP, malformed-output, and connection failures. Third, a boundary-awareness benchmark tested 36 ordinary and adversarial questions under four context ablations and two LLMs, yielding 288 outputs.These results support hardware- and implementation-aware grounding as a practical mechanism for calibrating what an EEG agent accepts, qualifies, or refuses; they do not establish clinical validity or a validated absolute cognitive-load index.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/29/2606.23086v1-pelap-a-adaptive-latent-pruning-for-lightweight-latent-diffusion-models",
+      "section": "quick",
+      "title_en": "PeLAP-A: Adaptive Latent Pruning for Lightweight Latent Diffusion Models",
+      "authors": "Kissa Zahra, Zaib Un Nisa",
+      "date": "2026-06-22",
+      "pdf": "https://arxiv.org/pdf/2606.23086v1",
+      "score": "6.0",
+      "evidence": "潜在空间剪枝用于扩散模型，与潜在空间表示学习相关",
+      "tldr": "潜扩散模型通常在压缩的潜空间中运行，然而各通道的冗余性尚不明确。本文提出PeLAP-A框架，通过一个基于全局池化特征的两层MLP预测通道重要性，生成软掩码以在进入去噪UNet前抑制不重要通道。在CIFAR-10上联合训练扩散、重构和稀疏损失，发现强稀疏正则化下所有通道被驱动至近零，但去噪UNet反而获得更低的扩散损失和重构MSE，即“稀疏崩溃”现象。这一发现揭示了去噪UNet对潜通道抑制的惊人鲁棒性，并为轻量化潜扩散模型提供了新视角。",
+      "tags": "query:eeg-latent",
+      "abstract_en": "Latent diffusion models achieve strong generative performance by operating in a compressed latent space produced by a variational autoencoder (VAE). However, it remains unclear whether all latent channels contribute equally to the diffusion process, or whether significant redundancy exists. We introduce PeLAP-A (Adaptive Latent Pruning for Diffusion), a lightweight framework that augments a standard latent diffusion pipeline with a learnable channel-wise importance predictor. A two-layer MLP operating on globally pooled latent features produces a soft mask that suppresses unimportant latent channels before they enter the denoising UNet. The entire system is trained jointly on CIFAR-10 under a combined diffusion, reconstruction, and sparsity loss. Experiments reveal a striking result: under aggressive sparsity regularization (lambda = 0.01), the importance predictor drives all latent channels to near-zero yet the denoising UNet achieves lower diffusion loss (0.0236 vs. 0.0240) and lower VAE reconstruction MSE (22.59 vs. 24.67) compared to the unpruned baseline. We term this the sparsity collapse phenomenon and provide an analysis of why it occurs and what it reveals about the information requirements of latent diffusion models. These findings constitute an exploratory study of sparsity dynamics in latent diffusion training, and demonstrate that denoising UNets can remain remarkably robust to latent channel suppression even under aggressive regularization. Code is available at: https://github.com/kissasium/PeLAP-A.git.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/29/2606.23957v1-learning-the-koopman-operator-using-attention-free-transformers",
+      "section": "quick",
+      "title_en": "Learning the Koopman Operator using Attention Free Transformers",
+      "authors": "Mohammed Nagdi, Evangelos-Marios Nikolados, Alexey Yermakov, Mars Gao, Nathan Kutz, Filippo Menolascina",
+      "date": "2026-06-22",
+      "pdf": "https://arxiv.org/pdf/2606.23957v1",
+      "score": "6.0",
+      "evidence": "使用无注意力的Koopman算子学习潜在空间动力学预测",
+      "tldr": "针对Koopman自动编码器长期预测因潜在空间漂移导致的误差累积问题，本文提出两种鲁棒化策略：一是引入注意力自由潜在记忆块（AFT），以线性时间聚合局部历史信息，抑制误差发散；二是设计基于EWMA、CUSUM等在线变化点检测的轻量动态重编码机制，将预测投影回自动编码器流形。在Duffing振子、Repressilator、IRMA三个基准系统上，该方法以更少的参数和推理延迟显著降低了长程预测误差（最高1000步），且保持在线性流形上的稳定性。",
+      "tags": "query:eeg-latent",
+      "abstract_en": "Learning Koopman operators with autoencoders enables linear prediction in a latent space, but long-horizon rollouts often drift off the learned manifold, leading to phase and amplitude errors on systems with switching, continuous spectra, or strong transients. We introduce two complementary components that make Koopman predictors more robust. First, we add an attention-free latent memory (AFT) block that aggregates a short window of past latents to produce a corrected latent before each Koopman update. Unlike multi-head attention, AFT operates in linear time and adds only $\\approx$30k parameters ($3d^2 + T^2$, fewer than matched multi-head attention), yet captures the local temporal context needed to suppress error divergence. Second, we propose dynamic re-encoding: lightweight, online change-point triggers (EWMA, CUSUM, and sequential two-sample tests) that detect latent drift and project predictions back onto the autoencoder manifold. Across three benchmark systems -- Duffing oscillator, Repressilator, IRMA -- our model consistently reduces error accumulation compared to a Koopman autoencoder and matched-capacity multi-head attention. We also compare against GRU and Transformer autoencoders, evaluated both from initial conditions and with a 50-step context, and find that Koopman+AFT (with optional re-encoding) attains markedly lower long-horizon error while maintaining lower inference latency. We report improvements over horizons up to 1000 steps, together with ablations over trigger policies. The result is a fast, compact predictor that stays on the learned manifold over long horizons.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

@@ -6,40 +6,34 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-28
-- 运行时间：2026-06-28 21:20:30 UTC
+- 最新运行日期：2026-06-29
+- 运行时间：2026-06-29 21:54:48 UTC
 - 运行状态：成功
-- 本次总论文数：5
-- 精读区：0
-- 速读区：5
+- 本次总论文数：4
+- 精读区：2
+- 速读区：2
 
 ### 今日简报（AI）
-今日围绕EEG脑电分析完成5篇论文速读，聚焦吟诵聆听、脑状态分类及实时认知负荷监测3个方向。
-
-最值得关注的是基于注意力机制的轻量级CNN模型TinyCNNDeep（7.0分），可高效分类眼动状态与睡眠剥夺；以及利用频谱与功能连接分析吟诵聆听的单个案探索（7.0分），展示了脑电研究的应用前景。
-
-建议优先精读TinyCNNDeep源码，尝试复现其轻量级分类框架；同时结合NeuraDock开源工作流（7.0分），快速搭建自己的Alpha波实时反馈系统。
-- 详情：[/202606/28/README](/202606/28/README)
+今日精读两篇8分论文，聚焦神经信号因果推断新方法SPIDER与七通道EEG智能体的边界感知框架。
+最值得关注SPIDER如何从不完整异步记录中推断信息流，以及LLM在EEG应用中避免不当内容的边界约束。
+建议普通读者结合脑机接口或神经科学场景，进一步阅读原文了解技术细节与潜在应用。
+- 详情：[/202606/29/README](/202606/29/README)
 
 ### 精读区论文标签
-- 本次无精读推荐。
+1. [SPIDER -- Stitched Power-spectra for Inferring Directed information flow from incomplete and asynchronous Experimental Recordings](/202606/29/2606.22695v1-spider----stitched-power-spectra-for-inferring-directed-information-flow-from-incomplete-and-asynchronous-experimental-recordings)  
+   标签：评分：8.0/10、query:eeg
+   evidence：从不完整脑记录推断有向信息流
+2. [What the LLM Should Not Say: Boundary-Aware Context Grounding for A Seven-Channel EEG Agent](/202606/29/2606.26519v2-what-the-llm-should-not-say-boundary-aware-context-grounding-for-a-seven-channel-eeg-agent)  
+   标签：评分：8.0/10、query:eeg
+   evidence：EEG信号处理与智能体架构
 
 ### 速读区论文标签
-1. [EEG Interpretation Across Chant Listening: A Single-Subject Pilot Investigation Using Spectral and Functional Connectivity Analysis](/202606/28/2606.24406v1-eeg-interpretation-across-chant-listening-a-single-subject-pilot-investigation-using-spectral-and-functional-connectivity-analysis)  
-   标签：评分：7.0/10、query:eeg
-   evidence：脑电图频谱与功能连接分析
-2. [TinyCNNDeep: Lightweight Attention-Based CNN for EEG Classification of Eye States and Sleep Deprivation](/202606/28/2606.26506v1-tinycnndeep-lightweight-attention-based-cnn-for-eeg-classification-of-eye-states-and-sleep-deprivation)  
-   标签：评分：7.0/10、query:eeg
-   evidence：脑电图分类眼状态和睡眠剥夺
-3. [NeuraDock Visual Cognitive Load Agent Tutorial: A Quality-Gated Open-Source EEG Workflow for Alpha Dynamics and Real-Time Applications](/202606/28/2606.26518v1-neuradock-visual-cognitive-load-agent-tutorial-a-quality-gated-open-source-eeg-workflow-for-alpha-dynamics-and-real-time-applications)  
-   标签：评分：7.0/10、query:eeg
-   evidence：开源EEG工作流用于alpha动力学和实时分析
-4. [Boundary-Aware Context Grounding for A Low-Channel EEG Agent](/202606/28/2606.26519v1-boundary-aware-context-grounding-for-a-low-channel-eeg-agent)  
-   标签：评分：7.0/10、query:eeg
-   evidence：低通道EEG信号处理代理
-5. [Utilizing Cognitive Signals Generated during Human Reading to Enhance Keyphrase Extraction from Microblogs](/202606/28/2606.26485v1-utilizing-cognitive-signals-generated-during-human-reading-to-enhance-keyphrase-extraction-from-microblogs)  
-   标签：评分：6.0/10、query:eeg
-   evidence：利用脑电图特征进行关键短语提取
+1. [PeLAP-A: Adaptive Latent Pruning for Lightweight Latent Diffusion Models](/202606/29/2606.23086v1-pelap-a-adaptive-latent-pruning-for-lightweight-latent-diffusion-models)  
+   标签：评分：6.0/10、query:eeg-latent
+   evidence：潜在空间剪枝用于扩散模型，与潜在空间表示学习相关
+2. [Learning the Koopman Operator using Attention Free Transformers](/202606/29/2606.23957v1-learning-the-koopman-operator-using-attention-free-transformers)  
+   标签：评分：6.0/10、query:eeg-latent
+   evidence：使用无注意力的Koopman算子学习潜在空间动力学预测
 
 
 <div class="dpr-home-promo-card">

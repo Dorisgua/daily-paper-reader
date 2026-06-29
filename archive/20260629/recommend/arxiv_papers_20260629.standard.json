@@ -1,0 +1,174 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-29T21:50:52.584371+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 2,
+    "deep_cap": 7,
+    "deep_selected": 2,
+    "quick_candidates": 2,
+    "quick_skim_target": 12,
+    "quick_selected": 2
+  },
+  "deep_dive": [
+    {
+      "id": "2606.22695v1",
+      "source": "arxiv",
+      "title": "SPIDER -- Stitched Power-spectra for Inferring Directed information flow from incomplete and asynchronous Experimental Recordings",
+      "abstract": "Mapping the directed flow of information between brain regions -- their effective connectivity -- is central to understanding brain function, yet large-scale recordings sample only a fraction of the brain at a time: sessions, animals, and laboratories cover different, partially overlapping regions, usually without a shared temporal reference. Established directed-connectivity methods (Granger causality, dynamic causal modeling, partial directed coherence, PDC) require all regions to be recorded simultaneously and with a common clock. We introduce SPIDER, a non-parametric, frequency-domain framework that recovers directed information flow from such incomplete, asynchronous recordings: it stitches local power-spectral estimates from overlapping channel subsets into a global spectral matrix and obtains frequency-resolved directed interactions by canonical spectral factorization and PDC, without temporal alignment, while nuclear-norm completion fills in never-co-observed region pairs. With consistency guarantees, we validate SPIDER on simulations, two-photon calcium imaging, and the International Brain Laboratory Neuropixels dataset, recovering directed flow among 50 areas from 43 sessions in 12 laboratories never recorded together. Beyond validation, SPIDER reveals what no single recording can: brain-wide spontaneous flow is largely recurrent, but in the theta band it forms a significant feedforward hierarchy with the hippocampal formation at its source. Applied to resting human intracranial EEG (43 patients, non-overlapping coverage), it recovers the same theta-band hierarchy across species and modality. SPIDER makes whole-brain effective-connectivity analysis tractable for multi-session, multi-animal datasets previously incompatible with directed-flow inference.",
+      "authors": [
+        "Yisi S. Zhang",
+        "Daniel Y. Takahashi"
+      ],
+      "primary_category": "q-bio.NC",
+      "categories": [
+        "q-bio.NC",
+        "stat.ME"
+      ],
+      "published": "2026-06-21T22:19:44+00:00",
+      "link": "https://arxiv.org/pdf/2606.22695v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "infers directed information flow from incomplete brain recordings",
+      "llm_evidence_cn": "从不完整脑记录推断有向信息流",
+      "llm_evidence": "从不完整脑记录推断有向信息流",
+      "canonical_evidence": "从不完整脑记录推断有向信息流",
+      "llm_tldr_en": "SPIDER recovers directed connectivity from asynchronous, partially overlapping neural recordings using frequency-domain stitching.",
+      "llm_tldr_cn": "传统有效连接方法要求所有脑区同步记录，但实际数据常不完整。本文提出SPIDER框架，基于非参数频域拼接，从不规则异步记录中恢复有向信息流，为脑网络分析提供了新工具，间接服务于EEG信号处理与分析。",
+      "llm_tldr": "传统有效连接方法要求所有脑区同步记录，但实际数据常不完整。本文提出SPIDER框架，基于非参数频域拼接，从不规则异步记录中恢复有向信息流，为脑网络分析提供了新工具，间接服务于EEG信号处理与分析。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.26519v2",
+      "source": "arxiv",
+      "title": "What the LLM Should Not Say: Boundary-Aware Context Grounding for A Seven-Channel EEG Agent",
+      "abstract": "Large language models (LLMs) can make scientific software easier to use. However, a general model does not automatically know which measurements a particular sensor can support, which algorithms are implemented in the current software, or which conclusions are justified by a computed result. These distinctions are especially important for low-channel electroencephalography (EEG), where sparse spatial coverage and variable signal quality make plausible but unsupported interpretations easy to produce. We present NeuraDock Agent, an open-source architecture that separates a deterministic local EEG engine from a hardware-aware language layer. The numerical engine parses recordings, performs quality control, executes reviewed spectral workflows, and writes machine-readable artifacts. The LLM receives only a compact, allowlisted summary and a versioned context pack. The context describes the seven-channel hardware, reviewed workflows, result fields, implementation boundaries, scientific limits, and reference cases. Raw EEG and dense per-sample arrays remain local   We evaluate the system at three levels. First, 12 recordings produced identical structured results over ten numerical repetitions, and a complete Rest/Task run produced identical result, report, and figure hashes over three repetitions. Second, request-capture and failure-injection experiments confirmed the tested data boundary and preservation of local artifacts under HTTP, malformed-output, and connection failures. Third, a boundary-awareness benchmark tested 36 ordinary and adversarial questions under four context ablations and two LLMs, yielding 288 outputs.These results support hardware- and implementation-aware grounding as a practical mechanism for calibrating what an EEG agent accepts, qualifies, or refuses; they do not establish clinical validity or a validated absolute cognitive-load index.",
+      "authors": [
+        "Zhiyuan Xu",
+        "Yueqing Dai",
+        "Junling Li",
+        "Junwen Luo"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-06-25T01:51:20+00:00",
+      "link": "https://arxiv.org/pdf/2606.26519v2",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "EEG signal processing and agent architecture",
+      "llm_evidence_cn": "EEG信号处理与智能体架构",
+      "llm_evidence": "EEG信号处理与智能体架构",
+      "canonical_evidence": "EEG信号处理与智能体架构",
+      "llm_tldr_en": "Introduces NeuraDock Agent, an open-source EEG agent with deterministic engine and LLM layer for quality-gated spectral analysis on low-channel EEG.",
+      "llm_tldr_cn": "该论文针对低通道EEG分析中LLM可能产生无依据解释的问题，提出了NeuraDock Agent架构，将确定性EEG处理引擎与硬件感知的语言层分离，通过边界感知上下文接地确保分析结论的可靠性。实验展示了在七通道EEG数据上的质量控制和谱分析流程。该方法为EEG信号处理与分析提供了可重复的开源工作流，尤其适用于认知负荷等低通道应用场景。",
+      "llm_tldr": "该论文针对低通道EEG分析中LLM可能产生无依据解释的问题，提出了NeuraDock Agent架构，将确定性EEG处理引擎与硬件感知的语言层分离，通过边界感知上下文接地确保分析结论的可靠性。实验展示了在七通道EEG数据上的质量控制和谱分析流程。该方法为EEG信号处理与分析提供了可重复的开源工作流，尤其适用于认知负荷等低通道应用场景。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.23086v1",
+      "source": "arxiv",
+      "title": "PeLAP-A: Adaptive Latent Pruning for Lightweight Latent Diffusion Models",
+      "abstract": "Latent diffusion models achieve strong generative performance by operating in a compressed latent space produced by a variational autoencoder (VAE). However, it remains unclear whether all latent channels contribute equally to the diffusion process, or whether significant redundancy exists. We introduce PeLAP-A (Adaptive Latent Pruning for Diffusion), a lightweight framework that augments a standard latent diffusion pipeline with a learnable channel-wise importance predictor. A two-layer MLP operating on globally pooled latent features produces a soft mask that suppresses unimportant latent channels before they enter the denoising UNet. The entire system is trained jointly on CIFAR-10 under a combined diffusion, reconstruction, and sparsity loss. Experiments reveal a striking result: under aggressive sparsity regularization (lambda = 0.01), the importance predictor drives all latent channels to near-zero yet the denoising UNet achieves lower diffusion loss (0.0236 vs. 0.0240) and lower VAE reconstruction MSE (22.59 vs. 24.67) compared to the unpruned baseline. We term this the sparsity collapse phenomenon and provide an analysis of why it occurs and what it reveals about the information requirements of latent diffusion models. These findings constitute an exploratory study of sparsity dynamics in latent diffusion training, and demonstrate that denoising UNets can remain remarkably robust to latent channel suppression even under aggressive regularization. Code is available at: https://github.com/kissasium/PeLAP-A.git.",
+      "authors": [
+        "Kissa Zahra",
+        "Zaib Un Nisa"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-22T09:33:19+00:00",
+      "link": "https://arxiv.org/pdf/2606.23086v1",
+      "tags": [
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "latent space pruning for diffusion models, relevant to latent space representation learning",
+      "llm_evidence_cn": "潜在空间剪枝用于扩散模型，与潜在空间表示学习相关",
+      "llm_evidence": "潜在空间剪枝用于扩散模型，与潜在空间表示学习相关",
+      "canonical_evidence": "潜在空间剪枝用于扩散模型，与潜在空间表示学习相关",
+      "llm_tldr_en": "PeLAP-A adaptively prunes unimportant latent channels before denoising, reducing redundancy in latent diffusion models.",
+      "llm_tldr_cn": "潜在扩散模型中各通道贡献不均，存在冗余。本文提出PeLAP-A框架，通过可学习重要性预测器对潜在通道进行自适应剪枝，在保持生成质量的同时降低计算量。该方法展示了潜在空间操作的通用性，可启发EEG潜在表示中的通道选择。",
+      "llm_tldr": "潜在扩散模型中各通道贡献不均，存在冗余。本文提出PeLAP-A框架，通过可学习重要性预测器对潜在通道进行自适应剪枝，在保持生成质量的同时降低计算量。该方法展示了潜在空间操作的通用性，可启发EEG潜在表示中的通道选择。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.23957v1",
+      "source": "arxiv",
+      "title": "Learning the Koopman Operator using Attention Free Transformers",
+      "abstract": "Learning Koopman operators with autoencoders enables linear prediction in a latent space, but long-horizon rollouts often drift off the learned manifold, leading to phase and amplitude errors on systems with switching, continuous spectra, or strong transients. We introduce two complementary components that make Koopman predictors more robust. First, we add an attention-free latent memory (AFT) block that aggregates a short window of past latents to produce a corrected latent before each Koopman update. Unlike multi-head attention, AFT operates in linear time and adds only $\\approx$30k parameters ($3d^2 + T^2$, fewer than matched multi-head attention), yet captures the local temporal context needed to suppress error divergence. Second, we propose dynamic re-encoding: lightweight, online change-point triggers (EWMA, CUSUM, and sequential two-sample tests) that detect latent drift and project predictions back onto the autoencoder manifold. Across three benchmark systems -- Duffing oscillator, Repressilator, IRMA -- our model consistently reduces error accumulation compared to a Koopman autoencoder and matched-capacity multi-head attention. We also compare against GRU and Transformer autoencoders, evaluated both from initial conditions and with a 50-step context, and find that Koopman+AFT (with optional re-encoding) attains markedly lower long-horizon error while maintaining lower inference latency. We report improvements over horizons up to 1000 steps, together with ablations over trigger policies. The result is a fast, compact predictor that stays on the learned manifold over long horizons.",
+      "authors": [
+        "Mohammed Nagdi",
+        "Evangelos-Marios Nikolados",
+        "Alexey Yermakov",
+        "Mars Gao",
+        "Nathan Kutz",
+        "Filippo Menolascina"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "eess.SY",
+        "q-bio.MN"
+      ],
+      "published": "2026-06-22T21:36:55+00:00",
+      "link": "https://arxiv.org/pdf/2606.23957v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "latent space dynamics prediction using Koopman operator with attention-free memory",
+      "llm_evidence_cn": "使用无注意力的Koopman算子学习潜在空间动力学预测",
+      "llm_evidence": "使用无注意力的Koopman算子学习潜在空间动力学预测",
+      "canonical_evidence": "使用无注意力的Koopman算子学习潜在空间动力学预测",
+      "llm_tldr_en": "Attention-free transformer memory corrects latents before Koopman update, improving long-horizon prediction in latent space.",
+      "llm_tldr_cn": "基于自编码器的Koopman算子常面临长期预测漂移。本文引入无注意力潜在记忆块，利用短窗口历史潜在状态校正当前潜在，再执行Koopman更新，抑制误差发散。该方法可迁移至EEG时间序列的潜在空间建模与预测。",
+      "llm_tldr": "基于自编码器的Koopman算子常面临长期预测漂移。本文引入无注意力潜在记忆块，利用短窗口历史潜在状态校正当前潜在，再执行Koopman更新，抑制误差发散。该方法可迁移至EEG时间序列的潜在空间建模与预测。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
