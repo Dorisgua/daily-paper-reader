@@ -6,34 +6,29 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-29
-- 运行时间：2026-06-29 21:54:48 UTC
+- 最新运行日期：2026-06-30
+- 运行时间：2026-06-30 22:19:04 UTC
 - 运行状态：成功
-- 本次总论文数：4
-- 精读区：2
+- 本次总论文数：3
+- 精读区：1
 - 速读区：2
 
 ### 今日简报（AI）
-今日精读两篇8分论文，聚焦神经信号因果推断新方法SPIDER与七通道EEG智能体的边界感知框架。
-最值得关注SPIDER如何从不完整异步记录中推断信息流，以及LLM在EEG应用中避免不当内容的边界约束。
-建议普通读者结合脑机接口或神经科学场景，进一步阅读原文了解技术细节与潜在应用。
-- 详情：[/202606/29/README](/202606/29/README)
+今日精读1篇、速读2篇论文，聚焦脑电图基础模型与无监督域适应领域。最值得关注的是《Temporal Feature Extractors in EEG Foundation Models》对时间特征提取器的对比研究，获得8.0高分。建议优先精读该文，了解最新时间序列预训练模型在脑电分析中的应用。
+- 详情：[/202606/30/README](/202606/30/README)
 
 ### 精读区论文标签
-1. [SPIDER -- Stitched Power-spectra for Inferring Directed information flow from incomplete and asynchronous Experimental Recordings](/202606/29/2606.22695v1-spider----stitched-power-spectra-for-inferring-directed-information-flow-from-incomplete-and-asynchronous-experimental-recordings)  
-   标签：评分：8.0/10、query:eeg
-   evidence：从不完整脑记录推断有向信息流
-2. [What the LLM Should Not Say: Boundary-Aware Context Grounding for A Seven-Channel EEG Agent](/202606/29/2606.26519v2-what-the-llm-should-not-say-boundary-aware-context-grounding-for-a-seven-channel-eeg-agent)  
-   标签：评分：8.0/10、query:eeg
-   evidence：EEG信号处理与智能体架构
+1. [Temporal Feature Extractors in EEG Foundation Models: A Controlled Comparison Including a Pretrained Time-Series Model](/202606/30/2606.30104v1-temporal-feature-extractors-in-eeg-foundation-models-a-controlled-comparison-including-a-pretrained-time-series-model)  
+   标签：评分：8.0/10、query:eeg-latent
+   evidence：比较EEG基础模型中的时间特征提取器，用于潜在表示学习
 
 ### 速读区论文标签
-1. [PeLAP-A: Adaptive Latent Pruning for Lightweight Latent Diffusion Models](/202606/29/2606.23086v1-pelap-a-adaptive-latent-pruning-for-lightweight-latent-diffusion-models)  
+1. [ScaLe-INR: Scale and Learn Implicit Neural Representations](/202606/30/2606.27862v1-scale-inr-scale-and-learn-implicit-neural-representations)  
    标签：评分：6.0/10、query:eeg-latent
-   evidence：潜在空间剪枝用于扩散模型，与潜在空间表示学习相关
-2. [Learning the Koopman Operator using Attention Free Transformers](/202606/29/2606.23957v1-learning-the-koopman-operator-using-attention-free-transformers)  
-   标签：评分：6.0/10、query:eeg-latent
-   evidence：使用无注意力的Koopman算子学习潜在空间动力学预测
+   evidence：隐式神经表示可建模连续信号，可作为EEG潜在空间表示
+2. [An Enhanced Source-Free Unsupervised Domain Adaptation Framework for Cross-Dataset EEG Emotion Recognition via Predictive Coding and Test-Time Training](/202606/30/2606.28202v1-an-enhanced-source-free-unsupervised-domain-adaptation-framework-for-cross-dataset-eeg-emotion-recognition-via-predictive-coding-and-test-time-training)  
+   标签：评分：6.0/10、query:eeg
+   evidence：EEG情绪识别与域适应
 
 
 <div class="dpr-home-promo-card">

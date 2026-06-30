@@ -1,0 +1,139 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-30T22:16:39.556542+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 1,
+    "deep_cap": 7,
+    "deep_selected": 1,
+    "quick_candidates": 2,
+    "quick_skim_target": 12,
+    "quick_selected": 2
+  },
+  "deep_dive": [
+    {
+      "id": "2606.30104v1",
+      "source": "arxiv",
+      "title": "Temporal Feature Extractors in EEG Foundation Models: A Controlled Comparison Including a Pretrained Time-Series Model",
+      "abstract": "Electroencephalography (EEG) foundation models aim to learn generalizable representations from large-scale brain recordings. However, the role of temporal feature extractors and whether pretrained time-series foundation models (TSFMs) can be effectively transferred to this setting remains underexplored. We conduct a controlled comparison of three temporal feature extraction strategies, including a linear baseline, a convolutional encoder, and a frozen pretrained TSFM (MOMENT), within a unified EEG foundation model. We evaluate their impact on representation quality using two downstream tasks: motor imagery and emotion recognition. Results reveal different trends across the evaluated benchmarks. On the motor imagery dataset, simple temporal representations perform competitively, whereas the emotion dataset benefits from richer temporal modeling. Although not specifically adapted to EEG, the pretrained TSFM serves as an effective temporal feature extractor, suggesting that general-purpose time-series representations can be transferred as frozen temporal feature extractors within EEG foundation models.",
+      "authors": [
+        "Ayşe Betül Yüce",
+        "Chris Joey Leffler",
+        "Sarun Varghese",
+        "Myra Spiliopoulou",
+        "Sebastian Stober"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-06-29T10:39:40+00:00",
+      "link": "https://arxiv.org/pdf/2606.30104v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "compares temporal feature extractors in EEG foundation models for latent representation learning",
+      "llm_evidence_cn": "比较EEG基础模型中的时间特征提取器，用于潜在表示学习",
+      "llm_evidence": "比较EEG基础模型中的时间特征提取器，用于潜在表示学习",
+      "canonical_evidence": "比较EEG基础模型中的时间特征提取器，用于潜在表示学习",
+      "llm_tldr_en": "Compares linear, convolutional, and pretrained time-series feature extractors in EEG foundation models, finding varying impacts on motor imagery and emotion recognition tasks.",
+      "llm_tldr_cn": "该研究探究EEG基础模型中时间特征提取器的作用，受控比较了线性基线、卷积编码器和预训练时间序列基础模型（MOMENT）三种策略。在统一EEG基础模型框架下，评估其对下游运动想象和情绪识别任务的影响。结果显示不同基准任务上趋势各异，为EEG通用表示学习提供了设计指导。研究表明预训练TSFM在EEG上需谨慎选择，而卷积编码器仍具竞争力。",
+      "llm_tldr": "该研究探究EEG基础模型中时间特征提取器的作用，受控比较了线性基线、卷积编码器和预训练时间序列基础模型（MOMENT）三种策略。在统一EEG基础模型框架下，评估其对下游运动想象和情绪识别任务的影响。结果显示不同基准任务上趋势各异，为EEG通用表示学习提供了设计指导。研究表明预训练TSFM在EEG上需谨慎选择，而卷积编码器仍具竞争力。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.27862v1",
+      "source": "arxiv",
+      "title": "ScaLe-INR: Scale and Learn Implicit Neural Representations",
+      "abstract": "Implicit Neural Representations (INRs) parameterized by multilayer perceptrons excel at modeling continuous signals. However, a key challenge persists as INRs fundamentally suffer from spectral bias and information cross-talk. When a single network attempts to capture multi-scale phenomena, high-frequency weight updates destructively interfere with the underlying low-frequency structural approximation. We introduce Scale and Learn INR (ScaLe-INR), a novel multi-branch architecture that resolves these limitations by explicitly matching the signal's frequency spectrum with the optimal operating region of the INR. Drawing upon the Fourier inverse scaling theorem we demonstrate that applying directional coordinate scaling expands a network's representational bandwidth along specific spatial axes. To mathematically enforce functional disentanglement and minimize task-specific information leakage between branches, we propose a Directional Edge Guidance Loss, a spatially-conditioned sparsity prior derived from ground-truth gradients. By constraining the high-frequency branches to act as strict, localized edge-filters, ScaLe-INR eliminates spectral cross-talk, accelerates convergence, and achieves high-fidelity signal reconstruction on complex multi-scale topologies. We evaluate ScaLe-INR across diverse reconstruction and inverse tasks, demonstrating substantial performance gains over existing state-of-the-art (SOTA) methods. The proposed architecture improves upon the nearest baselines by +5.16 dB in image reconstruction and +0.65 dB in image denoising. Furthermore, it achieve an impressive figure of 50.02 dB on audio reconstruction and 0.999 IOU(Intersection Over Union) on 3D reconstruction which beats the all SOTA models.",
+      "authors": [
+        "Buwaneka Epakanda",
+        "Athulya Ratnayake",
+        "Pandula Thennakoon",
+        "Mario De Silva",
+        "Avishka Ranasinghe",
+        "Roshan Godaliyadda",
+        "Parakrama Ekanayake"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-26T09:02:48+00:00",
+      "link": "https://arxiv.org/pdf/2606.27862v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "implicit neural representation for continuous signals, can serve as latent space model for EEG",
+      "llm_evidence_cn": "隐式神经表示可建模连续信号，可作为EEG潜在空间表示",
+      "llm_evidence": "隐式神经表示可建模连续信号，可作为EEG潜在空间表示",
+      "canonical_evidence": "隐式神经表示可建模连续信号，可作为EEG潜在空间表示",
+      "llm_tldr_en": "ScaLe-INR introduces a multi-branch INR architecture that solves spectral bias via coordinate scaling, enabling multi-scale continuous signal modeling transferable to EEG latent representation.",
+      "llm_tldr_cn": "针对隐式神经表示（INR）的谱偏置和多尺度干扰问题，提出ScaLe-INR多分支架构，通过方向坐标缩放匹配信号频率谱，扩展表示带宽。该方法可直接用于EEG信号的连续建模与潜在空间表示，为缺失通道插补提供高保真隐式先验。",
+      "llm_tldr": "针对隐式神经表示（INR）的谱偏置和多尺度干扰问题，提出ScaLe-INR多分支架构，通过方向坐标缩放匹配信号频率谱，扩展表示带宽。该方法可直接用于EEG信号的连续建模与潜在空间表示，为缺失通道插补提供高保真隐式先验。",
+      "llm_tags": [
+        "query:eeg-latent"
+      ],
+      "matched_query_tag": "query:eeg-latent",
+      "matched_query_text": "EEG latent space representation",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.28202v1",
+      "source": "arxiv",
+      "title": "An Enhanced Source-Free Unsupervised Domain Adaptation Framework for Cross-Dataset EEG Emotion Recognition via Predictive Coding and Test-Time Training",
+      "abstract": "EEG-based emotion recognition is widely used in affective computing but suffers from poor generalization due to domain shifts caused by inter-subject variability, dataset differences, and recording conditions, especially in cross-dataset settings. Conventional unsupervised domain adaptation methods require source data, which is often unavailable due to privacy constraints. Although source-free UDA addresses this limitation, existing methods still struggle with large domain gaps, noisy pseudo-labels, and unstable adaptation. To address these challenges, we propose an enhanced source-free unsupervised domain adaptation (SF-UDA) framework for cross-dataset EEG emotion recognition. The framework introduces a non-contrastive predictive coding-based self-supervised pretraining strategy to learn robust and transferable EEG representations by modeling temporal dependencies in a reconstruction-based manner. During adaptation, we estimate target-domain structure through class-wise clustering and prediction disagreement, and optimize the model using a dual-stage strategy consisting of Multi-Loss Adaptive Regularization and Localized Consistency Learning, improving stability and neighborhood consistency under noisy pseudo-labels. We also propose a lightweight test-time training mechanism that enables selective online updates for uncertain samples using predictive reconstruction loss and entropy minimization. Experiments on DEAP, SEED, and DREAMER show consistent improvements over state-of-the-art SF-UDA methods, achieving 69.56% and 63.03% accuracy on SEED and DREAMER when trained on DEAP, and 61.38% and 68.90% when trained on SEED.",
+      "authors": [
+        "Md Niaz Imtiaz",
+        "Naimul Khan"
+      ],
+      "primary_category": "eess.SP",
+      "categories": [
+        "eess.SP"
+      ],
+      "published": "2026-06-26T15:50:56+00:00",
+      "link": "https://arxiv.org/pdf/2606.28202v1",
+      "tags": [
+        "keyword:eeg",
+        "keyword:eeg-latent",
+        "query:eeg",
+        "query:eeg-latent"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "EEG emotion recognition with domain adaptation",
+      "llm_evidence_cn": "EEG情绪识别与域适应",
+      "llm_evidence": "EEG情绪识别与域适应",
+      "canonical_evidence": "EEG情绪识别与域适应",
+      "llm_tldr_en": "Proposes a source-free unsupervised domain adaptation framework for cross-dataset EEG emotion recognition, using predictive coding and test-time training to handle domain shifts.",
+      "llm_tldr_cn": "该文针对跨数据集EEG情绪识别中的域偏移问题，提出一种增强的无源无监督域适应框架。结合预测编码和测试时训练，有效缓解了大数据域差异、伪标签噪声和不稳定适应，在多个跨数据集实验中提升了识别准确率，为EEG脑电信号处理提供了实用的域泛化方法。",
+      "llm_tldr": "该文针对跨数据集EEG情绪识别中的域偏移问题，提出一种增强的无源无监督域适应框架。结合预测编码和测试时训练，有效缓解了大数据域差异、伪标签噪声和不稳定适应，在多个跨数据集实验中提升了识别准确率，为EEG脑电信号处理提供了实用的域泛化方法。",
+      "llm_tags": [
+        "query:eeg"
+      ],
+      "matched_query_tag": "query:eeg",
+      "matched_query_text": "electroencephalogram signal processing and analysis",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

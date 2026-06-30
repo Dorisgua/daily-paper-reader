@@ -1,0 +1,54 @@
+{
+  "label": "2026-06-30",
+  "date": "2026-06-30",
+  "generated_at": "2026-06-30T22:19:12",
+  "count": 3,
+  "papers": [
+    {
+      "paper_id": "202606/30/2606.30104v1-temporal-feature-extractors-in-eeg-foundation-models-a-controlled-comparison-including-a-pretrained-time-series-model",
+      "section": "deep",
+      "title_en": "Temporal Feature Extractors in EEG Foundation Models: A Controlled Comparison Including a Pretrained Time-Series Model",
+      "authors": "Ayşe Betül Yüce, Chris Joey Leffler, Sarun Varghese, Myra Spiliopoulou, Sebastian Stober",
+      "date": "2026-06-29",
+      "pdf": "https://arxiv.org/pdf/2606.30104v1",
+      "score": "8.0",
+      "evidence": "比较EEG基础模型中的时间特征提取器，用于潜在表示学习",
+      "tldr": "EEG基础模型旨在从大规模脑电中学习通用表征，但时序特征提取器的作用及预训练时序基础模型（TSFM）的迁移性尚不明确。本文在统一EEG基础模型中对比了线性基线、卷积编码器和冻结TSFM（MOMENT）三种时序提取策略。在运动想象任务上简单表征表现竞争力，而情绪识别任务中丰富时序建模更优。结果表明，通用时序表示可作为冻结提取器有效迁移至EEG域，为基础模型设计提供新思路。",
+      "tags": "query:eeg-latent",
+      "abstract_en": "Electroencephalography (EEG) foundation models aim to learn generalizable representations from large-scale brain recordings. However, the role of temporal feature extractors and whether pretrained time-series foundation models (TSFMs) can be effectively transferred to this setting remains underexplored. We conduct a controlled comparison of three temporal feature extraction strategies, including a linear baseline, a convolutional encoder, and a frozen pretrained TSFM (MOMENT), within a unified EEG foundation model. We evaluate their impact on representation quality using two downstream tasks: motor imagery and emotion recognition. Results reveal different trends across the evaluated benchmarks. On the motor imagery dataset, simple temporal representations perform competitively, whereas the emotion dataset benefits from richer temporal modeling. Although not specifically adapted to EEG, the pretrained TSFM serves as an effective temporal feature extractor, suggesting that general-purpose time-series representations can be transferred as frozen temporal feature extractors within EEG foundation models.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/30/2606.27862v1-scale-inr-scale-and-learn-implicit-neural-representations",
+      "section": "quick",
+      "title_en": "ScaLe-INR: Scale and Learn Implicit Neural Representations",
+      "authors": "Buwaneka Epakanda, Athulya Ratnayake, Pandula Thennakoon, Mario De Silva, Avishka Ranasinghe, Roshan Godaliyadda, Parakrama Ekanayake",
+      "date": "2026-06-26",
+      "pdf": "https://arxiv.org/pdf/2606.27862v1",
+      "score": "6.0",
+      "evidence": "隐式神经表示可建模连续信号，可作为EEG潜在空间表示",
+      "tldr": "隐式神经表示受频谱偏差和信息串扰困扰，单网络难以同时学习多尺度信号。本文提出ScaLe-INR多分支架构，通过方向坐标缩放匹配信号频谱，并设计方向边缘引导损失约束高频分支作为局部边缘滤波器，从而消除串扰。在图像重建、去噪、音频和3D重建任务上分别达到+5.16 dB、+0.65 dB、50.02 dB和0.999 IOU，全面超越现有方法。该工作为多尺度连续信号建模提供了高效解耦方案。",
+      "tags": "query:eeg-latent",
+      "abstract_en": "Implicit Neural Representations (INRs) parameterized by multilayer perceptrons excel at modeling continuous signals. However, a key challenge persists as INRs fundamentally suffer from spectral bias and information cross-talk. When a single network attempts to capture multi-scale phenomena, high-frequency weight updates destructively interfere with the underlying low-frequency structural approximation. We introduce Scale and Learn INR (ScaLe-INR), a novel multi-branch architecture that resolves these limitations by explicitly matching the signal's frequency spectrum with the optimal operating region of the INR. Drawing upon the Fourier inverse scaling theorem we demonstrate that applying directional coordinate scaling expands a network's representational bandwidth along specific spatial axes. To mathematically enforce functional disentanglement and minimize task-specific information leakage between branches, we propose a Directional Edge Guidance Loss, a spatially-conditioned sparsity prior derived from ground-truth gradients. By constraining the high-frequency branches to act as strict, localized edge-filters, ScaLe-INR eliminates spectral cross-talk, accelerates convergence, and achieves high-fidelity signal reconstruction on complex multi-scale topologies. We evaluate ScaLe-INR across diverse reconstruction and inverse tasks, demonstrating substantial performance gains over existing state-of-the-art (SOTA) methods. The proposed architecture improves upon the nearest baselines by +5.16 dB in image reconstruction and +0.65 dB in image denoising. Furthermore, it achieve an impressive figure of 50.02 dB on audio reconstruction and 0.999 IOU(Intersection Over Union) on 3D reconstruction which beats the all SOTA models.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/30/2606.28202v1-an-enhanced-source-free-unsupervised-domain-adaptation-framework-for-cross-dataset-eeg-emotion-recognition-via-predictive-coding-and-test-time-training",
+      "section": "quick",
+      "title_en": "An Enhanced Source-Free Unsupervised Domain Adaptation Framework for Cross-Dataset EEG Emotion Recognition via Predictive Coding and Test-Time Training",
+      "authors": "Md Niaz Imtiaz, Naimul Khan",
+      "date": "2026-06-26",
+      "pdf": "https://arxiv.org/pdf/2606.28202v1",
+      "score": "6.0",
+      "evidence": "EEG情绪识别与域适应",
+      "tldr": "跨数据集EEG情感识别中，域漂移和源数据不可用导致现有无源无监督域适应方法效果不佳。本文提出增强框架，采用基于非对比预测编码的自监督预训练学习鲁棒表示，通过类聚类和预测不一致估计目标域结构，并引入双阶段策略（多损失自适应正则化、局部一致性学习）提升稳定性，结合轻量测试时训练处理不确定样本。在DEAP、SEED、DREAMER上分别达到69.56%、63.03%和61.38%、68.90%准确率，显著优于现有方法。",
+      "tags": "query:eeg",
+      "abstract_en": "EEG-based emotion recognition is widely used in affective computing but suffers from poor generalization due to domain shifts caused by inter-subject variability, dataset differences, and recording conditions, especially in cross-dataset settings. Conventional unsupervised domain adaptation methods require source data, which is often unavailable due to privacy constraints. Although source-free UDA addresses this limitation, existing methods still struggle with large domain gaps, noisy pseudo-labels, and unstable adaptation. To address these challenges, we propose an enhanced source-free unsupervised domain adaptation (SF-UDA) framework for cross-dataset EEG emotion recognition. The framework introduces a non-contrastive predictive coding-based self-supervised pretraining strategy to learn robust and transferable EEG representations by modeling temporal dependencies in a reconstruction-based manner. During adaptation, we estimate target-domain structure through class-wise clustering and prediction disagreement, and optimize the model using a dual-stage strategy consisting of Multi-Loss Adaptive Regularization and Localized Consistency Learning, improving stability and neighborhood consistency under noisy pseudo-labels. We also propose a lightweight test-time training mechanism that enables selective online updates for uncertain samples using predictive reconstruction loss and entropy minimization. Experiments on DEAP, SEED, and DREAMER show consistent improvements over state-of-the-art SF-UDA methods, achieving 69.56% and 63.03% accuracy on SEED and DREAMER when trained on DEAP, and 61.38% and 68.90% when trained on SEED.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
